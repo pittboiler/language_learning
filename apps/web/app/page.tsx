@@ -10,7 +10,7 @@ import * as srs from "@ll/core/srs";
 import * as leveling from "@ll/core/leveling";
 import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
-import { localStore, emptyProgress, type Progress } from "../lib/store";
+import { getStore, emptyProgress, type Progress } from "../lib/store";
 
 type View = "letters" | "scenario" | "grammar" | "reading" | "review";
 
@@ -22,7 +22,7 @@ const grammarDrills: ReviewItem[] = mk.grammar.flatMap((c) => c.drills.map((d) =
 const reviewPool: ReviewItem[] = [...mk.vocab, ...grammarDrills];
 
 export default function Home() {
-  const store = useMemo(() => localStore(), []);
+  const store = useMemo(() => getStore(), []);
   const [progress, setProgress] = useState<Progress>(emptyProgress());
   const [ready, setReady] = useState(false);
   const [config, setConfig] = useState<api.Config | null>(null);
