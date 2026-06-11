@@ -26,6 +26,7 @@ export interface Verdict {
   confidence: Confidence; // "validated" if it passes; stays "unreviewed" (gated) if not
   issues: string[];
   corrected?: string; // suggested correction when ok=false
+  costUsd: number;
 }
 
 function validatorSystem(ctx: ValidatorContext): string {
@@ -35,7 +36,7 @@ function validatorSystem(ctx: ValidatorContext): string {
 3. Naturalness — a native speaker would actually say this, not a calque.
 4. Beginner-appropriateness — simple, high-frequency, level-appropriate.
 ${ctx.referenceStyle ? `\nMatch the register and style of this hand-authored reference:\n${ctx.referenceStyle}\n` : ""}
-Be strict: if ANYTHING is off, set ok=false, list specific issues, and give a corrected version. Only set ok=true if the item is fully correct, natural, and level-appropriate. Better to flag a borderline item than to pass a wrong one — a beginner can't catch invisible errors.`;
+Be strict: if ANYTHING is off, set ok=false, list specific issues, and give a corrected version. Only set ok=true if the item is fully correct, natural, and level-appropriate. If the item is already correct, leave "corrected" as an EMPTY string — do NOT echo the original back as the correction. Better to flag a genuinely wrong item than to pass it — a beginner can't catch invisible errors.`;
 }
 
 const VALIDATOR_SCHEMA: Record<string, unknown> = {
@@ -63,7 +64,7 @@ export async function validate(items: ValidatableItem[], ctx: ValidatorContext):
     ]
       .filter(Boolean)
       .join("\n");
-    const { data } = await structuredCall<{ ok: boolean; issues: string[]; corrected: string }>({
+    const { data, costUsd } = await structuredCall<{ ok: boolean; issues: string[]; corrected: string }>({
       model: MODELS.offline,
       system: validatorSystem(ctx),
       user,
@@ -72,21 +73,27 @@ export async function validate(items: ValidatableItem[], ctx: ValidatorContext):
       thinking: true,
       maxTokens: 2000,
     });
+    // Guard against the critic flagging a correct item while echoing the original as its "correction".
+    const fix = (data.corrected || "").trim();
+    const isRealFix = fix.length > 0 && fix !== item.text.trim();
+    const ok = data.ok || !isRealFix;
     verdicts.push({
       itemId: item.id,
-      ok: data.ok,
-      confidence: data.ok ? "validated" : "unreviewed",
-      issues: data.issues,
-      corrected: data.corrected || undefined,
+      ok,
+      confidence: ok ? "validated" : "unreviewed",
+      issues: ok ? [] : data.issues,
+      corrected: ok ? undefined : fix,
+      costUsd,
     });
   }
   return verdicts;
 }
 
 /** Convenience: how many items passed vs were flagged for human spot-check. */
-export function summarize(verdicts: Verdict[]): { validated: number; flagged: number } {
+export function summarize(verdicts: Verdict[]): { validated: number; flagged: number; costUsd: number } {
   return {
     validated: verdicts.filter((v) => v.ok).length,
     flagged: verdicts.filter((v) => !v.ok).length,
+    costUsd: verdicts.reduce((s, v) => s + v.costUsd, 0),
   };
 }

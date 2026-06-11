@@ -83,6 +83,9 @@ importers:
       '@ll/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@ll/pack-mk':
+        specifier: workspace:*
+        version: link:../packages/pack-mk
       '@ll/pack-schema':
         specifier: workspace:*
         version: link:../packages/pack-schema
