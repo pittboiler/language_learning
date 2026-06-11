@@ -10,6 +10,10 @@ create table if not exists public.user_state (
 alter table public.user_state enable row level security;
 
 -- Each user (including anonymous sessions) can only touch their own row.
+-- drop-then-create makes this whole file safe to re-run (fixes a stale PostgREST schema cache).
+drop policy if exists "own state read"   on public.user_state;
+drop policy if exists "own state insert" on public.user_state;
+drop policy if exists "own state update" on public.user_state;
 create policy "own state read"   on public.user_state for select using (auth.uid() = user_id);
 create policy "own state insert" on public.user_state for insert with check (auth.uid() = user_id);
 create policy "own state update" on public.user_state for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
@@ -18,3 +22,6 @@ create policy "own state update" on public.user_state for update using (auth.uid
 insert into storage.buckets (id, name, public)
 values ('tts-cache', 'tts-cache', true)
 on conflict (id) do nothing;
+
+-- Force PostgREST to reload its schema cache so the REST API sees the table immediately.
+notify pgrst, 'reload schema';
