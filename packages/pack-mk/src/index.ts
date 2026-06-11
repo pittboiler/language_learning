@@ -6,6 +6,11 @@ import { readers } from "./readers.js";
 import { writingTasks } from "./writing.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
 import { smallTalk } from "./scenarios/small-talk.js";
+import { generatedScenarios, generatedVocab } from "./generated.js";
+
+// Promoted from the offline generation batch after Jake's spot-check (unreviewed → validated).
+const promotedScenarios = generatedScenarios.map((s) => ({ ...s, confidence: "validated" as const }));
+const promotedVocab = generatedVocab.map((v) => ({ ...v, confidence: "validated" as const }));
 
 /** The Macedonian language pack — DATA ONLY. No app logic lives here. */
 export const macedonian: LanguagePack = {
@@ -19,8 +24,8 @@ export const macedonian: LanguagePack = {
   alphabet,
   phonology,
   grammar,
-  vocab,
-  scenarios: [orderADrink, smallTalk],
+  vocab: [...vocab, ...promotedVocab],
+  scenarios: [orderADrink, smallTalk, ...promotedScenarios],
   readers,
   srsSeed: vocab.slice(0, 6),
   writingTasks,
