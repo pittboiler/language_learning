@@ -1,0 +1,21 @@
+{
+  "name": "@ll/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@ll/core": "workspace:*",
+    "@ll/pack-mk": "workspace:*",
+    "@ll/pack-schema": "workspace:*",
+    "@anthropic-ai/sdk": "^0.104.1",
+    "@google-cloud/speech": "^7.3.2",
+    "next": "^15.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  }
+}

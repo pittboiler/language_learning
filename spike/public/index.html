@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Macedonian — Phase 1</title>
+<style>
+  :root { --bg:#0f1115; --card:#181b22; --line:#2a2f3a; --fg:#e6e8ee; --mut:#9aa3b2;
+          --ok:#3fb950; --warn:#d29922; --bad:#f85149; --accent:#4c8eff; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,Segoe UI,Roboto,sans-serif; }
+  header { padding:16px 24px; border-bottom:1px solid var(--line); display:flex; gap:14px; align-items:baseline; flex-wrap:wrap; }
+  header h1 { font-size:17px; margin:0; }
+  .badges { margin-left:auto; display:flex; gap:8px; }
+  .badge { font-size:12px; padding:2px 8px; border-radius:99px; border:1px solid var(--line); color:var(--mut); }
+  .badge.on { color:var(--ok); border-color:var(--ok); } .badge.off { color:var(--bad); border-color:var(--bad); }
+  nav { display:flex; gap:6px; padding:12px 24px 0; max-width:920px; margin:0 auto; flex-wrap:wrap; }
+  nav button { background:transparent; border:1px solid var(--line); border-bottom:none; color:var(--mut); padding:9px 14px; border-radius:10px 10px 0 0; cursor:pointer; font:inherit; }
+  nav button.active { color:var(--fg); background:var(--card); border-color:var(--line); }
+  nav button .dot { color:var(--ok); }
+  main { max-width:920px; margin:0 auto; padding:0 24px 48px; }
+  .view { background:var(--card); border:1px solid var(--line); border-radius:0 12px 12px 12px; padding:24px; }
+  h2 { margin:0 0 4px; font-size:18px; } h3 { margin:18px 0 6px; font-size:15px; } .lead { color:var(--mut); margin:0 0 18px; }
+  button.btn { background:var(--accent); border:0; color:#fff; padding:9px 16px; border-radius:8px; cursor:pointer; font:inherit; }
+  button.ghost { background:transparent; border:1px solid var(--line); color:var(--fg); padding:8px 14px; border-radius:8px; cursor:pointer; font:inherit; }
+  button.rec { background:var(--bad); border:0; color:#fff; } button:disabled { opacity:.4; cursor:not-allowed; }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; } .muted { color:var(--mut); } .small { font-size:13px; }
+  .letters { display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px; margin:8px 0 20px; }
+  .letter { border:1px solid var(--line); border-radius:10px; padding:12px; background:var(--bg); } .letter.done { border-color:var(--ok); }
+  .letter .g { font-size:34px; font-weight:600; line-height:1; } .letter .n { color:var(--accent); font-size:13px; } .letter .s { color:var(--mut); font-size:12px; margin:3px 0; }
+  .letter .ex { font-size:13px; margin-top:5px; } .letter .acts { display:flex; gap:6px; margin-top:9px; } .letter .acts button { font-size:12px; padding:3px 8px; }
+  .tag { font-size:10px; padding:1px 5px; border-radius:99px; border:1px solid var(--line); margin-left:4px; }
+  .tag.uniq { color:var(--ok); border-color:var(--ok); } .tag.ff { color:var(--warn); border-color:var(--warn); }
+  .picker { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+  .picker button { border:1px solid var(--line); background:var(--bg); color:var(--fg); padding:8px 12px; border-radius:8px; cursor:pointer; font:inherit; } .picker button.active { border-color:var(--accent); color:var(--accent); }
+  .check { display:flex; gap:8px; flex-wrap:wrap; margin:0 0 18px; }
+  .crit { font-size:12px; padding:3px 10px; border-radius:99px; border:1px solid var(--line); color:var(--mut); } .crit.met { color:var(--ok); border-color:var(--ok); }
+  .bubble { padding:12px 14px; border-radius:12px; max-width:88%; margin:8px 0; }
+  .bubble.partner { background:#1d2330; border:1px solid var(--line); } .bubble.learner { background:#23262f; margin-left:auto; }
+  .bubble .gloss { color:var(--mut); font-size:13px; margin-top:4px; } .bubble .corr { color:var(--warn); font-size:13px; margin-top:6px; }
+  .spk { background:transparent; border:1px solid var(--line); color:var(--fg); padding:2px 7px; font-size:12px; border-radius:6px; cursor:pointer; margin-right:6px; }
+  .target { font-size:26px; font-weight:600; } .translit { color:var(--accent); }
+  .panels { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:12px 0; }
+  .panel { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:10px; } .panel .lab { font-size:12px; color:var(--mut); display:flex; justify-content:space-between; } .panel .val { margin-top:4px; }
+  .fb { background:var(--bg); border:1px solid var(--line); border-radius:10px; padding:14px; margin-top:12px; } .fb .line { margin:5px 0; }
+  .pill { display:inline-block; font-size:12px; padding:1px 7px; border-radius:99px; margin:2px 4px 2px 0; border:1px solid var(--line); }
+  .pill.correct { color:var(--ok); border-color:var(--ok); } .pill.mispronounced,.pill.uncertain { color:var(--warn); border-color:var(--warn); } .pill.wrong,.pill.missed { color:var(--bad); border-color:var(--bad); }
+  .flag { border-left:3px solid var(--warn); padding:8px 12px; background:rgba(210,153,34,.08); border-radius:6px; margin-top:10px; font-size:13px; }
+  .meta { font-size:12px; color:var(--mut); margin-top:8px; } .err { color:var(--bad); font-size:13px; margin-top:8px; }
+  .chip { font-size:13px; padding:6px 10px; } .spin { color:var(--mut); font-size:13px; margin-top:8px; }
+  .banner { background:rgba(76,142,255,.1); border:1px solid var(--line); border-radius:8px; padding:10px 12px; margin-bottom:16px; font-size:14px; }
+  .done-card { text-align:center; padding:20px; }
+  .concept { border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px; background:var(--bg); }
+  .opt { border:1px solid var(--line); background:var(--card); color:var(--fg); padding:8px 14px; border-radius:8px; cursor:pointer; font:inherit; margin:4px 6px 0 0; }
+  .opt.right { border-color:var(--ok); color:var(--ok); } .opt.wrong { border-color:var(--bad); color:var(--bad); } .why { font-size:13px; color:var(--mut); margin-top:8px; }
+  .rline { padding:10px 12px; border:1px solid var(--line); border-radius:8px; margin:8px 0; background:var(--bg); cursor:pointer; } .rmk { font-size:17px; } .rg { color:var(--mut); font-size:13px; margin-top:6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>🇲🇰 Macedonian</h1>
+  <span class="muted small" id="level">Loading…</span>
+  <div class="badges" id="badges"></div>
+</header>
+<nav>
+  <button data-view="letters" class="active">① Letters <span class="dot" id="navLettersDot"></span></button>
+  <button data-view="scenario">② Scenarios <span class="dot" id="navScenarioDot"></span></button>
+  <button data-view="grammar">③ Grammar</button>
+  <button data-view="reading">④ Reading</button>
+  <button data-view="review">⑤ Review <span class="dot" id="navReviewDot"></span></button>
+</nav>
+<main>
+  <section class="view" id="view-letters"></section>
+  <section class="view" id="view-scenario" style="display:none"></section>
+  <section class="view" id="view-grammar" style="display:none"></section>
+  <section class="view" id="view-reading" style="display:none"></section>
+  <section class="view" id="view-review" style="display:none"></section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let config = null, pack = null;
+const state = JSON.parse(localStorage.getItem("ll-mk-p1") || "{}");
+state.letters ||= {}; state.scenarios ||= {}; state.review ||= {}; state.pick ||= null;
+const save = () => localStorage.setItem("ll-mk-p1", JSON.stringify(state));
+
+function makeRecorder() {
+  let mr, chunks = [], stream;
+  return {
+    async start() {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mime = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm";
+      mr = new MediaRecorder(stream, { mimeType: mime }); chunks = [];
+      mr.ondataavailable = (e) => e.data.size && chunks.push(e.data); mr.start();
+    },
+    stop() { return new Promise((res) => { mr.onstop = () => { stream.getTracks().forEach((t) => t.stop()); res(new Blob(chunks, { type: "audio/webm" })); }; mr.stop(); }); },
+  };
+}
+async function playTts(text, speed = 1) {
+  const r = await fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, speed }) });
+  if (!r.ok) throw new Error((await r.json()).error);
+  new Audio(URL.createObjectURL(await r.blob())).play();
+}
+async function transcribe(blob) { const fd = new FormData(); fd.append("audio", blob, "rec.webm"); return (await fetch("/api/asr", { method: "POST", body: fd })).json(); }
+
+function showView(name) {
+  for (const v of ["letters", "scenario", "grammar", "reading", "review"]) $("view-" + v).style.display = v === name ? "block" : "none";
+  document.querySelectorAll("nav button").forEach((b) => b.classList.toggle("active", b.dataset.view === name));
+  ({ letters: renderLetters, scenario: renderScenario, grammar: renderGrammar, reading: renderReading, review: renderReview })[name]();
+}
+document.querySelectorAll("nav button").forEach((b) => (b.onclick = () => showView(b.dataset.view)));
+
+async function init() {
+  config = await (await fetch("/api/config")).json();
+  const mk = (l, on) => `<span class="badge ${on ? "on" : "off"}">${l} ${on ? "✓" : "✗"}</span>`;
+  $("badges").innerHTML = mk("Scribe", config.engines.eleven) + mk("Google", config.engines.google) + mk("Claude", config.engines.anthropic);
+  pack = await (await fetch("/api/pack")).json();
+  state.pick ||= pack.scenarios[0].id;
+  refreshDots();
+  showView(lettersDone() ? "scenario" : "letters");
+}
+const focusLetters = () => pack.alphabet.filter((a) => a.unique || a.falseFriend);
+const lettersDone = () => pack && focusLetters().every((a) => state.letters[a.glyph]);
+function refreshDots() {
+  $("navLettersDot").textContent = lettersDone() ? "✓" : "";
+  const s = curScenario(), p = sp();
+  $("navScenarioDot").textContent = s ? `${s.criteria.filter((x) => p.met[x.id]).length}/${s.criteria.length}` : "";
+  const due = dueReview().length; $("navReviewDot").textContent = due ? String(due) : "";
+  renderLevel();
+}
+// ---- light i+1 leveling: a level estimate + the next best activity ----
+function renderLevel() {
+  if (!pack) return;
+  const f = focusLetters(), lk = f.filter((a) => state.letters[a.glyph]).length;
+  let met = 0; for (const id in state.scenarios) met += Object.keys(state.scenarios[id].met || {}).length;
+  let boxes = 0; for (const id in state.review) boxes += state.review[id].box || 0;
+  const xp = lk * 5 + met * 10 + boxes * 3;
+  const band = xp < 40 ? "pre-A1" : xp < 150 ? "A1" : "A2";
+  let next;
+  if (!lettersDone()) next = "learn the focus letters";
+  else {
+    const inc = pack.scenarios.find((s) => { const p = state.scenarios[s.id]; return !p || s.criteria.some((c) => !(p.met || {})[c.id]); });
+    const due = dueReview().length;
+    next = inc ? `do "${inc.title}"` : due ? `review ${due} due` : "read or free-chat";
+  }
+  $("level").textContent = `Level ${band} · ${xp} XP · Next: ${next}`;
+}
+
+// ---------- view 1: letters (full alphabet, focus-gated) ----------
+function renderLetters() {
+  const v = $("view-letters");
+  v.innerHTML = `<h2>The Macedonian alphabet — 31 letters</h2>
+    <p class="lead">Spelling is phonetic: one letter, one sound. Most map to sounds you know — focus on the
+      <span style="color:var(--ok)">7 unique</span> letters and the <span style="color:var(--warn)">false friends</span> that look Latin but sound different. Tap 🔊 to hear any example.</p>
+    <div class="letters">${pack.alphabet.map(letterCard).join("")}</div>
+    <div class="row"><button class="btn" id="lettersNext">Done with the focus letters → scenarios</button><span class="muted small" id="lettersCount"></span></div>`;
+  pack.alphabet.forEach((a) => {
+    const pb = v.querySelector(`[data-play="${a.glyph}"]`); if (pb) pb.onclick = () => playTts(a.example, 0.7).catch(() => {});
+    const gb = v.querySelector(`[data-got="${a.glyph}"]`); if (gb) gb.onclick = () => { state.letters[a.glyph] = !state.letters[a.glyph]; save(); renderLetters(); refreshDots(); };
+  });
+  const f = focusLetters();
+  $("lettersCount").textContent = `${f.filter((a) => state.letters[a.glyph]).length}/${f.length} focus letters known`;
+  $("lettersNext").onclick = () => showView("scenario");
+}
+function letterCard(a) {
+  const focus = a.unique || a.falseFriend, done = state.letters[a.glyph];
+  const tag = a.unique ? `<span class="tag uniq">unique</span>` : a.falseFriend ? `<span class="tag ff">looks Latin</span>` : "";
+  return `<div class="letter ${done ? "done" : ""}"><div class="g">${a.glyph}</div><div class="n">${a.name}${tag}</div><div class="s">${a.sound}</div>
+    <div class="ex">${a.example} <span class="muted small">· ${a.exampleGloss}</span></div>
+    <div class="acts"><button class="ghost" data-play="${a.glyph}">🔊</button>${focus ? `<button class="ghost" data-got="${a.glyph}">${done ? "✓ known" : "got it"}</button>` : ""}</div></div>`;
+}
+
+// ---------- view 2: scenarios ----------
+const curScenario = () => pack.scenarios.find((s) => s.id === state.pick) || pack.scenarios[0];
+function sp() { const id = curScenario().id; state.scenarios[id] ||= { turn: 0, met: {} }; return state.scenarios[id]; }
+function renderScenario() {
+  const v = $("view-scenario"); const s = curScenario(); const p = sp();
+  const picker = `<div class="picker">${pack.scenarios.map((x) => `<button class="${x.id === s.id ? "active" : ""}" data-pick="${x.id}">${x.title}</button>`).join("")}</div>`;
+  const checklist = s.criteria.map((c) => `<span class="crit ${p.met[c.id] ? "met" : ""}">${p.met[c.id] ? "✓ " : ""}${c.label}</span>`).join("");
+  const banner = lettersDone() ? "" : `<div class="banner">Tip: finish <b>① Letters</b> first — but practice here anyway (transliteration is shown).</div>`;
+  const head = `${picker}${banner}<h2>${s.title}</h2><p class="lead">${s.goal} — <span class="muted">${s.setting}</span></p><div class="check">${checklist}</div>`;
+  if (p.turn >= s.turns.length) { v.innerHTML = head + completionHtml(); wirePicker(v); wireCompletion(); return; }
+  v.innerHTML = head + `<div id="turnArea"></div><div class="row" style="margin-top:14px"><button class="ghost" id="restart">↺ Restart</button></div>`;
+  wirePicker(v);
+  $("restart").onclick = () => { state.scenarios[s.id] = { turn: 0, met: {} }; save(); refreshDots(); renderScenario(); };
+  const turn = s.turns[p.turn];
+  turn.speaker === "partner" ? renderPartnerTurn(turn) : renderLearnerTurn(turn);
+}
+function wirePicker(v) { v.querySelectorAll("[data-pick]").forEach((b) => (b.onclick = () => { state.pick = b.dataset.pick; save(); refreshDots(); renderScenario(); })); }
+function advance() { sp().turn++; save(); refreshDots(); renderScenario(); }
+function markMet(turn) { (turn.criteria || []).forEach((id) => (sp().met[id] = true)); save(); refreshDots(); }
+function renderPartnerTurn(turn) {
+  $("turnArea").innerHTML = `<div class="bubble partner"><div><button class="spk" id="spk">🔊</button>${turn.text}</div><div class="gloss">${turn.gloss}</div></div>
+    <div class="row"><button class="btn" id="cont">Continue →</button></div>`;
+  $("spk").onclick = () => playTts(turn.text, 0.85).catch(() => {});
+  $("cont").onclick = advance; playTts(turn.text, 0.85).catch(() => {});
+}
+function renderLearnerTurn(turn) {
+  $("turnArea").innerHTML = `<p class="muted small">🐢 Speak slowly and clearly — recognition (and your pronunciation) both improve with deliberate pacing.</p>
+    <p class="muted small">Your turn — say:</p>
+    <div class="target">${turn.text}</div><div class="translit">${turn.translit}</div><div class="muted">${turn.gloss}</div>
+    <div class="row" style="margin-top:12px">
+      <button class="ghost" id="play">▶︎ Play native</button><button class="ghost" id="slow">🐢 Slow</button>
+      <button class="btn" id="rec">⏺ Record</button><button class="ghost" id="skip">Skip / I said it ✓</button></div>
+    <div id="turnResult"></div><div class="spin" id="turnSpin"></div><div class="err" id="turnErr"></div>`;
+  $("play").onclick = () => playTts(turn.text, 1).catch((e) => ($("turnErr").textContent = e.message));
+  $("slow").onclick = () => playTts(turn.text, 0.7).catch((e) => ($("turnErr").textContent = e.message));
+  $("skip").onclick = () => { markMet(turn); advance(); };
+  const rec = makeRecorder(); let recording = false;
+  $("rec").onclick = async () => {
+    if (!recording) { await rec.start(); recording = true; $("rec").textContent = "⏹ Stop"; $("rec").classList.add("rec"); return; }
+    recording = false; $("rec").textContent = "⏺ Record"; $("rec").classList.remove("rec"); await coachTurn(turn, await rec.stop());
+  };
+}
+async function coachTurn(turn, blob) {
+  $("turnErr").textContent = ""; $("turnResult").innerHTML = ""; $("turnSpin").textContent = "Transcribing…";
+  try {
+    const asr = await transcribe(blob); if (asr.error) throw new Error(asr.error);
+    const fmt = (e) => e ? (e.ok ? e.text || "(empty)" : "⚠ " + e.error) : "(off)";
+    $("turnResult").innerHTML = `<div class="panels">
+      <div class="panel"><div class="lab"><span>Scribe</span><span>${asr.eleven?.ok ? asr.eleven.ms + "ms" : ""}</span></div><div class="val">${fmt(asr.eleven)}</div></div>
+      <div class="panel"><div class="lab"><span>Google</span><span>${asr.google?.ok ? asr.google.ms + "ms" : ""}</span></div><div class="val">${fmt(asr.google)}</div></div></div>`;
+    if (config.engines.anthropic) {
+      $("turnSpin").textContent = "Coaching…";
+      const fb = await (await fetch("/api/feedback", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target: { cyrillic: turn.text, translit: turn.translit, english: turn.gloss }, transcriptEleven: asr.eleven?.text, transcriptGoogle: asr.google?.text }) })).json();
+      if (fb.error) throw new Error(fb.error); $("turnResult").innerHTML += feedbackHtml(fb);
+    }
+    markMet(turn);
+    $("turnResult").innerHTML += `<div class="row" style="margin-top:12px"><button class="btn" id="next">Next →</button></div>`;
+    $("next").onclick = advance;
+  } catch (e) { $("turnErr").textContent = e.message; } finally { $("turnSpin").textContent = ""; }
+}
+function feedbackHtml(fb) {
+  const d = fb.data; const flag = d.asrCaveat?.likelyAsrError ? `<div class="flag">⚠ <b>Likely ASR error:</b> ${d.asrCaveat.explanation}</div>` : "";
+  return `<div class="fb"><div class="line"><b>${d.score}/100</b> ${d.overall}</div>
+    <div class="line">${(d.words || []).map((w) => `<span class="pill ${w.status}" title="${(w.note || "").replace(/"/g, "'")}">${w.target} · ${w.status}</span>`).join("")}</div>
+    <div class="line"><span class="muted">Stress:</span> ${d.stress}</div><div class="line"><span class="muted">Tip:</span> ${d.tip}</div>${flag}
+    <div class="meta">Claude ${fb.ms}ms · ~$${fb.costUsd}</div></div>`;
+}
+function completionHtml() {
+  return `<div class="done-card"><h2>Наздравје! 🍻 Done</h2><p class="lead">Now keep the conversation going — say anything.</p></div>
+    <div id="convo"></div><div class="row" id="suggestions"></div>
+    <div class="row" style="margin-top:10px"><button class="btn" id="convRec">⏺ Speak a turn</button>
+      <input id="convText" placeholder="…or type a turn, press Enter" style="flex:1;min-width:180px;background:var(--bg);border:1px solid var(--line);border-radius:8px;color:inherit;padding:9px 10px" /></div>
+    <div class="spin" id="convSpin"></div><div class="err" id="convErr"></div>`;
+}
+const convHistory = [];
+function wireCompletion() {
+  renderSuggestions([{ mk: "Многу добро!", en: "Very good!" }, { mk: "Колку чини?", en: "How much is it?" }, { mk: "Фала, чао!", en: "Thanks, bye!" }]);
+  const rec = makeRecorder(); let recording = false;
+  $("convRec").onclick = async () => {
+    if (!recording) { await rec.start(); recording = true; $("convRec").textContent = "⏹ Stop"; $("convRec").classList.add("rec"); return; }
+    recording = false; $("convRec").textContent = "⏺ Speak a turn"; $("convRec").classList.remove("rec"); $("convSpin").textContent = "Transcribing…";
+    try { const asr = await transcribe(await rec.stop()); const t = asr.eleven?.text || asr.google?.text || ""; if (!t) throw new Error("No transcript — closer to the mic"); await sendTurn(t); }
+    catch (e) { $("convErr").textContent = e.message; } finally { $("convSpin").textContent = ""; }
+  };
+  $("convText").addEventListener("keydown", (e) => { if (e.key === "Enter") { const t = e.target.value.trim(); if (t) { e.target.value = ""; sendTurn(t); } } });
+}
+function renderSuggestions(list) {
+  const c = $("suggestions"); if (!c) return; c.innerHTML = ""; if (!list || !list.length) return;
+  const lab = document.createElement("span"); lab.className = "muted small"; lab.textContent = "Try saying:"; c.appendChild(lab);
+  list.forEach((s) => { const b = document.createElement("button"); b.className = "ghost chip"; b.innerHTML = `${s.mk} <span class="muted">· ${s.en}</span>`; b.onclick = () => sendTurn(s.mk); c.appendChild(b); });
+}
+function addBubble(who, text, gloss, corr) {
+  const el = document.createElement("div"); el.className = "bubble " + (who === "user" ? "learner" : "partner");
+  el.innerHTML = who === "bot" ? `<div><button class="spk">🔊</button>${text}</div>` : `<div>${text}</div>`;
+  if (gloss) el.innerHTML += `<div class="gloss">${gloss}</div>`;
+  if (corr) el.innerHTML += `<div class="corr">✎ <b>correction:</b> ${corr}</div>`;
+  $("convo").appendChild(el);
+  if (who === "bot") el.querySelector(".spk").onclick = () => playTts(text, 0.9).catch(() => {});
+  el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+async function sendTurn(text) {
+  $("convErr").textContent = ""; renderSuggestions([]); addBubble("user", text); convHistory.push({ role: "user", text }); $("convSpin").textContent = "Replying…";
+  try {
+    const r = await (await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ userText: text, history: convHistory.slice(0, -1) }) })).json();
+    if (r.error) throw new Error(r.error);
+    addBubble("bot", r.data.replyMk, r.data.replyGloss, r.data.correction); convHistory.push({ role: "bot", text: r.data.replyMk });
+    playTts(r.data.replyMk, 0.9).catch(() => {}); renderSuggestions(r.data.suggestions);
+  } catch (e) { $("convErr").textContent = e.message; } finally { $("convSpin").textContent = ""; }
+}
+
+// ---------- view 3: grammar ----------
+function renderGrammar() {
+  const v = $("view-grammar");
+  v.innerHTML = `<h2>Grammar that matters</h2><p class="lead">Macedonian dropped the Slavic case system — so we drill what's actually distinctive. Answer a drill and it enters your spaced review.</p>${pack.grammar.map(conceptHtml).join("")}`;
+  pack.grammar.forEach((c) => c.drills.forEach((d) => wireDrill(v, d)));
+}
+function conceptHtml(c) {
+  return `<div class="concept"><h3>${c.name}</h3><p class="small">${c.explain}</p><p class="small muted">${c.examples.join(" · ")}</p>
+    ${c.drills.map((d) => `<div class="drill" data-drill="${d.id}"><div class="small" style="margin:8px 0 4px"><b>${d.prompt}</b></div>
+      <div>${d.options.map((o) => `<button class="opt" data-opt="${o}">${o}</button>`).join("")}</div><div class="why" id="why-${d.id}"></div></div>`).join("")}</div>`;
+}
+function wireDrill(v, d) {
+  const box = v.querySelector(`[data-drill="${d.id}"]`);
+  box.querySelectorAll(".opt").forEach((b) => (b.onclick = () => {
+    const correct = b.dataset.opt === d.answer;
+    box.querySelectorAll(".opt").forEach((x) => { x.disabled = true; if (x.dataset.opt === d.answer) x.classList.add("right"); });
+    if (!correct) b.classList.add("wrong");
+    $("why-" + d.id).textContent = (correct ? "✓ " : "✗ ") + d.why;
+    grade(d.id, correct ? 1 : 0); refreshDots();
+  }));
+}
+
+// ---------- view 4: reading ----------
+function renderReading() {
+  const v = $("view-reading"); const r = pack.readers[0];
+  v.innerHTML = `<h2>Reading — ${r.title} <span class="muted small">· ${r.titleGloss}</span></h2>
+    <p class="lead">Read each line aloud; tap a line to reveal its meaning, 🔊 to hear it.</p>
+    <div>${r.lines.map((l, i) => `<div class="rline" data-i="${i}"><button class="spk" data-hear="${i}">🔊</button><span class="rmk">${l.mk}</span><div class="rg" id="rg-${i}" style="display:none">${l.gloss}</div></div>`).join("")}</div>`;
+  r.lines.forEach((l, i) => {
+    v.querySelector(`[data-hear="${i}"]`).onclick = (e) => { e.stopPropagation(); playTts(l.mk, 0.85).catch(() => {}); };
+    v.querySelector(`.rline[data-i="${i}"]`).onclick = () => { const g = $("rg-" + i); g.style.display = g.style.display === "none" ? "block" : "none"; };
+  });
+}
+
+// ---------- view 5: review (unified SRS over phrases + grammar) ----------
+function reviewPool() {
+  const phrases = pack.reviewItems.map((it) => ({ ...it, kind: "phrase" }));
+  const gram = pack.grammar.flatMap((c) => c.drills.map((d) => ({ ...d, kind: "grammar", concept: c.name })));
+  return [...phrases, ...gram];
+}
+function dueReview() { const now = Date.now(); return reviewPool().filter((it) => !state.review[it.id] || state.review[it.id].due <= now); }
+let rQueue = [], rIdx = 0;
+function renderReview() {
+  const v = $("view-review"); rQueue = dueReview(); rIdx = 0;
+  if (!rQueue.length) { v.innerHTML = `<h2>Review</h2><p class="lead">Nothing due — you're caught up. Do a scenario or a grammar drill to add items.</p>`; return; }
+  v.innerHTML = `<h2>Review <span class="muted small">· ${rQueue.length} due</span></h2><p class="lead">Recall before you reveal.</p><div id="card"></div>`;
+  renderCard();
+}
+function renderCard() {
+  if (rIdx >= rQueue.length) { renderReview(); return; }
+  const it = rQueue[rIdx];
+  if (it.kind === "phrase") {
+    $("card").innerHTML = `<div class="fb"><div class="muted small">Say in Macedonian:</div><div style="font-size:20px;margin:6px 0">${it.english}</div><div id="reveal"><button class="btn" id="rev">Reveal</button></div></div>`;
+    $("rev").onclick = () => {
+      $("reveal").innerHTML = `<div class="target" style="font-size:22px">${it.cyrillic}</div><div class="translit">${it.translit}</div>
+        <div class="row" style="margin-top:10px"><button class="ghost" id="hear">🔊 hear</button><button class="ghost" id="again">Again</button><button class="btn" id="good">Good</button></div>`;
+      $("hear").onclick = () => playTts(it.cyrillic, 0.8).catch(() => {});
+      $("again").onclick = () => { grade(it.id, 0); nextCard(); }; $("good").onclick = () => { grade(it.id, 1); nextCard(); };
+    };
+  } else {
+    $("card").innerHTML = `<div class="fb"><div class="muted small">${it.concept}</div><div style="font-size:18px;margin:6px 0"><b>${it.prompt}</b></div><div id="opts">${it.options.map((o) => `<button class="opt" data-opt="${o}">${o}</button>`).join("")}</div><div class="why" id="why"></div></div>`;
+    $("opts").querySelectorAll(".opt").forEach((b) => (b.onclick = () => {
+      const correct = b.dataset.opt === it.answer;
+      $("opts").querySelectorAll(".opt").forEach((x) => { x.disabled = true; if (x.dataset.opt === it.answer) x.classList.add("right"); });
+      if (!correct) b.classList.add("wrong");
+      $("why").innerHTML = (correct ? "✓ " : "✗ ") + it.why + ` <button class="btn" id="next" style="margin-left:8px">Next →</button>`;
+      grade(it.id, correct ? 1 : 0); $("next").onclick = nextCard;
+    }));
+  }
+}
+function nextCard() { rIdx++; refreshDots(); renderCard(); }
+function grade(id, g) {
+  const cur = state.review[id] || { box: 0 };
+  const box = g ? cur.box + 1 : 0; const days = [0, 1, 3, 7, 16][Math.min(box, 4)];
+  state.review[id] = { box, due: Date.now() + days * 864e5 }; save();
+}
+
+init();
+</script>
+</body>
+</html>

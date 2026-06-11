@@ -1,0 +1,9 @@
+{
+  "name": "languages",
+  "private": true,
+  "type": "module",
+  "description": "Conversation-first language learning — Macedonian-first, language-agnostic core.",
+  "scripts": {
+    "dev": "pnpm --filter @ll/web dev"
+  }
+}

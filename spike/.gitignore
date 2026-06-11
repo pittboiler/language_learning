@@ -1,0 +1,5 @@
+node_modules/
+.env
+gcp-stt-key.json
+*-key.json
+recordings/
