@@ -2,17 +2,18 @@
 // Phase 0-1 UI ported from spike/public/index.html into React, on @ll/core + @ll/pack-mk.
 // Pure engines (scenario/srs/leveling) run client-side; paid calls (tts/asr/feedback/chat) hit the
 // server route handlers that hold the keys.
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { macedonian as mk } from "@ll/pack-mk";
 import type { DialogueTurn, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as srs from "@ll/core/srs";
 import * as leveling from "@ll/core/leveling";
+import * as session from "@ll/core/session";
 import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 
-type View = "letters" | "scenario" | "grammar" | "reading" | "review" | "write";
+type View = "session" | "letters" | "scenario" | "grammar" | "reading" | "review" | "write";
 
 const focusLetters = () => mk.alphabet.filter((a) => a.unique || a.falseFriend);
 const play = (text: string, speed = 1) => api.playTts(text, speed).catch(() => {});
@@ -34,7 +35,7 @@ export default function Home() {
       if (!p.pick) p.pick = mk.scenarios[0]!.id;
       setProgress(p);
       setReady(true);
-      setView(focusLetters().every((a) => p.letters[a.glyph]) ? "scenario" : "letters");
+      setView(focusLetters().every((a) => p.letters[a.glyph]) ? "session" : "letters");
       api.getConfig().then(setConfig).catch(() => {});
     })();
   }, [store]);
@@ -91,6 +92,7 @@ export default function Home() {
       </header>
       <nav>
         {([
+          ["session", "▶ Session"],
           ["letters", `① Letters ${lettersDone ? "✓" : ""}`],
           ["scenario", "② Scenarios"],
           ["grammar", "③ Grammar"],
@@ -102,6 +104,17 @@ export default function Home() {
         ))}
       </nav>
       <main>
+        {view === "session" && (
+          <Session
+            progress={progress}
+            persist={persist}
+            config={config}
+            onNavigate={(v, sid) => {
+              if (sid) persist({ ...progress, pick: sid });
+              setView(v);
+            }}
+          />
+        )}
         {view === "letters" && <Letters progress={progress} persist={persist} onDone={() => setView("scenario")} />}
         {view === "scenario" && <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} />}
         {view === "grammar" && <Grammar progress={progress} persist={persist} />}
@@ -473,6 +486,177 @@ function Reading() {
         ))}
       </div>
     </section>
+  );
+}
+
+// ---------- interleaved session (mixes review / speak / grammar / read / write / glyph) ----------
+function Session({ progress, persist, config, onNavigate }: {
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  onNavigate: (view: View, scenarioId?: string) => void;
+}) {
+  const plan = useMemo(() => {
+    const now = new Date();
+    const dueReviewIds = reviewPool.filter((it) => { const st = progress.reviews[it.id]; return !st || new Date(st.due) <= now; }).map((it) => it.id);
+    const unknownGlyphs = focusLetters().filter((a) => !progress.letters[a.glyph]).map((a) => a.glyph);
+    const completedScenarioIds = mk.scenarios
+      .filter((s) => { const p = progress.scenarios[s.id]; return !!p && s.successCriteria.every((c) => p.metCriteria.includes(c.id)); })
+      .map((s) => s.id);
+    return session.buildSession({ dueReviewIds, lettersDone: unknownGlyphs.length === 0, unknownGlyphs, completedScenarioIds }, mk, { size: 8 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const [idx, setIdx] = useState(0);
+  const next = () => setIdx((i) => i + 1);
+
+  if (plan.activities.length === 0)
+    return <section className="view"><h2>Session</h2><p className="lead">Nothing to practice right now — you're caught up. 🎉 Add items via a scenario or grammar drill.</p></section>;
+  if (idx >= plan.activities.length)
+    return <section className="view"><h2>Session complete 🎉</h2><p className="lead">{plan.activities.length} activities done — nicely interleaved. Come back later for more.</p><button className="btn" onClick={() => setIdx(0)}>Go again</button></section>;
+
+  const act = plan.activities[idx]!;
+  return (
+    <section className="view">
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <h2>Session <span className="muted small">· {idx + 1}/{plan.activities.length} · ~{plan.estMinutes} min</span></h2>
+        <button className="ghost small" onClick={next}>Skip →</button>
+      </div>
+      <p className="lead muted small">Interleaved practice — a mix of review, speaking, grammar, reading and writing rather than one block at a time.</p>
+      <SessionStep key={idx} act={act} progress={progress} persist={persist} config={config} onDone={next} onNavigate={onNavigate} />
+    </section>
+  );
+}
+
+function Tag({ children }: { children: ReactNode }) {
+  return <div className="muted small" style={{ marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{children}</div>;
+}
+function AutoSkip({ onDone }: { onDone: () => void }) {
+  useEffect(() => { onDone(); }, [onDone]);
+  return null;
+}
+
+function SessionStep({ act, progress, persist, config, onDone, onNavigate }: {
+  act: session.Activity;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  onDone: () => void;
+  onNavigate: (view: View, scenarioId?: string) => void;
+}) {
+  const gradeReview = (item: ReviewItem, ok: boolean) => {
+    const st = progress.reviews[item.id] ?? srs.initState("local", item.id);
+    persist({ ...progress, reviews: { ...progress.reviews, [item.id]: srs.schedule(st, ok ? "good" : "again") } });
+    onDone();
+  };
+
+  switch (act.kind) {
+    case "review": {
+      const item = reviewPool.find((i) => i.id === act.ref);
+      if (!item) return <AutoSkip onDone={onDone} />;
+      return <div><Tag>Review</Tag>{item.kind === "grammar"
+        ? <GrammarCard item={item} onGrade={(ok) => gradeReview(item, ok)} />
+        : <PhraseCard item={item} onGrade={(ok) => gradeReview(item, ok)} />}</div>;
+    }
+    case "grammar": {
+      const concept = mk.grammar.find((c) => c.id === act.ref);
+      const drill = concept?.drills[0];
+      if (!drill) return <AutoSkip onDone={onDone} />;
+      return <div><Tag>Grammar · {concept!.name}</Tag><GrammarCard item={drill} onGrade={(ok) => gradeReview(drill, ok)} /></div>;
+    }
+    case "glyph": {
+      const g = mk.alphabet.find((a) => a.glyph === act.ref);
+      if (!g) return <AutoSkip onDone={onDone} />;
+      return (
+        <div><Tag>Letter</Tag>
+          <div className="fb">
+            <div className="target">{g.glyph}</div>
+            <div className="translit">{g.name} · {g.sound}</div>
+            <div className="ex" style={{ marginTop: 4 }}>{g.examples[0]?.text} <span className="muted small">· {g.examples[0]?.gloss}</span></div>
+            <div className="row" style={{ marginTop: 10 }}>
+              <button className="ghost" onClick={() => g.examples[0] && play(g.examples[0].text, 0.7)}>🔊 hear</button>
+              <button className="btn" onClick={() => { persist({ ...progress, letters: { ...progress.letters, [g.glyph]: true } }); onDone(); }}>Got it →</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    case "reading": {
+      const r = mk.readers.find((x) => x.id === act.ref);
+      const line = r?.body[0];
+      if (!line) return <AutoSkip onDone={onDone} />;
+      return <div><Tag>Reading · {r!.title}</Tag><ReadingLine line={line} onDone={onDone} /></div>;
+    }
+    case "writing": {
+      const task = (mk.writingTasks ?? []).find((t) => t.id === act.ref);
+      if (!task) return <AutoSkip onDone={onDone} />;
+      return <div><Tag>Writing</Tag><InlineWriting task={task} config={config} onDone={onDone} /></div>;
+    }
+    case "scenario": {
+      const s = mk.scenarios.find((x) => x.id === act.ref);
+      if (!s) return <AutoSkip onDone={onDone} />;
+      return (
+        <div><Tag>Speaking</Tag>
+          <div className="fb">
+            <div className="line"><b>{s.title}</b> — {s.goal}</div>
+            <div className="row" style={{ marginTop: 10 }}>
+              <button className="btn" onClick={() => onNavigate("scenario", s.id)}>Practice in Scenarios →</button>
+              <button className="ghost" onClick={onDone}>Skip →</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+    default:
+      return <AutoSkip onDone={onDone} />;
+  }
+}
+
+function ReadingLine({ line, onDone }: { line: DialogueTurn; onDone: () => void }) {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <div className="fb">
+      <div className="row"><button className="spk" onClick={() => play(line.text, 0.85)}>🔊</button><span className="rmk">{line.text}</span></div>
+      {revealed ? <div className="rg">{line.gloss}</div> : <button className="ghost" style={{ marginTop: 8 }} onClick={() => setRevealed(true)}>Reveal meaning</button>}
+      <div className="row" style={{ marginTop: 10 }}><button className="btn" onClick={onDone}>Next →</button></div>
+    </div>
+  );
+}
+
+function InlineWriting({ task, config, onDone }: { task: { id: string; prompt: string }; config: api.Config | null; onDone: () => void }) {
+  const [text, setText] = useState("");
+  const [spin, setSpin] = useState(false);
+  const [result, setResult] = useState<api.WriteResponse | null>(null);
+  const [err, setErr] = useState("");
+  const submit = async () => {
+    if (!text.trim()) return;
+    setErr("");
+    setSpin(true);
+    try {
+      const r = await api.writeCorrect(text, task.id);
+      if (r.error) throw new Error(r.error);
+      setResult(r);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSpin(false);
+    }
+  };
+  return (
+    <div className="fb">
+      <div className="line"><b>Task:</b> {task.prompt}</div>
+      <textarea className="text" style={{ width: "100%", minHeight: 60 }} placeholder="Write in Macedonian…" value={text} onChange={(e) => setText(e.target.value)} />
+      <div className="row" style={{ marginTop: 8 }}>
+        <button className="btn" onClick={submit} disabled={spin || !config?.engines.anthropic}>{spin ? "Checking…" : "Check"}</button>
+        <button className="ghost" onClick={onDone}>Next →</button>
+      </div>
+      {err && <div className="err">{err}</div>}
+      {result && (
+        <div className="line" style={{ marginTop: 8 }}>
+          {result.isCorrect ? "✓ " : ""}{result.overall}
+          {!result.isCorrect && <> <span className="muted">→</span> <span className="target" style={{ fontSize: 16 }}>{result.corrected}</span></>}
+        </div>
+      )}
+    </div>
   );
 }
 

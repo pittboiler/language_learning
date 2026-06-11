@@ -2,6 +2,7 @@
 export * as llm from "./llm/index.js";
 export * as srs from "./srs/index.js";
 export * as scenario from "./scenario/index.js";
+export * as session from "./session/index.js";
 export * as speaking from "./speaking/index.js";
 export * as tutor from "./tutor/index.js";
 export * as writing from "./writing/index.js";

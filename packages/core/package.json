@@ -9,6 +9,7 @@
     ".": "./src/index.ts",
     "./srs": "./src/srs/index.ts",
     "./scenario": "./src/scenario/index.ts",
+    "./session": "./src/session/index.ts",
     "./leveling": "./src/leveling/index.ts",
     "./speaking": "./src/speaking/index.ts",
     "./tutor": "./src/tutor/index.ts",
