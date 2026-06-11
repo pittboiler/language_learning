@@ -89,3 +89,24 @@ export async function chat(
     })
   ).json();
 }
+
+export interface WriteResponse {
+  corrected: string;
+  isCorrect: boolean;
+  issues: { original: string; fix: string; why: string }[];
+  overall: string;
+  encouragement: string;
+  ms: number;
+  costUsd: number;
+  error?: string;
+}
+
+export async function writeCorrect(attempt: string, taskId: string): Promise<WriteResponse> {
+  return (
+    await fetch("/api/write", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ attempt, taskId }),
+    })
+  ).json();
+}

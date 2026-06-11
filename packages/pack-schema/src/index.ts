@@ -109,6 +109,16 @@ export interface Reader {
   confidence: Confidence;
 }
 
+/** A short prompted-production task for the writing subsystem. `prompt` is an English instruction;
+ *  the learner produces the target language, which the tutor then corrects. */
+export interface WritingTask {
+  id: string;
+  prompt: string; // English instruction, e.g. "Order a coffee and ask the price"
+  targetConcepts?: string[]; // GrammarConcept ids it exercises
+  i1Level: number;
+  confidence?: Confidence;
+}
+
 export type AsrEngine = "scribe" | "google";
 
 export interface AsrConfig {
@@ -131,4 +141,5 @@ export interface LanguagePack {
   scenarios: Scenario[];
   readers: Reader[];
   srsSeed: ReviewItem[];
+  writingTasks?: WritingTask[];
 }

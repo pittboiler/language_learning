@@ -12,7 +12,7 @@ import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 
-type View = "letters" | "scenario" | "grammar" | "reading" | "review";
+type View = "letters" | "scenario" | "grammar" | "reading" | "review" | "write";
 
 const focusLetters = () => mk.alphabet.filter((a) => a.unique || a.falseFriend);
 const play = (text: string, speed = 1) => api.playTts(text, speed).catch(() => {});
@@ -96,6 +96,7 @@ export default function Home() {
           ["grammar", "③ Grammar"],
           ["reading", "④ Reading"],
           ["review", `⑤ Review ${dueCount ? dueCount : ""}`],
+          ["write", "⑥ Write"],
         ] as [View, string][]).map(([v, label]) => (
           <button key={v} className={view === v ? "active" : ""} onClick={() => setView(v)}>{label}</button>
         ))}
@@ -106,6 +107,7 @@ export default function Home() {
         {view === "grammar" && <Grammar progress={progress} persist={persist} />}
         {view === "reading" && <Reading />}
         {view === "review" && <Review progress={progress} persist={persist} />}
+        {view === "write" && <Writing config={config} />}
       </main>
     </>
   );
@@ -470,6 +472,74 @@ function Reading() {
           </div>
         ))}
       </div>
+    </section>
+  );
+}
+
+// ---------- view 6: writing (prompted production + correction-why) ----------
+function Writing({ config }: { config: api.Config | null }) {
+  const tasks = mk.writingTasks ?? [];
+  const [taskId, setTaskId] = useState(tasks[0]?.id ?? "");
+  const [text, setText] = useState("");
+  const [spin, setSpin] = useState(false);
+  const [err, setErr] = useState("");
+  const [result, setResult] = useState<api.WriteResponse | null>(null);
+  const task = tasks.find((t) => t.id === taskId);
+
+  const submit = async () => {
+    if (!text.trim() || !task) return;
+    setErr("");
+    setResult(null);
+    setSpin(true);
+    try {
+      const r = await api.writeCorrect(text, task.id);
+      if (r.error) throw new Error(r.error);
+      setResult(r);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSpin(false);
+    }
+  };
+
+  return (
+    <section className="view">
+      <h2>Writing</h2>
+      <p className="lead">Short production with correction that explains <i>why</i>. Pick a task, write it in Macedonian, and submit.</p>
+      <div className="picker">
+        {tasks.map((t) => (
+          <button key={t.id} className={t.id === taskId ? "active" : ""} onClick={() => { setTaskId(t.id); setText(""); setResult(null); }}>{t.prompt}</button>
+        ))}
+      </div>
+      {task && <p className="lead"><b>Task:</b> {task.prompt}</p>}
+      <textarea
+        className="text"
+        style={{ width: "100%", minHeight: 70 }}
+        placeholder="Write in Macedonian…"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <div className="row" style={{ marginTop: 10 }}>
+        <button className="btn" onClick={submit} disabled={spin || !config?.engines.anthropic}>{spin ? "Checking…" : "Check my writing"}</button>
+        {!config?.engines.anthropic && <span className="muted small">Claude not configured</span>}
+      </div>
+      {err && <div className="err">{err}</div>}
+      {result && (
+        <div className="fb">
+          <div className="line">{result.isCorrect ? "✓ " : ""}{result.overall}</div>
+          {!result.isCorrect && (
+            <div className="line"><span className="muted">Corrected:</span> <span className="target" style={{ fontSize: 18 }}>{result.corrected}</span></div>
+          )}
+          {result.issues.map((it, i) => (
+            <div className="line" key={i}>
+              <span className="pill wrong">{it.original}</span> → <span className="pill correct">{it.fix}</span>
+              <div className="why">{it.why}</div>
+            </div>
+          ))}
+          <div className="line muted">{result.encouragement}</div>
+          <div className="meta">Claude {result.ms}ms · ~${result.costUsd}</div>
+        </div>
+      )}
     </section>
   );
 }

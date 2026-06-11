@@ -3,6 +3,7 @@ import { alphabet } from "./alphabet.js";
 import { phonology, grammar } from "./grammar.js";
 import { vocab } from "./vocab.js";
 import { readers } from "./readers.js";
+import { writingTasks } from "./writing.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
 import { smallTalk } from "./scenarios/small-talk.js";
 
@@ -22,6 +23,7 @@ export const macedonian: LanguagePack = {
   scenarios: [orderADrink, smallTalk],
   readers,
   srsSeed: vocab.slice(0, 6),
+  writingTasks,
 };
 
 export default macedonian;
