@@ -80,6 +80,9 @@ importers:
       '@anthropic-ai/sdk':
         specifier: ^0.104.1
         version: 0.104.1
+      '@ll/core':
+        specifier: workspace:*
+        version: link:../packages/core
       '@ll/pack-schema':
         specifier: workspace:*
         version: link:../packages/pack-schema
