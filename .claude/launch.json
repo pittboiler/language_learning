@@ -7,6 +7,12 @@
       "runtimeArgs": ["server.js"],
       "cwd": "spike",
       "port": 5050
+    },
+    {
+      "name": "web",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "pnpm@latest", "--filter", "@ll/web", "dev"],
+      "port": 3000
     }
   ]
 }

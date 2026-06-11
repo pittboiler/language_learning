@@ -5,5 +5,9 @@
   "description": "Conversation-first language learning — Macedonian-first, language-agnostic core.",
   "scripts": {
     "dev": "pnpm --filter @ll/web dev"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
   }
 }

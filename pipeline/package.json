@@ -6,6 +6,11 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "dependencies": {
-    "@ll/pack-schema": "workspace:*"
+    "@anthropic-ai/sdk": "^0.104.1",
+    "@ll/pack-schema": "workspace:*",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "tsx": "^4.22.4"
   }
 }

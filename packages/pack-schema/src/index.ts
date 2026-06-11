@@ -1,5 +1,10 @@
 // @ll/pack-schema — the contract between the language-agnostic core and any language pack.
 // Core depends on these shapes; a pack is just data conforming to them. NO logic, NO language data.
+//
+// Every field here is GENERIC: it describes a capability any language pack might use, never a fact
+// about a specific language. (e.g. `translit` is romanization for any non-Latin script; `unique`/
+// `falseFriend` are glyph-difficulty hints for any script onboarding.) This is what keeps
+// `packages/core` free of Macedonian — the Phase-3 Bulgarian test depends on it.
 
 export type Skill = "listening" | "speaking" | "reading" | "writing" | "alphabet";
 export type CefrBand = "pre-A1" | "A1" | "A2";
@@ -16,18 +21,40 @@ export interface ReviewItem {
   prompt: string; // what the learner is shown/asked
   answer: string; // expected production (target language)
   gloss: string; // English
+  /** Romanization of `answer` for learners who can't yet read the script (generic, optional). */
+  translit?: string;
+  /** Short pedagogical note (stress, usage) — surfaced to the learner and to the feedback prompt. */
+  note?: string;
   audioUrl?: string; // cached native TTS, produced offline by the pipeline
   i1Level: number; // for comprehensible-input (i+1) serving
   tags: string[];
+  /** Multiple-choice options for a drill item (generic; e.g. grammar drills). */
+  options?: string[];
+  /** Why the drill answer is correct — shown after answering (generic). */
+  why?: string;
+  /** Trust level for generated items; gated until reviewed. Omit ⇒ treated as authored pack data. */
+  confidence?: Confidence;
   /** Language-specific fields (gender, aspect, stress notes, …) live here so the schema stays generic. */
   meta?: Record<string, unknown>;
+}
+
+/** One example word for a glyph lesson. `text` is the word; gloss/translit are optional aids. */
+export interface GlyphExample {
+  text: string;
+  gloss?: string;
+  translit?: string;
 }
 
 export interface GlyphLesson {
   glyph: string; // e.g. "ѓ"
   name: string;
   sound: string; // informal IPA-ish description
-  examples: string[];
+  examples: GlyphExample[];
+  /** This glyph is one of the script's distinctive letters worth dedicated focus (generic hint). */
+  unique?: boolean;
+  /** Looks like a Latin letter but sounds different — a common beginner trap (generic hint). */
+  falseFriend?: boolean;
+  confidence?: Confidence;
 }
 
 export interface PhonologyRules {
@@ -42,12 +69,16 @@ export interface GrammarConcept {
   explanation: string;
   examples: string[];
   drills: ReviewItem[];
+  confidence?: Confidence;
 }
 
 export interface DialogueTurn {
   speaker: "learner" | "partner";
   text: string; // the line, in the target language
   gloss: string; // English
+  translit?: string; // romanization aid (generic)
+  /** Criterion ids this turn satisfies when the learner produces it (learner turns only). */
+  satisfies?: string[];
   audioUrl?: string;
 }
 
@@ -72,6 +103,7 @@ export interface Scenario {
 export interface Reader {
   id: string;
   title: string;
+  titleGloss?: string;
   i1Level: number;
   body: DialogueTurn[]; // graded lines with gloss
   confidence: Confidence;

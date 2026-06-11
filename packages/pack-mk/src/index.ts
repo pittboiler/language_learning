@@ -2,7 +2,9 @@ import type { LanguagePack } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
 import { phonology, grammar } from "./grammar.js";
 import { vocab } from "./vocab.js";
+import { readers } from "./readers.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
+import { smallTalk } from "./scenarios/small-talk.js";
 
 /** The Macedonian language pack — DATA ONLY. No app logic lives here. */
 export const macedonian: LanguagePack = {
@@ -17,8 +19,8 @@ export const macedonian: LanguagePack = {
   phonology,
   grammar,
   vocab,
-  scenarios: [orderADrink],
-  readers: [],
+  scenarios: [orderADrink, smallTalk],
+  readers,
   srsSeed: vocab.slice(0, 6),
 };
 
