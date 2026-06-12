@@ -18,6 +18,10 @@ create policy "own state read"   on public.user_state for select using (auth.uid
 create policy "own state insert" on public.user_state for insert with check (auth.uid() = user_id);
 create policy "own state update" on public.user_state for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- Table-level privileges for the API roles. RLS gates ROWS; without these GRANTs PostgREST hides the
+-- table from the anon/authenticated roles entirely ("not found in schema cache"). Required.
+grant select, insert, update, delete on public.user_state to anon, authenticated;
+
 -- Public bucket for cached TTS audio — populated OFFLINE by the pipeline (never at runtime).
 insert into storage.buckets (id, name, public)
 values ('tts-cache', 'tts-cache', true)
