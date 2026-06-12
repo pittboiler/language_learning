@@ -8,6 +8,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
     "@ll/core": "workspace:*",
+    "@ll/pack-bg": "workspace:*",
     "@ll/pack-mk": "workspace:*",
     "@ll/pack-schema": "workspace:*",
     "dotenv": "^17.4.2"

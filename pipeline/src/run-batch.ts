@@ -18,6 +18,7 @@ import { profile, type LanguageProfile } from "./profiler.js";
 import { generateAlphabet, generateGrammar, generateVocab, generateReader } from "./content.js";
 import { generateScenario, type Situation, type GenContext } from "./generator.js";
 import { validate, summarize, type ValidatableItem, type ValidatorContext, type Verdict } from "./validator.js";
+import { lintDrills, type DrillLintIssue } from "./lint.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const CODE = process.env.LANG_CODE || "bg";
@@ -118,6 +119,9 @@ async function main() {
   allVerdicts.push(...gramVerdicts);
   cost += summarize(gramVerdicts).costUsd;
   console.log(` · ${summarize(gramVerdicts).flagged} flagged  (running $${cost.toFixed(3)})`);
+  // Structural lint (free, no LLM): catches malformed multiple-choice the line Validator can't see.
+  const drillIssues = lintDrills(gram.data);
+  if (drillIssues.length) console.log(`  ⚠ ${drillIssues.length} structural drill issue(s) — see review-${CODE}.md`);
 
   // --- Vocab ---
   process.stdout.write(`• vocab … generating`);
@@ -169,7 +173,7 @@ async function main() {
   const allVocab: ReviewItem[] = [...voc.data, ...scenarioVocab];
   const flagged = allVerdicts.filter((v) => !v.ok);
   writeGenerated({ alphabet: alpha.data, phonology, grammar: gram.data, vocab: allVocab, scenarios, reader: read.data, verdicts: allVerdicts });
-  writeReview(prof.languageName, { alphabet: alpha.data.length, grammar: gram.data.length, vocab: allVocab.length, scenarios: scenarios.length, readerLines: read.data.body.length }, flagged, cost);
+  writeReview(prof.languageName, { alphabet: alpha.data.length, grammar: gram.data.length, vocab: allVocab.length, scenarios: scenarios.length, readerLines: read.data.body.length }, flagged, drillIssues, cost);
 
   console.log(`\n=== done · $${cost.toFixed(3)} total ===`);
   console.log(`  wrote packages/pack-${CODE}/src/generated.ts (gated, confidence:"unreviewed")`);
@@ -204,15 +208,20 @@ function writeGenerated(d: {
   writeFileSync(join(outDir, "generated.ts"), header + body);
 }
 
-function writeReview(lang: string, counts: Record<string, number>, flagged: Verdict[], cost: number) {
+function writeReview(lang: string, counts: Record<string, number>, flagged: Verdict[], drillIssues: DrillLintIssue[], cost: number) {
   const lines = [
     `# ${lang} generated content — spot-check queue`,
     ``,
     `Generated: ${counts.alphabet} alphabet letters · ${counts.grammar} grammar concepts · ${counts.vocab} vocab · ${counts.scenarios} scenarios · ${counts.readerLines}-line reader.`,
-    `**${flagged.length}** item(s) flagged by the Validator:`,
+    `**${flagged.length}** item(s) flagged by the Validator (content correctness):`,
     ``,
     ...flagged.map((v) => `- \`${v.itemId}\`: ${v.issues.join("; ")}${v.corrected ? `  → suggested: \`${v.corrected}\`` : ""}`),
     flagged.length === 0 ? `- (none flagged — but still needs a native review before promotion)` : ``,
+    ``,
+    `**${drillIssues.length}** structural drill issue(s) (malformed multiple-choice — the line Validator can't see these):`,
+    ``,
+    ...drillIssues.map((i) => `- \`${i.conceptId}/${i.drillId}\` [${i.kind}]: ${i.detail}`),
+    drillIssues.length === 0 ? `- (none)` : ``,
     ``,
     `Everything stays \`confidence:"unreviewed"\` and is NOT imported by the served pack until promoted. Total Opus cost: ~$${cost.toFixed(3)}.`,
   ];

@@ -92,6 +92,9 @@ importers:
       '@ll/core':
         specifier: workspace:*
         version: link:../packages/core
+      '@ll/pack-bg':
+        specifier: workspace:*
+        version: link:../packages/pack-bg
       '@ll/pack-mk':
         specifier: workspace:*
         version: link:../packages/pack-mk
