@@ -1,26 +1,45 @@
 "use client";
-// Phase 0-1 UI ported from spike/public/index.html into React, on @ll/core + @ll/pack-mk.
-// Pure engines (scenario/srs/leveling) run client-side; paid calls (tts/asr/feedback/chat) hit the
-// server route handlers that hold the keys.
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { macedonian as mk } from "@ll/pack-mk";
-import type { DialogueTurn, ReviewItem, Scenario } from "@ll/pack-schema";
+// Phase 0-1 UI ported from spike/public/index.html into React, on @ll/core + the ACTIVE language pack.
+// The pack is selected by id from the registry (progress.activePackId) and flows through context — the
+// UI reads the active pack, never a hardcoded language import. Pure engines (scenario/srs/leveling) run
+// client-side; paid calls (tts/asr/feedback/chat) hit the server route handlers that hold the keys.
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { DialogueTurn, LanguagePack, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as srs from "@ll/core/srs";
 import * as leveling from "@ll/core/leveling";
 import * as session from "@ll/core/session";
 import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
+import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 
 type View = "session" | "letters" | "scenario" | "grammar" | "reading" | "review" | "write";
 
-const focusLetters = () => mk.alphabet.filter((a) => a.unique || a.falseFriend);
-const play = (text: string, speed = 1) => api.playTts(text, speed).catch(() => {});
+// The active pack flows through context so every view reads the same selected language.
+const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
+const usePack = () => useContext(PackContext);
+/** Play TTS in the active pack's voice. Stable across renders (keyed on pack id). */
+function usePlay() {
+  const pack = usePack();
+  return useCallback((text: string, speed = 1) => api.playTts(text, speed, pack.id).catch(() => {}), [pack.id]);
+}
 
-// Flatten the SRS review pool: vocab phrases + grammar drills.
-const grammarDrills: ReviewItem[] = mk.grammar.flatMap((c) => c.drills.map((d) => ({ ...d, meta: { ...d.meta, concept: c.name } })));
-const reviewPool: ReviewItem[] = [...mk.vocab, ...grammarDrills];
+// Cosmetic flag per pack id (app-level only — not pack data).
+const FLAG: Record<string, string> = { mk: "🇲🇰", bg: "🇧🇬" };
+
+// The script's focus glyphs (unique + false-friends) for any pack.
+const focusLetters = (pack: LanguagePack) => pack.alphabet.filter((a) => a.unique || a.falseFriend);
+
+// The SRS review pool for a pack: vocab phrases + grammar drills (tagged with their concept name).
+const reviewPool = (pack: LanguagePack): ReviewItem[] => [
+  ...pack.vocab,
+  ...pack.grammar.flatMap((c) => c.drills.map((d) => ({ ...d, meta: { ...d.meta, concept: c.name } }))),
+];
+
+// A pack whose scenarios are all machine-generated + not yet native-reviewed (e.g. Bulgarian). The
+// design rule is "never serve unreviewed content as authoritative" — so we surface it in the UI.
+const packUnreviewed = (pack: LanguagePack) => pack.scenarios.length > 0 && pack.scenarios.every((s) => s.confidence === "unreviewed");
 
 export default function Home() {
   const store = useMemo(() => getStore(), []);
@@ -28,14 +47,16 @@ export default function Home() {
   const [ready, setReady] = useState(false);
   const [config, setConfig] = useState<api.Config | null>(null);
   const [view, setView] = useState<View>("letters");
+  const pack = useMemo(() => getPack(progress.activePackId), [progress.activePackId]);
 
   useEffect(() => {
     (async () => {
       const p = await store.load();
-      if (!p.pick) p.pick = mk.scenarios[0]!.id;
+      const loadedPack = getPack(p.activePackId);
+      if (!p.pick) p.pick = loadedPack.scenarios[0]!.id;
       setProgress(p);
       setReady(true);
-      setView(focusLetters().every((a) => p.letters[a.glyph]) ? "session" : "letters");
+      setView(focusLetters(loadedPack).every((a) => p.letters[a.glyph]) ? "session" : "letters");
       api.getConfig().then(setConfig).catch(() => {});
     })();
   }, [store]);
@@ -49,42 +70,55 @@ export default function Home() {
   );
 
   // ---- derived progress signals ----
-  const lettersDone = focusLetters().every((a) => progress.letters[a.glyph]);
+  const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   const dueCount = useMemo(() => {
     const now = new Date();
-    return reviewPool.filter((it) => {
+    return reviewPool(pack).filter((it) => {
       const st = progress.reviews[it.id];
       return !st || new Date(st.due) <= now;
     }).length;
-  }, [progress.reviews]);
+  }, [progress.reviews, pack]);
 
   const level = useMemo(() => {
-    const glyphsKnown = focusLetters().filter((a) => progress.letters[a.glyph]).length;
+    const glyphsKnown = focusLetters(pack).filter((a) => progress.letters[a.glyph]).length;
     const criteriaMet = Object.values(progress.scenarios).reduce((n, s) => n + s.metCriteria.length, 0);
     const reviewStrength = Object.keys(progress.reviews).length;
-    return leveling.currentLevel({ glyphsKnown, glyphsTotal: focusLetters().length, criteriaMet, reviewStrength });
-  }, [progress]);
+    return leveling.currentLevel({ glyphsKnown, glyphsTotal: focusLetters(pack).length, criteriaMet, reviewStrength });
+  }, [progress, pack]);
 
   const nextUp = useMemo(() => {
     if (!lettersDone) return "learn the focus letters";
-    const inc = mk.scenarios.find((s) => {
+    const inc = pack.scenarios.find((s) => {
       const p = progress.scenarios[s.id];
       return !p || s.successCriteria.some((c) => !p.metCriteria.includes(c.id));
     });
     if (inc) return `do "${inc.title}"`;
     return dueCount ? `review ${dueCount} due` : "read or free-chat";
-  }, [lettersDone, progress.scenarios, dueCount]);
+  }, [lettersDone, progress.scenarios, dueCount, pack]);
 
   if (!ready) return <main style={{ padding: 24 }}>Loading…</main>;
 
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
 
   return (
-    <>
+    <PackContext.Provider value={pack}>
       <header>
-        <h1>🇲🇰 Macedonian</h1>
+        <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
+        {packList().length > 1 && (
+          <select
+            className="lang-picker"
+            aria-label="Language"
+            value={pack.id}
+            onChange={(e) => persist({ ...progress, activePackId: e.target.value, pick: null })}
+          >
+            {packList().map((p) => (
+              <option key={p.id} value={p.id}>{(FLAG[p.id] ?? "🌐") + " " + p.name}</option>
+            ))}
+          </select>
+        )}
         <span className="muted small">Level {level.cefrBand} · Next: {nextUp}</span>
         <div className="badges">
+          {packUnreviewed(pack) && <span className="badge warn" title="Machine-generated content, pending native review — not yet authoritative">⚠ unreviewed</span>}
           {config
             ? [badge("Scribe", config.engines.eleven), badge("Google", config.engines.google), badge("Claude", config.engines.anthropic)]
             : <span className="muted small">…</span>}
@@ -122,24 +156,26 @@ export default function Home() {
         {view === "review" && <Review progress={progress} persist={persist} />}
         {view === "write" && <Writing config={config} />}
       </main>
-    </>
+    </PackContext.Provider>
   );
 }
 
 // ---------- view 1: letters ----------
 function Letters({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone: () => void }) {
+  const pack = usePack();
+  const play = usePlay();
   const toggle = (glyph: string) => persist({ ...progress, letters: { ...progress.letters, [glyph]: !progress.letters[glyph] } });
-  const f = focusLetters();
+  const f = focusLetters(pack);
   const known = f.filter((a) => progress.letters[a.glyph]).length;
   return (
     <section className="view">
-      <h2>The Macedonian alphabet — 31 letters</h2>
+      <h2>The {pack.name} alphabet — {pack.alphabet.length} letters</h2>
       <p className="lead">
-        Spelling is phonetic: one letter, one sound. Focus on the <span style={{ color: "var(--ok)" }}>7 unique</span> letters and
+        Spelling is phonetic: one letter, one sound. Focus on the <span style={{ color: "var(--ok)" }}>unique</span> letters and
         the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different. Tap 🔊 to hear any example.
       </p>
       <div className="letters">
-        {mk.alphabet.map((a) => {
+        {pack.alphabet.map((a) => {
           const focus = a.unique || a.falseFriend;
           const done = !!progress.letters[a.glyph];
           const ex = a.examples[0];
@@ -170,7 +206,8 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
 
 // ---------- view 2: scenarios ----------
 function ScenarioView({ progress, persist, config, lettersDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean }) {
-  const s = mk.scenarios.find((x) => x.id === progress.pick) || mk.scenarios[0]!;
+  const pack = usePack();
+  const s = pack.scenarios.find((x) => x.id === progress.pick) || pack.scenarios[0]!;
   const sp = progress.scenarios[s.id] || { turnIndex: 0, metCriteria: [] };
   const run: scenario.ScenarioRun = { scenarioId: s.id, turnIndex: sp.turnIndex, metCriteria: sp.metCriteria, done: sp.turnIndex >= s.script.length };
 
@@ -185,7 +222,7 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
   return (
     <section className="view">
       <div className="picker">
-        {mk.scenarios.map((x) => (
+        {pack.scenarios.map((x) => (
           <button key={x.id} className={x.id === s.id ? "active" : ""} onClick={() => setPick(x.id)}>{x.title}</button>
         ))}
       </div>
@@ -221,9 +258,10 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
 }
 
 function PartnerTurn({ turn, onContinue }: { turn: DialogueTurn; onContinue: () => void }) {
+  const play = usePlay();
   useEffect(() => {
     play(turn.text, 0.85);
-  }, [turn.text]);
+  }, [turn.text, play]);
   return (
     <div>
       <div className="bubble partner">
@@ -236,6 +274,8 @@ function PartnerTurn({ turn, onContinue }: { turn: DialogueTurn; onContinue: () 
 }
 
 function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void }) {
+  const pack = usePack();
+  const play = usePlay();
   const rec = useRef(makeRecorder());
   const [recording, setRecording] = useState(false);
   const [spin, setSpin] = useState("");
@@ -259,7 +299,7 @@ function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api
     const blob = await rec.current.stop();
     setSpin("Transcribing…");
     try {
-      const a = await api.asr(blob);
+      const a = await api.asr(blob, pack.id);
       if (a.error) throw new Error(a.error);
       setAsr(a);
       if (config?.engines.anthropic) {
@@ -267,6 +307,7 @@ function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api
         const f = await api.feedback(
           { answer: turn.text, translit: turn.translit, gloss: turn.gloss },
           { scribe: a.eleven?.text, google: a.google?.text },
+          pack.id,
         );
         if (f.error) throw new Error(f.error);
         setFb(f);
@@ -337,12 +378,13 @@ function FeedbackCard({ fb }: { fb: api.FeedbackResponse }) {
 }
 
 function Completion({ scenarioId, config }: { scenarioId: string; config: api.Config | null }) {
+  const pack = usePack();
+  const play = usePlay();
   const [history, setHistory] = useState<{ role: "learner" | "tutor"; text: string; gloss?: string; corr?: string }[]>([]);
-  const [suggestions, setSuggestions] = useState<{ text: string; gloss: string }[]>([
-    { text: "Многу добро!", gloss: "Very good!" },
-    { text: "Колку чини?", gloss: "How much is it?" },
-    { text: "Фала, чао!", gloss: "Thanks, bye!" },
-  ]);
+  // Seed response scaffolding from the active pack's phrase vocab (pack-driven — no language baked in).
+  const [suggestions, setSuggestions] = useState<{ text: string; gloss: string }[]>(() =>
+    pack.vocab.filter((v) => v.kind === "phrase").slice(0, 3).map((v) => ({ text: v.answer, gloss: v.gloss })),
+  );
   const [spin, setSpin] = useState("");
   const [err, setErr] = useState("");
   const [input, setInput] = useState("");
@@ -357,7 +399,7 @@ function Completion({ scenarioId, config }: { scenarioId: string; config: api.Co
     setHistory(nextHist);
     setSpin("Replying…");
     try {
-      const r = await api.chat(text, nextHist.map((h) => ({ role: h.role, text: h.text })), scenarioId);
+      const r = await api.chat(text, nextHist.map((h) => ({ role: h.role, text: h.text })), scenarioId, pack.id);
       if (r.error) throw new Error(r.error);
       setHistory((h) => [...h, { role: "tutor", text: r.reply, gloss: r.replyGloss, corr: r.correction }]);
       play(r.reply, 0.9);
@@ -377,7 +419,7 @@ function Completion({ scenarioId, config }: { scenarioId: string; config: api.Co
     setRecording(false);
     setSpin("Transcribing…");
     try {
-      const a = await api.asr(await rec.current.stop());
+      const a = await api.asr(await rec.current.stop(), pack.id);
       const t = a.eleven?.text || a.google?.text || "";
       if (!t) throw new Error("No transcript — closer to the mic");
       await send(t);
@@ -389,7 +431,7 @@ function Completion({ scenarioId, config }: { scenarioId: string; config: api.Co
 
   return (
     <div>
-      <div className="done-card"><h2>Наздравје! 🍻 Done</h2><p className="lead">Now keep the conversation going — say anything.</p></div>
+      <div className="done-card"><h2>🎉 Done</h2><p className="lead">Now keep the conversation going — say anything.</p></div>
       <div>
         {history.map((h, i) => (
           <div className={`bubble ${h.role === "learner" ? "learner" : "partner"}`} key={i}>
@@ -425,6 +467,7 @@ function Completion({ scenarioId, config }: { scenarioId: string; config: api.Co
 
 // ---------- view 3: grammar ----------
 function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+  const pack = usePack();
   const grade = (item: ReviewItem, correct: boolean) => {
     const st = progress.reviews[item.id] ?? srs.initState("local", item.id);
     const next = srs.schedule(st, correct ? "good" : "again");
@@ -433,8 +476,8 @@ function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progr
   return (
     <section className="view">
       <h2>Grammar that matters</h2>
-      <p className="lead">Macedonian dropped the Slavic case system — so we drill what's actually distinctive. Answer a drill and it enters your spaced review.</p>
-      {mk.grammar.map((c) => (
+      <p className="lead">We drill the grammar features that actually matter for {pack.name} — not a generic template. Answer a drill and it enters your spaced review.</p>
+      {pack.grammar.map((c) => (
         <div className="concept" key={c.id}>
           <h3>{c.name}</h3>
           <p className="small">{c.explanation}</p>
@@ -469,7 +512,9 @@ function Drill({ drill, onGrade }: { drill: ReviewItem; onGrade: (ok: boolean) =
 
 // ---------- view 4: reading ----------
 function Reading() {
-  const r = mk.readers[0];
+  const pack = usePack();
+  const play = usePlay();
+  const r = pack.readers[0];
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   if (!r) return <section className="view"><h2>Reading</h2><p className="lead">No readers yet.</p></section>;
   return (
@@ -496,16 +541,17 @@ function Session({ progress, persist, config, onNavigate }: {
   config: api.Config | null;
   onNavigate: (view: View, scenarioId?: string) => void;
 }) {
+  const pack = usePack();
   const plan = useMemo(() => {
     const now = new Date();
-    const dueReviewIds = reviewPool.filter((it) => { const st = progress.reviews[it.id]; return !st || new Date(st.due) <= now; }).map((it) => it.id);
-    const unknownGlyphs = focusLetters().filter((a) => !progress.letters[a.glyph]).map((a) => a.glyph);
-    const completedScenarioIds = mk.scenarios
+    const dueReviewIds = reviewPool(pack).filter((it) => { const st = progress.reviews[it.id]; return !st || new Date(st.due) <= now; }).map((it) => it.id);
+    const unknownGlyphs = focusLetters(pack).filter((a) => !progress.letters[a.glyph]).map((a) => a.glyph);
+    const completedScenarioIds = pack.scenarios
       .filter((s) => { const p = progress.scenarios[s.id]; return !!p && s.successCriteria.every((c) => p.metCriteria.includes(c.id)); })
       .map((s) => s.id);
-    return session.buildSession({ dueReviewIds, lettersDone: unknownGlyphs.length === 0, unknownGlyphs, completedScenarioIds }, mk, { size: 8 });
+    return session.buildSession({ dueReviewIds, lettersDone: unknownGlyphs.length === 0, unknownGlyphs, completedScenarioIds }, pack, { size: 8 });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pack]);
   const [idx, setIdx] = useState(0);
   const next = () => setIdx((i) => i + 1);
 
@@ -543,6 +589,8 @@ function SessionStep({ act, progress, persist, config, onDone, onNavigate }: {
   onDone: () => void;
   onNavigate: (view: View, scenarioId?: string) => void;
 }) {
+  const pack = usePack();
+  const play = usePlay();
   const gradeReview = (item: ReviewItem, ok: boolean) => {
     const st = progress.reviews[item.id] ?? srs.initState("local", item.id);
     persist({ ...progress, reviews: { ...progress.reviews, [item.id]: srs.schedule(st, ok ? "good" : "again") } });
@@ -551,20 +599,20 @@ function SessionStep({ act, progress, persist, config, onDone, onNavigate }: {
 
   switch (act.kind) {
     case "review": {
-      const item = reviewPool.find((i) => i.id === act.ref);
+      const item = reviewPool(pack).find((i) => i.id === act.ref);
       if (!item) return <AutoSkip onDone={onDone} />;
       return <div><Tag>Review</Tag>{item.kind === "grammar"
         ? <GrammarCard item={item} onGrade={(ok) => gradeReview(item, ok)} />
         : <PhraseCard item={item} onGrade={(ok) => gradeReview(item, ok)} />}</div>;
     }
     case "grammar": {
-      const concept = mk.grammar.find((c) => c.id === act.ref);
+      const concept = pack.grammar.find((c) => c.id === act.ref);
       const drill = concept?.drills[0];
       if (!drill) return <AutoSkip onDone={onDone} />;
       return <div><Tag>Grammar · {concept!.name}</Tag><GrammarCard item={drill} onGrade={(ok) => gradeReview(drill, ok)} /></div>;
     }
     case "glyph": {
-      const g = mk.alphabet.find((a) => a.glyph === act.ref);
+      const g = pack.alphabet.find((a) => a.glyph === act.ref);
       if (!g) return <AutoSkip onDone={onDone} />;
       return (
         <div><Tag>Letter</Tag>
@@ -581,18 +629,18 @@ function SessionStep({ act, progress, persist, config, onDone, onNavigate }: {
       );
     }
     case "reading": {
-      const r = mk.readers.find((x) => x.id === act.ref);
+      const r = pack.readers.find((x) => x.id === act.ref);
       const line = r?.body[0];
       if (!line) return <AutoSkip onDone={onDone} />;
       return <div><Tag>Reading · {r!.title}</Tag><ReadingLine line={line} onDone={onDone} /></div>;
     }
     case "writing": {
-      const task = (mk.writingTasks ?? []).find((t) => t.id === act.ref);
+      const task = (pack.writingTasks ?? []).find((t) => t.id === act.ref);
       if (!task) return <AutoSkip onDone={onDone} />;
       return <div><Tag>Writing</Tag><InlineWriting task={task} config={config} onDone={onDone} /></div>;
     }
     case "scenario": {
-      const s = mk.scenarios.find((x) => x.id === act.ref);
+      const s = pack.scenarios.find((x) => x.id === act.ref);
       if (!s) return <AutoSkip onDone={onDone} />;
       return (
         <div><Tag>Speaking</Tag>
@@ -612,6 +660,7 @@ function SessionStep({ act, progress, persist, config, onDone, onNavigate }: {
 }
 
 function ReadingLine({ line, onDone }: { line: DialogueTurn; onDone: () => void }) {
+  const play = usePlay();
   const [revealed, setRevealed] = useState(false);
   return (
     <div className="fb">
@@ -623,6 +672,7 @@ function ReadingLine({ line, onDone }: { line: DialogueTurn; onDone: () => void 
 }
 
 function InlineWriting({ task, config, onDone }: { task: { id: string; prompt: string }; config: api.Config | null; onDone: () => void }) {
+  const pack = usePack();
   const [text, setText] = useState("");
   const [spin, setSpin] = useState(false);
   const [result, setResult] = useState<api.WriteResponse | null>(null);
@@ -632,7 +682,7 @@ function InlineWriting({ task, config, onDone }: { task: { id: string; prompt: s
     setErr("");
     setSpin(true);
     try {
-      const r = await api.writeCorrect(text, task.id);
+      const r = await api.writeCorrect(text, task.id, pack.id);
       if (r.error) throw new Error(r.error);
       setResult(r);
     } catch (e) {
@@ -644,7 +694,7 @@ function InlineWriting({ task, config, onDone }: { task: { id: string; prompt: s
   return (
     <div className="fb">
       <div className="line"><b>Task:</b> {task.prompt}</div>
-      <textarea className="text" style={{ width: "100%", minHeight: 60 }} placeholder="Write in Macedonian…" value={text} onChange={(e) => setText(e.target.value)} />
+      <textarea className="text" style={{ width: "100%", minHeight: 60 }} placeholder={`Write in ${pack.name}…`} value={text} onChange={(e) => setText(e.target.value)} />
       <div className="row" style={{ marginTop: 8 }}>
         <button className="btn" onClick={submit} disabled={spin || !config?.engines.anthropic}>{spin ? "Checking…" : "Check"}</button>
         <button className="ghost" onClick={onDone}>Next →</button>
@@ -662,7 +712,8 @@ function InlineWriting({ task, config, onDone }: { task: { id: string; prompt: s
 
 // ---------- view 6: writing (prompted production + correction-why) ----------
 function Writing({ config }: { config: api.Config | null }) {
-  const tasks = mk.writingTasks ?? [];
+  const pack = usePack();
+  const tasks = pack.writingTasks ?? [];
   const [taskId, setTaskId] = useState(tasks[0]?.id ?? "");
   const [text, setText] = useState("");
   const [spin, setSpin] = useState(false);
@@ -676,7 +727,7 @@ function Writing({ config }: { config: api.Config | null }) {
     setResult(null);
     setSpin(true);
     try {
-      const r = await api.writeCorrect(text, task.id);
+      const r = await api.writeCorrect(text, task.id, pack.id);
       if (r.error) throw new Error(r.error);
       setResult(r);
     } catch (e) {
@@ -689,7 +740,7 @@ function Writing({ config }: { config: api.Config | null }) {
   return (
     <section className="view">
       <h2>Writing</h2>
-      <p className="lead">Short production with correction that explains <i>why</i>. Pick a task, write it in Macedonian, and submit.</p>
+      <p className="lead">Short production with correction that explains <i>why</i>. Pick a task, write it in {pack.name}, and submit.</p>
       <div className="picker">
         {tasks.map((t) => (
           <button key={t.id} className={t.id === taskId ? "active" : ""} onClick={() => { setTaskId(t.id); setText(""); setResult(null); }}>{t.prompt}</button>
@@ -699,7 +750,7 @@ function Writing({ config }: { config: api.Config | null }) {
       <textarea
         className="text"
         style={{ width: "100%", minHeight: 70 }}
-        placeholder="Write in Macedonian…"
+        placeholder={`Write in ${pack.name}…`}
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
@@ -730,14 +781,15 @@ function Writing({ config }: { config: api.Config | null }) {
 
 // ---------- view 5: review (unified SRS over phrases + grammar) ----------
 function Review({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+  const pack = usePack();
   const queue = useMemo(() => {
     const now = new Date();
-    return reviewPool.filter((it) => {
+    return reviewPool(pack).filter((it) => {
       const st = progress.reviews[it.id];
       return !st || new Date(st.due) <= now;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [pack]);
   const [idx, setIdx] = useState(0);
 
   const grade = (item: ReviewItem, ok: boolean) => {
@@ -767,10 +819,12 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
 }
 
 function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
+  const pack = usePack();
+  const play = usePlay();
   const [revealed, setRevealed] = useState(false);
   return (
     <div className="fb">
-      <div className="muted small">Say in Macedonian:</div>
+      <div className="muted small">Say in {pack.name}:</div>
       <div style={{ fontSize: 20, margin: "6px 0" }}>{item.gloss}</div>
       {!revealed ? (
         <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>

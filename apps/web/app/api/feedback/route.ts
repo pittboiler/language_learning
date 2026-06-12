@@ -1,7 +1,7 @@
 // Speaking feedback: build AsrResult[] → dual-engine confidence gate → compose coaching (core,
 // Sonnet 4.6). Language facts (name, stress rule, exceptions) are injected from the pack.
 import * as speaking from "@ll/core/speaking";
-import { macedonian as mk } from "@ll/pack-mk";
+import { getPack } from "../../../lib/packs";
 import type { ReviewItem } from "@ll/pack-schema";
 
 export const runtime = "nodejs";
@@ -9,16 +9,18 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
-  const { target, transcripts } = (await req.json()) as {
+  const { target, transcripts, packId } = (await req.json()) as {
     target: { answer: string; translit?: string; gloss: string; note?: string };
     transcripts: { scribe?: string; google?: string };
+    packId?: string;
   };
+  const pack = getPack(packId);
 
   const results: speaking.AsrResult[] = [
     { engine: "scribe", text: transcripts?.scribe ?? "", ms: 0, ok: !!transcripts?.scribe },
     { engine: "google", text: transcripts?.google ?? "", ms: 0, ok: !!transcripts?.google },
   ];
-  const gate = speaking.confidenceGate(results, mk.asr);
+  const gate = speaking.confidenceGate(results, pack.asr);
 
   const item: ReviewItem = {
     id: "live-target", kind: "phrase", prompt: "", answer: target.answer, translit: target.translit,
@@ -27,9 +29,9 @@ export async function POST(req: Request) {
 
   try {
     const out = await speaking.composeFeedback(item, gate, {
-      languageName: mk.name,
-      stressRule: mk.phonology.stressRule,
-      stressExceptions: mk.phonology.exceptions,
+      languageName: pack.name,
+      stressRule: pack.phonology.stressRule,
+      stressExceptions: pack.phonology.exceptions,
     });
     return Response.json({ ...out.feedback, ms: out.ms, costUsd: out.costUsd, gate: { agreed: gate.agreed, confidence: gate.confidence } });
   } catch (e) {

@@ -2,13 +2,11 @@
 // Language hints come from the pack's AsrConfig. Google client is built from inline env credentials
 // (Vercel) or falls back to the GOOGLE_APPLICATION_CREDENTIALS file (local dev).
 import speech from "@google-cloud/speech";
-import { macedonian as mk } from "@ll/pack-mk";
+import { getPack } from "../../../lib/packs";
 
 export const runtime = "nodejs";
 
 const SCRIBE_MODEL = process.env.SCRIBE_MODEL || "scribe_v2";
-const SCRIBE_LANG = process.env.SCRIBE_LANG || mk.asr.languageHints[0] || "mkd";
-const GOOGLE_LANG = mk.asr.languageHints[1] || "mk-MK";
 
 let _g: InstanceType<typeof speech.SpeechClient> | null = null;
 function googleClient(): InstanceType<typeof speech.SpeechClient> {
@@ -35,10 +33,10 @@ async function timed(fn: () => Promise<{ text: string; language?: string | null 
   }
 }
 
-async function transcribeEleven(buf: Buffer, mime: string): Promise<{ text: string; language?: string | null }> {
+async function transcribeEleven(buf: Buffer, mime: string, scribeLang: string): Promise<{ text: string; language?: string | null }> {
   const key = process.env.ELEVENLABS_API_KEY as string;
   const attempts = [
-    { model: SCRIBE_MODEL, lang: SCRIBE_LANG as string | null },
+    { model: SCRIBE_MODEL, lang: scribeLang as string | null },
     { model: SCRIBE_MODEL, lang: null },
     { model: "scribe_v1", lang: null },
   ];
@@ -71,9 +69,9 @@ function googleEncoding(mime: string): { encoding: "WEBM_OPUS" | "OGG_OPUS" | "M
   return { encoding: "WEBM_OPUS" };
 }
 
-async function transcribeGoogle(buf: Buffer, mime: string): Promise<{ text: string }> {
+async function transcribeGoogle(buf: Buffer, mime: string, googleLang: string): Promise<{ text: string }> {
   const [resp] = await googleClient().recognize({
-    config: { ...googleEncoding(mime), languageCode: GOOGLE_LANG, enableAutomaticPunctuation: true },
+    config: { ...googleEncoding(mime), languageCode: googleLang, enableAutomaticPunctuation: true },
     audio: { content: buf.toString("base64") },
   });
   const text = (resp.results || [])
@@ -89,8 +87,12 @@ export async function POST(req: Request) {
   if (!(file instanceof File)) return Response.json({ error: "no audio uploaded" }, { status: 400 });
   const buf = Buffer.from(await file.arrayBuffer());
   const mime = file.type || "audio/webm";
+  // Language hints come from the ACTIVE pack's AsrConfig (e.g. ["mkd","mk-MK"] / ["bg","bg-BG"]).
+  const pack = getPack(form.get("packId")?.toString());
+  const scribeLang = process.env.SCRIBE_LANG || pack.asr.languageHints[0] || "mkd";
+  const googleLang = pack.asr.languageHints[1] || "mk-MK";
   const out: { eleven?: EngineResult; google?: EngineResult } = {};
-  if (hasEleven()) out.eleven = await timed(() => transcribeEleven(buf, mime));
-  if (hasGoogle()) out.google = await timed(() => transcribeGoogle(buf, mime));
+  if (hasEleven()) out.eleven = await timed(() => transcribeEleven(buf, mime, scribeLang));
+  if (hasGoogle()) out.google = await timed(() => transcribeGoogle(buf, mime, googleLang));
   return Response.json(out);
 }

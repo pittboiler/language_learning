@@ -12,6 +12,7 @@
     "@anthropic-ai/sdk": "^0.104.1",
     "@google-cloud/speech": "^7.3.2",
     "@ll/core": "workspace:*",
+    "@ll/pack-bg": "workspace:*",
     "@ll/pack-mk": "workspace:*",
     "@ll/pack-schema": "workspace:*",
     "@supabase/supabase-js": "^2.108.1",

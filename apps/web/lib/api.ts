@@ -9,12 +9,12 @@ export async function getConfig(): Promise<Config> {
   return (await fetch("/api/config")).json();
 }
 
-/** Synthesize + play TTS. speed 0.7 (slowest) … 1.2. */
-export async function playTts(text: string, speed = 1): Promise<void> {
+/** Synthesize + play TTS for the active pack's voice. speed 0.7 (slowest) … 1.2. */
+export async function playTts(text: string, speed = 1, packId?: string): Promise<void> {
   const r = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, speed }),
+    body: JSON.stringify({ text, speed, packId }),
   });
   if (!r.ok) throw new Error((await r.json()).error || "TTS failed");
   const audio = new Audio(URL.createObjectURL(await r.blob()));
@@ -33,9 +33,10 @@ export interface AsrResponse {
   error?: string;
 }
 
-export async function asr(blob: Blob): Promise<AsrResponse> {
+export async function asr(blob: Blob, packId?: string): Promise<AsrResponse> {
   const fd = new FormData();
   fd.append("audio", blob, "rec.webm");
+  if (packId) fd.append("packId", packId);
   return (await fetch("/api/asr", { method: "POST", body: fd })).json();
 }
 
@@ -56,12 +57,13 @@ export interface FeedbackResponse {
 export async function feedback(
   target: { answer: string; translit?: string; gloss: string; note?: string },
   transcripts: { scribe?: string; google?: string },
+  packId?: string,
 ): Promise<FeedbackResponse> {
   return (
     await fetch("/api/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target, transcripts }),
+      body: JSON.stringify({ target, transcripts, packId }),
     })
   ).json();
 }
@@ -80,12 +82,13 @@ export async function chat(
   userText: string,
   history: { role: "learner" | "tutor"; text: string }[],
   scenarioId?: string,
+  packId?: string,
 ): Promise<ChatResponse> {
   return (
     await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userText, history, scenarioId }),
+      body: JSON.stringify({ userText, history, scenarioId, packId }),
     })
   ).json();
 }
@@ -101,12 +104,12 @@ export interface WriteResponse {
   error?: string;
 }
 
-export async function writeCorrect(attempt: string, taskId: string): Promise<WriteResponse> {
+export async function writeCorrect(attempt: string, taskId: string, packId?: string): Promise<WriteResponse> {
   return (
     await fetch("/api/write", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ attempt, taskId }),
+      body: JSON.stringify({ attempt, taskId, packId }),
     })
   ).json();
 }

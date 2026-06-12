@@ -6,6 +6,7 @@ import * as srs from "@ll/core/srs";
 import { createClient } from "@supabase/supabase-js";
 
 export interface Progress {
+  activePackId: string | null; // selected language pack (null ⇒ registry default). Generic — no language baked in.
   letters: Record<string, boolean>; // glyph → known
   scenarios: Record<string, { turnIndex: number; metCriteria: string[] }>;
   reviews: Record<string, srs.ReviewState>; // itemId → FSRS state
@@ -17,7 +18,7 @@ export interface Store {
   save(p: Progress): Promise<void>;
 }
 
-export const emptyProgress = (): Progress => ({ letters: {}, scenarios: {}, reviews: {}, pick: null });
+export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, reviews: {}, pick: null });
 
 // FSRS cards serialize Dates to strings in JSON; revive them so core.srs works on reload.
 function revive(p: Progress): Progress {

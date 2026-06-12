@@ -2,7 +2,7 @@ import "./globals.css";
 import type { ReactNode } from "react";
 
 export const metadata = {
-  title: "Macedonian — start talking",
+  title: "Start talking — conversation-first language learning",
   description: "Conversation-first language learning",
 };
 

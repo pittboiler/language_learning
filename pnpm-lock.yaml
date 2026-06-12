@@ -26,6 +26,9 @@ importers:
       '@ll/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@ll/pack-bg':
+        specifier: workspace:*
+        version: link:../../packages/pack-bg
       '@ll/pack-mk':
         specifier: workspace:*
         version: link:../../packages/pack-mk
@@ -66,6 +69,12 @@ importers:
       ts-fsrs:
         specifier: ^5.4.1
         version: 5.4.1
+
+  packages/pack-bg:
+    dependencies:
+      '@ll/pack-schema':
+        specifier: workspace:*
+        version: link:../pack-schema
 
   packages/pack-mk:
     dependencies:
