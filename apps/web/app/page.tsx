@@ -4,7 +4,7 @@
 // UI reads the active pack, never a hardcoded language import. Pure engines (scenario/srs/leveling) run
 // client-side; paid calls (tts/asr/feedback/chat) hit the server route handlers that hold the keys.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { DialogueTurn, LanguagePack, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { DialogueTurn, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import * as scoring from "@ll/core/familiarity/scoring";
@@ -15,7 +15,7 @@ import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 
-type View = "session" | "letters" | "scenario" | "grammar" | "reading" | "review" | "write";
+type View = "session" | "letters" | "scenario" | "grammar" | "reading" | "story" | "review" | "write";
 
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
@@ -58,6 +58,14 @@ const gradeItem = (p: Progress, item: ReviewItem, ok: boolean): Progress => {
 const wordStatus = (p: Progress, lexKey: string): string => {
   const e = p.familiarity[lexKey];
   return !e ? "new" : e.status === "known" ? "known" : e.status === "ignored" ? "ignored" : "learning";
+};
+// Capture a tapped word into familiarity + SRS if it's new. Returns its lexKey ("" if not a word).
+const captureWord = (progress: Progress, persist: (p: Progress) => void, surface: string): string => {
+  const lexKey = familiarity.normalize(surface);
+  if (lexKey && !progress.familiarity[lexKey]) {
+    persist({ ...progress, familiarity: { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "word", display: surface }) } });
+  }
+  return lexKey;
 };
 
 export default function Home() {
@@ -155,6 +163,7 @@ export default function Home() {
           ["scenario", "② Scenarios"],
           ["grammar", "③ Grammar"],
           ["reading", "④ Reading"],
+          ["story", "★ Story"],
           ["review", `⑤ Review ${dueCount ? dueCount : ""}`],
           ["write", "⑥ Write"],
         ] as [View, string][]).map(([v, label]) => (
@@ -177,6 +186,7 @@ export default function Home() {
         {view === "scenario" && <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} />}
         {view === "grammar" && <Grammar progress={progress} persist={persist} />}
         {view === "reading" && <Reading progress={progress} persist={persist} config={config} />}
+        {view === "story" && <StoryView progress={progress} persist={persist} config={config} />}
         {view === "review" && <Review progress={progress} persist={persist} />}
         {view === "write" && <Writing config={config} />}
       </main>
@@ -539,13 +549,9 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
   if (!r) return <section className="view"><h2>Reading</h2><p className="lead">No readers yet.</p></section>;
 
   // Tap a word → capture it into familiarity + SRS (if new), then open the look-up panel.
-  const tapWord = (surface: string, line: string) => {
-    const lexKey = familiarity.normalize(surface);
-    if (!lexKey) return;
-    if (!progress.familiarity[lexKey]) {
-      persist({ ...progress, familiarity: { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "word", display: surface }) } });
-    }
-    setSel({ lexKey, surface, line });
+  const onTap = (surface: string, line: string) => {
+    const lexKey = captureWord(progress, persist, surface);
+    if (lexKey) setSel({ lexKey, surface, line });
   };
 
   return (
@@ -559,15 +565,7 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
         {r.body.map((l, i) => (
           <div className="rline2" key={i}>
             <button className="spk" onClick={() => play(l.text, 0.85)}>🔊</button>
-            <span className="rtext">
-              {scoring.tokenize(l.text).map((t, j) =>
-                t.isWord ? (
-                  <WordToken key={j} surface={t.surface} status={wordStatus(progress, t.lexKey)} onTap={() => tapWord(t.surface, l.text)} />
-                ) : (
-                  <span key={j}>{t.surface}</span>
-                ),
-              )}
-            </span>
+            <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
           </div>
         ))}
       </div>
@@ -578,6 +576,21 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
 
 function WordToken({ surface, status, onTap }: { surface: string; status: string; onTap: () => void }) {
   return <span className={`tok ${status}`} onClick={onTap}>{surface}</span>;
+}
+
+// Renders a line as tappable, status-colored word tokens. Shared by the reader + the story player.
+function TappableText({ text, progress, onTapWord }: { text: string; progress: Progress; onTapWord: (surface: string) => void }) {
+  return (
+    <span className="rtext">
+      {scoring.tokenize(text).map((t, j) =>
+        t.isWord ? (
+          <WordToken key={j} surface={t.surface} status={wordStatus(progress, t.lexKey)} onTap={() => onTapWord(t.surface)} />
+        ) : (
+          <span key={j}>{t.surface}</span>
+        ),
+      )}
+    </span>
+  );
 }
 
 function WordPanel({ sel, progress, persist, config, onClose }: {
@@ -629,6 +642,107 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
         <button className="ghost" onClick={() => setStat("ignored")}>✕ Ignore</button>
         <span className="muted small">{entry ? `tracked · ${entry.status}` : "captured"}</span>
       </div>
+    </div>
+  );
+}
+
+// ---------- story tab: mini-story (synced audio + tap-capture + Q&A → speaking pipeline) ----------
+function StoryView({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
+  const pack = usePack();
+  const play = usePlay();
+  const story = pack.stories?.[0];
+  const [phase, setPhase] = useState<"read" | "qa">("read");
+  const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
+  const [current, setCurrent] = useState(-1);
+  const [slow, setSlow] = useState(false);
+  const playing = useRef(false);
+
+  if (!story) return <section className="view"><h2>Story</h2><p className="lead">No stories yet for this pack.</p></section>;
+  const speed = slow ? 0.7 : 0.9;
+
+  const onTap = (surface: string, line: string) => {
+    const lexKey = captureWord(progress, persist, surface);
+    if (lexKey) setSel({ lexKey, surface, line });
+  };
+
+  // Play segments in sequence, highlighting the current line (toggle = stop).
+  const playAll = async () => {
+    if (playing.current) { playing.current = false; setCurrent(-1); return; }
+    playing.current = true;
+    for (let i = 0; i < story.body.length; i++) {
+      if (!playing.current) break;
+      setCurrent(i);
+      try { await api.playClip(story.body[i]!.text, speed, pack.id); } catch { break; }
+    }
+    playing.current = false;
+    setCurrent(-1);
+  };
+
+  // Reading the story seeds its vocab into familiarity → moves the known-word count.
+  const toQA = () => {
+    const fam = { ...progress.familiarity };
+    for (const v of story.registersVocab) {
+      if (!fam[v.lexKey]) fam[v.lexKey] = familiarity.capture({ lexKey: v.lexKey, kind: v.lexKey.includes(" ") ? "chunk" : "word", display: v.lexKey, gloss: v.gloss });
+    }
+    persist({ ...progress, familiarity: fam });
+    setPhase("qa");
+  };
+
+  return (
+    <section className="view">
+      <h2>★ {story.title} <span className="muted small">· {story.titleGloss}</span></h2>
+      {story.audioSource === "tts" && <p className="muted small">audio: synthesized (TTS) — a native recording is pending.</p>}
+      {phase === "read" ? (
+        <>
+          <p className="lead">Listen and read along; tap any word to look it up. Then answer the questions.</p>
+          <div className="row" style={{ marginBottom: 8 }}>
+            <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
+            <button className="ghost" onClick={() => setSlow((s) => !s)}>{slow ? "🐢 Slow" : "▶︎ Normal"}</button>
+            <span className="muted small">🐢 shadow each line: listen, then say it back.</span>
+          </div>
+          <div className="reader">
+            {story.body.map((l, i) => (
+              <div className={`rline2 ${current === i ? "playing" : ""}`} key={i}>
+                <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
+                <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
+              </div>
+            ))}
+          </div>
+          {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
+          <div className="row" style={{ marginTop: 14 }}>
+            <button className="btn" onClick={toQA}>I read it → questions <span className="muted small">(+{story.registersVocab.length} words)</span></button>
+          </div>
+        </>
+      ) : (
+        <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} />
+      )}
+    </section>
+  );
+}
+
+function StoryQAView({ story, config, onRestart }: { story: MiniStory; config: api.Config | null; onRestart: () => void }) {
+  const play = usePlay();
+  const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  return (
+    <div>
+      <p className="lead">Questions — the story's words again, in a new frame. The last one is spoken.</p>
+      {story.qa.map((q) => (
+        <div className="fb" key={q.id}>
+          <div className="row"><button className="spk" onClick={() => play(q.question, 0.9)}>🔊</button><b>{q.question}</b></div>
+          <div className="gloss">{q.questionGloss}</div>
+          {q.spokenPrompt ? (
+            <div style={{ marginTop: 8 }}>
+              <div className="muted small">Answer aloud — say:</div>
+              <LearnerTurn turn={{ speaker: "learner", text: q.answer, translit: q.answerTranslit, gloss: q.answerGloss }} config={config} onDone={() => {}} />
+            </div>
+          ) : revealed[q.id] ? (
+            <div style={{ marginTop: 6 }}><span className="target">{q.answer}</span> <span className="muted small">· {q.answerGloss}</span></div>
+          ) : (
+            <button className="ghost" style={{ marginTop: 8 }} onClick={() => setRevealed((s) => ({ ...s, [q.id]: true }))}>Reveal answer</button>
+          )}
+        </div>
+      ))}
+      <div className="row" style={{ marginTop: 12 }}><button className="ghost" onClick={onRestart}>↺ Read again</button></div>
     </div>
   );
 }

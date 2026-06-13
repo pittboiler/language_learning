@@ -21,6 +21,22 @@ export async function playTts(text: string, speed = 1, packId?: string): Promise
   await audio.play();
 }
 
+/** Play a TTS clip and resolve when it FINISHES — for sequential, synced story playback. */
+export async function playClip(text: string, speed = 1, packId?: string): Promise<void> {
+  const r = await fetch("/api/tts", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text, speed, packId }),
+  });
+  if (!r.ok) throw new Error((await r.json()).error || "TTS failed");
+  const audio = new Audio(URL.createObjectURL(await r.blob()));
+  await new Promise<void>((resolve, reject) => {
+    audio.onended = () => resolve();
+    audio.onerror = () => reject(new Error("audio playback error"));
+    audio.play().catch(reject);
+  });
+}
+
 export interface EngineResult {
   text?: string;
   ms: number;

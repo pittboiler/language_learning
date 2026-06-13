@@ -143,6 +143,7 @@ export interface StoryQA {
   questionGloss: string; // English
   answer: string; // expected production
   answerGloss: string;
+  answerTranslit?: string; // romanization of the answer (shown for spoken prompts)
   spokenPrompt?: boolean; // route through core/speaking
   satisfies?: string[]; // criterion ids, if the answer meets a goal
 }
@@ -157,7 +158,9 @@ export interface MiniStory {
   audioUrl?: string; // full-story audio, cached offline
   audioSource: "native" | "tts"; // flag native recording vs TTS (quality signal)
   qa: StoryQA[]; // retrieval tail; spoken prompts route to the speaking pipeline
-  registersVocab: string[]; // lexKeys this story teaches → seed the familiarity engine
+  /** Vocab/chunks this story teaches → seeded into familiarity when read (moves the known-word count).
+   *  lexKey = normalized surface form; gloss makes the seeded item reviewable. */
+  registersVocab: { lexKey: string; gloss: string }[];
   confidence: Confidence;
 }
 
