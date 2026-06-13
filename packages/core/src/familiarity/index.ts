@@ -35,6 +35,8 @@ export interface FamiliarityEntry {
   strength: number;
   createdAt: Date;
   lastSeenAt: Date;
+  /** When the item first reached "known" — powers the "moved to known this week" metric. */
+  knownAt?: Date;
   tags?: string[];
 }
 
@@ -89,12 +91,14 @@ export function capture(spec: { lexKey: string; kind: LexKind; display: string; 
 export function grade(entry: FamiliarityEntry, g: Grade, now: Date = new Date()): FamiliarityEntry {
   const srs = entry.srs ? schedule(entry.srs, g, now) : initState("local", entry.lexKey, now);
   const { status, strength } = deriveStatus(srs);
-  return { ...entry, srs, status, strength, lastSeenAt: now };
+  const knownAt = status === "known" && entry.status !== "known" ? now : entry.knownAt;
+  return { ...entry, srs, status, strength, lastSeenAt: now, knownAt };
 }
 
 /** Mark an item known (no scheduling) or ignored (excluded from new-item counts + scoring). */
 export function setStatus(entry: FamiliarityEntry, status: "known" | "ignored", now: Date = new Date()): FamiliarityEntry {
-  return { ...entry, srs: null, status, strength: status === "known" ? 1 : 0, lastSeenAt: now };
+  const knownAt = status === "known" ? entry.knownAt ?? now : entry.knownAt;
+  return { ...entry, srs: null, status, strength: status === "known" ? 1 : 0, lastSeenAt: now, knownAt };
 }
 
 /** The SRS states in the index (entries with active scheduling) — adapter to srs.dueItems/nextBatch. */

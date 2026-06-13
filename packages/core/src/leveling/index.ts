@@ -1,6 +1,8 @@
 // Comprehensible-input (i+1) model: estimate the learner's level from generic progress signals,
 // then serve content just above it. Generic: inputs are counts, not language facts.
 import type { CefrBand, Skill } from "@ll/pack-schema";
+import { rankByIPlusOne } from "../familiarity/scoring.js";
+import type { FamiliarityIndex } from "../familiarity/index.js";
 
 export interface LevelState {
   cefrBand: CefrBand;
@@ -36,8 +38,24 @@ export function currentLevel(inputs: LevelInputs): LevelState {
   return { cefrBand, skillVector };
 }
 
-/** Pick items at or just above the learner's current level (i+1). */
+/** Pick items at or just above the learner's current level (i+1) by the STATIC authored i1Level.
+ *  The cold-start prior; superseded by rankAtIPlusOne once the learner has real familiarity data. */
 export function selectAtIPlusOne<T extends { i1Level: number }>(pool: T[], level: LevelState): T[] {
   const ceiling = bandToLevel(level.cefrBand) + 1;
   return pool.filter((it) => it.i1Level <= ceiling).sort((a, b) => a.i1Level - b.i1Level);
+}
+
+/** Rank content at i+1 using the learner's COMPUTED comprehension (familiarity/scoring) once the
+ *  index has enough known items; falls back to the static i1Level prior at cold start. This is the
+ *  "i+1 made computable" payoff — content with `text` is ranked by real known-word %, not authoring. */
+export function rankAtIPlusOne<T extends { text: string; i1Level?: number }>(
+  items: T[],
+  index: FamiliarityIndex,
+  opts?: { minKnown?: number },
+): T[] {
+  const known = Object.values(index).filter((e) => e.status === "known").length;
+  if (known < (opts?.minKnown ?? 15)) {
+    return [...items].sort((a, b) => (a.i1Level ?? 0) - (b.i1Level ?? 0)); // cold start: static prior
+  }
+  return rankByIPlusOne(items, index);
 }

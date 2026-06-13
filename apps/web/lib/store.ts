@@ -39,6 +39,7 @@ function revive(p: Progress): Progress {
     if (!e) continue;
     e.createdAt = new Date(e.createdAt);
     e.lastSeenAt = new Date(e.lastSeenAt);
+    if (e.knownAt) e.knownAt = new Date(e.knownAt);
     if (e.srs) reviveReviewState(e.srs);
   }
   // Legacy blobs: revive the deprecated reviews map so page.tsx can migrate it into familiarity.

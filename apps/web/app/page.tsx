@@ -7,6 +7,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import type { DialogueTurn, LanguagePack, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
+import * as scoring from "@ll/core/familiarity/scoring";
 import * as leveling from "@ll/core/leveling";
 import * as session from "@ll/core/session";
 import { makeRecorder } from "../lib/recorder";
@@ -111,6 +112,9 @@ export default function Home() {
     return dueCount ? `review ${dueCount} due` : "read or free-chat";
   }, [lettersDone, progress.scenarios, dueCount, pack]);
 
+  // Compounding vocabulary metrics (known/learning counts) — motivational + drive content selection.
+  const vocab = useMemo(() => scoring.computeMetrics(progress.familiarity), [progress.familiarity]);
+
   if (!ready) return <main style={{ padding: 24 }}>Loading…</main>;
 
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
@@ -131,7 +135,7 @@ export default function Home() {
             ))}
           </select>
         )}
-        <span className="muted small">Level {level.cefrBand} · Next: {nextUp}</span>
+        <span className="muted small">Level {level.cefrBand} · {vocab.knownWordCount} known · {vocab.learningCount} learning · Next: {nextUp}</span>
         <div className="badges">
           {packUnreviewed(pack) && <span className="badge warn" title="Machine-generated content, pending native review — not yet authoritative">⚠ unreviewed</span>}
           {config
