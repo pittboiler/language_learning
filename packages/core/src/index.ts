@@ -1,6 +1,8 @@
 // @ll/core — language-agnostic engines. NO hardcoded language data lives anywhere under src/.
 export * as llm from "./llm/index.js";
 export * as srs from "./srs/index.js";
+export * as familiarity from "./familiarity/index.js";
+export * as familiarityScoring from "./familiarity/scoring.js";
 export * as scenario from "./scenario/index.js";
 export * as session from "./session/index.js";
 export * as speaking from "./speaking/index.js";

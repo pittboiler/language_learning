@@ -6,7 +6,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { DialogueTurn, LanguagePack, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
-import * as srs from "@ll/core/srs";
+import * as familiarity from "@ll/core/familiarity";
 import * as leveling from "@ll/core/leveling";
 import * as session from "@ll/core/session";
 import { makeRecorder } from "../lib/recorder";
@@ -41,6 +41,19 @@ const reviewPool = (pack: LanguagePack): ReviewItem[] => [
 // design rule is "never serve unreviewed content as authoritative" — so we surface it in the UI.
 const packUnreviewed = (pack: LanguagePack) => pack.scenarios.length > 0 && pack.scenarios.every((s) => s.confidence === "unreviewed");
 
+// ---- familiarity helpers — unify vocab state + SRS in one store keyed by lexKey ----
+// new (no entry) ⇒ due; known (no SRS card) ⇒ not due; else the SRS due date governs.
+const isDue = (p: Progress, item: ReviewItem, now: Date): boolean => {
+  const e = p.familiarity[familiarity.deriveKeyForItem(item).lexKey];
+  return !e ? true : e.srs ? new Date(e.srs.due) <= now : false;
+};
+// Grade a review item → next Progress with its familiarity entry rescheduled via the same FSRS engine.
+const gradeItem = (p: Progress, item: ReviewItem, ok: boolean): Progress => {
+  const spec = familiarity.deriveKeyForItem(item);
+  const entry = p.familiarity[spec.lexKey] ?? familiarity.capture(spec);
+  return { ...p, familiarity: { ...p.familiarity, [spec.lexKey]: familiarity.grade(entry, ok ? "good" : "again") } };
+};
+
 export default function Home() {
   const store = useMemo(() => getStore(), []);
   const [progress, setProgress] = useState<Progress>(emptyProgress());
@@ -53,6 +66,11 @@ export default function Home() {
     (async () => {
       const p = await store.load();
       const loadedPack = getPack(p.activePackId);
+      // One-time: migrate legacy reviews (itemId→FSRS) into the lexKey-keyed familiarity store.
+      if (p.reviews && Object.keys(p.reviews).length && !Object.keys(p.familiarity).length) {
+        p.familiarity = familiarity.migrateReviews(p.reviews, reviewPool(loadedPack));
+        delete p.reviews;
+      }
       if (!p.pick) p.pick = loadedPack.scenarios[0]!.id;
       setProgress(p);
       setReady(true);
@@ -73,16 +91,13 @@ export default function Home() {
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   const dueCount = useMemo(() => {
     const now = new Date();
-    return reviewPool(pack).filter((it) => {
-      const st = progress.reviews[it.id];
-      return !st || new Date(st.due) <= now;
-    }).length;
-  }, [progress.reviews, pack]);
+    return reviewPool(pack).filter((it) => isDue(progress, it, now)).length;
+  }, [progress, pack]);
 
   const level = useMemo(() => {
     const glyphsKnown = focusLetters(pack).filter((a) => progress.letters[a.glyph]).length;
     const criteriaMet = Object.values(progress.scenarios).reduce((n, s) => n + s.metCriteria.length, 0);
-    const reviewStrength = Object.keys(progress.reviews).length;
+    const reviewStrength = Object.keys(progress.familiarity).length;
     return leveling.currentLevel({ glyphsKnown, glyphsTotal: focusLetters(pack).length, criteriaMet, reviewStrength });
   }, [progress, pack]);
 
@@ -468,11 +483,7 @@ function Completion({ scenarioId, config }: { scenarioId: string; config: api.Co
 // ---------- view 3: grammar ----------
 function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
-  const grade = (item: ReviewItem, correct: boolean) => {
-    const st = progress.reviews[item.id] ?? srs.initState("local", item.id);
-    const next = srs.schedule(st, correct ? "good" : "again");
-    persist({ ...progress, reviews: { ...progress.reviews, [item.id]: next } });
-  };
+  const grade = (item: ReviewItem, correct: boolean) => persist(gradeItem(progress, item, correct));
   return (
     <section className="view">
       <h2>Grammar that matters</h2>
@@ -544,7 +555,7 @@ function Session({ progress, persist, config, onNavigate }: {
   const pack = usePack();
   const plan = useMemo(() => {
     const now = new Date();
-    const dueReviewIds = reviewPool(pack).filter((it) => { const st = progress.reviews[it.id]; return !st || new Date(st.due) <= now; }).map((it) => it.id);
+    const dueReviewIds = reviewPool(pack).filter((it) => isDue(progress, it, now)).map((it) => it.id);
     const unknownGlyphs = focusLetters(pack).filter((a) => !progress.letters[a.glyph]).map((a) => a.glyph);
     const completedScenarioIds = pack.scenarios
       .filter((s) => { const p = progress.scenarios[s.id]; return !!p && s.successCriteria.every((c) => p.metCriteria.includes(c.id)); })
@@ -592,8 +603,7 @@ function SessionStep({ act, progress, persist, config, onDone, onNavigate }: {
   const pack = usePack();
   const play = usePlay();
   const gradeReview = (item: ReviewItem, ok: boolean) => {
-    const st = progress.reviews[item.id] ?? srs.initState("local", item.id);
-    persist({ ...progress, reviews: { ...progress.reviews, [item.id]: srs.schedule(st, ok ? "good" : "again") } });
+    persist(gradeItem(progress, item, ok));
     onDone();
   };
 
@@ -784,18 +794,13 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   const pack = usePack();
   const queue = useMemo(() => {
     const now = new Date();
-    return reviewPool(pack).filter((it) => {
-      const st = progress.reviews[it.id];
-      return !st || new Date(st.due) <= now;
-    });
+    return reviewPool(pack).filter((it) => isDue(progress, it, now));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack]);
   const [idx, setIdx] = useState(0);
 
   const grade = (item: ReviewItem, ok: boolean) => {
-    const st = progress.reviews[item.id] ?? srs.initState("local", item.id);
-    const next = srs.schedule(st, ok ? "good" : "again");
-    persist({ ...progress, reviews: { ...progress.reviews, [item.id]: next } });
+    persist(gradeItem(progress, item, ok));
     setIdx((i) => i + 1);
   };
 

@@ -119,6 +119,48 @@ export interface WritingTask {
   confidence?: Confidence;
 }
 
+// ---- Mini-stories (comprehensible-input spine) ----
+// A richer SIBLING of Reader (not a replacement): synced audio + text, segmented tokens for
+// tap-to-capture + difficulty scoring, a retrieval Q&A tail, and a spoken prompt that routes into the
+// speaking pipeline. Hand-authored or heavily validated. See DESIGN-comprehensible-input.md §2.3.
+
+/** One synced line of a mini-story. `tokens` (optional) pre-segments surface words for tap-capture +
+ *  scoring; `audioStart/End` (seconds) sync text to the story audio. */
+export interface StorySegment {
+  text: string; // the line, in the target language
+  translit?: string;
+  gloss: string; // English
+  tokens?: string[]; // pre-segmented surface tokens (else derived at runtime)
+  audioStart?: number; // seconds into the story audio
+  audioEnd?: number;
+}
+
+/** A retrieval-practice question that re-uses the story's vocabulary in a new frame. When
+ *  `spokenPrompt` is true it feeds the dual-ASR speaking pipeline (input → comprehension → output). */
+export interface StoryQA {
+  id: string;
+  question: string; // target language
+  questionGloss: string; // English
+  answer: string; // expected production
+  answerGloss: string;
+  spokenPrompt?: boolean; // route through core/speaking
+  satisfies?: string[]; // criterion ids, if the answer meets a goal
+}
+
+export interface MiniStory {
+  id: string;
+  title: string;
+  titleGloss?: string;
+  i1Level: number;
+  level: CefrBand;
+  body: StorySegment[]; // synced audio + text
+  audioUrl?: string; // full-story audio, cached offline
+  audioSource: "native" | "tts"; // flag native recording vs TTS (quality signal)
+  qa: StoryQA[]; // retrieval tail; spoken prompts route to the speaking pipeline
+  registersVocab: string[]; // lexKeys this story teaches → seed the familiarity engine
+  confidence: Confidence;
+}
+
 export type AsrEngine = "scribe" | "google";
 
 export interface AsrConfig {
@@ -142,4 +184,6 @@ export interface LanguagePack {
   readers: Reader[];
   srsSeed: ReviewItem[];
   writingTasks?: WritingTask[];
+  /** Mini-stories spine (comprehensible-input on-ramp + validator gold standard). Optional/additive. */
+  stories?: MiniStory[];
 }

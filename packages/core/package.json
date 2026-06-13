@@ -8,6 +8,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./srs": "./src/srs/index.ts",
+    "./familiarity": "./src/familiarity/index.ts",
+    "./familiarity/scoring": "./src/familiarity/scoring.ts",
     "./scenario": "./src/scenario/index.ts",
     "./session": "./src/session/index.ts",
     "./leveling": "./src/leveling/index.ts",

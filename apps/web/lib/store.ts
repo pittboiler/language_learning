@@ -2,14 +2,18 @@
 // Supabase adapter without touching the UI. getStore() picks Supabase when configured (env present),
 // else localStorage — so pasting creds + restarting is the whole swap. Review scheduling uses the
 // real FSRS engine from core.
-import * as srs from "@ll/core/srs";
+import type * as srs from "@ll/core/srs";
+import type { FamiliarityEntry } from "@ll/core/familiarity";
 import { createClient } from "@supabase/supabase-js";
 
 export interface Progress {
   activePackId: string | null; // selected language pack (null ⇒ registry default). Generic — no language baked in.
   letters: Record<string, boolean>; // glyph → known
   scenarios: Record<string, { turnIndex: number; metCriteria: string[] }>;
-  reviews: Record<string, srs.ReviewState>; // itemId → FSRS state
+  /** Unified vocab + SRS state, keyed by lexKey (the familiarity engine owns this). */
+  familiarity: Record<string, FamiliarityEntry>;
+  /** @deprecated legacy itemId→FSRS map; migrated into `familiarity` on first load (see page.tsx). */
+  reviews?: Record<string, srs.ReviewState>;
   pick: string | null; // active scenario id
 }
 
@@ -18,19 +22,28 @@ export interface Store {
   save(p: Progress): Promise<void>;
 }
 
-export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, reviews: {}, pick: null });
+export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, familiarity: {}, pick: null });
 
-// FSRS cards serialize Dates to strings in JSON; revive them so core.srs works on reload.
+// FSRS cards + familiarity timestamps serialize Dates to strings in JSON; revive them on reload.
+function reviveReviewState(r: srs.ReviewState): void {
+  r.due = new Date(r.due);
+  const card = r.card as { due?: unknown; last_review?: unknown } | undefined;
+  if (card) {
+    if (card.due) card.due = new Date(card.due as string);
+    if (card.last_review) card.last_review = new Date(card.last_review as string);
+  }
+}
+
 function revive(p: Progress): Progress {
-  for (const id of Object.keys(p.reviews)) {
-    const r = p.reviews[id];
-    if (!r) continue;
-    r.due = new Date(r.due);
-    const card = r.card as { due?: unknown; last_review?: unknown } | undefined;
-    if (card) {
-      if (card.due) card.due = new Date(card.due as string);
-      if (card.last_review) card.last_review = new Date(card.last_review as string);
-    }
+  for (const e of Object.values(p.familiarity ?? {})) {
+    if (!e) continue;
+    e.createdAt = new Date(e.createdAt);
+    e.lastSeenAt = new Date(e.lastSeenAt);
+    if (e.srs) reviveReviewState(e.srs);
+  }
+  // Legacy blobs: revive the deprecated reviews map so page.tsx can migrate it into familiarity.
+  for (const r of Object.values(p.reviews ?? {})) {
+    if (r) reviveReviewState(r);
   }
   return p;
 }
