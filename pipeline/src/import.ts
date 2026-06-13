@@ -6,10 +6,10 @@
 //   • validator.ts (the SAME Validator/Critic) → gate the generated glosses, flag low-confidence.
 //   • core/familiarity scoring → difficulty-score the result so it's only recommended near i+1.
 // See DESIGN-comprehensible-input.md §2.4 / Part C.
-//
-// STATUS: stub only — interfaces are stable; body throws `not implemented`.
-import type { MiniStory } from "@ll/pack-schema";
-import type { Verdict, ValidatorContext } from "./validator.js";
+import type { MiniStory, StorySegment } from "@ll/pack-schema";
+import { structuredCall, MODELS } from "@ll/core/llm";
+import { normalize } from "@ll/core/familiarity";
+import { validate, type Verdict, type ValidatorContext, type ValidatableItem } from "./validator.js";
 
 export interface ImportRequest {
   source: "paste" | "url" | "transcript";
@@ -24,21 +24,90 @@ export interface ImportContext {
 }
 
 export interface ImportedReader {
-  /** The imported content as a MiniStory (segments + glosses + Q&A optional), confidence:"unreviewed". */
+  /** The imported content as a MiniStory (segments + glosses), confidence:"unreviewed". */
   reader: MiniStory;
-  /** Per-gloss verdicts from the reused Validator — low-confidence glosses flagged, not shown as authoritative. */
+  /** Per-gloss verdicts from the reused Validator — low-confidence glosses flagged, not authoritative. */
   verdicts: Verdict[];
   /** TTS jobs to synthesize offline + cache (audioSource:"tts"). */
   ttsJobs: { segmentId: string; text: string }[];
-  /** Lex keys discovered, for difficulty scoring + familiarity recommendation (Part A). */
+  /** Lex keys discovered (chunks), for difficulty scoring + familiarity recommendation (Part A). */
   lexKeys: string[];
+  costUsd: number;
+}
+
+const IMPORT_SCHEMA: Record<string, unknown> = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    segments: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          text: { type: "string", description: "One short natural segment, verbatim from the input." },
+          gloss: { type: "string", description: "Faithful English translation." },
+          translit: { type: "string", description: "Romanization." },
+        },
+        required: ["text", "gloss", "translit"],
+      },
+    },
+    chunks: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: { phrase: { type: "string" }, gloss: { type: "string" } },
+        required: ["phrase", "gloss"],
+      },
+    },
+  },
+  required: ["segments", "chunks"],
+};
+
+interface ImportData {
+  segments: { text: string; gloss: string; translit: string }[];
+  chunks: { phrase: string; gloss: string }[];
 }
 
 /**
- * Import + structure outside content. Offline, gated. Reuses generator-style generation + the
- * Validator; difficulty scoring (core/familiarity/scoring.scoreText) is applied by the caller so the
- * reader is recommended only near the learner's i+1 level.
+ * Import + structure outside content. Offline, gated. Reuses generator-style generation (Opus 4.8) +
+ * the Validator (the SAME critic as the batch). Difficulty scoring (core/familiarity/scoring) is
+ * applied by the caller so the reader is recommended only near the learner's i+1 level.
  */
-export async function importContent(_req: ImportRequest, _ctx: ImportContext): Promise<ImportedReader> {
-  throw new Error("not implemented: fetch/extract → segment+gloss (generator) → validate (validator) → TTS jobs → MiniStory");
+export async function importContent(req: ImportRequest, ctx: ImportContext): Promise<ImportedReader> {
+  // 1. Segment + gloss + chunk-suggest (Opus 4.8, offline — same quality bar as generator.ts).
+  const gen = await structuredCall<ImportData>({
+    model: MODELS.offline,
+    system: `You prepare imported ${ctx.languageName} text for an absolute beginner's reader. Split it into short natural segments (sentences/clauses), keeping the wording verbatim. For each segment give a faithful English gloss + romanization. Suggest up to 10 high-value multi-word CHUNKS with glosses. Be accurate; never invent or alter words.`,
+    user: req.raw.slice(0, 6000),
+    schema: IMPORT_SCHEMA,
+    effort: "high",
+    thinking: true,
+    maxTokens: 6000,
+  });
+  let costUsd = gen.costUsd;
+
+  // 2. Gate the glosses through the REUSED Validator (no parallel critic).
+  const items: ValidatableItem[] = gen.data.segments.map((s, i) => ({ id: `imp-l${i + 1}`, kind: "reader-line", text: s.text, gloss: s.gloss }));
+  const verdicts = await validate(items, ctx.validator);
+  costUsd += verdicts.reduce((sum, v) => sum + v.costUsd, 0);
+
+  // 3. Assemble a gated MiniStory + TTS jobs.
+  const body: StorySegment[] = gen.data.segments.map((s) => ({ text: s.text, translit: s.translit, gloss: s.gloss }));
+  const slug = (req.title ?? "text").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 24) || "text";
+  const reader: MiniStory = {
+    id: `import-${slug}`,
+    title: req.title ?? "Imported text",
+    i1Level: 3,
+    level: "A2",
+    audioSource: "tts",
+    body,
+    qa: [],
+    registersVocab: gen.data.chunks.map((c) => ({ lexKey: normalize(c.phrase), gloss: c.gloss })),
+    confidence: "unreviewed",
+  };
+  const ttsJobs = body.map((s, i) => ({ segmentId: `imp-l${i + 1}`, text: s.text }));
+
+  return { reader, verdicts, ttsJobs, lexKeys: reader.registersVocab.map((v) => v.lexKey), costUsd };
 }

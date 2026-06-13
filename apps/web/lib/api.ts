@@ -149,3 +149,22 @@ export async function gloss(word: string, context: string, packId?: string): Pro
     })
   ).json();
 }
+
+export interface ImportResponse {
+  segments: { text: string; gloss: string; translit: string }[];
+  chunks: { phrase: string; gloss: string }[];
+  costUsd?: number;
+  confidence?: string;
+  error?: string;
+}
+
+/** Import + segment + gloss arbitrary target-language text into a gated reader (confidence:"unreviewed"). */
+export async function importText(text: string, packId?: string): Promise<ImportResponse> {
+  return (
+    await fetch("/api/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, packId }),
+    })
+  ).json();
+}

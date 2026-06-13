@@ -540,37 +540,84 @@ function Drill({ drill, onGrade }: { drill: ReviewItem; onGrade: (ok: boolean) =
   );
 }
 
-// ---------- view 4: reading (tap-to-capture) ----------
+// ---------- view 4: reading (tap-to-capture + import-anything) ----------
 function Reading({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
   const pack = usePack();
   const play = usePlay();
   const r = pack.readers[0];
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
-  if (!r) return <section className="view"><h2>Reading</h2><p className="lead">No readers yet.</p></section>;
+  const [showImport, setShowImport] = useState(false);
+  const [raw, setRaw] = useState("");
+  const [imported, setImported] = useState<api.ImportResponse | null>(null);
+  const [importing, setImporting] = useState(false);
+  const [importErr, setImportErr] = useState("");
 
-  // Tap a word → capture it into familiarity + SRS (if new), then open the look-up panel.
   const onTap = (surface: string, line: string) => {
     const lexKey = captureWord(progress, persist, surface);
     if (lexKey) setSel({ lexKey, surface, line });
   };
 
+  const doImport = async () => {
+    if (!raw.trim()) return;
+    setImporting(true);
+    setImportErr("");
+    try {
+      const res = await api.importText(raw, pack.id);
+      if (res.error) throw new Error(res.error);
+      setImported(res);
+      setShowImport(false);
+    } catch (e) {
+      setImportErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  // Active content: imported text (gated) if present, else the built-in reader.
+  const lines = imported ? imported.segments : r ? r.body.map((b) => ({ text: b.text, gloss: b.gloss, translit: b.translit ?? "" })) : [];
+  const score = scoring.scoreText(lines.map((l) => l.text).join(" "), progress.familiarity);
+
   return (
     <section className="view">
-      <h2>Reading — {r.title} <span className="muted small">· {r.titleGloss}</span></h2>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <h2>Reading {imported ? <span className="muted small">· imported <span className="badge warn">unreviewed</span></span> : r ? <span className="muted small">— {r.title}</span> : ""}</h2>
+        <button className="ghost small" onClick={() => setShowImport((s) => !s)}>＋ Import text</button>
+      </div>
+      {showImport && (
+        <div className="fb">
+          <textarea className="text" style={{ width: "100%", minHeight: 80 }} placeholder={`Paste ${pack.name} text — it's segmented, glossed, and difficulty-scored for you…`} value={raw} onChange={(e) => setRaw(e.target.value)} />
+          <div className="row" style={{ marginTop: 8 }}>
+            <button className="btn" onClick={doImport} disabled={importing || !config?.engines.anthropic}>{importing ? "Importing…" : "Import"}</button>
+            {!config?.engines.anthropic && <span className="muted small">Claude not configured</span>}
+          </div>
+          {importErr && <div className="err">{importErr}</div>}
+        </div>
+      )}
       <p className="lead">
-        Tap any word to look it up — it joins your vocabulary + spaced review.{" "}
+        Tap any word to look it up — it joins your vocabulary. <b>{lines.length ? Math.round(score.knownPct * 100) : 0}% known</b> for you.{" "}
         <span className="tok new">new</span> <span className="tok learning">learning</span> <span className="tok known">known</span>
       </p>
       <div className="reader">
-        {r.body.map((l, i) => (
-          <div className="rline2" key={i}>
-            <button className="spk" onClick={() => play(l.text, 0.85)}>🔊</button>
-            <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
-          </div>
-        ))}
+        {lines.length === 0 ? (
+          <p className="muted">No content yet — import some text above.</p>
+        ) : (
+          lines.map((l, i) => <ReaderRow key={i} line={l} progress={progress} play={play} onTapWord={(s) => onTap(s, l.text)} />)
+        )}
       </div>
+      {imported && <button className="ghost small" style={{ marginTop: 10 }} onClick={() => { setImported(null); setRaw(""); }}>↺ Back to the built-in reader</button>}
       {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
     </section>
+  );
+}
+
+function ReaderRow({ line, progress, play, onTapWord }: { line: { text: string; gloss: string; translit?: string }; progress: Progress; play: (t: string, s?: number) => void; onTapWord: (s: string) => void }) {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <div className="rline2">
+      <button className="spk" onClick={() => play(line.text, 0.85)}>🔊</button>
+      <TappableText text={line.text} progress={progress} onTapWord={onTapWord} />
+      {revealed ? <span className="muted small" style={{ marginLeft: 8 }}>· {line.gloss}</span> : <button className="ghost small" style={{ marginLeft: 8 }} onClick={() => setRevealed(true)}>gloss</button>}
+    </div>
   );
 }
 
