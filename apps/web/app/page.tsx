@@ -212,7 +212,6 @@ export default function Home() {
 
 // ---------- Today: the guided daily flow (building order: review → new words → grammar → story → speak) ----------
 type TodayStep =
-  | { kind: "letters" }
   | { kind: "warmup"; items: ReviewItem[] }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
@@ -229,7 +228,6 @@ function Today({ progress, persist, config, navigate }: {
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   // The plan is built once per mount (and when letters finish) so steps don't shift under the user mid-session.
   const steps = useMemo<TodayStep[]>(() => {
-    if (!lettersDone) return [{ kind: "letters" }];
     const out: TodayStep[] = [];
     const now = new Date();
     const due = reviewPool(pack).filter((it) => isDue(progress, it, now)).slice(0, 6);
@@ -252,8 +250,9 @@ function Today({ progress, persist, config, navigate }: {
     if (scen) out.push({ kind: "speak", scenario: scen });
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pack, lettersDone]);
+  }, [pack]);
 
+  const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
   const [subIdx, setSubIdx] = useState(0);
   const est = Math.max(5, steps.length * 3);
@@ -264,12 +263,21 @@ function Today({ progress, persist, config, navigate }: {
     setIdx((i) => i + 1);
   };
 
+  // The alphabet gate runs INLINE inside Today — the whole session is self-contained, no jump to the Library.
+  if (phase === "gate")
+    return (
+      <section className="view">
+        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <p className="lead">First, the alphabet. Macedonian uses Cyrillic — learn and pass these {focusLetters(pack).length} key letters, then today&apos;s session opens up right here.</p>
+        <Letters progress={progress} persist={persist} onDone={() => setPhase("flow")} />
+      </section>
+    );
   if (steps.length === 0)
     return (
       <section className="view">
         <TodayHeader streak={progress.streak?.count ?? 0} />
-        <p className="lead">You&apos;re all caught up for today. 🎉 Come back later, or explore the Library.</p>
-        <button className="btn" onClick={() => navigate("library", "story")}>Browse the Library →</button>
+        <p className="lead">You&apos;re all caught up for today. 🎉 Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
+        <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
       </section>
     );
   if (idx >= steps.length)
@@ -277,10 +285,10 @@ function Today({ progress, persist, config, navigate }: {
       <section className="view">
         <TodayHeader streak={progress.streak?.count ?? 0} />
         <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
-        <p className="lead">Nice work — you finished today&apos;s session.</p>
-        <div className="row">
-          <button className="btn" onClick={() => navigate("library", "scenario")}>Keep practising →</button>
-          <button className="ghost" onClick={() => navigate("progress")}>See your progress →</button>
+        <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
+        <div className="row" style={{ marginTop: 4 }}>
+          <button className="ghost small" onClick={() => navigate("progress")}>See your progress</button>
+          <button className="ghost small" onClick={() => navigate("library", "browse")}>Extra practice in the Library</button>
         </div>
       </section>
     );
@@ -293,14 +301,6 @@ function Today({ progress, persist, config, navigate }: {
       <div className="muted small" style={{ marginBottom: 14 }}>Step {idx + 1} of {steps.length} · ~{est} min</div>
 
       <div key={idx}>
-        {step.kind === "letters" && (
-          <div className="fb">
-            <h3 style={{ marginTop: 0 }}>New here? Start with the alphabet</h3>
-            <p className="lead">Macedonian uses Cyrillic — learn the {focusLetters(pack).length} key letters first (one letter, one sound). It only takes a few minutes, then your daily session opens up.</p>
-            <button className="btn" onClick={() => navigate("library", "letters")}>Learn the letters →</button>
-          </div>
-        )}
-
         {step.kind === "warmup" && (() => {
           const item = step.items[subIdx]!;
           const grade = (ok: boolean) => {
