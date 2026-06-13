@@ -15,6 +15,14 @@ export interface Progress {
   /** @deprecated legacy itemId→FSRS map; migrated into `familiarity` on first load (see page.tsx). */
   reviews?: Record<string, srs.ReviewState>;
   pick: string | null; // active scenario id
+  /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
+  settings?: { autoplay?: boolean };
+  /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
+  streak?: { count: number; lastDay: string };
+  /** Grammar concepts whose rule has been explicitly introduced once (→ later it's just-in-time). */
+  seenGrammar?: Record<string, boolean>;
+  /** The sentence each tapped/captured word was met in — powers in-context (cloze) review. */
+  contexts?: Record<string, string>;
 }
 
 export interface Store {
@@ -22,7 +30,7 @@ export interface Store {
   save(p: Progress): Promise<void>;
 }
 
-export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, familiarity: {}, pick: null });
+export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, familiarity: {}, pick: null, settings: { autoplay: false }, streak: { count: 0, lastDay: "" }, seenGrammar: {}, contexts: {} });
 
 // FSRS cards + familiarity timestamps serialize Dates to strings in JSON; revive them on reload.
 function reviveReviewState(r: srs.ReviewState): void {

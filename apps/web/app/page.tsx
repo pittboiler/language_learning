@@ -3,19 +3,24 @@
 // The pack is selected by id from the registry (progress.activePackId) and flows through context — the
 // UI reads the active pack, never a hardcoded language import. Pure engines (scenario/srs/leveling) run
 // client-side; paid calls (tts/asr/feedback/chat) hit the server route handlers that hold the keys.
+//
+// Navigation is four sections — Today (the guided daily flow) / Library (browse + practice) /
+// Progress (stats + Strengthen) / Me (settings). "Today" sequences one session in a building order:
+// warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { DialogueTurn, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { DialogueTurn, GrammarConcept, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
+import type { FamiliarityEntry } from "@ll/core/familiarity";
 import * as scoring from "@ll/core/familiarity/scoring";
 import * as leveling from "@ll/core/leveling";
-import * as session from "@ll/core/session";
 import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 
-type View = "session" | "letters" | "scenario" | "grammar" | "reading" | "story" | "review" | "write";
+type Section = "today" | "library" | "progress" | "me";
+type LibView = "browse" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
 
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
@@ -59,13 +64,58 @@ const wordStatus = (p: Progress, lexKey: string): string => {
   const e = p.familiarity[lexKey];
   return !e ? "new" : e.status === "known" ? "known" : e.status === "ignored" ? "ignored" : "learning";
 };
-// Capture a tapped word into familiarity + SRS if it's new. Returns its lexKey ("" if not a word).
-const captureWord = (progress: Progress, persist: (p: Progress) => void, surface: string): string => {
+// Capture a tapped word into familiarity + SRS if it's new, and remember the sentence it came from
+// (for in-context cloze review). Returns its lexKey ("" if not a word).
+const captureWord = (progress: Progress, persist: (p: Progress) => void, surface: string, context?: string): string => {
   const lexKey = familiarity.normalize(surface);
-  if (lexKey && !progress.familiarity[lexKey]) {
-    persist({ ...progress, familiarity: { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "word", display: surface }) } });
-  }
+  if (!lexKey) return "";
+  const isNew = !progress.familiarity[lexKey];
+  const needContext = !!context && !progress.contexts?.[lexKey];
+  if (!isNew && !needContext) return lexKey;
+  persist({
+    ...progress,
+    familiarity: isNew ? { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "word", display: surface }) } : progress.familiarity,
+    contexts: needContext ? { ...progress.contexts, [lexKey]: context! } : progress.contexts,
+  });
   return lexKey;
+};
+
+// ---- daily-flow helpers ----
+const pad2 = (n: number) => String(n).padStart(2, "0");
+const localDay = (d = new Date()): string => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+/** Bump the day-streak the first time an activity completes on a new local day (idempotent per day). */
+const bumpStreak = (p: Progress): Progress => {
+  const today = localDay();
+  const s = p.streak ?? { count: 0, lastDay: "" };
+  if (s.lastDay === today) return p;
+  const yesterday = localDay(new Date(Date.now() - 86400000));
+  const count = s.lastDay === yesterday ? s.count + 1 : 1;
+  return { ...p, streak: { count, lastDay: today } };
+};
+// Mark a grammar concept's rule as introduced (so later it's surfaced just-in-time, not re-taught).
+const markSeen = (p: Progress, conceptId: string): Progress => ({ ...p, seenGrammar: { ...p.seenGrammar, [conceptId]: true } });
+// Capture a batch of pre-taught words into familiarity (the "new words" step before the story).
+const captureWords = (p: Progress, words: { lexKey: string; gloss?: string }[]): Progress => {
+  const fam = { ...p.familiarity };
+  for (const w of words) {
+    if (!fam[w.lexKey]) fam[w.lexKey] = familiarity.capture({ lexKey: w.lexKey, kind: w.lexKey.includes(" ") ? "chunk" : "word", display: w.lexKey, gloss: w.gloss });
+  }
+  return { ...p, familiarity: fam };
+};
+// Seed a story's registered vocab into familiarity (reading it "teaches" those words).
+const seedStoryVocab = (p: Progress, story: MiniStory): Progress => {
+  const fam = { ...p.familiarity };
+  for (const v of story.registersVocab) {
+    if (!fam[v.lexKey]) fam[v.lexKey] = familiarity.capture({ lexKey: v.lexKey, kind: v.lexKey.includes(" ") ? "chunk" : "word", display: v.lexKey, gloss: v.gloss });
+  }
+  return { ...p, familiarity: fam };
+};
+// Functional level from progress signals (glyphs known, criteria met, vocab tracked).
+const computeLevel = (pack: LanguagePack, progress: Progress) => {
+  const glyphsKnown = focusLetters(pack).filter((a) => progress.letters[a.glyph]).length;
+  const criteriaMet = Object.values(progress.scenarios).reduce((n, s) => n + s.metCriteria.length, 0);
+  const reviewStrength = Object.keys(progress.familiarity).length;
+  return leveling.currentLevel({ glyphsKnown, glyphsTotal: focusLetters(pack).length, criteriaMet, reviewStrength });
 };
 
 export default function Home() {
@@ -73,7 +123,8 @@ export default function Home() {
   const [progress, setProgress] = useState<Progress>(emptyProgress());
   const [ready, setReady] = useState(false);
   const [config, setConfig] = useState<api.Config | null>(null);
-  const [view, setView] = useState<View>("letters");
+  const [section, setSection] = useState<Section>("today");
+  const [libView, setLibView] = useState<LibView>("browse");
   const pack = useMemo(() => getPack(progress.activePackId), [progress.activePackId]);
 
   useEffect(() => {
@@ -88,7 +139,6 @@ export default function Home() {
       if (!p.pick) p.pick = loadedPack.scenarios[0]!.id;
       setProgress(p);
       setReady(true);
-      setView(focusLetters(loadedPack).every((a) => p.letters[a.glyph]) ? "session" : "letters");
       api.getConfig().then(setConfig).catch(() => {});
     })();
   }, [store]);
@@ -101,100 +151,413 @@ export default function Home() {
     [store],
   );
 
+  // Jump to a section (optionally a Library sub-view + a pre-picked scenario). Used by the Today flow.
+  const navigate = useCallback(
+    (sec: Section, lv?: LibView, scenarioId?: string) => {
+      if (scenarioId) persist({ ...progress, pick: scenarioId });
+      if (lv) setLibView(lv);
+      setSection(sec);
+    },
+    [persist, progress],
+  );
+
   // ---- derived progress signals ----
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   const dueCount = useMemo(() => {
     const now = new Date();
-    return reviewPool(pack).filter((it) => isDue(progress, it, now)).length;
+    const pool = reviewPool(pack);
+    const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
+    const poolDue = pool.filter((it) => isDue(progress, it, now)).length;
+    const capturedDue = Object.values(progress.familiarity).filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey)).length;
+    return poolDue + capturedDue;
   }, [progress, pack]);
-
-  const level = useMemo(() => {
-    const glyphsKnown = focusLetters(pack).filter((a) => progress.letters[a.glyph]).length;
-    const criteriaMet = Object.values(progress.scenarios).reduce((n, s) => n + s.metCriteria.length, 0);
-    const reviewStrength = Object.keys(progress.familiarity).length;
-    return leveling.currentLevel({ glyphsKnown, glyphsTotal: focusLetters(pack).length, criteriaMet, reviewStrength });
-  }, [progress, pack]);
-
-  const nextUp = useMemo(() => {
-    if (!lettersDone) return "learn the focus letters";
-    const inc = pack.scenarios.find((s) => {
-      const p = progress.scenarios[s.id];
-      return !p || s.successCriteria.some((c) => !p.metCriteria.includes(c.id));
-    });
-    if (inc) return `do "${inc.title}"`;
-    return dueCount ? `review ${dueCount} due` : "read or free-chat";
-  }, [lettersDone, progress.scenarios, dueCount, pack]);
-
-  // Compounding vocabulary metrics (known/learning counts) — motivational + drive content selection.
+  const level = useMemo(() => computeLevel(pack, progress), [pack, progress]);
   const vocab = useMemo(() => scoring.computeMetrics(progress.familiarity), [progress.familiarity]);
 
   if (!ready) return <main style={{ padding: 24 }}>Loading…</main>;
-
-  const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
 
   return (
     <PackContext.Provider value={pack}>
       <header>
         <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
-        {packList().length > 1 && (
-          <select
-            className="lang-picker"
-            aria-label="Language"
-            value={pack.id}
-            onChange={(e) => persist({ ...progress, activePackId: e.target.value, pick: null })}
-          >
-            {packList().map((p) => (
-              <option key={p.id} value={p.id}>{(FLAG[p.id] ?? "🌐") + " " + p.name}</option>
-            ))}
-          </select>
-        )}
-        <span className="muted small">Level {level.cefrBand} · {vocab.knownWordCount} known · {vocab.learningCount} learning · Next: {nextUp}</span>
-        <div className="badges">
-          {packUnreviewed(pack) && <span className="badge warn" title="Machine-generated content, pending native review — not yet authoritative">⚠ unreviewed</span>}
-          {config
-            ? [badge("Scribe", config.engines.eleven), badge("Google", config.engines.google), badge("Claude", config.engines.anthropic)]
-            : <span className="muted small">…</span>}
-        </div>
+        <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
+        <span className="streak-chip" style={{ marginLeft: "auto" }} title="Day streak">🔥 {progress.streak?.count ?? 0}</span>
       </header>
       <nav>
         {([
-          ["session", "▶ Session"],
-          ["letters", `① Letters ${lettersDone ? "✓" : ""}`],
-          ["scenario", "② Scenarios"],
-          ["grammar", "③ Grammar"],
-          ["reading", "④ Reading"],
-          ["story", "★ Story"],
-          ["review", `⑤ Review ${dueCount ? dueCount : ""}`],
-          ["write", "⑥ Write"],
-        ] as [View, string][]).map(([v, label]) => (
-          <button key={v} className={view === v ? "active" : ""} onClick={() => setView(v)}>{label}</button>
+          ["today", "Today"],
+          ["library", "Library"],
+          ["progress", `Progress${dueCount ? " " + dueCount : ""}`],
+          ["me", "Me"],
+        ] as [Section, string][]).map(([s, label]) => (
+          <button key={s} className={section === s ? "active" : ""} onClick={() => setSection(s)}>{label}</button>
         ))}
       </nav>
       <main>
-        {view === "session" && (
-          <Session
-            progress={progress}
-            persist={persist}
-            config={config}
-            onNavigate={(v, sid) => {
-              if (sid) persist({ ...progress, pick: sid });
-              setView(v);
-            }}
-          />
+        {section === "today" && <Today progress={progress} persist={persist} config={config} navigate={navigate} />}
+        {section === "library" && (
+          <LibrarySection progress={progress} persist={persist} config={config} lettersDone={lettersDone} mode={libView} setMode={setLibView} />
         )}
-        {view === "letters" && <Letters progress={progress} persist={persist} onDone={() => setView("scenario")} />}
-        {view === "scenario" && <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} />}
-        {view === "grammar" && <Grammar progress={progress} persist={persist} />}
-        {view === "reading" && <Reading progress={progress} persist={persist} config={config} />}
-        {view === "story" && <StoryView progress={progress} persist={persist} config={config} />}
-        {view === "review" && <Review progress={progress} persist={persist} />}
-        {view === "write" && <Writing config={config} />}
+        {section === "progress" && (
+          <>
+            <ProgressDash progress={progress} />
+            <Review progress={progress} persist={persist} />
+          </>
+        )}
+        {section === "me" && <Settings progress={progress} persist={persist} config={config} />}
       </main>
     </PackContext.Provider>
   );
 }
 
-// ---------- view 1: letters ----------
+// ---------- Today: the guided daily flow (building order: review → new words → grammar → story → speak) ----------
+type TodayStep =
+  | { kind: "letters" }
+  | { kind: "warmup"; items: ReviewItem[] }
+  | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
+  | { kind: "grammar"; concept: GrammarConcept }
+  | { kind: "story"; story: MiniStory }
+  | { kind: "speak"; scenario: Scenario };
+
+function Today({ progress, persist, config, navigate }: {
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  navigate: (sec: Section, lv?: LibView, scenarioId?: string) => void;
+}) {
+  const pack = usePack();
+  const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
+  // The plan is built once per mount (and when letters finish) so steps don't shift under the user mid-session.
+  const steps = useMemo<TodayStep[]>(() => {
+    if (!lettersDone) return [{ kind: "letters" }];
+    const out: TodayStep[] = [];
+    const now = new Date();
+    const due = reviewPool(pack).filter((it) => isDue(progress, it, now)).slice(0, 6);
+    if (due.length) out.push({ kind: "warmup", items: due });
+    const story = pack.stories?.[0];
+    if (story) {
+      const words = story.registersVocab.filter((v) => {
+        const e = progress.familiarity[v.lexKey];
+        return !e || e.status === "new";
+      });
+      if (words.length) out.push({ kind: "newwords", words });
+    }
+    const concept = pack.grammar.find((c) => !progress.seenGrammar?.[c.id]);
+    if (concept) out.push({ kind: "grammar", concept });
+    if (story) out.push({ kind: "story", story });
+    const scen = pack.scenarios.find((s) => {
+      const p = progress.scenarios[s.id];
+      return !p || s.successCriteria.some((c) => !p.metCriteria.includes(c.id));
+    }) ?? pack.scenarios[0];
+    if (scen) out.push({ kind: "speak", scenario: scen });
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pack, lettersDone]);
+
+  const [idx, setIdx] = useState(0);
+  const [subIdx, setSubIdx] = useState(0);
+  const est = Math.max(5, steps.length * 3);
+  // Advance to the next step, persisting a single merged Progress and counting the day toward the streak.
+  const done = (mutated: Progress = progress) => {
+    persist(bumpStreak(mutated));
+    setSubIdx(0);
+    setIdx((i) => i + 1);
+  };
+
+  if (steps.length === 0)
+    return (
+      <section className="view">
+        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <p className="lead">You&apos;re all caught up for today. 🎉 Come back later, or explore the Library.</p>
+        <button className="btn" onClick={() => navigate("library", "story")}>Browse the Library →</button>
+      </section>
+    );
+  if (idx >= steps.length)
+    return (
+      <section className="view">
+        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
+        <p className="lead">Nice work — you finished today&apos;s session.</p>
+        <div className="row">
+          <button className="btn" onClick={() => navigate("library", "scenario")}>Keep practising →</button>
+          <button className="ghost" onClick={() => navigate("progress")}>See your progress →</button>
+        </div>
+      </section>
+    );
+
+  const step = steps[idx]!;
+  return (
+    <section className="view">
+      <TodayHeader streak={progress.streak?.count ?? 0} />
+      <div className="pbar"><div style={{ width: `${(idx / steps.length) * 100}%` }} /></div>
+      <div className="muted small" style={{ marginBottom: 14 }}>Step {idx + 1} of {steps.length} · ~{est} min</div>
+
+      <div key={idx}>
+        {step.kind === "letters" && (
+          <div className="fb">
+            <h3 style={{ marginTop: 0 }}>New here? Start with the alphabet</h3>
+            <p className="lead">Macedonian uses Cyrillic — learn the {focusLetters(pack).length} key letters first (one letter, one sound). It only takes a few minutes, then your daily session opens up.</p>
+            <button className="btn" onClick={() => navigate("library", "letters")}>Learn the letters →</button>
+          </div>
+        )}
+
+        {step.kind === "warmup" && (() => {
+          const item = step.items[subIdx]!;
+          const grade = (ok: boolean) => {
+            const graded = gradeItem(progress, item, ok);
+            if (subIdx + 1 >= step.items.length) done(graded);
+            else { persist(graded); setSubIdx((s) => s + 1); }
+          };
+          return (
+            <div>
+              <Tag>Warm up · {step.items.length - subIdx} to review</Tag>
+              {item.kind === "grammar"
+                ? <GrammarCard key={item.id} item={item} onGrade={grade} />
+                : <PhraseCard key={item.id} item={item} onGrade={grade} />}
+            </div>
+          );
+        })()}
+
+        {step.kind === "newwords" && (
+          <div>
+            <Tag>New words · {step.words.length}</Tag>
+            <NewWordsCard words={step.words} onDone={() => done(captureWords(progress, step.words))} />
+          </div>
+        )}
+
+        {step.kind === "grammar" && (
+          <div>
+            <Tag>New grammar</Tag>
+            <GrammarIntroCard
+              concept={step.concept}
+              onDone={(ok) => {
+                const base = step.concept.drills[0] ? gradeItem(progress, step.concept.drills[0]!, ok) : progress;
+                done(markSeen(base, step.concept.id));
+              }}
+            />
+          </div>
+        )}
+
+        {step.kind === "story" && (
+          <div>
+            <Tag>Read the story</Tag>
+            <StoryReader
+              story={step.story}
+              progress={progress}
+              persist={persist}
+              config={config}
+              doneLabel="I read it → speak"
+              onDone={() => done(seedStoryVocab(progress, step.story))}
+            />
+          </div>
+        )}
+
+        {step.kind === "speak" && (
+          <div>
+            <Tag>Speak</Tag>
+            <div className="fb">
+              <div className="line"><b>{step.scenario.title}</b> — {step.scenario.goal}</div>
+              <p className="muted small">Use what you just read — say it out loud.</p>
+              <div className="row" style={{ marginTop: 10 }}>
+                <button className="btn" onClick={() => { persist(bumpStreak(progress)); navigate("library", "scenario", step.scenario.id); }}>Start speaking →</button>
+                <button className="ghost" onClick={() => done()}>Skip →</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {step.kind !== "speak" && (
+        <div className="row" style={{ marginTop: 14 }}>
+          <button className="ghost small" onClick={() => done()}>Skip this step →</button>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Tag({ children }: { children: ReactNode }) {
+  return <div className="muted small" style={{ marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{children}</div>;
+}
+
+function TodayHeader({ streak }: { streak: number }) {
+  return (
+    <div className="today-head">
+      <div>
+        <h2 style={{ marginBottom: 2 }}>Today</h2>
+        <span className="muted small">your guided session</span>
+      </div>
+      <span className="streak-chip" title="Day streak">🔥 {streak} day{streak === 1 ? "" : "s"}</span>
+    </div>
+  );
+}
+
+function NewWordsCard({ words, onDone }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void }) {
+  const play = usePlay();
+  return (
+    <div>
+      <p className="lead">The new words for today&apos;s story — tap 🔊 to hear each, then add them so the story reads at your level.</p>
+      <div className="word-list">
+        {words.map((w) => (
+          <div className="word-row" key={w.lexKey}>
+            <button className="spk" onClick={() => play(w.lexKey, 0.8)}>🔊</button>
+            <b className="target" style={{ fontSize: 18 }}>{w.lexKey}</b>
+            <span className="muted">{w.gloss}</span>
+          </div>
+        ))}
+      </div>
+      <button className="btn" onClick={onDone}>Add these to my words →</button>
+    </div>
+  );
+}
+
+// First-encounter grammar: state the rule + examples (deductive), then one drill. Later it's just-in-time.
+function GrammarIntroCard({ concept, onDone }: { concept: GrammarConcept; onDone: (ok: boolean) => void }) {
+  const drill = concept.drills[0];
+  const [picked, setPicked] = useState<string | null>(null);
+  return (
+    <div className="fb">
+      <h3 style={{ marginTop: 0 }}>{concept.name}</h3>
+      <p>{concept.explanation}</p>
+      <p className="muted small">{concept.examples.join("   ·   ")}</p>
+      {drill ? (
+        <div style={{ marginTop: 12 }}>
+          <div className="muted small">Quick check:</div>
+          <div className="small" style={{ margin: "6px 0 4px" }}><b>{drill.prompt}</b></div>
+          <div>
+            {(drill.options ?? []).map((o) => {
+              const cls = picked ? (o === drill.answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
+              return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)}>{o}</button>;
+            })}
+          </div>
+          {picked && (
+            <div className="why">
+              {picked === drill.answer ? "✓ " : "✗ "}{drill.why}
+              <button className="btn" style={{ marginLeft: 8 }} onClick={() => onDone(picked === drill.answer)}>Next →</button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <button className="btn" style={{ marginTop: 10 }} onClick={() => onDone(true)}>Got it →</button>
+      )}
+    </div>
+  );
+}
+
+// ---------- Library: browse content by difficulty, plus the alphabet/grammar/writing tools ----------
+function difficultyChip(familiarPct: number): { label: string; cls: string } {
+  if (familiarPct >= 0.9) return { label: "easy review", cls: "easy" };
+  if (familiarPct >= 0.55) return { label: "just right", cls: "just" };
+  if (familiarPct >= 0.3) return { label: "a stretch", cls: "stretch" };
+  return { label: "challenging", cls: "hard" };
+}
+
+// Coverage of a text for this learner: knownPct (status known/ignored) for honest display, plus a
+// familiarPct that also counts learning words at half weight — used to rank + label by i+1 fit.
+function coverageOf(text: string, fam: Progress["familiarity"]): { knownPct: number; familiarPct: number } {
+  const words = scoring.tokenize(text).filter((t) => t.isWord);
+  if (!words.length) return { knownPct: 0, familiarPct: 0 };
+  let known = 0;
+  let familiar = 0;
+  for (const w of words) {
+    const e = fam[w.lexKey];
+    if (e && (e.status === "known" || e.status === "ignored")) { known++; familiar++; }
+    else if (e && e.status === "learning") { familiar++; }
+  }
+  return { knownPct: known / words.length, familiarPct: familiar / words.length };
+}
+
+type LibFilter = "all" | "just" | "stretch" | "easy";
+
+function LibrarySection({ progress, persist, config, lettersDone, mode, setMode }: {
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  lettersDone: boolean;
+  mode: LibView;
+  setMode: (m: LibView) => void;
+}) {
+  const pack = usePack();
+  const [filter, setFilter] = useState<LibFilter>("all");
+
+  // All graded content (scenarios + stories + readers) ranked by i+1 fit for this learner.
+  const items = useMemo(() => {
+    const raw = [
+      ...pack.scenarios.map((s) => ({ kind: "scenario" as const, id: s.id, title: s.title, sub: s.setting, text: s.script.map((t) => t.text).join(" "), unreviewed: s.confidence === "unreviewed" })),
+      ...(pack.stories ?? []).map((st) => ({ kind: "story" as const, id: st.id, title: st.title, sub: st.titleGloss ?? st.level, text: st.body.map((b) => b.text).join(" "), unreviewed: st.confidence === "unreviewed" })),
+      ...pack.readers.map((r) => ({ kind: "reading" as const, id: r.id, title: r.title, sub: r.titleGloss ?? "graded reader", text: r.body.map((b) => b.text).join(" "), unreviewed: r.confidence === "unreviewed" })),
+    ];
+    return raw
+      .map((it) => { const c = coverageOf(it.text, progress.familiarity); return { ...it, knownPct: c.knownPct, familiarPct: c.familiarPct, fit: scoring.iPlusOneCurve(c.familiarPct), chip: difficultyChip(c.familiarPct) }; })
+      // Rank by i+1 fit, then by how much is already familiar; on a cold start (all ties) lead with the
+      // story/reading on-ramp before scenarios.
+      .sort((a, b) => b.fit - a.fit || b.familiarPct - a.familiarPct || ["story", "reading", "scenario"].indexOf(a.kind) - ["story", "reading", "scenario"].indexOf(b.kind));
+  }, [pack, progress.familiarity]);
+
+  const filtered = items.filter((it) => filter === "all" || it.chip.cls === filter || (filter === "stretch" && it.chip.cls === "hard"));
+
+  const open = (kind: LibView, id?: string) => {
+    if (kind === "scenario" && id) persist({ ...progress, pick: id });
+    setMode(kind);
+  };
+
+  if (mode !== "browse") {
+    const view =
+      mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
+      mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
+      mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
+      mode === "grammar" ? <Grammar progress={progress} persist={persist} /> :
+      mode === "letters" ? <Letters progress={progress} persist={persist} onDone={() => setMode("browse")} /> :
+      <Writing config={config} />;
+    return (
+      <>
+        <div className="row" style={{ marginBottom: 10 }}><button className="ghost small" onClick={() => setMode("browse")}>← Library</button></div>
+        {view}
+      </>
+    );
+  }
+
+  const typeLabel: Record<string, string> = { scenario: "🗣 Scenario", story: "★ Story", reading: "📖 Reading" };
+  const filterLabel: Record<LibFilter, string> = { all: "All", just: "Just right", stretch: "A stretch", easy: "Easy review" };
+
+  return (
+    <section className="view">
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <h2>Library</h2>
+        <div className="row">
+          <button className="ghost small" onClick={() => setMode("letters")}>Alphabet {lettersDone ? "✓" : ""}</button>
+          <button className="ghost small" onClick={() => setMode("grammar")}>Grammar</button>
+          <button className="ghost small" onClick={() => setMode("write")}>Writing</button>
+        </div>
+      </div>
+      <p className="lead">Stories, scenarios and readings — sorted to fit your level right now. Tap any to start.</p>
+      <div className="picker" style={{ marginBottom: 4 }}>
+        {(["all", "just", "stretch", "easy"] as LibFilter[]).map((f) => (
+          <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>{filterLabel[f]}</button>
+        ))}
+      </div>
+      <div className="cards">
+        {filtered.length === 0 ? (
+          <p className="muted">Nothing in this band yet — try another filter.</p>
+        ) : (
+          filtered.map((it) => (
+            <button className="contentcard" key={it.kind + it.id} onClick={() => open(it.kind, it.id)}>
+              <div className="cc-top">
+                <span className="cc-type">{typeLabel[it.kind]}</span>
+                <span className={`diff ${it.chip.cls}`}>{it.chip.label}</span>
+              </div>
+              <div className="cc-title">{it.title}</div>
+              <div className="muted small">{it.sub}</div>
+              <div className="muted small" style={{ marginTop: 2 }} title="words you already know or are learning">{Math.round(it.familiarPct * 100)}% familiar{it.unreviewed ? " · ⚠ unreviewed" : ""}</div>
+            </button>
+          ))
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ---------- Library view 1: letters ----------
 function Letters({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone: () => void }) {
   const pack = usePack();
   const play = usePlay();
@@ -238,7 +601,7 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
   );
 }
 
-// ---------- view 2: scenarios ----------
+// ---------- Library view 2: scenarios ----------
 function ScenarioView({ progress, persist, config, lettersDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean }) {
   const pack = usePack();
   const s = pack.scenarios.find((x) => x.id === progress.pick) || pack.scenarios[0]!;
@@ -249,6 +612,8 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
     persist({ ...progress, scenarios: { ...progress.scenarios, [s.id]: { turnIndex: r.turnIndex, metCriteria: r.metCriteria } } });
   const setPick = (id: string) => persist({ ...progress, pick: id });
   const restart = () => saveRun(scenario.start(s));
+  const autoplay = progress.settings?.autoplay ?? false;
+  const toggleAutoplay = () => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } });
 
   const turn = scenario.currentTurn(run, s);
   const done = run.turnIndex >= s.script.length;
@@ -260,7 +625,7 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
           <button key={x.id} className={x.id === s.id ? "active" : ""} onClick={() => setPick(x.id)}>{x.title}</button>
         ))}
       </div>
-      {!lettersDone && <div className="banner">Tip: finish <b>① Letters</b> first — but practice here anyway (transliteration is shown).</div>}
+      {!lettersDone && <div className="banner">Tip: finish <b>Letters</b> first — but practice here anyway (transliteration is shown).</div>}
       <h2>{s.title}</h2>
       <p className="lead">{s.goal} — <span className="muted">{s.setting}</span></p>
       <div className="check">
@@ -270,11 +635,12 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
           </span>
         ))}
       </div>
+      {s.requiredStructures.length > 0 && <ScenarioGrammar ids={s.requiredStructures} />}
 
       {done ? (
         <Completion scenarioId={s.id} config={config} />
       ) : turn?.speaker === "partner" ? (
-        <PartnerTurn key={run.turnIndex} turn={turn} onContinue={() => saveRun(scenario.advance(run, s))} />
+        <PartnerTurn key={run.turnIndex} turn={turn} autoplay={autoplay} onContinue={() => saveRun(scenario.advance(run, s))} />
       ) : turn ? (
         <LearnerTurn
           key={run.turnIndex}
@@ -286,16 +652,43 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
 
       <div className="row" style={{ marginTop: 14 }}>
         <button className="ghost" onClick={restart}>↺ Restart</button>
+        <button className="ghost" onClick={toggleAutoplay} title="Auto-play the other speaker's lines for hands-free listening practice">
+          {autoplay ? "🔊 Auto-play: on" : "🔇 Auto-play: off"}
+        </button>
       </div>
     </section>
   );
 }
 
-function PartnerTurn({ turn, onContinue }: { turn: DialogueTurn; onContinue: () => void }) {
+// Focus-on-form: surface the grammar a scenario uses as bite-size, just-in-time notes — tap to expand
+// the rule + examples right where it's relevant, without leaving the conversation.
+function ScenarioGrammar({ ids }: { ids: string[] }) {
+  const pack = usePack();
+  const concepts = ids.map((id) => pack.grammar.find((c) => c.id === id)).filter((c): c is GrammarConcept => !!c);
+  const [open, setOpen] = useState<string | null>(null);
+  if (concepts.length === 0) return null;
+  const shown = concepts.find((c) => c.id === open);
+  return (
+    <div className="gram-inline">
+      <span className="muted small">Grammar here:</span>
+      {concepts.map((c) => (
+        <button key={c.id} className={`ghost small ${open === c.id ? "active" : ""}`} onClick={() => setOpen(open === c.id ? null : c.id)}>ⓖ {c.name}</button>
+      ))}
+      {shown && (
+        <div className="fb" style={{ width: "100%", marginTop: 4 }}>
+          <p className="small" style={{ marginTop: 0 }}>{shown.explanation}</p>
+          <p className="small muted" style={{ marginBottom: 0 }}>{shown.examples.join("   ·   ")}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PartnerTurn({ turn, autoplay, onContinue }: { turn: DialogueTurn; autoplay: boolean; onContinue: () => void }) {
   const play = usePlay();
   useEffect(() => {
-    play(turn.text, 0.85);
-  }, [turn.text, play]);
+    if (autoplay) play(turn.text, 0.85);
+  }, [turn.text, play, autoplay]);
   return (
     <div>
       <div className="bubble partner">
@@ -499,22 +892,38 @@ function Completion({ scenarioId, config }: { scenarioId: string; config: api.Co
   );
 }
 
-// ---------- view 3: grammar ----------
+// ---------- Library view 3: grammar (full reference) ----------
 function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState<string | null>(null);
   const grade = (item: ReviewItem, correct: boolean) => persist(gradeItem(progress, item, correct));
+  const needle = q.trim().toLowerCase();
+  const concepts = pack.grammar.filter((c) => !needle || `${c.name} ${c.explanation}`.toLowerCase().includes(needle));
   return (
     <section className="view">
-      <h2>Grammar that matters</h2>
-      <p className="lead">We drill the grammar features that actually matter for {pack.name} — not a generic template. Answer a drill and it enters your spaced review.</p>
-      {pack.grammar.map((c) => (
-        <div className="concept" key={c.id}>
-          <h3>{c.name}</h3>
-          <p className="small">{c.explanation}</p>
-          <p className="small muted">{c.examples.join(" · ")}</p>
-          {c.drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => grade(d, ok)} />)}
-        </div>
-      ))}
+      <h2>Grammar reference</h2>
+      <p className="lead">New concepts are taught inside your daily session — this is the reference to look anything up. Search, or tap a point to expand the rule and drill it.</p>
+      <input className="text" placeholder="Search grammar…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "100%", marginBottom: 14 }} />
+      {concepts.length === 0 && <p className="muted">No grammar point matches “{q}”.</p>}
+      {concepts.map((c) => {
+        const isOpen = open === c.id;
+        return (
+          <div className="concept" key={c.id}>
+            <button className="concept-head" onClick={() => setOpen(isOpen ? null : c.id)}>
+              <span>{c.name}</span>
+              <span className="muted">{isOpen ? "−" : "+"}</span>
+            </button>
+            {isOpen && (
+              <div style={{ marginTop: 10 }}>
+                <p className="small">{c.explanation}</p>
+                <p className="small muted">{c.examples.join("   ·   ")}</p>
+                {c.drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => grade(d, ok)} />)}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </section>
   );
 }
@@ -540,7 +949,7 @@ function Drill({ drill, onGrade }: { drill: ReviewItem; onGrade: (ok: boolean) =
   );
 }
 
-// ---------- view 4: reading (tap-to-capture + import-anything) ----------
+// ---------- Library view 4: reading (tap-to-capture + import-anything) ----------
 function Reading({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
   const pack = usePack();
   const play = usePlay();
@@ -553,7 +962,7 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
   const [importErr, setImportErr] = useState("");
 
   const onTap = (surface: string, line: string) => {
-    const lexKey = captureWord(progress, persist, surface);
+    const lexKey = captureWord(progress, persist, surface, line);
     if (lexKey) setSel({ lexKey, surface, line });
   };
 
@@ -585,7 +994,7 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
       </div>
       {showImport && (
         <div className="fb">
-          <textarea className="text" style={{ width: "100%", minHeight: 80 }} placeholder={`Paste ${pack.name} text — it's segmented, glossed, and difficulty-scored for you…`} value={raw} onChange={(e) => setRaw(e.target.value)} />
+          <textarea className="text" style={{ width: "100%", minHeight: 80 }} placeholder={`Paste ${pack.name} text — it's segmented, translated, and difficulty-scored for you…`} value={raw} onChange={(e) => setRaw(e.target.value)} />
           <div className="row" style={{ marginTop: 8 }}>
             <button className="btn" onClick={doImport} disabled={importing || !config?.engines.anthropic}>{importing ? "Importing…" : "Import"}</button>
             {!config?.engines.anthropic && <span className="muted small">Claude not configured</span>}
@@ -616,7 +1025,7 @@ function ReaderRow({ line, progress, play, onTapWord }: { line: { text: string; 
     <div className="rline2">
       <button className="spk" onClick={() => play(line.text, 0.85)}>🔊</button>
       <TappableText text={line.text} progress={progress} onTapWord={onTapWord} />
-      {revealed ? <span className="muted small" style={{ marginLeft: 8 }}>· {line.gloss}</span> : <button className="ghost small" style={{ marginLeft: 8 }} onClick={() => setRevealed(true)}>gloss</button>}
+      {revealed ? <span className="muted small" style={{ marginLeft: 8 }}>· {line.gloss}</span> : <button className="ghost small" style={{ marginLeft: 8 }} onClick={() => setRevealed(true)}>translate</button>}
     </div>
   );
 }
@@ -682,7 +1091,7 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
           <span className="muted small"> ({g.source})</span>
         </div>
       ) : (
-        <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No gloss found." : "Gloss needs Claude configured."}</div>
+        <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No translation found." : "Translation needs Claude configured."}</div>
       )}
       <div className="row" style={{ marginTop: 10 }}>
         <button className="ghost" onClick={() => setStat("known")}>✓ Known</button>
@@ -693,22 +1102,25 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
   );
 }
 
-// ---------- story tab: mini-story (synced audio + tap-capture + Q&A → speaking pipeline) ----------
-function StoryView({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
+// ---------- shared story reader (synced audio + tap-capture) — used by Today and the Library Story view ----------
+function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
+  story: MiniStory;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  onDone: () => void;
+  doneLabel: string;
+}) {
   const pack = usePack();
   const play = usePlay();
-  const story = pack.stories?.[0];
-  const [phase, setPhase] = useState<"read" | "qa">("read");
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   const [current, setCurrent] = useState(-1);
   const [slow, setSlow] = useState(false);
   const playing = useRef(false);
-
-  if (!story) return <section className="view"><h2>Story</h2><p className="lead">No stories yet for this pack.</p></section>;
   const speed = slow ? 0.7 : 0.9;
 
   const onTap = (surface: string, line: string) => {
-    const lexKey = captureWord(progress, persist, surface);
+    const lexKey = captureWord(progress, persist, surface, line);
     if (lexKey) setSel({ lexKey, surface, line });
   };
 
@@ -725,13 +1137,41 @@ function StoryView({ progress, persist, config }: { progress: Progress; persist:
     setCurrent(-1);
   };
 
+  return (
+    <>
+      <p className="lead">Listen and read along; tap any word to look it up.</p>
+      <div className="row" style={{ marginBottom: 8 }}>
+        <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
+        <button className="ghost" onClick={() => setSlow((s) => !s)}>{slow ? "🐢 Slow" : "▶︎ Normal"}</button>
+        <span className="muted small">🐢 shadow each line: listen, then say it back.</span>
+      </div>
+      <div className="reader">
+        {story.body.map((l, i) => (
+          <div className={`rline2 ${current === i ? "playing" : ""}`} key={i}>
+            <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
+            <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
+          </div>
+        ))}
+      </div>
+      {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
+      <div className="row" style={{ marginTop: 14 }}>
+        <button className="btn" onClick={onDone}>{doneLabel}</button>
+      </div>
+    </>
+  );
+}
+
+// ---------- Library view 5: mini-story (read → Q&A → speaking pipeline) ----------
+function StoryView({ progress, persist, config, onDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; onDone?: () => void }) {
+  const pack = usePack();
+  const story = pack.stories?.[0];
+  const [phase, setPhase] = useState<"read" | "qa">("read");
+
+  if (!story) return <section className="view"><h2>Story</h2><p className="lead">No stories yet for this pack.</p></section>;
+
   // Reading the story seeds its vocab into familiarity → moves the known-word count.
   const toQA = () => {
-    const fam = { ...progress.familiarity };
-    for (const v of story.registersVocab) {
-      if (!fam[v.lexKey]) fam[v.lexKey] = familiarity.capture({ lexKey: v.lexKey, kind: v.lexKey.includes(" ") ? "chunk" : "word", display: v.lexKey, gloss: v.gloss });
-    }
-    persist({ ...progress, familiarity: fam });
+    persist(seedStoryVocab(progress, story));
     setPhase("qa");
   };
 
@@ -740,34 +1180,22 @@ function StoryView({ progress, persist, config }: { progress: Progress; persist:
       <h2>★ {story.title} <span className="muted small">· {story.titleGloss}</span></h2>
       {story.audioSource === "tts" && <p className="muted small">audio: synthesized (TTS) — a native recording is pending.</p>}
       {phase === "read" ? (
-        <>
-          <p className="lead">Listen and read along; tap any word to look it up. Then answer the questions.</p>
-          <div className="row" style={{ marginBottom: 8 }}>
-            <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
-            <button className="ghost" onClick={() => setSlow((s) => !s)}>{slow ? "🐢 Slow" : "▶︎ Normal"}</button>
-            <span className="muted small">🐢 shadow each line: listen, then say it back.</span>
-          </div>
-          <div className="reader">
-            {story.body.map((l, i) => (
-              <div className={`rline2 ${current === i ? "playing" : ""}`} key={i}>
-                <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
-                <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
-              </div>
-            ))}
-          </div>
-          {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
-          <div className="row" style={{ marginTop: 14 }}>
-            <button className="btn" onClick={toQA}>I read it → questions <span className="muted small">(+{story.registersVocab.length} words)</span></button>
-          </div>
-        </>
+        <StoryReader
+          story={story}
+          progress={progress}
+          persist={persist}
+          config={config}
+          doneLabel={`I read it → questions (+${story.registersVocab.length} words)`}
+          onDone={toQA}
+        />
       ) : (
-        <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} />
+        <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} onDone={onDone} />
       )}
     </section>
   );
 }
 
-function StoryQAView({ story, config, onRestart }: { story: MiniStory; config: api.Config | null; onRestart: () => void }) {
+function StoryQAView({ story, config, onRestart, onDone }: { story: MiniStory; config: api.Config | null; onRestart: () => void; onDone?: () => void }) {
   const play = usePlay();
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   return (
@@ -789,187 +1217,15 @@ function StoryQAView({ story, config, onRestart }: { story: MiniStory; config: a
           )}
         </div>
       ))}
-      <div className="row" style={{ marginTop: 12 }}><button className="ghost" onClick={onRestart}>↺ Read again</button></div>
-    </div>
-  );
-}
-
-// ---------- interleaved session (mixes review / speak / grammar / read / write / glyph) ----------
-function Session({ progress, persist, config, onNavigate }: {
-  progress: Progress;
-  persist: (p: Progress) => void;
-  config: api.Config | null;
-  onNavigate: (view: View, scenarioId?: string) => void;
-}) {
-  const pack = usePack();
-  const plan = useMemo(() => {
-    const now = new Date();
-    const dueReviewIds = reviewPool(pack).filter((it) => isDue(progress, it, now)).map((it) => it.id);
-    const unknownGlyphs = focusLetters(pack).filter((a) => !progress.letters[a.glyph]).map((a) => a.glyph);
-    const completedScenarioIds = pack.scenarios
-      .filter((s) => { const p = progress.scenarios[s.id]; return !!p && s.successCriteria.every((c) => p.metCriteria.includes(c.id)); })
-      .map((s) => s.id);
-    return session.buildSession({ dueReviewIds, lettersDone: unknownGlyphs.length === 0, unknownGlyphs, completedScenarioIds }, pack, { size: 8 });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pack]);
-  const [idx, setIdx] = useState(0);
-  const next = () => setIdx((i) => i + 1);
-
-  if (plan.activities.length === 0)
-    return <section className="view"><h2>Session</h2><p className="lead">Nothing to practice right now — you're caught up. 🎉 Add items via a scenario or grammar drill.</p></section>;
-  if (idx >= plan.activities.length)
-    return <section className="view"><h2>Session complete 🎉</h2><p className="lead">{plan.activities.length} activities done — nicely interleaved. Come back later for more.</p><button className="btn" onClick={() => setIdx(0)}>Go again</button></section>;
-
-  const act = plan.activities[idx]!;
-  return (
-    <section className="view">
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h2>Session <span className="muted small">· {idx + 1}/{plan.activities.length} · ~{plan.estMinutes} min</span></h2>
-        <button className="ghost small" onClick={next}>Skip →</button>
+      <div className="row" style={{ marginTop: 12 }}>
+        <button className="ghost" onClick={onRestart}>↺ Read again</button>
+        {onDone && <button className="btn" onClick={onDone}>Done →</button>}
       </div>
-      <p className="lead muted small">Interleaved practice — a mix of review, speaking, grammar, reading and writing rather than one block at a time.</p>
-      <SessionStep key={idx} act={act} progress={progress} persist={persist} config={config} onDone={next} onNavigate={onNavigate} />
-    </section>
-  );
-}
-
-function Tag({ children }: { children: ReactNode }) {
-  return <div className="muted small" style={{ marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{children}</div>;
-}
-function AutoSkip({ onDone }: { onDone: () => void }) {
-  useEffect(() => { onDone(); }, [onDone]);
-  return null;
-}
-
-function SessionStep({ act, progress, persist, config, onDone, onNavigate }: {
-  act: session.Activity;
-  progress: Progress;
-  persist: (p: Progress) => void;
-  config: api.Config | null;
-  onDone: () => void;
-  onNavigate: (view: View, scenarioId?: string) => void;
-}) {
-  const pack = usePack();
-  const play = usePlay();
-  const gradeReview = (item: ReviewItem, ok: boolean) => {
-    persist(gradeItem(progress, item, ok));
-    onDone();
-  };
-
-  switch (act.kind) {
-    case "review": {
-      const item = reviewPool(pack).find((i) => i.id === act.ref);
-      if (!item) return <AutoSkip onDone={onDone} />;
-      return <div><Tag>Review</Tag>{item.kind === "grammar"
-        ? <GrammarCard item={item} onGrade={(ok) => gradeReview(item, ok)} />
-        : <PhraseCard item={item} onGrade={(ok) => gradeReview(item, ok)} />}</div>;
-    }
-    case "grammar": {
-      const concept = pack.grammar.find((c) => c.id === act.ref);
-      const drill = concept?.drills[0];
-      if (!drill) return <AutoSkip onDone={onDone} />;
-      return <div><Tag>Grammar · {concept!.name}</Tag><GrammarCard item={drill} onGrade={(ok) => gradeReview(drill, ok)} /></div>;
-    }
-    case "glyph": {
-      const g = pack.alphabet.find((a) => a.glyph === act.ref);
-      if (!g) return <AutoSkip onDone={onDone} />;
-      return (
-        <div><Tag>Letter</Tag>
-          <div className="fb">
-            <div className="target">{g.glyph}</div>
-            <div className="translit">{g.name} · {g.sound}</div>
-            <div className="ex" style={{ marginTop: 4 }}>{g.examples[0]?.text} <span className="muted small">· {g.examples[0]?.gloss}</span></div>
-            <div className="row" style={{ marginTop: 10 }}>
-              <button className="ghost" onClick={() => g.examples[0] && play(g.examples[0].text, 0.7)}>🔊 hear</button>
-              <button className="btn" onClick={() => { persist({ ...progress, letters: { ...progress.letters, [g.glyph]: true } }); onDone(); }}>Got it →</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    case "reading": {
-      const r = pack.readers.find((x) => x.id === act.ref);
-      const line = r?.body[0];
-      if (!line) return <AutoSkip onDone={onDone} />;
-      return <div><Tag>Reading · {r!.title}</Tag><ReadingLine line={line} onDone={onDone} /></div>;
-    }
-    case "writing": {
-      const task = (pack.writingTasks ?? []).find((t) => t.id === act.ref);
-      if (!task) return <AutoSkip onDone={onDone} />;
-      return <div><Tag>Writing</Tag><InlineWriting task={task} config={config} onDone={onDone} /></div>;
-    }
-    case "scenario": {
-      const s = pack.scenarios.find((x) => x.id === act.ref);
-      if (!s) return <AutoSkip onDone={onDone} />;
-      return (
-        <div><Tag>Speaking</Tag>
-          <div className="fb">
-            <div className="line"><b>{s.title}</b> — {s.goal}</div>
-            <div className="row" style={{ marginTop: 10 }}>
-              <button className="btn" onClick={() => onNavigate("scenario", s.id)}>Practice in Scenarios →</button>
-              <button className="ghost" onClick={onDone}>Skip →</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    default:
-      return <AutoSkip onDone={onDone} />;
-  }
-}
-
-function ReadingLine({ line, onDone }: { line: DialogueTurn; onDone: () => void }) {
-  const play = usePlay();
-  const [revealed, setRevealed] = useState(false);
-  return (
-    <div className="fb">
-      <div className="row"><button className="spk" onClick={() => play(line.text, 0.85)}>🔊</button><span className="rmk">{line.text}</span></div>
-      {revealed ? <div className="rg">{line.gloss}</div> : <button className="ghost" style={{ marginTop: 8 }} onClick={() => setRevealed(true)}>Reveal meaning</button>}
-      <div className="row" style={{ marginTop: 10 }}><button className="btn" onClick={onDone}>Next →</button></div>
     </div>
   );
 }
 
-function InlineWriting({ task, config, onDone }: { task: { id: string; prompt: string }; config: api.Config | null; onDone: () => void }) {
-  const pack = usePack();
-  const [text, setText] = useState("");
-  const [spin, setSpin] = useState(false);
-  const [result, setResult] = useState<api.WriteResponse | null>(null);
-  const [err, setErr] = useState("");
-  const submit = async () => {
-    if (!text.trim()) return;
-    setErr("");
-    setSpin(true);
-    try {
-      const r = await api.writeCorrect(text, task.id, pack.id);
-      if (r.error) throw new Error(r.error);
-      setResult(r);
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : String(e));
-    } finally {
-      setSpin(false);
-    }
-  };
-  return (
-    <div className="fb">
-      <div className="line"><b>Task:</b> {task.prompt}</div>
-      <textarea className="text" style={{ width: "100%", minHeight: 60 }} placeholder={`Write in ${pack.name}…`} value={text} onChange={(e) => setText(e.target.value)} />
-      <div className="row" style={{ marginTop: 8 }}>
-        <button className="btn" onClick={submit} disabled={spin || !config?.engines.anthropic}>{spin ? "Checking…" : "Check"}</button>
-        <button className="ghost" onClick={onDone}>Next →</button>
-      </div>
-      {err && <div className="err">{err}</div>}
-      {result && (
-        <div className="line" style={{ marginTop: 8 }}>
-          {result.isCorrect ? "✓ " : ""}{result.overall}
-          {!result.isCorrect && <> <span className="muted">→</span> <span className="target" style={{ fontSize: 16 }}>{result.corrected}</span></>}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ---------- view 6: writing (prompted production + correction-why) ----------
+// ---------- Library view 6: writing (prompted production + correction-why) ----------
 function Writing({ config }: { config: api.Config | null }) {
   const pack = usePack();
   const tasks = pack.writingTasks ?? [];
@@ -1038,37 +1294,115 @@ function Writing({ config }: { config: api.Config | null }) {
   );
 }
 
-// ---------- view 5: review (unified SRS over phrases + grammar) ----------
+// ---------- Progress section: functional stats + Strengthen ----------
+function ProgressDash({ progress }: { progress: Progress }) {
+  const pack = usePack();
+  const vocab = scoring.computeMetrics(progress.familiarity);
+  const level = computeLevel(pack, progress);
+  const streak = progress.streak?.count ?? 0;
+  const stat = (l: string, v: ReactNode, accent?: boolean) => (
+    <div className="stat" key={l}><div className={`v ${accent ? "accent" : ""}`}>{v}</div><div className="l">{l}</div></div>
+  );
+  return (
+    <section className="view">
+      <h2>Your progress</h2>
+      <p className="lead">Functional progress — what you can actually understand and say — not just streak days.</p>
+      <div className="stats">
+        {stat("Words known", vocab.knownWordCount, true)}
+        {stat("Learning", vocab.learningCount)}
+        {stat("New this week", vocab.movedToKnownThisWeek)}
+        {stat("Day streak", streak)}
+        {stat("Level", level.cefrBand)}
+      </div>
+    </section>
+  );
+}
+
+// ---------- Progress section: Strengthen (unified SRS over phrases + grammar) ----------
+type ReviewUnit =
+  | { type: "pool"; key: string; item: ReviewItem; strength: number }
+  | { type: "captured"; key: string; entry: FamiliarityEntry; strength: number };
+
 function Review({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
-  const queue = useMemo(() => {
+  // Weakest-first queue of everything due: pack vocab/grammar PLUS words you captured while reading
+  // (those are reviewed in the sentence you met them in — cloze).
+  const queue = useMemo<ReviewUnit[]>(() => {
     const now = new Date();
-    return reviewPool(pack).filter((it) => isDue(progress, it, now));
+    const pool = reviewPool(pack);
+    const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
+    const poolUnits: ReviewUnit[] = pool
+      .filter((it) => isDue(progress, it, now))
+      .map((it) => {
+        const k = familiarity.deriveKeyForItem(it).lexKey;
+        return { type: "pool", key: k, item: it, strength: progress.familiarity[k]?.strength ?? 0 };
+      });
+    const capturedUnits: ReviewUnit[] = Object.values(progress.familiarity)
+      .filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey))
+      .map((e) => ({ type: "captured", key: e.lexKey, entry: e, strength: e.strength }));
+    const nowMs = now.getTime();
+    const dueMs = (u: ReviewUnit) => {
+      const srs = u.type === "captured" ? u.entry.srs : progress.familiarity[u.key]?.srs;
+      return srs ? new Date(srs.due).getTime() : nowMs; // untracked pool items count as due now
+    };
+    return [...poolUnits, ...capturedUnits].sort((a, b) => dueMs(a) - dueMs(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack]);
   const [idx, setIdx] = useState(0);
 
-  const grade = (item: ReviewItem, ok: boolean) => {
-    persist(gradeItem(progress, item, ok));
+  const gradePool = (item: ReviewItem, ok: boolean) => { persist(gradeItem(progress, item, ok)); setIdx((i) => i + 1); };
+  const gradeCaptured = (lexKey: string, ok: boolean) => {
+    const e = progress.familiarity[lexKey];
+    if (e) persist({ ...progress, familiarity: { ...progress.familiarity, [lexKey]: familiarity.grade(e, ok ? "good" : "again") } });
     setIdx((i) => i + 1);
   };
 
   if (queue.length === 0)
-    return <section className="view"><h2>Review</h2><p className="lead">Nothing due — you're caught up. Do a scenario or a grammar drill to add items.</p></section>;
+    return <section className="view"><h2>Strengthen</h2><p className="lead">Nothing to strengthen right now — you're caught up. New words and grammar you meet show up here to lock in.</p></section>;
   if (idx >= queue.length)
-    return <section className="view"><h2>Review</h2><p className="lead">Done — {queue.length} reviewed. 🎉</p></section>;
+    return <section className="view"><h2>Strengthen</h2><p className="lead">Done — {queue.length} strengthened. 🎉</p></section>;
 
-  const it = queue[idx]!;
+  const u = queue[idx]!;
   return (
     <section className="view">
-      <h2>Review <span className="muted small">· {queue.length - idx} left</span></h2>
-      <p className="lead">Recall before you reveal.</p>
-      {it.kind === "grammar" ? (
-        <GrammarCard key={it.id} item={it} onGrade={(ok) => grade(it, ok)} />
+      <h2>Strengthen <span className="muted small">· {queue.length - idx} left</span></h2>
+      <p className="lead">Recall each before you reveal — your most-due items first, including words you saved while reading.</p>
+      {u.type === "pool" ? (
+        u.item.kind === "grammar"
+          ? <GrammarCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />
+          : <PhraseCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />
       ) : (
-        <PhraseCard key={it.id} item={it} onGrade={(ok) => grade(it, ok)} />
+        <ClozeCard key={u.key} entry={u.entry} context={progress.contexts?.[u.key]} onGrade={(ok) => gradeCaptured(u.key, ok)} />
       )}
     </section>
+  );
+}
+
+const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+// Captured-word review shown in context: the word blanked inside the sentence you met it in.
+function ClozeCard({ entry, context, onGrade }: { entry: FamiliarityEntry; context?: string; onGrade: (ok: boolean) => void }) {
+  const play = usePlay();
+  const [revealed, setRevealed] = useState(false);
+  const blanked = context ? context.replace(new RegExp(`(^|[^\\p{L}])(${escapeRe(entry.display)})(?=[^\\p{L}]|$)`, "iu"), (_m, pre) => `${pre}____`) : null;
+  const cloze = blanked && blanked !== context ? blanked : null;
+  return (
+    <div className="fb">
+      <div className="muted small">{cloze ? "Fill the blank" : "Recall this word"}{entry.gloss ? ` — “${entry.gloss}”` : ""}:</div>
+      <div style={{ fontSize: 19, margin: "8px 0", lineHeight: 1.5 }}>{cloze ?? entry.gloss ?? entry.display}</div>
+      {!revealed ? (
+        <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
+      ) : (
+        <div>
+          <div className="target" style={{ fontSize: 22 }}>{entry.display}</div>
+          <div className="row" style={{ marginTop: 10 }}>
+            <button className="ghost" onClick={() => play(entry.display, 0.8)}>🔊 hear</button>
+            <button className="ghost" onClick={() => onGrade(false)}>Again</button>
+            <button className="btn" onClick={() => onGrade(true)}>Good</button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -1121,5 +1455,40 @@ function GrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolea
         </div>
       )}
     </div>
+  );
+}
+
+// ---------- Me: settings ----------
+function Settings({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
+  const pack = usePack();
+  const autoplay = progress.settings?.autoplay ?? false;
+  const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
+  return (
+    <section className="view">
+      <h2>Settings</h2>
+      <div className="setting-row">
+        <b>Language</b>
+        {packList().length > 1 ? (
+          <select className="lang-picker" aria-label="Language" value={pack.id} onChange={(e) => persist({ ...progress, activePackId: e.target.value, pick: null })}>
+            {packList().map((p) => <option key={p.id} value={p.id}>{(FLAG[p.id] ?? "🌐") + " " + p.name}</option>)}
+          </select>
+        ) : <span className="muted">{pack.name}</span>}
+      </div>
+      <div className="setting-row">
+        <b>Auto-play audio</b>
+        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } })}>{autoplay ? "🔊 On" : "🔇 Off"}</button>
+        <span className="muted small">Play the other speaker's lines automatically in scenarios and stories.</span>
+      </div>
+      <div className="setting-row">
+        <b>Speech &amp; AI</b>
+        {config ? [badge("Scribe", config.engines.eleven), badge("Google", config.engines.google), badge("Claude", config.engines.anthropic)] : <span className="muted small">…</span>}
+      </div>
+      {packUnreviewed(pack) && (
+        <div className="setting-row">
+          <span className="badge warn">⚠ unreviewed</span>
+          <span className="muted small">This pack's content is machine-generated, pending native review — not yet authoritative.</span>
+        </div>
+      )}
+    </section>
   );
 }
