@@ -54,6 +54,11 @@ const gradeItem = (p: Progress, item: ReviewItem, ok: boolean): Progress => {
   const entry = p.familiarity[spec.lexKey] ?? familiarity.capture(spec);
   return { ...p, familiarity: { ...p.familiarity, [spec.lexKey]: familiarity.grade(entry, ok ? "good" : "again") } };
 };
+// Visual familiarity status of a reader word (drives the colored tokens).
+const wordStatus = (p: Progress, lexKey: string): string => {
+  const e = p.familiarity[lexKey];
+  return !e ? "new" : e.status === "known" ? "known" : e.status === "ignored" ? "ignored" : "learning";
+};
 
 export default function Home() {
   const store = useMemo(() => getStore(), []);
@@ -171,7 +176,7 @@ export default function Home() {
         {view === "letters" && <Letters progress={progress} persist={persist} onDone={() => setView("scenario")} />}
         {view === "scenario" && <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} />}
         {view === "grammar" && <Grammar progress={progress} persist={persist} />}
-        {view === "reading" && <Reading />}
+        {view === "reading" && <Reading progress={progress} persist={persist} config={config} />}
         {view === "review" && <Review progress={progress} persist={persist} />}
         {view === "write" && <Writing config={config} />}
       </main>
@@ -525,27 +530,106 @@ function Drill({ drill, onGrade }: { drill: ReviewItem; onGrade: (ok: boolean) =
   );
 }
 
-// ---------- view 4: reading ----------
-function Reading() {
+// ---------- view 4: reading (tap-to-capture) ----------
+function Reading({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
   const pack = usePack();
   const play = usePlay();
   const r = pack.readers[0];
-  const [revealed, setRevealed] = useState<Record<number, boolean>>({});
+  const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   if (!r) return <section className="view"><h2>Reading</h2><p className="lead">No readers yet.</p></section>;
+
+  // Tap a word → capture it into familiarity + SRS (if new), then open the look-up panel.
+  const tapWord = (surface: string, line: string) => {
+    const lexKey = familiarity.normalize(surface);
+    if (!lexKey) return;
+    if (!progress.familiarity[lexKey]) {
+      persist({ ...progress, familiarity: { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "word", display: surface }) } });
+    }
+    setSel({ lexKey, surface, line });
+  };
+
   return (
     <section className="view">
       <h2>Reading — {r.title} <span className="muted small">· {r.titleGloss}</span></h2>
-      <p className="lead">Read each line aloud; tap a line to reveal its meaning, 🔊 to hear it.</p>
-      <div>
+      <p className="lead">
+        Tap any word to look it up — it joins your vocabulary + spaced review.{" "}
+        <span className="tok new">new</span> <span className="tok learning">learning</span> <span className="tok known">known</span>
+      </p>
+      <div className="reader">
         {r.body.map((l, i) => (
-          <div className="rline" key={i} onClick={() => setRevealed((s) => ({ ...s, [i]: !s[i] }))}>
-            <button className="spk" onClick={(e) => { e.stopPropagation(); play(l.text, 0.85); }}>🔊</button>
-            <span className="rmk">{l.text}</span>
-            {revealed[i] && <div className="rg">{l.gloss}</div>}
+          <div className="rline2" key={i}>
+            <button className="spk" onClick={() => play(l.text, 0.85)}>🔊</button>
+            <span className="rtext">
+              {scoring.tokenize(l.text).map((t, j) =>
+                t.isWord ? (
+                  <WordToken key={j} surface={t.surface} status={wordStatus(progress, t.lexKey)} onTap={() => tapWord(t.surface, l.text)} />
+                ) : (
+                  <span key={j}>{t.surface}</span>
+                ),
+              )}
+            </span>
           </div>
         ))}
       </div>
+      {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
     </section>
+  );
+}
+
+function WordToken({ surface, status, onTap }: { surface: string; status: string; onTap: () => void }) {
+  return <span className={`tok ${status}`} onClick={onTap}>{surface}</span>;
+}
+
+function WordPanel({ sel, progress, persist, config, onClose }: {
+  sel: { lexKey: string; surface: string; line: string };
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  onClose: () => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const [g, setG] = useState<api.GlossResponse | null>(null);
+  const [spin, setSpin] = useState(false);
+  useEffect(() => {
+    let live = true;
+    setG(null);
+    setSpin(true);
+    api.gloss(sel.surface, sel.line, pack.id).then((r) => { if (live) setG(r); }).catch(() => {}).finally(() => { if (live) setSpin(false); });
+    return () => { live = false; };
+  }, [sel.surface, sel.line, pack.id]);
+
+  const entry = progress.familiarity[sel.lexKey];
+  const setStat = (status: "known" | "ignored") => {
+    const e = entry ?? familiarity.capture({ lexKey: sel.lexKey, kind: "word", display: sel.surface });
+    persist({ ...progress, familiarity: { ...progress.familiarity, [sel.lexKey]: familiarity.setStatus(e, status) } });
+    onClose();
+  };
+
+  return (
+    <div className="wordpanel">
+      <div className="row">
+        <b className="target" style={{ fontSize: 20 }}>{sel.surface}</b>
+        <button className="spk" onClick={() => play(sel.surface, 0.8)}>🔊</button>
+        <button className="ghost small" style={{ marginLeft: "auto" }} onClick={onClose}>✕</button>
+      </div>
+      {spin ? (
+        <div className="spin">Looking up…</div>
+      ) : g?.gloss ? (
+        <div style={{ marginTop: 4 }}>
+          {g.translit && <span className="translit">{g.translit} · </span>}
+          <span style={{ fontSize: 16 }}>{g.gloss}</span>
+          <span className="muted small"> ({g.source})</span>
+        </div>
+      ) : (
+        <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No gloss found." : "Gloss needs Claude configured."}</div>
+      )}
+      <div className="row" style={{ marginTop: 10 }}>
+        <button className="ghost" onClick={() => setStat("known")}>✓ Known</button>
+        <button className="ghost" onClick={() => setStat("ignored")}>✕ Ignore</button>
+        <span className="muted small">{entry ? `tracked · ${entry.status}` : "captured"}</span>
+      </div>
+    </div>
   );
 }
 

@@ -80,6 +80,18 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .rline { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; background: var(--bg); cursor: pointer; }
 .rmk { font-size: 17px; }
 .rg { color: var(--mut); font-size: 13px; margin-top: 6px; }
+
+/* tap-to-capture reader */
+.reader { line-height: 2.2; }
+.rline2 { margin: 2px 0; }
+.rtext { font-size: 18px; }
+.tok { cursor: pointer; border-radius: 4px; padding: 0 2px; transition: filter .1s; }
+.tok:hover { filter: brightness(1.4); }
+.tok.new { background: rgba(76, 142, 255, .16); border-bottom: 2px solid var(--accent); }
+.tok.learning { background: rgba(210, 153, 34, .18); border-bottom: 2px solid var(--warn); }
+.tok.known { border-bottom: 2px solid transparent; }
+.tok.ignored { color: var(--mut); }
+.wordpanel { position: sticky; bottom: 8px; background: var(--card); border: 1px solid var(--accent); border-radius: 10px; padding: 12px 14px; margin-top: 14px; box-shadow: 0 4px 18px rgba(0, 0, 0, .35); }
 input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid var(--line); border-radius: 8px; color: inherit; padding: 9px 10px; font: inherit; }
 .gate { font-size: 11px; padding: 1px 7px; border-radius: 99px; border: 1px solid var(--line); margin-left: 8px; }
 .gate.high { color: var(--ok); border-color: var(--ok); }

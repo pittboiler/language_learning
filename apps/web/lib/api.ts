@@ -113,3 +113,23 @@ export async function writeCorrect(attempt: string, taskId: string, packId?: str
     })
   ).json();
 }
+
+export interface GlossResponse {
+  gloss: string;
+  translit?: string;
+  lemma?: string;
+  source: "pack" | "llm" | "none" | "error";
+  costUsd?: number;
+  error?: string;
+}
+
+/** Look up a single word (pack-vocab first, else a Haiku gloss). For tap-to-capture in the reader. */
+export async function gloss(word: string, context: string, packId?: string): Promise<GlossResponse> {
+  return (
+    await fetch("/api/gloss", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ word, context, packId }),
+    })
+  ).json();
+}

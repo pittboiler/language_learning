@@ -73,7 +73,8 @@ export function deriveStatus(srs: ReviewState | null): { status: FamiliarityStat
   if (!srs) return { status: "known", strength: 1 }; // null ⇒ explicitly known (ignored is set on the entry)
   const card = srs.card;
   const strength = clamp01((card.stability ?? 0) / KNOWN_THRESHOLD);
-  if (card.state === State.New || card.reps === 0) return { status: "new", strength: 0 };
+  // A TRACKED entry is at least "learning" — capturing a word means you're now learning it (LingQ-style).
+  // "new" is reserved for UNTRACKED words (no entry); the app renders those from the absence of an entry.
   if (card.state === State.Review && (card.stability ?? 0) >= KNOWN_THRESHOLD) return { status: "known", strength };
   return { status: "learning", strength };
 }
