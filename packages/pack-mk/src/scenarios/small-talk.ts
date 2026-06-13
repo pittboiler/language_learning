@@ -7,6 +7,7 @@ export const smallTalk: Scenario = {
   title: "Small talk with someone",
   goal: "Greet a stranger, say where you're from, and that you're learning Macedonian.",
   setting: "standing next to someone at the bar",
+  theme: "Meeting people",
   requiredVocab: ["v-zdravo", "v-od-kade", "v-ucam"],
   requiredStructures: [],
   script: [

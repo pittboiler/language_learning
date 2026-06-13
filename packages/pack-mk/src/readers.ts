@@ -7,6 +7,7 @@ export const readers: Reader[] = [
     id: "cafe",
     title: "Во кафулето",
     titleGloss: "At the café",
+    theme: "Café & bar",
     i1Level: 2,
     confidence: "authored",
     body: [

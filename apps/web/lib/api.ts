@@ -111,6 +111,7 @@ export async function chat(
 
 export interface WriteResponse {
   corrected: string;
+  correctedTranslit?: string;
   isCorrect: boolean;
   issues: { original: string; fix: string; why: string }[];
   overall: string;

@@ -8,7 +8,7 @@
 // Progress (stats + Strengthen) / Me (settings). "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { DialogueTurn, GrammarConcept, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { DialogueTurn, GlyphLesson, GrammarConcept, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -20,7 +20,7 @@ import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 
 type Section = "today" | "library" | "progress" | "me";
-type LibView = "browse" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
+type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
 
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
@@ -240,7 +240,7 @@ function Today({ progress, persist, config, navigate }: {
         const e = progress.familiarity[v.lexKey];
         return !e || e.status === "new";
       });
-      if (words.length) out.push({ kind: "newwords", words });
+      if (words.length) out.push({ kind: "newwords", words: words.slice(0, 5) });
     }
     const concept = pack.grammar.find((c) => !progress.seenGrammar?.[c.id]);
     if (concept) out.push({ kind: "grammar", concept });
@@ -354,24 +354,16 @@ function Today({ progress, persist, config, navigate }: {
 
         {step.kind === "speak" && (
           <div>
-            <Tag>Speak</Tag>
-            <div className="fb">
-              <div className="line"><b>{step.scenario.title}</b> — {step.scenario.goal}</div>
-              <p className="muted small">Use what you just read — say it out loud.</p>
-              <div className="row" style={{ marginTop: 10 }}>
-                <button className="btn" onClick={() => { persist(bumpStreak(progress)); navigate("library", "scenario", step.scenario.id); }}>Start speaking →</button>
-                <button className="ghost" onClick={() => done()}>Skip →</button>
-              </div>
-            </div>
+            <Tag>Speak · {step.scenario.title}</Tag>
+            <p className="muted small">{step.scenario.goal} — use what you just read, out loud.</p>
+            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare onComplete={() => done()} />
           </div>
         )}
       </div>
 
-      {step.kind !== "speak" && (
-        <div className="row" style={{ marginTop: 14 }}>
-          <button className="ghost small" onClick={() => done()}>Skip this step →</button>
-        </div>
-      )}
+      <div className="row" style={{ marginTop: 14 }}>
+        <button className="ghost small" onClick={() => done()}>Skip this step →</button>
+      </div>
     </section>
   );
 }
@@ -392,21 +384,49 @@ function TodayHeader({ streak }: { streak: number }) {
   );
 }
 
+const FALLBACK_GLOSSES = ["hello", "thank you", "please", "yes", "good", "water"];
+
+// Pre-teach the story's new words interactively: hear each, tap its meaning (multiple choice), then
+// they're captured. Engages instead of just listing.
 function NewWordsCard({ words, onDone }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void }) {
   const play = usePlay();
+  const [i, setI] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
+  const word = words[i];
+  const correct = word?.gloss ?? word?.lexKey ?? "";
+  const options = useMemo(() => {
+    if (!word) return [] as string[];
+    const others = words.filter((_, j) => j !== i).map((w) => w.gloss).filter((g): g is string => !!g && g !== correct);
+    let distract = shuffle(others).slice(0, 2);
+    if (distract.length < 2) distract = [...distract, ...FALLBACK_GLOSSES.filter((g) => g !== correct)].slice(0, 2);
+    return shuffle([correct, ...distract]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [i]);
+  if (!word) return null;
+  const last = i + 1 >= words.length;
+  const advance = () => { if (last) onDone(); else { setI(i + 1); setPicked(null); } };
   return (
     <div>
-      <p className="lead">The new words for today&apos;s story — tap 🔊 to hear each, then add them so the story reads at your level.</p>
-      <div className="word-list">
-        {words.map((w) => (
-          <div className="word-row" key={w.lexKey}>
-            <button className="spk" onClick={() => play(w.lexKey, 0.8)}>🔊</button>
-            <b className="target" style={{ fontSize: 18 }}>{w.lexKey}</b>
-            <span className="muted">{w.gloss}</span>
+      <p className="lead">New words for today&apos;s story — hear each, then tap its meaning. <span className="muted small">({i + 1}/{words.length})</span></p>
+      <div className="fb">
+        <div className="row" style={{ alignItems: "center" }}>
+          <button className="spk" onClick={() => play(word.lexKey, 0.8)}>🔊</button>
+          <b className="target" style={{ fontSize: 26 }}>{word.lexKey}</b>
+        </div>
+        <div className="muted small" style={{ margin: "10px 0 6px" }}>Tap the meaning</div>
+        <div>
+          {options.map((o) => {
+            const cls = picked ? (o === correct ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
+            return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)}>{o}</button>;
+          })}
+        </div>
+        {picked && (
+          <div className="why">
+            {picked === correct ? "✓ " : "✗ "}{word.lexKey} = {correct}
+            <button className="btn" style={{ marginLeft: 8 }} onClick={advance}>{last ? "Add these & continue →" : "Next →"}</button>
           </div>
-        ))}
+        )}
       </div>
-      <button className="btn" onClick={onDone}>Add these to my words →</button>
     </div>
   );
 }
@@ -467,8 +487,6 @@ function coverageOf(text: string, fam: Progress["familiarity"]): { knownPct: num
   return { knownPct: known / words.length, familiarPct: familiar / words.length };
 }
 
-type LibFilter = "all" | "just" | "stretch" | "easy";
-
 function LibrarySection({ progress, persist, config, lettersDone, mode, setMode }: {
   progress: Progress;
   persist: (p: Progress) => void;
@@ -478,133 +496,245 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
   setMode: (m: LibView) => void;
 }) {
   const pack = usePack();
-  const [filter, setFilter] = useState<LibFilter>("all");
 
-  // All graded content (scenarios + stories + readers) ranked by i+1 fit for this learner.
+  // All graded content (scenarios + stories + readers) scored by i+1 fit for this learner.
   const items = useMemo(() => {
     const raw = [
-      ...pack.scenarios.map((s) => ({ kind: "scenario" as const, id: s.id, title: s.title, sub: s.setting, text: s.script.map((t) => t.text).join(" "), unreviewed: s.confidence === "unreviewed" })),
-      ...(pack.stories ?? []).map((st) => ({ kind: "story" as const, id: st.id, title: st.title, sub: st.titleGloss ?? st.level, text: st.body.map((b) => b.text).join(" "), unreviewed: st.confidence === "unreviewed" })),
-      ...pack.readers.map((r) => ({ kind: "reading" as const, id: r.id, title: r.title, sub: r.titleGloss ?? "graded reader", text: r.body.map((b) => b.text).join(" "), unreviewed: r.confidence === "unreviewed" })),
+      ...pack.scenarios.map((s) => ({ kind: "scenario" as const, id: s.id, title: s.title, sub: s.setting, theme: s.theme, text: s.script.map((t) => t.text).join(" "), unreviewed: s.confidence === "unreviewed" })),
+      ...(pack.stories ?? []).map((st) => ({ kind: "story" as const, id: st.id, title: st.title, sub: st.titleGloss ?? st.level, theme: st.theme, text: st.body.map((b) => b.text).join(" "), unreviewed: st.confidence === "unreviewed" })),
+      ...pack.readers.map((r) => ({ kind: "reading" as const, id: r.id, title: r.title, sub: r.titleGloss ?? "graded reader", theme: r.theme, text: r.body.map((b) => b.text).join(" "), unreviewed: r.confidence === "unreviewed" })),
     ];
     return raw
       .map((it) => { const c = coverageOf(it.text, progress.familiarity); return { ...it, knownPct: c.knownPct, familiarPct: c.familiarPct, fit: scoring.iPlusOneCurve(c.familiarPct), chip: difficultyChip(c.familiarPct) }; })
-      // Rank by i+1 fit, then by how much is already familiar; on a cold start (all ties) lead with the
-      // story/reading on-ramp before scenarios.
       .sort((a, b) => b.fit - a.fit || b.familiarPct - a.familiarPct || ["story", "reading", "scenario"].indexOf(a.kind) - ["story", "reading", "scenario"].indexOf(b.kind));
   }, [pack, progress.familiarity]);
 
-  const filtered = items.filter((it) => filter === "all" || it.chip.cls === filter || (filter === "stretch" && it.chip.cls === "hard"));
+  // Situational collections (themeless content under "More practice"); collections ordered by their
+  // most-accessible item so the best-fit situation leads.
+  const collections = useMemo(() => {
+    const groups = new Map<string, typeof items>();
+    for (const it of items) {
+      const theme = it.theme || "More practice";
+      const arr = groups.get(theme);
+      if (arr) arr.push(it); else groups.set(theme, [it]);
+    }
+    return [...groups.entries()].sort((a, b) => Math.max(...b[1].map((x) => x.fit)) - Math.max(...a[1].map((x) => x.fit)) || a[0].localeCompare(b[0]));
+  }, [items]);
 
   const open = (kind: LibView, id?: string) => {
     if (kind === "scenario" && id) persist({ ...progress, pick: id });
     setMode(kind);
   };
 
-  if (mode !== "browse") {
+  // An opened content item or reference tool → show it with a back link to where it came from.
+  if (mode !== "browse" && mode !== "reference") {
+    const isTool = mode === "letters" || mode === "grammar" || mode === "write";
     const view =
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
       mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
       mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
       mode === "grammar" ? <Grammar progress={progress} persist={persist} /> :
-      mode === "letters" ? <Letters progress={progress} persist={persist} onDone={() => setMode("browse")} /> :
+      mode === "letters" ? <Letters progress={progress} persist={persist} onDone={() => setMode("reference")} /> :
       <Writing config={config} />;
     return (
       <>
-        <div className="row" style={{ marginBottom: 10 }}><button className="ghost small" onClick={() => setMode("browse")}>← Library</button></div>
+        <div className="row" style={{ marginBottom: 10 }}><button className="ghost small" onClick={() => setMode(isTool ? "reference" : "browse")}>← {isTool ? "Reference" : "Library"}</button></div>
         {view}
       </>
     );
   }
 
   const typeLabel: Record<string, string> = { scenario: "🗣 Scenario", story: "★ Story", reading: "📖 Reading" };
-  const filterLabel: Record<LibFilter, string> = { all: "All", just: "Just right", stretch: "A stretch", easy: "Easy review" };
 
   return (
     <section className="view">
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h2>Library</h2>
-        <div className="row">
-          <button className="ghost small" onClick={() => setMode("letters")}>Alphabet {lettersDone ? "✓" : ""}</button>
-          <button className="ghost small" onClick={() => setMode("grammar")}>Grammar</button>
-          <button className="ghost small" onClick={() => setMode("write")}>Writing</button>
-        </div>
+      <h2>Library</h2>
+      <div className="picker" style={{ margin: "2px 0 14px" }}>
+        <button className={mode === "browse" ? "active" : ""} onClick={() => setMode("browse")}>Practice</button>
+        <button className={mode === "reference" ? "active" : ""} onClick={() => setMode("reference")}>Reference</button>
       </div>
-      <p className="lead">Stories, scenarios and readings — sorted to fit your level right now. Tap any to start.</p>
-      <div className="picker" style={{ marginBottom: 4 }}>
-        {(["all", "just", "stretch", "easy"] as LibFilter[]).map((f) => (
-          <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>{filterLabel[f]}</button>
-        ))}
-      </div>
-      <div className="cards">
-        {filtered.length === 0 ? (
-          <p className="muted">Nothing in this band yet — try another filter.</p>
-        ) : (
-          filtered.map((it) => (
-            <button className="contentcard" key={it.kind + it.id} onClick={() => open(it.kind, it.id)}>
-              <div className="cc-top">
-                <span className="cc-type">{typeLabel[it.kind]}</span>
-                <span className={`diff ${it.chip.cls}`}>{it.chip.label}</span>
-              </div>
-              <div className="cc-title">{it.title}</div>
-              <div className="muted small">{it.sub}</div>
-              <div className="muted small" style={{ marginTop: 2 }} title="words you already know or are learning">{Math.round(it.familiarPct * 100)}% familiar{it.unreviewed ? " · ⚠ unreviewed" : ""}</div>
+
+      {mode === "reference" ? (
+        <>
+          <p className="lead">Tools to look things up and practise — kept separate from your situational content.</p>
+          <div className="cards">
+            <button className="contentcard" onClick={() => setMode("letters")}>
+              <div className="cc-top"><span className="cc-type">🔤 Alphabet</span>{lettersDone && <span className="diff just">done</span>}</div>
+              <div className="cc-title">Learn the letters</div>
+              <div className="muted small">Cyrillic, learned and tested set by set</div>
             </button>
-          ))
+            <button className="contentcard" onClick={() => setMode("grammar")}>
+              <div className="cc-top"><span className="cc-type">ⓖ Grammar</span></div>
+              <div className="cc-title">Grammar reference</div>
+              <div className="muted small">Search or browse every point</div>
+            </button>
+            <button className="contentcard" onClick={() => setMode("write")}>
+              <div className="cc-top"><span className="cc-type">✎ Writing</span></div>
+              <div className="cc-title">Writing practice</div>
+              <div className="muted small">Short prompts; type in Latin, get corrected</div>
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="lead">Practice by situation — each set is sorted to fit your level right now. Tap any to start.</p>
+          {collections.map(([theme, list]) => (
+            <div key={theme} style={{ marginBottom: 18 }}>
+              <h3 style={{ marginBottom: 8 }}>{theme}</h3>
+              <div className="cards">
+                {list.map((it) => (
+                  <button className="contentcard" key={it.kind + it.id} onClick={() => open(it.kind, it.id)}>
+                    <div className="cc-top">
+                      <span className="cc-type">{typeLabel[it.kind]}</span>
+                      <span className={`diff ${it.chip.cls}`}>{it.chip.label}</span>
+                    </div>
+                    <div className="cc-title">{it.title}</div>
+                    <div className="muted small">{it.sub}</div>
+                    <div className="muted small" style={{ marginTop: 2 }} title="words you already know or are learning">{Math.round(it.familiarPct * 100)}% familiar{it.unreviewed ? " · ⚠ unreviewed" : ""}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
+    </section>
+  );
+}
+
+// Fisher–Yates shuffle (app runtime — Math.random is fine here, this is not a workflow script).
+const shuffle = <T,>(arr: T[]): T[] => {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j]!, a[i]!];
+  }
+  return a;
+};
+
+// One letter's study card (glyph, name, sound, example + audio). Shared by the learn + review screens.
+function LetterCard({ a, play, done }: { a: GlyphLesson; play: (t: string, s?: number) => void; done?: boolean }) {
+  const ex = a.examples[0];
+  return (
+    <div className={`letter ${done ? "done" : ""}`}>
+      <div className="g">{a.glyph}</div>
+      <div className="n">{a.name}{a.unique ? <span className="tag uniq">unique</span> : a.falseFriend ? <span className="tag ff">looks Latin</span> : null}</div>
+      <div className="s">{a.sound}</div>
+      <div className="ex">{ex?.text} <span className="muted small">· {ex?.gloss}</span></div>
+      <div className="acts"><button className="ghost" onClick={() => ex && play(ex.text, 0.7)}>🔊</button></div>
+    </div>
+  );
+}
+
+// ---------- Reference: the alphabet, learned and TESTED set by set ----------
+// Study the key letters (unique + false-friends), then a quiz: glyph→sound and sound→glyph (with audio).
+// A letter is marked "known" only after a correct answer; misses go to the back of the queue.
+function Letters({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone: () => void }) {
+  const pack = usePack();
+  const play = usePlay();
+  const focus = useMemo(() => focusLetters(pack), [pack]);
+  const unknown = useMemo(() => focus.filter((a) => !progress.letters[a.glyph]), [focus, progress.letters]);
+  const [phase, setPhase] = useState<"learn" | "quiz" | "done">(unknown.length ? "learn" : "done");
+  const [remaining, setRemaining] = useState<string[]>([]);
+  const [step, setStep] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
+  const [total, setTotal] = useState(0);
+
+  const current = remaining[0];
+  const a = current ? focus.find((x) => x.glyph === current) ?? null : null;
+  const qType = step % 2; // 0 = see glyph, pick sound; 1 = see/hear sound, pick glyph
+  const options = useMemo(() => {
+    if (!a) return [] as string[];
+    const distract = shuffle(focus.filter((x) => x.glyph !== a.glyph)).slice(0, 3);
+    return shuffle(qType === 0 ? [a.sound, ...distract.map((x) => x.sound)] : [a.glyph, ...distract.map((x) => x.glyph)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, step]);
+  const correctAnswer = a ? (qType === 0 ? a.sound : a.glyph) : "";
+  const isCorrect = picked != null && picked === correctAnswer;
+
+  const startQuiz = () => { setTotal(unknown.length); setRemaining(unknown.map((x) => x.glyph)); setStep(0); setPicked(null); setPhase("quiz"); };
+  const next = () => {
+    if (!a) return;
+    if (isCorrect) {
+      persist({ ...progress, letters: { ...progress.letters, [a.glyph]: true } });
+      const rest = remaining.slice(1);
+      setRemaining(rest);
+      if (rest.length === 0) setPhase("done");
+    } else {
+      setRemaining((r) => [...r.slice(1), r[0]!]); // missed → back of the queue
+    }
+    setPicked(null);
+    setStep((s) => s + 1);
+  };
+
+  if (phase === "done" || unknown.length === 0) {
+    return (
+      <section className="view">
+        <h2>The {pack.name} alphabet</h2>
+        <p className="lead">🎉 You can recognise all {focus.length} key letters — the unique ones and the false friends that look Latin. Tap 🔊 to review any.</p>
+        <div className="letters">{focus.map((x) => <LetterCard key={x.glyph} a={x} play={play} done />)}</div>
+        <div className="row" style={{ marginTop: 14 }}><button className="btn" onClick={onDone}>Continue →</button></div>
+      </section>
+    );
+  }
+
+  if (phase === "learn") {
+    return (
+      <section className="view">
+        <h2>The {pack.name} alphabet — {unknown.length} key letters</h2>
+        <p className="lead">Cyrillic is phonetic: one letter, one sound. Study these — the <span style={{ color: "var(--ok)" }}>unique</span> letters and the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different — then I&apos;ll quiz you. Tap 🔊 to hear each.</p>
+        <div className="letters">{unknown.map((x) => <LetterCard key={x.glyph} a={x} play={play} />)}</div>
+        <div className="row"><button className="btn" onClick={startQuiz}>Quiz me on these →</button></div>
+      </section>
+    );
+  }
+
+  if (!a) return null;
+  const learned = total - remaining.length;
+  return (
+    <section className="view">
+      <h2>The {pack.name} alphabet</h2>
+      <div className="pbar"><div style={{ width: `${(learned / (total || 1)) * 100}%` }} /></div>
+      <p className="muted small" style={{ marginBottom: 14 }}>{learned} of {total} learned{remaining.length > 1 ? ` · ${remaining.length} to go` : ""}</p>
+      <div className="fb">
+        {qType === 0 ? (
+          <>
+            <div className="muted small">What sound does this letter make?</div>
+            <div className="row" style={{ alignItems: "center", margin: "10px 0" }}>
+              <div className="target" style={{ fontSize: 46 }}>{a.glyph}</div>
+              <button className="ghost" onClick={() => a.examples[0] && play(a.examples[0].text, 0.7)}>🔊 example</button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="muted small">Which letter makes this sound?</div>
+            <div className="row" style={{ alignItems: "center", margin: "10px 0" }}>
+              <div style={{ fontSize: 22, fontWeight: 600 }}>{a.sound}</div>
+              <button className="ghost" onClick={() => a.examples[0] && play(a.examples[0].text, 0.7)}>🔊 hear it</button>
+            </div>
+          </>
+        )}
+        <div>
+          {options.map((o) => {
+            const cls = picked ? (o === correctAnswer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
+            return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)} style={qType === 1 ? { fontSize: 24 } : undefined}>{o}</button>;
+          })}
+        </div>
+        {picked && (
+          <div className="why">
+            {isCorrect ? "✓ Correct!" : `✗ ${a.glyph} sounds like “${a.sound}” (${a.name})`}
+            <button className="btn" style={{ marginLeft: 8 }} onClick={next}>{remaining.length === 1 && isCorrect ? "Finish →" : "Next →"}</button>
+          </div>
         )}
       </div>
     </section>
   );
 }
 
-// ---------- Library view 1: letters ----------
-function Letters({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone: () => void }) {
-  const pack = usePack();
-  const play = usePlay();
-  const toggle = (glyph: string) => persist({ ...progress, letters: { ...progress.letters, [glyph]: !progress.letters[glyph] } });
-  const f = focusLetters(pack);
-  const known = f.filter((a) => progress.letters[a.glyph]).length;
-  return (
-    <section className="view">
-      <h2>The {pack.name} alphabet — {pack.alphabet.length} letters</h2>
-      <p className="lead">
-        Spelling is phonetic: one letter, one sound. Focus on the <span style={{ color: "var(--ok)" }}>unique</span> letters and
-        the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different. Tap 🔊 to hear any example.
-      </p>
-      <div className="letters">
-        {pack.alphabet.map((a) => {
-          const focus = a.unique || a.falseFriend;
-          const done = !!progress.letters[a.glyph];
-          const ex = a.examples[0];
-          return (
-            <div className={`letter ${done ? "done" : ""}`} key={a.glyph}>
-              <div className="g">{a.glyph}</div>
-              <div className="n">
-                {a.name}
-                {a.unique ? <span className="tag uniq">unique</span> : a.falseFriend ? <span className="tag ff">looks Latin</span> : null}
-              </div>
-              <div className="s">{a.sound}</div>
-              <div className="ex">{ex?.text} <span className="muted small">· {ex?.gloss}</span></div>
-              <div className="acts">
-                <button className="ghost" onClick={() => ex && play(ex.text, 0.7)}>🔊</button>
-                {focus && <button className="ghost" onClick={() => toggle(a.glyph)}>{done ? "✓ known" : "got it"}</button>}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div className="row">
-        <button className="btn" onClick={onDone}>Done with the focus letters → scenarios</button>
-        <span className="muted small">{known}/{f.length} focus letters known</span>
-      </div>
-    </section>
-  );
-}
-
 // ---------- Library view 2: scenarios ----------
-function ScenarioView({ progress, persist, config, lettersDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean }) {
+function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void }) {
   const pack = usePack();
-  const s = pack.scenarios.find((x) => x.id === progress.pick) || pack.scenarios[0]!;
+  const s = pack.scenarios.find((x) => x.id === (scenarioId ?? progress.pick)) || pack.scenarios[0]!;
   const sp = progress.scenarios[s.id] || { turnIndex: 0, metCriteria: [] };
   const run: scenario.ScenarioRun = { scenarioId: s.id, turnIndex: sp.turnIndex, metCriteria: sp.metCriteria, done: sp.turnIndex >= s.script.length };
 
@@ -618,16 +748,18 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
   const turn = scenario.currentTurn(run, s);
   const done = run.turnIndex >= s.script.length;
 
-  return (
-    <section className="view">
-      <div className="picker">
-        {pack.scenarios.map((x) => (
-          <button key={x.id} className={x.id === s.id ? "active" : ""} onClick={() => setPick(x.id)}>{x.title}</button>
-        ))}
-      </div>
-      {!lettersDone && <div className="banner">Tip: finish <b>Letters</b> first — but practice here anyway (transliteration is shown).</div>}
-      <h2>{s.title}</h2>
-      <p className="lead">{s.goal} — <span className="muted">{s.setting}</span></p>
+  const inner = (
+    <>
+      {!hidePicker && (
+        <div className="picker">
+          {pack.scenarios.map((x) => (
+            <button key={x.id} className={x.id === s.id ? "active" : ""} onClick={() => setPick(x.id)}>{x.title}</button>
+          ))}
+        </div>
+      )}
+      {!lettersDone && !bare && <div className="banner">Tip: finish <b>Letters</b> first — but practice here anyway (transliteration is shown).</div>}
+      {!bare && <h2>{s.title}</h2>}
+      {!bare && <p className="lead">{s.goal} — <span className="muted">{s.setting}</span></p>}
       <div className="check">
         {s.successCriteria.map((c) => (
           <span key={c.id} className={`crit ${run.metCriteria.includes(c.id) ? "met" : ""}`}>
@@ -638,7 +770,7 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
       {s.requiredStructures.length > 0 && <ScenarioGrammar ids={s.requiredStructures} />}
 
       {done ? (
-        <Completion scenarioId={s.id} config={config} />
+        <Completion scenarioId={s.id} config={config} onComplete={onComplete} />
       ) : turn?.speaker === "partner" ? (
         <PartnerTurn key={run.turnIndex} turn={turn} autoplay={autoplay} onContinue={() => saveRun(scenario.advance(run, s))} />
       ) : turn ? (
@@ -656,8 +788,10 @@ function ScenarioView({ progress, persist, config, lettersDone }: { progress: Pr
           {autoplay ? "🔊 Auto-play: on" : "🔇 Auto-play: off"}
         </button>
       </div>
-    </section>
+    </>
   );
+
+  return bare ? inner : <section className="view">{inner}</section>;
 }
 
 // Focus-on-form: surface the grammar a scenario uses as bite-size, just-in-time notes — tap to expand
@@ -804,7 +938,7 @@ function FeedbackCard({ fb }: { fb: api.FeedbackResponse }) {
   );
 }
 
-function Completion({ scenarioId, config }: { scenarioId: string; config: api.Config | null }) {
+function Completion({ scenarioId, config, onComplete }: { scenarioId: string; config: api.Config | null; onComplete?: () => void }) {
   const pack = usePack();
   const play = usePlay();
   const [history, setHistory] = useState<{ role: "learner" | "tutor"; text: string; gloss?: string; corr?: string }[]>([]);
@@ -858,7 +992,7 @@ function Completion({ scenarioId, config }: { scenarioId: string; config: api.Co
 
   return (
     <div>
-      <div className="done-card"><h2>🎉 Done</h2><p className="lead">Now keep the conversation going — say anything.</p></div>
+      <div className="done-card"><h2>🎉 You did it!</h2><p className="lead">You hit the goal. Keep chatting to practise more, or wrap up.</p>{onComplete && <button className="btn" onClick={onComplete}>Finish session →</button>}</div>
       <div>
         {history.map((h, i) => (
           <div className={`bubble ${h.role === "learner" ? "learner" : "partner"}`} key={i}>
@@ -1255,7 +1389,7 @@ function Writing({ config }: { config: api.Config | null }) {
   return (
     <section className="view">
       <h2>Writing</h2>
-      <p className="lead">Short production with correction that explains <i>why</i>. Pick a task, write it in {pack.name}, and submit.</p>
+      <p className="lead">Short production with correction that explains <i>why</i>. Pick a task and write it — <b>typing in Latin letters is fine</b> (e.g. &quot;sakam kafe&quot;); you&apos;ll get it back in {pack.name}.</p>
       <div className="picker">
         {tasks.map((t) => (
           <button key={t.id} className={t.id === taskId ? "active" : ""} onClick={() => { setTaskId(t.id); setText(""); setResult(null); }}>{t.prompt}</button>
@@ -1265,7 +1399,7 @@ function Writing({ config }: { config: api.Config | null }) {
       <textarea
         className="text"
         style={{ width: "100%", minHeight: 70 }}
-        placeholder={`Write in ${pack.name}…`}
+        placeholder={`Write in ${pack.name} — Latin letters are fine, e.g. "sakam kafe"`}
         value={text}
         onChange={(e) => setText(e.target.value)}
       />
@@ -1277,9 +1411,11 @@ function Writing({ config }: { config: api.Config | null }) {
       {result && (
         <div className="fb">
           <div className="line">{result.isCorrect ? "✓ " : ""}{result.overall}</div>
-          {!result.isCorrect && (
-            <div className="line"><span className="muted">Corrected:</span> <span className="target" style={{ fontSize: 18 }}>{result.corrected}</span></div>
-          )}
+          <div className="line">
+            <span className="muted">{result.isCorrect ? `In ${pack.name}:` : "Corrected:"}</span>{" "}
+            <span className="target" style={{ fontSize: 18 }}>{result.corrected}</span>
+            {result.correctedTranslit && <span className="translit"> · {result.correctedTranslit}</span>}
+          </div>
           {result.issues.map((it, i) => (
             <div className="line" key={i}>
               <span className="pill wrong">{it.original}</span> → <span className="pill correct">{it.fix}</span>

@@ -8,6 +8,7 @@ export const generatedScenarios: Scenario[] = [
     "title": "Asking for directions",
     "goal": "Ask where a place is and understand the answer.",
     "setting": "a street in Skopje",
+    "theme": "Out & about",
     "requiredVocab": [
       "gen-directions-v1",
       "gen-directions-v2",
@@ -100,6 +101,7 @@ export const generatedScenarios: Scenario[] = [
     "title": "Buying something at a shop",
     "goal": "Ask for an item, ask the price, and pay.",
     "setting": "a small shop",
+    "theme": "Out & about",
     "requiredVocab": [
       "gen-shopping-v1",
       "gen-shopping-v2",
@@ -184,6 +186,7 @@ export const generatedScenarios: Scenario[] = [
     "title": "Introducing yourself",
     "goal": "Say your name, where you're from, and what you do.",
     "setting": "meeting someone new",
+    "theme": "Meeting people",
     "requiredVocab": [
       "gen-introductions-v1",
       "gen-introductions-v2",
@@ -277,6 +280,7 @@ export const generatedScenarios: Scenario[] = [
     "title": "A short phone call",
     "goal": "Greet, ask for someone, and leave a short message.",
     "setting": "a phone call",
+    "theme": "Out & about",
     "requiredVocab": [
       "gen-phone-v1",
       "gen-phone-v2",

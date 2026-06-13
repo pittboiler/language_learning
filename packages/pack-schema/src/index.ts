@@ -93,6 +93,8 @@ export interface Scenario {
   title: string;
   goal: string;
   setting: string;
+  /** Situational theme for Library grouping (e.g. "Café & bar"). Optional; ungrouped if absent. */
+  theme?: string;
   requiredVocab: string[]; // ReviewItem ids
   requiredStructures: string[]; // GrammarConcept ids
   script: DialogueTurn[];
@@ -104,6 +106,7 @@ export interface Reader {
   id: string;
   title: string;
   titleGloss?: string;
+  theme?: string; // situational theme for Library grouping (optional)
   i1Level: number;
   body: DialogueTurn[]; // graded lines with gloss
   confidence: Confidence;
@@ -154,6 +157,7 @@ export interface MiniStory {
   titleGloss?: string;
   i1Level: number;
   level: CefrBand;
+  theme?: string; // situational theme for Library grouping (optional)
   body: StorySegment[]; // synced audio + text
   audioUrl?: string; // full-story audio, cached offline
   audioSource: "native" | "tts"; // flag native recording vs TTS (quality signal)

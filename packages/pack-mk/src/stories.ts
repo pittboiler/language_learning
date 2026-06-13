@@ -12,6 +12,7 @@ export const stories: MiniStory[] = [
     titleGloss: "Ana and the coffee",
     i1Level: 1,
     level: "A1",
+    theme: "Café & bar",
     audioSource: "tts",
     confidence: "authored",
     body: [

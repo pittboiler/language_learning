@@ -14,8 +14,9 @@ export interface WritingIssue {
 }
 
 export interface WritingCorrection {
-  corrected: string; // the full corrected sentence in the target language
-  isCorrect: boolean; // attempt already acceptable?
+  corrected: string; // the full corrected sentence in the target language (native script)
+  correctedTranslit: string; // romanization of `corrected`, so a beginner can read it
+  isCorrect: boolean; // attempt already acceptable? (ignoring Latin-vs-native script choice)
   issues: WritingIssue[];
   overall: string; // friendly assessment (English)
   encouragement: string;
@@ -33,6 +34,8 @@ function writingSystem(ctx: WritingContext): string {
 - Provide a corrected version in natural, simple ${ctx.languageName}.
 - If the attempt is already correct (or an acceptable variant), set isCorrect=true and leave issues empty — still give warm encouragement.
 - For each meaningful error, explain WHAT to change and WHY (the underlying rule), kindly and simply. Prioritise the most useful fixes; don't overwhelm a beginner.
+- The learner usually CANNOT type the native script yet, so they will often write in LATIN / romanized ${ctx.languageName} (e.g. "sakam kafe" for "сакам кафе"). Accept Latin or native script equally and interpret romanized input charitably — romanizing is NOT an error. Judge only the actual language (words, grammar, meaning), never the script choice.
+- Always give 'corrected' in the native script, plus 'correctedTranslit' as its simple romanization so the beginner can read it aloud.
 - The learner can barely read the script, so keep all explanations in English.`;
 }
 
@@ -40,8 +43,9 @@ const WRITING_SCHEMA: Record<string, unknown> = {
   type: "object",
   additionalProperties: false,
   properties: {
-    corrected: { type: "string", description: "The full corrected sentence in the target language." },
-    isCorrect: { type: "boolean", description: "True if the attempt was already correct/acceptable." },
+    corrected: { type: "string", description: "The full corrected sentence in the target language (native script)." },
+    correctedTranslit: { type: "string", description: "Simple romanization of the corrected sentence, so a beginner can read it aloud." },
+    isCorrect: { type: "boolean", description: "True if the attempt was already correct/acceptable (ignoring Latin-vs-native-script choice)." },
     issues: {
       type: "array",
       description: "Specific fixes, most useful first.",
@@ -59,7 +63,7 @@ const WRITING_SCHEMA: Record<string, unknown> = {
     overall: { type: "string", description: "One short, friendly assessment in English." },
     encouragement: { type: "string", description: "A brief encouraging line." },
   },
-  required: ["corrected", "isCorrect", "issues", "overall", "encouragement"],
+  required: ["corrected", "correctedTranslit", "isCorrect", "issues", "overall", "encouragement"],
 };
 
 /** Correct a learner's written attempt at a task, explaining the key fixes. Live tier (Sonnet 4.6). */

@@ -8,6 +8,7 @@ export const orderADrink: Scenario = {
   title: "Order a drink at a bar",
   goal: "Greet, order a beer, ask the price, and pay.",
   setting: "relaxed bar in Skopje",
+  theme: "Café & bar",
   requiredVocab: ["v-zdravo", "v-edno-pivo", "v-kolku-chini", "v-smetka"],
   requiredStructures: ["gender", "definite-articles"],
   script: [
