@@ -923,7 +923,7 @@ function FeedbackCard({ fb }: { fb: api.FeedbackResponse }) {
     <div className="fb">
       <div className="line">
         <b>{fb.score}/100</b> {fb.overall}
-        <span className={`gate ${fb.gate.confidence}`}>{fb.gate.agreed ? "engines agree" : "engines disagree"}</span>
+        <span className={`gate ${fb.gate.confidence}`}>{fb.gate.confidence === "high" ? "high confidence" : "low confidence (ASR)"}</span>
       </div>
       <div className="line">
         {fb.words.map((w, i) => (

@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     { engine: "scribe", text: transcripts?.scribe ?? "", ms: 0, ok: !!transcripts?.scribe },
     { engine: "google", text: transcripts?.google ?? "", ms: 0, ok: !!transcripts?.google },
   ];
-  const gate = speaking.confidenceGate(results, pack.asr);
+  const gate = speaking.confidenceGate(results, pack.asr, target.answer);
 
   const item: ReviewItem = {
     id: "live-target", kind: "phrase", prompt: "", answer: target.answer, translit: target.translit,

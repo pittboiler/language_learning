@@ -31,31 +31,61 @@ function normalize(s: string): string {
     .trim();
 }
 
-function pickLongest(rs: AsrResult[]): AsrResult {
-  return rs.slice().sort((a, b) => b.text.length - a.text.length)[0]!;
+/** Token-set Jaccard similarity (0..1) between two normalized strings. */
+function jaccard(a: string, b: string): number {
+  const A = new Set(a.split(" ").filter(Boolean));
+  const B = new Set(b.split(" ").filter(Boolean));
+  if (A.size === 0 && B.size === 0) return 1;
+  if (A.size === 0 || B.size === 0) return 0;
+  let inter = 0;
+  for (const w of A) if (B.has(w)) inter++;
+  return inter / (A.size + B.size - inter);
 }
 
+/** Tie-break order when two transcripts match the target equally — prefer the more reliable engine. */
+const ENGINE_RANK: Record<string, number> = { scribe: 0, google: 1 };
+
+/** A transcript that shares at least this fraction of tokens with the target "looks like the target". */
+const TARGET_MATCH_THRESHOLD = 0.5;
+
 /**
- * The load-bearing mechanism from the spike: when the engines agree, trust the transcript (high
- * confidence); when they disagree (or only one is available), drop to low confidence so the coach
- * hedges ("likely ASR error") instead of confidently marking correct speech wrong — the Teuida
- * false-negative failure mode.
+ * The load-bearing mechanism from the spike, made ROBUST to one unreliable engine. Engines vary in
+ * quality per language (e.g. Google Cloud STT is poor at conversational Macedonian and emits garbage),
+ * so a symmetric "they must agree" gate over-penalises good attempts. Instead we anchor on the TARGET:
+ *  - canonical = the transcript that best matches what the learner was ASKED to say (so a garbage
+ *    engine can never become the coaching transcript; ties break toward the more reliable engine);
+ *  - confidence stays HIGH when the engines literally agree OR the best transcript clearly matches the
+ *    target — so one engine whiffing can't drag a good attempt down to "hedge";
+ *  - confidence drops to LOW only when we're genuinely unsure (engines disagree AND neither clearly
+ *    matches the target), preserving the Teuida-style hedge instead of marking correct speech wrong.
+ * Pass the target phrase to enable this; omit it to fall back to pure cross-engine agreement.
  */
-export function confidenceGate(results: AsrResult[], cfg: AsrConfig): GateOutcome {
+export function confidenceGate(results: AsrResult[], cfg: AsrConfig, target = ""): GateOutcome {
   const ok = results.filter((r) => r.ok && r.text.trim().length > 0);
   if (ok.length === 0) return { agreed: false, canonical: "", confidence: "low", transcripts: results };
 
+  const targetNorm = normalize(target);
+  const ranked = [...ok].sort(
+    (a, b) =>
+      jaccard(normalize(b.text), targetNorm) - jaccard(normalize(a.text), targetNorm) ||
+      (ENGINE_RANK[a.engine] ?? 9) - (ENGINE_RANK[b.engine] ?? 9),
+  );
+  const best = ranked[0]!;
+  const looksLikeTarget = targetNorm.length > 0 && jaccard(normalize(best.text), targetNorm) >= TARGET_MATCH_THRESHOLD;
+
   if (cfg.gate === "single") {
-    return { agreed: true, canonical: pickLongest(ok).text, confidence: "high", transcripts: results };
+    return { agreed: true, canonical: best.text, confidence: "high", transcripts: results };
   }
-  // agreement gate
-  if (ok.length === 1) return { agreed: false, canonical: ok[0]!.text, confidence: "low", transcripts: results };
+  if (ok.length === 1) {
+    // Only one engine succeeded — trust it when it clearly matches the target, otherwise hedge.
+    return { agreed: false, canonical: best.text, confidence: looksLikeTarget ? "high" : "low", transcripts: results };
+  }
   const norms = ok.map((r) => normalize(r.text));
   const agreed = norms.every((n) => n === norms[0]);
   return {
     agreed,
-    canonical: agreed ? ok[0]!.text : pickLongest(ok).text,
-    confidence: agreed ? "high" : "low",
+    canonical: best.text,
+    confidence: agreed || looksLikeTarget ? "high" : "low",
     transcripts: results,
   };
 }
@@ -156,14 +186,16 @@ export async function composeFeedback(
     `  English: ${target.gloss}`,
     target.note ? `  Note: ${target.note}` : "",
     "",
-    `ASR engine agreement: ${
-      gate.agreed
-        ? "the engines AGREE — higher confidence"
-        : "the engines DISAGREE or only one is available — treat mismatches as likely ASR error, hedge rather than mark wrong"
+    `ASR reliability: ${
+      gate.confidence === "high"
+        ? "the transcripts look RELIABLE for this attempt (the engines agree, or one closely matches the target) — assess accuracy normally."
+        : "the transcripts look UNRELIABLE (the engines disagree and neither clearly matches the target) — treat mismatches as likely ASR error and hedge; do NOT mark the learner wrong on shaky evidence."
     }`,
+    "When the transcripts differ, weight the one that better matches the TARGET; a transcript full of unrelated words is an ASR failure of that engine, not a learner mistake.",
     "ASR TRANSCRIPTS of the learner's spoken attempt:",
     `  Scribe: ${scribe?.ok ? scribe.text || "(empty)" : "(not available)"}`,
     `  Google: ${google?.ok ? google.text || "(empty)" : "(not available)"}`,
+    `  Closest to the target (judge mainly against this): ${gate.canonical || "(none)"}`,
     "",
     "Give structured coaching feedback for an absolute beginner.",
   ]
