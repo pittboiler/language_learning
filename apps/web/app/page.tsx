@@ -20,7 +20,7 @@ import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
-import { getPartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
+import { getPartnerStore, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
 
 type Section = "today" | "library" | "progress" | "me";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
@@ -1608,7 +1608,90 @@ const VIS_TOGGLES: [keyof VisibilitySettings, string][] = [
 ];
 const colStack: CSSProperties = { display: "flex", flexDirection: "column", gap: 10 };
 
-function PartnerPanel({ progress }: { progress: Progress }) {
+// Co-created phrasebook (Phase 1): a shared, growing deck either partner adds to. Each entry is a
+// partner_artifact (kind 'phrase'); tapping "＋ my reviews" seeds it into THIS learner's familiarity —
+// so a phrase one partner overhears becomes review fuel for both. Reuses api.gloss + familiarity.capture.
+function Phrasebook({ store, partnershipId, packId, progress, persist }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  progress: Progress;
+  persist: (p: Progress) => void;
+}) {
+  const [items, setItems] = useState<PartnerArtifact[]>([]);
+  const [text, setText] = useState("");
+  const [gloss, setGloss] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      setItems(await store.listArtifacts(partnershipId, "phrase"));
+    } catch {
+      /* panel surfaces partner errors; an empty phrasebook is a safe fallback */
+    }
+  }, [store, partnershipId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const add = async () => {
+    const t = text.trim();
+    if (!t) return;
+    setBusy(true);
+    try {
+      await store.putArtifact(partnershipId, packId, "phrase", { text: t, gloss: gloss.trim(), day: localDay() });
+      setText("");
+      setGloss("");
+      await load();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const autoGloss = async () => {
+    const t = text.trim();
+    if (!t) return;
+    const g = await api.gloss(t, "", packId);
+    if (g.gloss) setGloss(g.gloss);
+  };
+
+  // Seed a phrase into the current learner's own familiarity (the cross-partner capture, §2 triage).
+  const capture = (phrase: string, g?: string) => {
+    const lexKey = familiarity.normalize(phrase);
+    if (!lexKey || progress.familiarity[lexKey]) return;
+    persist({ ...progress, familiarity: { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "chunk", display: phrase, gloss: g }) } });
+  };
+
+  return (
+    <div>
+      <span className="small">Shared phrasebook</span>
+      <div className="row" style={{ marginTop: 6 }}>
+        <input className="lang-picker" style={{ minWidth: 150 }} placeholder="Phrase (target language)" value={text} onChange={(e) => setText(e.target.value)} />
+        <input className="lang-picker" style={{ minWidth: 110 }} placeholder="meaning" value={gloss} onChange={(e) => setGloss(e.target.value)} />
+        <button className="ghost small" disabled={busy || !text.trim()} onClick={autoGloss} title="Suggest a gloss">gloss?</button>
+        <button className="btn" disabled={busy || !text.trim()} onClick={add}>Add</button>
+      </div>
+      {items.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0", display: "flex", flexDirection: "column", gap: 6 }}>
+          {items.map((it) => {
+            const pl = it.payload as { text?: string; gloss?: string };
+            const known = !!progress.familiarity[familiarity.normalize(pl.text ?? "")];
+            return (
+              <li key={it.id} className="row" style={{ justifyContent: "space-between" }}>
+                <span><b>{pl.text}</b>{pl.gloss ? <span className="muted small"> — {pl.gloss}</span> : null}</span>
+                <button className={`badge ${known ? "on" : ""}`} disabled={known} onClick={() => capture(pl.text ?? "", pl.gloss)} title="Add to my spaced-repetition reviews">
+                  {known ? "in your reviews ✓" : "＋ my reviews"}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function PartnerPanel({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
   const packId = pack.id;
   const store = useMemo(() => getPartnerStore(), []);
@@ -1771,6 +1854,7 @@ function PartnerPanel({ progress }: { progress: Progress }) {
             })}
           </ul>
         )}
+        <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
         <div>
           <span className="small">Visible to your partner</span>
           <div className="row" style={{ marginTop: 6 }}>
@@ -1818,7 +1902,7 @@ function Settings({ progress, persist, config }: { progress: Progress; persist: 
   return (
     <section className="view">
       <h2>Settings</h2>
-      <PartnerPanel progress={progress} />
+      <PartnerPanel progress={progress} persist={persist} />
       <div className="setting-row">
         <b>Language</b>
         {packList().length > 1 ? (
