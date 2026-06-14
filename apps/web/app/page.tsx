@@ -164,6 +164,16 @@ export default function Home() {
     [persist, progress],
   );
 
+  // Open a specific mini-story in the Library reader (used by the partner "shared story" deep-link).
+  const goToStory = useCallback(
+    (storyId: string) => {
+      persist({ ...progress, storyPick: storyId });
+      setLibView("story");
+      setSection("library");
+    },
+    [persist, progress],
+  );
+
   // ---- derived progress signals ----
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   const dueCount = useMemo(() => {
@@ -207,7 +217,7 @@ export default function Home() {
             <Review progress={progress} persist={persist} />
           </>
         )}
-        {section === "me" && <Settings progress={progress} persist={persist} config={config} />}
+        {section === "me" && <Settings progress={progress} persist={persist} config={config} navigateToStory={goToStory} />}
       </main>
     </PackContext.Provider>
   );
@@ -526,6 +536,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
 
   const open = (kind: LibView, id?: string) => {
     if (kind === "scenario" && id) persist({ ...progress, pick: id });
+    else if (kind === "story" && id) persist({ ...progress, storyPick: id });
     setMode(kind);
   };
 
@@ -1301,7 +1312,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
 // ---------- Library view 5: mini-story (read → Q&A → speaking pipeline) ----------
 function StoryView({ progress, persist, config, onDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; onDone?: () => void }) {
   const pack = usePack();
-  const story = pack.stories?.[0];
+  const story = pack.stories?.find((s) => s.id === progress.storyPick) ?? pack.stories?.[0];
   const [phase, setPhase] = useState<"read" | "qa">("read");
 
   if (!story) return <section className="view"><h2>Story</h2><p className="lead">No stories yet for this pack.</p></section>;
@@ -1608,6 +1619,67 @@ const VIS_TOGGLES: [keyof VisibilitySettings, string][] = [
 ];
 const colStack: CSSProperties = { display: "flex", flexDirection: "column", gap: 10 };
 
+// Shared story (Phase 1): the pace-handicapping mechanic made concrete — both partners read the SAME
+// mini-story (shared experience → conversation fuel), each at their own level (per-partner coverage,
+// tap-to-capture, Q&A). The selection is a partner_artifact; reading reuses the existing StoryView.
+function SharedStory({ store, partnershipId, packId, progress, navigateToStory }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  progress: Progress;
+  navigateToStory: (storyId: string) => void;
+}) {
+  const pack = usePack();
+  const stories = pack.stories ?? [];
+  const [picked, setPicked] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const arts = await store.listArtifacts(partnershipId, "shared-story");
+      setPicked((arts[arts.length - 1]?.payload as { storyId?: string } | undefined)?.storyId ?? null);
+    } catch {
+      /* empty selection falls back to the first story */
+    }
+  }, [store, partnershipId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  if (!stories.length) return null;
+  const story = stories.find((s) => s.id === picked) ?? stories[0]!;
+  const cov = coverageOf(story.body.map((b) => b.text).join(" "), progress.familiarity);
+
+  const setShared = async (id: string) => {
+    setBusy(true);
+    try {
+      await store.putArtifact(partnershipId, packId, "shared-story", { storyId: id, day: localDay() });
+      setPicked(id);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <span className="small">Shared story</span>
+      <div className="row" style={{ justifyContent: "space-between", marginTop: 6 }}>
+        <span><b>★ {story.title}</b>{story.titleGloss ? <span className="muted small"> — {story.titleGloss}</span> : null}</span>
+        <span className="muted small">{Math.round(cov.familiarPct * 100)}% familiar to you</span>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>You both read the same story at your own level — compare notes after.</p>
+      <div className="row" style={{ marginTop: 6 }}>
+        <button className="btn" onClick={() => navigateToStory(story.id)}>Read together →</button>
+        {stories.length > 1 && (
+          <select className="lang-picker" value={story.id} disabled={busy} onChange={(e) => setShared(e.target.value)} aria-label="Shared story">
+            {stories.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+          </select>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Co-created phrasebook (Phase 1): a shared, growing deck either partner adds to. Each entry is a
 // partner_artifact (kind 'phrase'); tapping "＋ my reviews" seeds it into THIS learner's familiarity —
 // so a phrase one partner overhears becomes review fuel for both. Reuses api.gloss + familiarity.capture.
@@ -1691,7 +1763,7 @@ function Phrasebook({ store, partnershipId, packId, progress, persist }: {
   );
 }
 
-function PartnerPanel({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; navigateToStory: (storyId: string) => void }) {
   const pack = usePack();
   const packId = pack.id;
   const store = useMemo(() => getPartnerStore(), []);
@@ -1854,6 +1926,7 @@ function PartnerPanel({ progress, persist }: { progress: Progress; persist: (p: 
             })}
           </ul>
         )}
+        <SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} />
         <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
         <div>
           <span className="small">Visible to your partner</span>
@@ -1895,14 +1968,14 @@ function PartnerPanel({ progress, persist }: { progress: Progress; persist: (p: 
   );
 }
 
-function Settings({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
+function Settings({ progress, persist, config, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; navigateToStory: (storyId: string) => void }) {
   const pack = usePack();
   const autoplay = progress.settings?.autoplay ?? false;
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
   return (
     <section className="view">
       <h2>Settings</h2>
-      <PartnerPanel progress={progress} persist={persist} />
+      <PartnerPanel progress={progress} persist={persist} navigateToStory={navigateToStory} />
       <div className="setting-row">
         <b>Language</b>
         {packList().length > 1 ? (

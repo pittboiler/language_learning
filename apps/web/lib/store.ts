@@ -15,6 +15,8 @@ export interface Progress {
   /** @deprecated legacy itemId→FSRS map; migrated into `familiarity` on first load (see page.tsx). */
   reviews?: Record<string, srs.ReviewState>;
   pick: string | null; // active scenario id
+  /** Active mini-story id for the story reader (null ⇒ first story). Lets the partner "shared story" deep-link. */
+  storyPick?: string | null;
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
   settings?: { autoplay?: boolean };
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
