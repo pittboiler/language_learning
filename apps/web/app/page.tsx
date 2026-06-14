@@ -21,6 +21,9 @@ import { getStore, emptyProgress, type Progress } from "../lib/store";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
+import * as roleswap from "@ll/core/roleswap";
+import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
+import type { SpeakingFeedback } from "@ll/core/speaking";
 
 type Section = "today" | "library" | "progress" | "me";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
@@ -1619,6 +1622,183 @@ const VIS_TOGGLES: [keyof VisibilitySettings, string][] = [
 ];
 const colStack: CSSProperties = { display: "flex", flexDirection: "column", gap: 10 };
 
+// Async voice role-swap (Phase 1, flagship): split a 2-role scenario across the dyad; each records
+// their lines (reusing makeRecorder + the dual-ASR feedback pipeline), the app stitches them into a
+// replayable conversation. The session — incl. recorded audio as data-URLs for the MVP — is one
+// partner_artifact (kind 'roleswap'); recording re-reads latest before saving to avoid clobber.
+const blobToDataUrl = (blob: Blob): Promise<string> =>
+  new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result as string);
+    r.onerror = () => rej(new Error("audio read failed"));
+    r.readAsDataURL(blob);
+  });
+const playDataUrl = (url: string): Promise<void> =>
+  new Promise((res, rej) => {
+    const a = new Audio(url);
+    a.onended = () => res();
+    a.onerror = () => rej(new Error("audio playback error"));
+    a.play().catch(rej);
+  });
+
+// Overview entry: list in-progress/ready role-swaps + start a new one.
+function RoleSwapSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
+  const pack = usePack();
+  const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        setSessions(await store.listArtifacts(partnershipId, "roleswap"));
+      } catch {
+        /* overview tolerates a missing list */
+      }
+    })();
+  }, [store, partnershipId]);
+  return (
+    <div>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">Role-swap</span>
+        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>Act out a 2-person dialogue together — each records their lines, then play it back with feedback.</p>
+      {sessions.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
+          {sessions.map((a) => {
+            const s = a.payload as RoleSwapSession;
+            const title = pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId;
+            const done = s.turns.filter((t) => t.recordedBy).length;
+            return (
+              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
+                <span className="small">{title} <span className="muted">· {s.status === "complete" ? "ready ▶" : `${done}/${s.turns.length} lines`}</span></span>
+                <button className="ghost small" onClick={() => onOpen(a.id)}>Open</button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// The role-swap session: pick a scenario (when "new"), record your role's lines, see the partner's,
+// then play the stitched conversation. Each recording runs the dual-ASR feedback pipeline.
+function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  sessionId: string | "new";
+}) {
+  const pack = usePack();
+  const [session, setSession] = useState<RoleSwapSession | null>(null);
+  const [recIdx, setRecIdx] = useState<number | null>(null);
+  const [busyIdx, setBusyIdx] = useState<number | null>(null);
+  const rec = useRef(makeRecorder());
+
+  const refresh = useCallback(async () => {
+    if (sessionId === "new") return;
+    try {
+      const a = (await store.listArtifacts(partnershipId, "roleswap")).find((x) => x.id === sessionId);
+      if (a) setSession(a.payload as RoleSwapSession);
+    } catch {
+      /* keep whatever we have */
+    }
+  }, [store, partnershipId, sessionId]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const start = async (scenarioId: string) => {
+    const sc = pack.scenarios.find((s) => s.id === scenarioId);
+    if (!sc) return;
+    const id = crypto.randomUUID();
+    const sess = roleswap.startRoleSwap(id, packId, sc, roleswap.assignRoles(myId, partnerId));
+    await store.putArtifact(partnershipId, packId, "roleswap", sess, id);
+    setSession(sess);
+  };
+
+  const onRecord = async (turn: RoleSwapTurn) => {
+    setRecIdx(turn.index);
+    await rec.current.start();
+  };
+
+  const onStop = async (turn: RoleSwapTurn) => {
+    setRecIdx(null);
+    setBusyIdx(turn.index);
+    try {
+      const blob = await rec.current.stop();
+      const dataUrl = await blobToDataUrl(blob);
+      const asr = await api.asr(blob, packId);
+      const transcripts = { scribe: asr.eleven?.text, google: asr.google?.text };
+      // Re-read the latest session so we don't clobber the partner's concurrent recordings.
+      const latest = ((await store.listArtifacts(partnershipId, "roleswap")).find((x) => x.id === session!.id)?.payload as RoleSwapSession) ?? session!;
+      let next = roleswap.recordTurn(latest, turn.index, myId, dataUrl, transcripts);
+      const fb = await api.feedback({ answer: turn.text, translit: turn.translit, gloss: turn.gloss }, transcripts, packId);
+      if (!fb.error) next = roleswap.attachFeedback(next, turn.index, fb as unknown as SpeakingFeedback);
+      await store.putArtifact(partnershipId, packId, "roleswap", next, next.id);
+      setSession(next);
+    } finally {
+      setBusyIdx(null);
+    }
+  };
+
+  const playAll = async () => {
+    if (!session) return;
+    for (const t of session.turns) if (t.audio) await playDataUrl(t.audio);
+  };
+
+  if (sessionId === "new" && !session) {
+    return (
+      <div style={colStack}>
+        <span className="small">Pick a scenario to act out together</span>
+        <div className="cards">
+          {pack.scenarios.map((s) => (
+            <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
+              <div className="cc-title">{s.title}</div>
+              <div className="muted small">{s.setting}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (!session) return <span className="muted small">…</span>;
+
+  const myRole = session.assignment[myId];
+  return (
+    <div style={colStack}>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">You play <b>{myRole}</b> · partner plays the other lines</span>
+        <button className="ghost small" onClick={refresh}>↻ Refresh</button>
+      </div>
+      {session.turns.map((t) => {
+        const mine = t.speaker === myRole;
+        return (
+          <div className="fb" key={t.index}>
+            <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss}</span></div>
+            {t.recordedBy ? (
+              <div className="row" style={{ marginTop: 4 }}>
+                <button className="ghost small" onClick={() => t.audio && playDataUrl(t.audio)}>▶ play</button>
+                <span className="muted small">{t.recordedBy === myId ? "you" : "partner"} recorded{t.feedback ? ` · ${t.feedback.score}/100` : ""}</span>
+              </div>
+            ) : mine ? (
+              recIdx === t.index ? (
+                <button className="rec" onClick={() => onStop(t)}>⏹ Stop &amp; save</button>
+              ) : (
+                <button className="btn small" disabled={busyIdx !== null} onClick={() => onRecord(t)}>{busyIdx === t.index ? "saving…" : "● record your line"}</button>
+              )
+            ) : (
+              <span className="muted small">awaiting partner</span>
+            )}
+          </div>
+        );
+      })}
+      {roleswap.isStitchable(session) && <button className="btn" onClick={playAll}>▶ Play the whole conversation</button>}
+    </div>
+  );
+}
+
 // Shared story (Phase 1): the pace-handicapping mechanic made concrete — both partners read the SAME
 // mini-story (shared experience → conversation fuel), each at their own level (per-partner coverage,
 // tap-to-capture, Q&A). The selection is a partner_artifact; reading reuses the existing StoryView.
@@ -1780,6 +1960,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [nudges, setNudges] = useState<PartnerArtifact[]>([]);
   const [myId, setMyId] = useState<string>("");
   const [joinCode, setJoinCode] = useState("");
+  const [rs, setRs] = useState<string | "new" | null>(null); // open role-swap session id, "new", or none
 
   const myActivity = useCallback(
     (): ActivityRecord => ({
@@ -1891,6 +2072,15 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         </div>
       );
     // active
+    const partnerId = l.members.find((m) => m && m !== myId) ?? "";
+    if (rs) {
+      return (
+        <div style={colStack}>
+          <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setRs(null)}>← Partner</button>
+          <RoleSwap store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} sessionId={rs} />
+        </div>
+      );
+    }
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
     return (
@@ -1926,6 +2116,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
             })}
           </ul>
         )}
+        <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
         <SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} />
         <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
         <div>
