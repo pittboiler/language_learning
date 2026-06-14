@@ -5,6 +5,7 @@ import { vocab } from "./vocab.js";
 import { readers } from "./readers.js";
 import { writingTasks } from "./writing.js";
 import { stories } from "./stories.js";
+import { infoGapTasks } from "./infogap.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
 import { smallTalk } from "./scenarios/small-talk.js";
 import { generatedScenarios, generatedVocab } from "./generated.js";
@@ -31,6 +32,7 @@ export const macedonian: LanguagePack = {
   stories,
   srsSeed: vocab.slice(0, 6),
   writingTasks,
+  infoGapTasks,
 };
 
 export default macedonian;
