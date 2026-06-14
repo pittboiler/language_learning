@@ -2,7 +2,6 @@
 // AHEAD partner to record a short explanation for the other. Teaching a peer boosts the teacher's own
 // learning the most — this converts a pace gap into a feature instead of a wound. Reads the diff from
 // core/partner; the recording reuses core/speaking. Language-agnostic. See §2 / §3.3 / §5.6.
-// Stubs only — bodies throw `not implemented`.
 import type { ComplementaryDiff } from "../partner/familiarity-diff.js";
 
 export interface TeachBackPrompt {
@@ -17,20 +16,26 @@ export interface TeachBackArtifact {
   lexKey: string;
   teacher: string;
   learner: string;
-  audioUrl?: string; // partner-media recording
+  audio?: string; // recorded explanation (data-URL for the MVP, like role-swap)
   transcript?: string;
   note?: string; // optional typed explanation
   status: "requested" | "recorded" | "seen";
-  createdAt: Date;
+  createdAt: string; // ISO (stamped by the app)
 }
 
 /** Turn the `iCanHelpPartner` side of the diff into teach-back prompts for the ahead partner,
- *  most-valuable-first (and capped, so it never nags). */
+ *  most-valuable-first (and capped, so it never nags). `reason` reflects the LEARNER's gap. */
 export function proposeTeachBacks(
   diff: ComplementaryDiff,
   teacherId: string,
   learnerId: string,
-  opts?: { limit?: number },
+  opts: { limit?: number } = {},
 ): TeachBackPrompt[] {
-  throw new Error("not implemented");
+  const limit = opts.limit ?? 5;
+  return diff.iCanHelpPartner.slice(0, limit).map((it) => ({
+    lexKey: it.lexKey,
+    teacher: teacherId,
+    learner: learnerId,
+    reason: it.partnerStrength <= 0 ? "partner-new" : "partner-lapsed",
+  }));
 }

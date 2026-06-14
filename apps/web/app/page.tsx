@@ -24,6 +24,10 @@ import { getPartnerStore, type PartnerStore, type PartnerArtifact, type Publishe
 import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
+import * as partnerDiff from "@ll/core/partner/familiarity-diff";
+import type { ComplementaryDiff } from "@ll/core/partner/familiarity-diff";
+import * as teachback from "@ll/core/teachback";
+import * as complementarySrs from "@ll/core/partner/complementary-srs";
 
 type Section = "today" | "library" | "progress" | "me";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
@@ -1641,6 +1645,111 @@ const playDataUrl = (url: string): Promise<void> =>
     a.play().catch(rej);
   });
 
+// Familiarity-driven collaboration (Phase 2): one complementaryDiff over the two partners' gated
+// familiarity projections, surfaced two ways — complementary review ("your partner knows this — ask
+// them") and the protégé effect (record a short explanation of something you're ahead on). The
+// teach-back recordings are 'teachback' partner_artifacts (audio as data-URLs, like role-swap).
+function FamiliarityCollab({ store, partnershipId, packId, myId, partnerId, diff, progress }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  diff: ComplementaryDiff | null;
+  progress: Progress;
+}) {
+  const [inbox, setInbox] = useState<PartnerArtifact[]>([]);
+  const [recKey, setRecKey] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const rec = useRef(makeRecorder());
+
+  const loadInbox = useCallback(async () => {
+    try {
+      setInbox(await store.listArtifacts(partnershipId, "teachback"));
+    } catch {
+      /* tolerate a missing list */
+    }
+  }, [store, partnershipId]);
+  useEffect(() => {
+    void loadInbox();
+  }, [loadInbox]);
+
+  if (!diff) return <p className="muted small">Turn on “Vocabulary” sharing below to swap review help with your partner.</p>;
+
+  const label = (lexKey: string) => progress.familiarity[lexKey]?.display ?? lexKey;
+  const reviewHelp = complementarySrs.routeComplementary(familiarity.dueKeys(progress.familiarity), diff).slice(0, 6);
+  const canHelp = diff.partnerCanHelpMe.slice(0, 8);
+  const prompts = teachback.proposeTeachBacks(diff, myId, partnerId, { limit: 4 });
+  const taught = new Set(inbox.filter((a) => (a.payload as { teacher?: string }).teacher === myId).map((a) => (a.payload as { lexKey?: string }).lexKey));
+  const forMe = inbox.filter((a) => {
+    const p = a.payload as { learner?: string; audio?: string };
+    return p.learner === myId && !!p.audio;
+  });
+
+  const startTeach = async (lexKey: string) => {
+    setRecKey(lexKey);
+    await rec.current.start();
+  };
+  const stopTeach = async (lexKey: string) => {
+    setRecKey(null);
+    setBusyKey(lexKey);
+    try {
+      const audio = await blobToDataUrl(await rec.current.stop());
+      await store.putArtifact(partnershipId, packId, "teachback", { lexKey, teacher: myId, learner: partnerId, audio, status: "recorded", createdAt: new Date().toISOString() });
+      await loadInbox();
+    } finally {
+      setBusyKey(null);
+    }
+  };
+
+  if (!canHelp.length && !prompts.length && !forMe.length) {
+    return <p className="muted small">No complementary gaps right now — you two know similar words. 🎯</p>;
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <span className="small">Help each other</span>
+      {reviewHelp.length > 0 && (
+        <p className="muted small" style={{ margin: 0 }}>Due for you & your partner knows: <b>{reviewHelp.map((r) => label(r.lexKey)).join(", ")}</b> — quiz each other.</p>
+      )}
+      {canHelp.length > 0 && (
+        <p className="muted small" style={{ margin: 0 }}>Your partner knows <b>{canHelp.map((i) => label(i.lexKey)).join(", ")}</b> — ask them.</p>
+      )}
+      {prompts.length > 0 && (
+        <div>
+          <p className="muted small" style={{ margin: "2px 0 0" }}>You're ahead here — record a quick explanation (teaching helps you most):</p>
+          {prompts.map((p) => (
+            <div className="row" key={p.lexKey} style={{ marginTop: 4 }}>
+              <b>{label(p.lexKey)}</b>
+              {taught.has(p.lexKey) ? (
+                <span className="badge on">sent ✓</span>
+              ) : recKey === p.lexKey ? (
+                <button className="rec" onClick={() => stopTeach(p.lexKey)}>⏹ Stop &amp; send</button>
+              ) : (
+                <button className="ghost small" disabled={busyKey !== null} onClick={() => startTeach(p.lexKey)}>{busyKey === p.lexKey ? "saving…" : "● explain"}</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {forMe.length > 0 && (
+        <div>
+          <p className="muted small" style={{ margin: "2px 0 0" }}>Your partner explained:</p>
+          {forMe.map((a) => {
+            const pl = a.payload as { lexKey?: string; audio?: string };
+            return (
+              <div className="row" key={a.id} style={{ marginTop: 4 }}>
+                <b>{label(pl.lexKey ?? "")}</b>
+                <button className="ghost small" onClick={() => pl.audio && playDataUrl(pl.audio)}>▶ play</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Overview entry: list in-progress/ready role-swaps + start a new one.
 function RoleSwapSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
   const pack = usePack();
@@ -1956,6 +2065,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [link, setLink] = useState<Partnership | null>(null);
   const [vis, setVis] = useState<VisibilitySettings>(partner.DEFAULT_VISIBILITY);
   const [partnerState, setPartnerState] = useState<PublishedState | null>(null);
+  const [diff, setDiff] = useState<ComplementaryDiff | null>(null);
   const [shared, setShared] = useState<{ count: number; lastDay: string } | null>(null);
   const [nudges, setNudges] = useState<PartnerArtifact[]>([]);
   const [myId, setMyId] = useState<string>("");
@@ -1980,9 +2090,10 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
       if (active && active.status !== "pending") {
         setMyId(await store.me());
         setVis(await store.getVisibility(active.id));
-        await store.publish(active.id, packId, { activity: myActivity() }); // gated at publish time
+        await store.publish(active.id, packId, { activity: myActivity(), familiarity: partnerDiff.projectFamiliarity(progressRef.current.familiarity, packId) }); // gated at publish time
         const ps = await store.readPartnerPublished(active.id);
         setPartnerState(ps);
+        setDiff(ps?.familiarity ? partnerDiff.complementaryDiff(partnerDiff.projectFamiliarity(progressRef.current.familiarity, packId), ps.familiarity) : null);
         // shared streak: persisted in a single 'streak' artifact both members read/write
         const today = localDay();
         const arts = await store.listArtifacts(active.id, "streak");
@@ -1995,6 +2106,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         setNudges((await store.listArtifacts(active.id, "nudge")).slice(-6).reverse());
       } else {
         setPartnerState(null);
+        setDiff(null);
         setShared(null);
         setNudges([]);
       }
@@ -2117,6 +2229,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
           </ul>
         )}
         <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
+        <FamiliarityCollab store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} diff={diff} progress={progress} />
         <SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} />
         <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
         <div>

@@ -44,12 +44,23 @@ async function main() {
   if (error) throw new Error("redeem failed: " + error.message);
   const row = (Array.isArray(data) ? data[0] : data) as { id: string; pack_id: string };
 
-  // Publish some activity so the inviter sees a live partner.
+  // Publish activity + a familiarity projection so the inviter sees a live partner (and a diff).
   await c.from("partner_published_state").upsert({
     partnership_id: row.id,
     user_id: userId,
     pack_id: row.pack_id,
-    data: { activity: { lastActiveDay: new Date().toISOString().slice(0, 10), metrics: { knownWordCount: 87, learningCount: 12, movedToKnownThisWeek: 9 } } },
+    data: {
+      activity: { lastActiveDay: new Date().toISOString().slice(0, 10), metrics: { knownWordCount: 87, learningCount: 12, movedToKnownThisWeek: 9 } },
+      familiarity: {
+        packId: row.pack_id,
+        entries: {
+          здраво: { status: "known", strength: 0.9 },
+          кафе: { status: "known", strength: 0.85 },
+          пиво: { status: "known", strength: 0.8 },
+          сметка: { status: "known", strength: 0.95 },
+        },
+      },
+    },
   });
 
   console.log(`✓ joined partnership ${row.id} as ${userId}`);
