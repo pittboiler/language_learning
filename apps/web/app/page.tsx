@@ -7,7 +7,7 @@
 // Navigation is four sections — Today (the guided daily flow) / Library (browse + practice) /
 // Progress (stats + Strengthen) / Me (settings). "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { DialogueTurn, GlyphLesson, GrammarConcept, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
@@ -18,6 +18,9 @@ import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
+import * as partner from "@ll/core/partner";
+import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
+import { getPartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
 
 type Section = "today" | "library" | "progress" | "me";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
@@ -1595,6 +1598,219 @@ function GrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolea
 }
 
 // ---------- Me: settings ----------
+// ---------- Partnered learning (Phase 0): invite/consent, visibility, shared streak, activity, nudges ----------
+const NUDGES = ["Proud of you 💪", "Keep the streak 🔥", "Your turn 🎤", "Miss practising with you 👋"];
+const VIS_TOGGLES: [keyof VisibilitySettings, string][] = [
+  ["shareActivity", "Activity"],
+  ["shareStreak", "Streak"],
+  ["shareFamiliarity", "Vocabulary"],
+  ["allowTeachBack", "Teach-back"],
+];
+const colStack: CSSProperties = { display: "flex", flexDirection: "column", gap: 10 };
+
+function PartnerPanel({ progress }: { progress: Progress }) {
+  const pack = usePack();
+  const packId = pack.id;
+  const store = useMemo(() => getPartnerStore(), []);
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [link, setLink] = useState<Partnership | null>(null);
+  const [vis, setVis] = useState<VisibilitySettings>(partner.DEFAULT_VISIBILITY);
+  const [partnerState, setPartnerState] = useState<PublishedState | null>(null);
+  const [shared, setShared] = useState<{ count: number; lastDay: string } | null>(null);
+  const [nudges, setNudges] = useState<PartnerArtifact[]>([]);
+  const [myId, setMyId] = useState<string>("");
+  const [joinCode, setJoinCode] = useState("");
+
+  const myActivity = useCallback(
+    (): ActivityRecord => ({
+      lastActiveDay: progressRef.current.streak?.lastDay ?? "",
+      metrics: scoring.computeMetrics(progressRef.current.familiarity),
+    }),
+    [],
+  );
+
+  const refresh = useCallback(async () => {
+    if (!store) return setLoading(false);
+    setLoading(true);
+    setError(null);
+    try {
+      const active = (await store.myPartnerships(packId))[0] ?? null;
+      setLink(active);
+      if (active && active.status !== "pending") {
+        setMyId(await store.me());
+        setVis(await store.getVisibility(active.id));
+        await store.publish(active.id, packId, { activity: myActivity() }); // gated at publish time
+        const ps = await store.readPartnerPublished(active.id);
+        setPartnerState(ps);
+        // shared streak: persisted in a single 'streak' artifact both members read/write
+        const today = localDay();
+        const arts = await store.listArtifacts(active.id, "streak");
+        const prev = (arts[0]?.payload as { count: number; lastDay: string; freezes?: number }) ?? { count: 0, lastDay: "", freezes: 2 };
+        const next = partner.sharedStreak(myActivity(), ps?.activity ?? { lastActiveDay: "" }, today, { count: prev.count, lastDay: prev.lastDay }, prev.freezes ?? 2);
+        if (next.count !== prev.count || next.lastDay !== prev.lastDay) {
+          await store.putArtifact(active.id, packId, "streak", { ...next, freezes: prev.freezes ?? 2 }, arts[0]?.id);
+        }
+        setShared(next);
+        setNudges((await store.listArtifacts(active.id, "nudge")).slice(-6).reverse());
+      } else {
+        setPartnerState(null);
+        setShared(null);
+        setNudges([]);
+      }
+    } catch (e) {
+      const m = e as { message?: string; code?: string };
+      const missing = m.code === "PGRST205" || (m.message ?? "").includes("schema cache") || (m.message ?? "").includes("does not exist");
+      setError(missing ? "Partner tables not found — run apps/web/supabase/migrations/0002_partnered.sql, then reload." : m.message ?? "Partner sync failed.");
+    } finally {
+      setLoading(false);
+    }
+  }, [store, packId, myActivity]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  if (!store) {
+    return (
+      <div className="setting-row" style={{ flexDirection: "column", alignItems: "flex-start" }}>
+        <b>Learning partner</b>
+        <span className="muted small">Partner learning needs Supabase (cross-device sync). See SUPABASE_SETUP.md.</span>
+      </div>
+    );
+  }
+
+  const act = (fn: () => Promise<unknown>) => async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await fn();
+      await refresh();
+    } catch (e) {
+      setError((e as { message?: string }).message ?? "Action failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const content = () => {
+    if (loading) return <span className="muted small">…</span>;
+    if (!link)
+      return (
+        <div style={colStack}>
+          <p className="muted small">Learn with someone you trust — invite them, then build a shared streak now and (soon) swap spoken roles.</p>
+          <div className="row">
+            <button className="btn" disabled={busy} onClick={act(() => store.invite(packId))}>Invite a partner</button>
+          </div>
+          <div className="row">
+            <input className="lang-picker" placeholder="Enter invite code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} style={{ textTransform: "uppercase", minWidth: 150 }} />
+            <button className="ghost" disabled={busy || !joinCode.trim()} onClick={act(() => store.redeem(joinCode).then(() => setJoinCode("")))}>Join</button>
+          </div>
+        </div>
+      );
+    const l = link;
+    if (l.status === "pending")
+      return (
+        <div style={colStack}>
+          <p className="small">Invite created. Share this code with your partner:</p>
+          <div className="row"><code className="chip" style={{ fontSize: 18, letterSpacing: 3 }}>{l.inviteCode}</code></div>
+          <p className="muted small">They open <b>Me → Join</b> and enter it. This updates once they join.</p>
+          <div className="row">
+            <button className="ghost" disabled={busy} onClick={act(async () => {})}>Refresh</button>
+            <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>Cancel</button>
+          </div>
+        </div>
+      );
+    if (l.status === "paused")
+      return (
+        <div style={colStack}>
+          <p className="small">Paused — no streak pressure. Pick up whenever you both want.</p>
+          <div className="row">
+            <button className="btn" disabled={busy} onClick={act(() => store.resume(l.id))}>Resume</button>
+            <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End</button>
+          </div>
+        </div>
+      );
+    // active
+    const pm = partnerState?.activity?.metrics;
+    const pDay = partnerState?.activity?.lastActiveDay;
+    return (
+      <div style={colStack}>
+        <div className="row" style={{ justifyContent: "space-between" }}>
+          <span className="small">Your partner</span>
+          {pm ? (
+            <span className="muted small"><b style={{ color: "var(--ok)" }}>{pm.knownWordCount}</b> words known · {pm.movedToKnownThisWeek} new this week</span>
+          ) : pDay ? (
+            <span className="muted small">last active {pDay === localDay() ? "today 🎉" : pDay}</span>
+          ) : (
+            <span className="muted small">no activity shared yet</span>
+          )}
+        </div>
+        <div className="row">
+          <span className="small">Shared streak</span>
+          <span className="muted small">
+            {shared && shared.count > 0
+              ? `${shared.count} day${shared.count === 1 ? "" : "s"} you both showed up${shared.lastDay === localDay() ? " — including today 🔥" : ""}`
+              : "practise on the same day to start a shared streak"}
+          </span>
+        </div>
+        <div className="row">
+          {NUDGES.map((n) => (
+            <button key={n} className="ghost small" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
+          ))}
+        </div>
+        {nudges.length > 0 && (
+          <ul className="muted small" style={{ margin: 0, paddingLeft: 18 }}>
+            {nudges.map((nd) => {
+              const pl = nd.payload as { text?: string; day?: string };
+              return <li key={nd.id}>{nd.createdBy === myId ? "You" : "Partner"}: {pl.text} <span style={{ opacity: 0.6 }}>{pl.day}</span></li>;
+            })}
+          </ul>
+        )}
+        <div>
+          <span className="small">Visible to your partner</span>
+          <div className="row" style={{ marginTop: 6 }}>
+            {VIS_TOGGLES.map(([key, label]) => (
+              <button
+                key={key}
+                className={`badge ${vis[key] ? "on" : "off"}`}
+                disabled={busy}
+                title="Tap to toggle what your partner can see"
+                onClick={act(async () => {
+                  const next: VisibilitySettings = { ...vis, [key]: !vis[key] };
+                  setVis(next);
+                  await store.setVisibility(l.id, next);
+                })}
+              >
+                {label} {vis[key] ? "✓" : "✗"}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="row">
+          <button className="ghost" disabled={busy} onClick={act(() => store.pause(l.id))}>Pause (no-shame)</button>
+          <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End partnership</button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="setting-row" style={{ flexDirection: "column", alignItems: "stretch" }}>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <b>Learning partner</b>
+        {shared && shared.count > 0 && <span className="streak-chip" title="Shared streak — days you both practised">🤝🔥 {shared.count}</span>}
+      </div>
+      {error && <p className="small" style={{ color: "var(--warn)", margin: "4px 0 0" }}>{error}</p>}
+      {content()}
+    </div>
+  );
+}
+
 function Settings({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
   const pack = usePack();
   const autoplay = progress.settings?.autoplay ?? false;
@@ -1602,6 +1818,7 @@ function Settings({ progress, persist, config }: { progress: Progress; persist: 
   return (
     <section className="view">
       <h2>Settings</h2>
+      <PartnerPanel progress={progress} />
       <div className="setting-row">
         <b>Language</b>
         {packList().length > 1 ? (

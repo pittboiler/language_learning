@@ -4,7 +4,7 @@
 // real FSRS engine from core.
 import type * as srs from "@ll/core/srs";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
-import { createClient } from "@supabase/supabase-js";
+import { supabase, uid, supabaseConfigured } from "./supabase";
 
 export interface Progress {
   activePackId: string | null; // selected language pack (null ⇒ registry default). Generic — no language baked in.
@@ -82,18 +82,8 @@ export function localStore(): Store {
  * Supabase-backed Store: anonymous auth gives a zero-friction per-device user; the whole Progress
  * blob is upserted into one RLS-protected row (public.user_state). Generic — no language in here.
  */
-export function supabaseStore(url: string, anonKey: string): Store {
-  const sb = createClient(url, anonKey);
-
-  async function uid(): Promise<string> {
-    let { data } = await sb.auth.getSession();
-    if (!data.session) {
-      await sb.auth.signInAnonymously();
-      ({ data } = await sb.auth.getSession());
-    }
-    if (!data.session) throw new Error("Supabase anonymous sign-in failed (is Anonymous auth enabled?)");
-    return data.session.user.id;
-  }
+export function supabaseStore(): Store {
+  const sb = supabase()!;
 
   return {
     async load() {
@@ -118,7 +108,5 @@ export function supabaseStore(url: string, anonKey: string): Store {
 
 /** Pick the persistence backend from the environment. */
 export function getStore(): Store {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return url && anonKey ? supabaseStore(url, anonKey) : localStore();
+  return supabaseConfigured() ? supabaseStore() : localStore();
 }

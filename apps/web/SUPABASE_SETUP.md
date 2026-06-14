@@ -29,3 +29,18 @@ Creates `public.user_state` (RLS: each user sees only their own row) + the `tts-
 Restart the dev server. `getStore()` now sees the env vars and uses Supabase (anonymous session +
 synced progress) instead of localStorage. Tell me when this is done and I'll verify an anon session
 round-trips a progress write.
+
+## 6. Partnered learning (Phase 0)
+For the two-person partner features, also run **`supabase/migrations/0002_partnered.sql`** in the SQL
+editor (creates the `partnership` / visibility / published-state / artifact tables + their RLS + the
+invite-redeem RPC). Until it's applied, the rest of the app works normally and the **Me → Learning
+partner** panel shows a "run migration 0002" hint.
+
+Verify the privacy-critical RLS end-to-end (creates + cleans up 3 throwaway anon users):
+
+```
+npx tsx apps/web/scripts/verify-partner-rls.ts
+```
+
+Expect five green checks — partner-can-read-projection, raw-user_state-stays-private, non-member-sees-
+nothing, revoke-hides-data, owner-only-writes.
