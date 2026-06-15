@@ -18,7 +18,7 @@ export interface Progress {
   /** Active mini-story id for the story reader (null ⇒ first story). Lets the partner "shared story" deep-link. */
   storyPick?: string | null;
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
-  settings?: { autoplay?: boolean; slow?: boolean };
+  settings?: { autoplay?: boolean; slow?: boolean; partnerIntroSeen?: boolean };
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
   streak?: { count: number; lastDay: string };
   /** Grammar concepts whose rule has been explicitly introduced once (→ later it's just-in-time). */

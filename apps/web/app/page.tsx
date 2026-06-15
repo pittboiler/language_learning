@@ -2613,7 +2613,17 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         {shared && shared.count > 0 && <span className="streak-chip" title="Shared streak — days you both practised">🤝🔥 {shared.count}</span>}
       </div>
       {error && <p className="small" style={{ color: "var(--warn)", margin: "4px 0 0" }}>{error}</p>}
-      {content()}
+      {(progress.settings?.partnerIntroSeen ?? false) ? (
+        content()
+      ) : (
+        <div style={colStack}>
+          <p className="small" style={{ margin: 0 }}><b>Learn with someone you trust.</b> Here&apos;s how it works:</p>
+          <p className="muted small" style={{ margin: 0 }}><b>1 · Link up.</b> One of you taps “Invite a partner” and shares the code; the other enters it under “Join.” It stays private to the two of you.</p>
+          <p className="muted small" style={{ margin: 0 }}><b>2 · Practise together.</b> <b>Live conversation</b> (real-time, turn-by-turn coaching) · <b>Role-swap</b> (record a 2-role dialogue on your own time) · <b>Info-gap</b> (you each hold half the info — talk it out) · <b>Shared story</b> · <b>Shared phrasebook</b> · <b>Help each other</b> (the app shows what your partner knows that you don&apos;t — ask them, or record a quick explanation).</p>
+          <p className="muted small" style={{ margin: 0 }}><b>3 · Stay in control.</b> The visibility toggles decide what your partner can see; pause (no penalty) or end anytime.</p>
+          <div className="row"><button className="btn" onClick={() => persist({ ...progress, settings: { ...progress.settings, partnerIntroSeen: true } })}>Got it →</button></div>
+        </div>
+      )}
     </div>
   );
 }
