@@ -206,3 +206,35 @@ function supabasePartnerStore(): PartnerStore {
 export function getPartnerStore(): PartnerStore | null {
   return supabaseConfigured() ? supabasePartnerStore() : null;
 }
+
+// --- Realtime (Phase 4): live-session sync + presence over Supabase Realtime (built-in; no extra infra).
+// Both degrade to a no-op unsubscribe when Supabase isn't configured — the live UI then falls back to a
+// manual refresh. Realtime respects RLS, so a partner only receives changes for their own partnership.
+
+/** Subscribe to partner_artifact changes for a partnership (drives live-conversation sync). */
+export function subscribeArtifacts(partnershipId: string, onChange: () => void): () => void {
+  const sb = supabase();
+  if (!sb) return () => {};
+  const channel = sb
+    .channel(`artifacts:${partnershipId}`)
+    .on("postgres_changes", { event: "*", schema: "public", table: "partner_artifact", filter: `partnership_id=eq.${partnershipId}` }, () => onChange())
+    .subscribe();
+  return () => {
+    void sb.removeChannel(channel);
+  };
+}
+
+/** Join a presence channel for the partnership; `onSync` gets the list of online user ids. */
+export function joinPresence(partnershipId: string, userId: string, onSync: (onlineUserIds: string[]) => void): () => void {
+  const sb = supabase();
+  if (!sb) return () => {};
+  const channel = sb.channel(`presence:${partnershipId}`, { config: { presence: { key: userId } } });
+  channel
+    .on("presence", { event: "sync" }, () => onSync(Object.keys(channel.presenceState())))
+    .subscribe((status) => {
+      if (status === "SUBSCRIBED") void channel.track({ userId });
+    });
+  return () => {
+    void sb.removeChannel(channel);
+  };
+}

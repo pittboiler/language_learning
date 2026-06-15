@@ -16,3 +16,4 @@ export * as complementarySrs from "./partner/complementary-srs.js";
 export * as roleswap from "./roleswap/index.js";
 export * as teachback from "./teachback/index.js";
 export * as infogap from "./infogap/index.js";
+export * as live from "./live/index.js";

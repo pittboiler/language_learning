@@ -20,7 +20,7 @@ import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
-import { getPartnerStore, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
+import { getPartnerStore, subscribeArtifacts, joinPresence, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
 import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
@@ -30,6 +30,8 @@ import * as teachback from "@ll/core/teachback";
 import * as complementarySrs from "@ll/core/partner/complementary-srs";
 import * as infogap from "@ll/core/infogap";
 import type { InfoGapSession } from "@ll/core/infogap";
+import * as live from "@ll/core/live";
+import type { LiveSession } from "@ll/core/live";
 
 type Section = "today" | "library" | "progress" | "me";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
@@ -1647,6 +1649,181 @@ const playDataUrl = (url: string): Promise<void> =>
     a.play().catch(rej);
   });
 
+// Live conversation (Phase 4, crown jewel): the app coaches a real-time conversation between the two
+// learners over a scenario. The session is a 'live' partner_artifact; both screens stay in sync via
+// Supabase Realtime (postgres_changes) + presence, falling back to a manual ↻ if realtime is down.
+function LiveConvoSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
+  const pack = usePack();
+  const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        setSessions(await store.listArtifacts(partnershipId, "live"));
+      } catch {
+        /* tolerate */
+      }
+    })();
+  }, [store, partnershipId]);
+  const activeSessions = sessions.filter((a) => (a.payload as LiveSession).status !== "complete");
+  return (
+    <div>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">Live conversation</span>
+        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>Talk through a scenario together in real time — the app keeps you both in sync and coaches each line.</p>
+      {activeSessions.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
+          {activeSessions.map((a) => {
+            const s = a.payload as LiveSession;
+            const title = pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId;
+            return (
+              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
+                <span className="small">{title} <span className="muted">· live now</span></span>
+                <button className="btn small" onClick={() => onOpen(a.id)}>Join</button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  sessionId: string | "new";
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const [session, setSession] = useState<LiveSession | null>(null);
+  // Effective session id: tracks the prop, but flips to the real id once a "new" session is created,
+  // so refresh + realtime activate for a freshly-started session (not just pre-existing ones).
+  const [sid, setSid] = useState<string | "new">(sessionId);
+  useEffect(() => {
+    setSid(sessionId);
+  }, [sessionId]);
+  const [online, setOnline] = useState<string[]>([]);
+  const [recording, setRecording] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const rec = useRef(makeRecorder());
+
+  const refresh = useCallback(async () => {
+    if (sid === "new") return;
+    try {
+      const a = (await store.listArtifacts(partnershipId, "live")).find((x) => x.id === sid);
+      if (a) setSession(a.payload as LiveSession);
+    } catch {
+      /* keep current */
+    }
+  }, [store, partnershipId, sid]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  // Realtime: re-sync on any artifact change + track presence. Manual ↻ button covers realtime outages.
+  useEffect(() => {
+    if (sid === "new") return;
+    const unsubArtifacts = subscribeArtifacts(partnershipId, () => void refresh());
+    const unsubPresence = joinPresence(partnershipId, myId, setOnline);
+    return () => {
+      unsubArtifacts();
+      unsubPresence();
+    };
+  }, [partnershipId, sid, myId, refresh]);
+
+  const start = async (scenarioId: string) => {
+    const sc = pack.scenarios.find((s) => s.id === scenarioId);
+    if (!sc) return;
+    const id = crypto.randomUUID();
+    const sess = live.startLive(id, packId, sc, live.assignLiveRoles(myId, partnerId));
+    await store.putArtifact(partnershipId, packId, "live", sess, id);
+    setSession(sess);
+    setSid(id); // activate refresh + realtime for the just-created session
+  };
+
+  const startRec = async () => {
+    setRecording(true);
+    await rec.current.start();
+  };
+
+  const speak = async () => {
+    if (!session) return;
+    const turn = live.currentTurn(session);
+    if (!turn) return;
+    setRecording(false);
+    setBusy(true);
+    try {
+      const blob = await rec.current.stop();
+      const asr = await api.asr(blob, packId);
+      const transcripts = { scribe: asr.eleven?.text, google: asr.google?.text };
+      const fb = await api.feedback({ answer: turn.text, translit: turn.translit, gloss: turn.gloss }, transcripts, packId);
+      const transcript = transcripts.scribe || transcripts.google || "";
+      const score = fb.error ? 0 : fb.score;
+      const latest = ((await store.listArtifacts(partnershipId, "live")).find((x) => x.id === session.id)?.payload as LiveSession) ?? session;
+      const next = live.speakTurn(latest, myId, transcript, score);
+      await store.putArtifact(partnershipId, packId, "live", next, next.id);
+      setSession(next);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (sessionId === "new" && !session) {
+    return (
+      <div style={colStack}>
+        <span className="small">Pick a scenario to do live together</span>
+        <div className="cards">
+          {pack.scenarios.map((s) => (
+            <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
+              <div className="cc-title">{s.title}</div>
+              <div className="muted small">{s.setting}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (!session) return <span className="muted small">…</span>;
+
+  const myRole = live.roleOf(session, myId);
+  const turn = live.currentTurn(session);
+  const myTurn = live.isMyTurn(session, myId);
+  const done = live.isComplete(session);
+  const partnerOnline = online.includes(partnerId);
+
+  return (
+    <div style={colStack}>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">Live · you are <b>{myRole}</b></span>
+        <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
+      </div>
+      {session.turns.filter((t) => t.spokenBy).map((t) => (
+        <div className="fb" key={t.index}>
+          <span className="muted small">{t.speaker === myRole ? "you" : "partner"}:</span> <b>{t.text}</b>
+          {t.transcript ? <div className="muted small">heard: {t.transcript}{typeof t.score === "number" ? ` · ${t.score}/100` : ""}</div> : null}
+        </div>
+      ))}
+      {done ? (
+        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 Conversation complete — nicely done, both of you!</p>
+      ) : myTurn ? (
+        <div className="fb">
+          <div className="muted small">Your line:</div>
+          <div className="row"><button className="spk" onClick={() => turn && play(turn.text, 0.9)}>🔊</button> <b>{turn?.text}</b></div>
+          <div className="gloss">{turn?.gloss}{turn?.translit ? ` · ${turn.translit}` : ""}</div>
+          {recording ? <button className="rec" onClick={speak}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={startRec}>{busy ? "scoring…" : "● say it"}</button>}
+        </div>
+      ) : (
+        <div className="fb"><span className="muted small">🎙 Waiting for your partner to say their line…</span></div>
+      )}
+    </div>
+  );
+}
+
 // Info-gap (Phase 3, forced interdependence): each partner holds DIFFERENT secret info + a shared
 // goal neither can reach alone. The view renders ONLY this partner's half (briefFor) — the asymmetry
 // is the task. The shared checklist is one 'infogap' partner_artifact; ticks re-read latest to merge.
@@ -2215,6 +2392,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [joinCode, setJoinCode] = useState("");
   const [rs, setRs] = useState<string | "new" | null>(null); // open role-swap session id, "new", or none
   const [ig, setIg] = useState<string | "new" | null>(null); // open info-gap session id, "new", or none
+  const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
 
   const myActivity = useCallback(
     (): ActivityRecord => ({
@@ -2345,6 +2523,14 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         </div>
       );
     }
+    if (lc) {
+      return (
+        <div style={colStack}>
+          <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setLc(null)}>← Partner</button>
+          <LiveConvo store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} sessionId={lc} />
+        </div>
+      );
+    }
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
     return (
@@ -2380,6 +2566,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
             })}
           </ul>
         )}
+        <LiveConvoSection store={store} partnershipId={l.id} onOpen={setLc} />
         <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
         <InfoGapSection store={store} partnershipId={l.id} onOpen={setIg} />
         <FamiliarityCollab store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} diff={diff} progress={progress} />

@@ -44,3 +44,15 @@ npx tsx apps/web/scripts/verify-partner-rls.ts
 
 Expect five green checks — partner-can-read-projection, raw-user_state-stays-private, non-member-sees-
 nothing, revoke-hides-data, owner-only-writes.
+
+## 7. Live conversation (Phase 4)
+For the real-time **live conversation**, also run **`supabase/migrations/0003_partner_realtime.sql`**
+(adds `partner_artifact` to Supabase's realtime publication so a live session syncs across both
+devices; RLS still gates which rows each partner receives). Then verify:
+
+```
+npx tsx apps/web/scripts/verify-partner-realtime.ts
+```
+
+Expect two green checks — live-sync (postgres_changes) + presence. Until it's applied, the live UI
+still works but falls back to the manual ↻ refresh instead of updating instantly.
