@@ -16,7 +16,14 @@
     "./speaking": "./src/speaking/index.ts",
     "./tutor": "./src/tutor/index.ts",
     "./writing": "./src/writing/index.ts",
-    "./llm": "./src/llm/index.ts"
+    "./llm": "./src/llm/index.ts",
+    "./partner": "./src/partner/index.ts",
+    "./partner/familiarity-diff": "./src/partner/familiarity-diff.ts",
+    "./partner/complementary-srs": "./src/partner/complementary-srs.ts",
+    "./roleswap": "./src/roleswap/index.ts",
+    "./teachback": "./src/teachback/index.ts",
+    "./infogap": "./src/infogap/index.ts",
+    "./live": "./src/live/index.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

@@ -4,7 +4,7 @@
 // real FSRS engine from core.
 import type * as srs from "@ll/core/srs";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
-import { createClient } from "@supabase/supabase-js";
+import { supabase, uid, supabaseConfigured } from "./supabase";
 
 export interface Progress {
   activePackId: string | null; // selected language pack (null ⇒ registry default). Generic — no language baked in.
@@ -15,8 +15,10 @@ export interface Progress {
   /** @deprecated legacy itemId→FSRS map; migrated into `familiarity` on first load (see page.tsx). */
   reviews?: Record<string, srs.ReviewState>;
   pick: string | null; // active scenario id
+  /** Active mini-story id for the story reader (null ⇒ first story). Lets the partner "shared story" deep-link. */
+  storyPick?: string | null;
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
-  settings?: { autoplay?: boolean };
+  settings?: { autoplay?: boolean; slow?: boolean };
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
   streak?: { count: number; lastDay: string };
   /** Grammar concepts whose rule has been explicitly introduced once (→ later it's just-in-time). */
@@ -82,18 +84,8 @@ export function localStore(): Store {
  * Supabase-backed Store: anonymous auth gives a zero-friction per-device user; the whole Progress
  * blob is upserted into one RLS-protected row (public.user_state). Generic — no language in here.
  */
-export function supabaseStore(url: string, anonKey: string): Store {
-  const sb = createClient(url, anonKey);
-
-  async function uid(): Promise<string> {
-    let { data } = await sb.auth.getSession();
-    if (!data.session) {
-      await sb.auth.signInAnonymously();
-      ({ data } = await sb.auth.getSession());
-    }
-    if (!data.session) throw new Error("Supabase anonymous sign-in failed (is Anonymous auth enabled?)");
-    return data.session.user.id;
-  }
+export function supabaseStore(): Store {
+  const sb = supabase()!;
 
   return {
     async load() {
@@ -118,7 +110,5 @@ export function supabaseStore(url: string, anonKey: string): Store {
 
 /** Pick the persistence backend from the environment. */
 export function getStore(): Store {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  return url && anonKey ? supabaseStore(url, anonKey) : localStore();
+  return supabaseConfigured() ? supabaseStore() : localStore();
 }

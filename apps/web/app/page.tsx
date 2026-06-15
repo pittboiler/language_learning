@@ -7,8 +7,8 @@
 // Navigation is four sections — Today (the guided daily flow) / Library (browse + practice) /
 // Progress (stats + Strengthen) / Me (settings). "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { DialogueTurn, GlyphLesson, GrammarConcept, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import type { DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -18,6 +18,20 @@ import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
+import * as partner from "@ll/core/partner";
+import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
+import { getPartnerStore, subscribeArtifacts, joinPresence, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
+import * as roleswap from "@ll/core/roleswap";
+import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
+import type { SpeakingFeedback } from "@ll/core/speaking";
+import * as partnerDiff from "@ll/core/partner/familiarity-diff";
+import type { ComplementaryDiff } from "@ll/core/partner/familiarity-diff";
+import * as teachback from "@ll/core/teachback";
+import * as complementarySrs from "@ll/core/partner/complementary-srs";
+import * as infogap from "@ll/core/infogap";
+import type { InfoGapSession } from "@ll/core/infogap";
+import * as live from "@ll/core/live";
+import type { LiveSession } from "@ll/core/live";
 
 type Section = "today" | "library" | "progress" | "me";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
@@ -25,10 +39,15 @@ type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "re
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
 const usePack = () => useContext(PackContext);
-/** Play TTS in the active pack's voice. Stable across renders (keyed on pack id). */
+/** Global playback-speed switch (slow vs normal) — ONE setting for all spoken audio (replaces the
+ *  per-screen speed buttons). Provided by the root from progress.settings.slow. */
+const SlowContext = createContext(false);
+/** Play TTS in the active pack's voice at the global slow/normal speed. The per-call speed arg is now
+ *  ignored (speed is a global setting); it stays only for call-site compatibility. */
 function usePlay() {
   const pack = usePack();
-  return useCallback((text: string, speed = 1) => api.playTts(text, speed, pack.id).catch(() => {}), [pack.id]);
+  const slow = useContext(SlowContext);
+  return useCallback((text: string, _speed?: number) => api.playTts(text, slow ? 0.7 : 0.9, pack.id).catch(() => {}), [pack.id, slow]);
 }
 
 // Cosmetic flag per pack id (app-level only — not pack data).
@@ -161,6 +180,16 @@ export default function Home() {
     [persist, progress],
   );
 
+  // Open a specific mini-story in the Library reader (used by the partner "shared story" deep-link).
+  const goToStory = useCallback(
+    (storyId: string) => {
+      persist({ ...progress, storyPick: storyId });
+      setLibView("story");
+      setSection("library");
+    },
+    [persist, progress],
+  );
+
   // ---- derived progress signals ----
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   const dueCount = useMemo(() => {
@@ -178,10 +207,12 @@ export default function Home() {
 
   return (
     <PackContext.Provider value={pack}>
+      <SlowContext.Provider value={progress.settings?.slow ?? false}>
       <header>
         <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
         <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
-        <span className="streak-chip" style={{ marginLeft: "auto" }} title="Day streak">🔥 {progress.streak?.count ?? 0}</span>
+        <button className="ghost small" style={{ marginLeft: "auto", marginRight: 6 }} title="Playback speed for all spoken audio" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !progress.settings?.slow } })}>{progress.settings?.slow ? "🐢 Slow" : "🔊 Normal"}</button>
+        <span className="streak-chip" title="Day streak">🔥 {progress.streak?.count ?? 0}</span>
       </header>
       <nav>
         {([
@@ -204,8 +235,9 @@ export default function Home() {
             <Review progress={progress} persist={persist} />
           </>
         )}
-        {section === "me" && <Settings progress={progress} persist={persist} config={config} />}
+        {section === "me" && <Settings progress={progress} persist={persist} config={config} navigateToStory={goToStory} />}
       </main>
+      </SlowContext.Provider>
     </PackContext.Provider>
   );
 }
@@ -523,6 +555,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
 
   const open = (kind: LibView, id?: string) => {
     if (kind === "scenario" && id) persist({ ...progress, pick: id });
+    else if (kind === "story" && id) persist({ ...progress, storyPick: id });
     setMode(kind);
   };
 
@@ -889,8 +922,7 @@ function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api
       <div className="translit">{turn.translit}</div>
       <div className="muted">{turn.gloss}</div>
       <div className="row" style={{ marginTop: 12 }}>
-        <button className="ghost" onClick={() => play(turn.text, 1)}>▶︎ Play native</button>
-        <button className="ghost" onClick={() => play(turn.text, 0.7)}>🐢 Slow</button>
+        <button className="ghost" onClick={() => play(turn.text)}>🔊 Hear it</button>
         <button className={`btn ${recording ? "rec" : ""}`} onClick={onRec}>{recording ? "⏹ Stop" : "⏺ Record"}</button>
         <button className="ghost" onClick={onDone}>Skip / I said it ✓</button>
       </div>
@@ -1249,7 +1281,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
   const play = usePlay();
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   const [current, setCurrent] = useState(-1);
-  const [slow, setSlow] = useState(false);
+  const slow = useContext(SlowContext);
   const playing = useRef(false);
   const speed = slow ? 0.7 : 0.9;
 
@@ -1276,8 +1308,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
       <p className="lead">Listen and read along; tap any word to look it up.</p>
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
-        <button className="ghost" onClick={() => setSlow((s) => !s)}>{slow ? "🐢 Slow" : "▶︎ Normal"}</button>
-        <span className="muted small">🐢 shadow each line: listen, then say it back.</span>
+        <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
       </div>
       <div className="reader">
         {story.body.map((l, i) => (
@@ -1298,7 +1329,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
 // ---------- Library view 5: mini-story (read → Q&A → speaking pipeline) ----------
 function StoryView({ progress, persist, config, onDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; onDone?: () => void }) {
   const pack = usePack();
-  const story = pack.stories?.[0];
+  const story = pack.stories?.find((s) => s.id === progress.storyPick) ?? pack.stories?.[0];
   const [phase, setPhase] = useState<"read" | "qa">("read");
 
   if (!story) return <section className="view"><h2>Story</h2><p className="lead">No stories yet for this pack.</p></section>;
@@ -1595,13 +1626,1007 @@ function GrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolea
 }
 
 // ---------- Me: settings ----------
-function Settings({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
+// ---------- Partnered learning (Phase 0): invite/consent, visibility, shared streak, activity, nudges ----------
+const NUDGES = ["Proud of you 💪", "Keep the streak 🔥", "Your turn 🎤", "Miss practising with you 👋"];
+const VIS_TOGGLES: [keyof VisibilitySettings, string][] = [
+  ["shareActivity", "Activity"],
+  ["shareStreak", "Streak"],
+  ["shareFamiliarity", "Vocabulary"],
+  ["allowTeachBack", "Teach-back"],
+];
+const colStack: CSSProperties = { display: "flex", flexDirection: "column", gap: 10 };
+
+// Async voice role-swap (Phase 1, flagship): split a 2-role scenario across the dyad; each records
+// their lines (reusing makeRecorder + the dual-ASR feedback pipeline), the app stitches them into a
+// replayable conversation. The session — incl. recorded audio as data-URLs for the MVP — is one
+// partner_artifact (kind 'roleswap'); recording re-reads latest before saving to avoid clobber.
+const blobToDataUrl = (blob: Blob): Promise<string> =>
+  new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result as string);
+    r.onerror = () => rej(new Error("audio read failed"));
+    r.readAsDataURL(blob);
+  });
+const playDataUrl = (url: string): Promise<void> =>
+  new Promise((res, rej) => {
+    const a = new Audio(url);
+    a.onended = () => res();
+    a.onerror = () => rej(new Error("audio playback error"));
+    a.play().catch(rej);
+  });
+
+// Live conversation (Phase 4, crown jewel): the app coaches a real-time conversation between the two
+// learners over a scenario. The session is a 'live' partner_artifact; both screens stay in sync via
+// Supabase Realtime (postgres_changes) + presence, falling back to a manual ↻ if realtime is down.
+function LiveConvoSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
+  const pack = usePack();
+  const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        setSessions(await store.listArtifacts(partnershipId, "live"));
+      } catch {
+        /* tolerate */
+      }
+    })();
+  }, [store, partnershipId]);
+  const activeSessions = sessions.filter((a) => (a.payload as LiveSession).status !== "complete");
+  return (
+    <div>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">Live conversation</span>
+        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>Talk through a scenario together in real time — the app keeps you both in sync and coaches each line.</p>
+      {activeSessions.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
+          {activeSessions.map((a) => {
+            const s = a.payload as LiveSession;
+            const title = pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId;
+            return (
+              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
+                <span className="small">{title} <span className="muted">· live now</span></span>
+                <button className="btn small" onClick={() => onOpen(a.id)}>Join</button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  sessionId: string | "new";
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const [session, setSession] = useState<LiveSession | null>(null);
+  // Effective session id: tracks the prop, but flips to the real id once a "new" session is created,
+  // so refresh + realtime activate for a freshly-started session (not just pre-existing ones).
+  const [sid, setSid] = useState<string | "new">(sessionId);
+  useEffect(() => {
+    setSid(sessionId);
+  }, [sessionId]);
+  const [online, setOnline] = useState<string[]>([]);
+  const [recording, setRecording] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const rec = useRef(makeRecorder());
+
+  const refresh = useCallback(async () => {
+    if (sid === "new") return;
+    try {
+      const a = (await store.listArtifacts(partnershipId, "live")).find((x) => x.id === sid);
+      if (a) setSession(a.payload as LiveSession);
+    } catch {
+      /* keep current */
+    }
+  }, [store, partnershipId, sid]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  // Realtime: re-sync on any artifact change + track presence. Manual ↻ button covers realtime outages.
+  useEffect(() => {
+    if (sid === "new") return;
+    const unsubArtifacts = subscribeArtifacts(partnershipId, () => void refresh());
+    const unsubPresence = joinPresence(partnershipId, myId, setOnline);
+    return () => {
+      unsubArtifacts();
+      unsubPresence();
+    };
+  }, [partnershipId, sid, myId, refresh]);
+
+  const start = async (scenarioId: string) => {
+    const sc = pack.scenarios.find((s) => s.id === scenarioId);
+    if (!sc) return;
+    const id = crypto.randomUUID();
+    const sess = live.startLive(id, packId, sc, live.assignLiveRoles(myId, partnerId));
+    await store.putArtifact(partnershipId, packId, "live", sess, id);
+    setSession(sess);
+    setSid(id); // activate refresh + realtime for the just-created session
+  };
+
+  const startRec = async () => {
+    setRecording(true);
+    await rec.current.start();
+  };
+
+  const speak = async () => {
+    if (!session) return;
+    const turn = live.currentTurn(session);
+    if (!turn) return;
+    setRecording(false);
+    setBusy(true);
+    try {
+      const blob = await rec.current.stop();
+      const asr = await api.asr(blob, packId);
+      const transcripts = { scribe: asr.eleven?.text, google: asr.google?.text };
+      const fb = await api.feedback({ answer: turn.text, translit: turn.translit, gloss: turn.gloss }, transcripts, packId);
+      const transcript = transcripts.scribe || transcripts.google || "";
+      const score = fb.error ? 0 : fb.score;
+      const latest = ((await store.listArtifacts(partnershipId, "live")).find((x) => x.id === session.id)?.payload as LiveSession) ?? session;
+      const next = live.speakTurn(latest, myId, transcript, score);
+      await store.putArtifact(partnershipId, packId, "live", next, next.id);
+      setSession(next);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (sessionId === "new" && !session) {
+    return (
+      <div style={colStack}>
+        <span className="small">Pick a scenario to do live together</span>
+        <div className="cards">
+          {pack.scenarios.map((s) => (
+            <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
+              <div className="cc-title">{s.title}</div>
+              <div className="muted small">{s.setting}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (!session) return <span className="muted small">…</span>;
+
+  const myRole = live.roleOf(session, myId);
+  const turn = live.currentTurn(session);
+  const myTurn = live.isMyTurn(session, myId);
+  const done = live.isComplete(session);
+  const partnerOnline = online.includes(partnerId);
+
+  return (
+    <div style={colStack}>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">Live · you are <b>{myRole}</b></span>
+        <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
+      </div>
+      {session.turns.filter((t) => t.spokenBy).map((t) => (
+        <div className="fb" key={t.index}>
+          <span className="muted small">{t.speaker === myRole ? "you" : "partner"}:</span> <b>{t.text}</b>
+          {t.transcript ? <div className="muted small">heard: {t.transcript}{typeof t.score === "number" ? ` · ${t.score}/100` : ""}</div> : null}
+        </div>
+      ))}
+      {done ? (
+        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 Conversation complete — nicely done, both of you!</p>
+      ) : myTurn ? (
+        <div className="fb">
+          <div className="muted small">Your line:</div>
+          <div className="row"><button className="spk" onClick={() => turn && play(turn.text, 0.9)}>🔊</button> <b>{turn?.text}</b></div>
+          <div className="gloss">{turn?.gloss}{turn?.translit ? ` · ${turn.translit}` : ""}</div>
+          {recording ? <button className="rec" onClick={speak}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={startRec}>{busy ? "scoring…" : "● say it"}</button>}
+        </div>
+      ) : (
+        <div className="fb"><span className="muted small">🎙 Waiting for your partner to say their line…</span></div>
+      )}
+    </div>
+  );
+}
+
+// Info-gap (Phase 3, forced interdependence): each partner holds DIFFERENT secret info + a shared
+// goal neither can reach alone. The view renders ONLY this partner's half (briefFor) — the asymmetry
+// is the task. The shared checklist is one 'infogap' partner_artifact; ticks re-read latest to merge.
+function InfoGapSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
+  const pack = usePack();
+  const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        setSessions(await store.listArtifacts(partnershipId, "infogap"));
+      } catch {
+        /* tolerate */
+      }
+    })();
+  }, [store, partnershipId]);
+  if (!(pack.infoGapTasks ?? []).length) return null;
+  return (
+    <div>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">Info-gap challenge</span>
+        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>Each of you gets different secret info — you can only finish by talking it out in {pack.name}.</p>
+      {sessions.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
+          {sessions.map((a) => {
+            const s = a.payload as InfoGapSession;
+            const task = pack.infoGapTasks?.find((t) => t.id === s.taskId);
+            return (
+              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
+                <span className="small">{task?.title ?? s.taskId} <span className="muted">· {s.status === "complete" ? "done ✓" : `${s.metCriteria.length}/${task?.successCriteria.length ?? "?"}`}</span></span>
+                <button className="ghost small" onClick={() => onOpen(a.id)}>Open</button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  sessionId: string | "new";
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const [session, setSession] = useState<InfoGapSession | null>(null);
+
+  const refresh = useCallback(async () => {
+    if (sessionId === "new") return;
+    try {
+      const a = (await store.listArtifacts(partnershipId, "infogap")).find((x) => x.id === sessionId);
+      if (a) setSession(a.payload as InfoGapSession);
+    } catch {
+      /* keep current */
+    }
+  }, [store, partnershipId, sessionId]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const start = async (taskId: string) => {
+    const task = pack.infoGapTasks?.find((t) => t.id === taskId);
+    if (!task) return;
+    const id = crypto.randomUUID();
+    const sess = infogap.startInfoGap(id, packId, task, { [myId]: "A", [partnerId]: "B" });
+    await store.putArtifact(partnershipId, packId, "infogap", sess, id);
+    setSession(sess);
+  };
+
+  const toggle = async (task: InfoGapTask, criterionId: string) => {
+    const latest = ((await store.listArtifacts(partnershipId, "infogap")).find((x) => x.id === session!.id)?.payload as InfoGapSession) ?? session!;
+    const next = infogap.toggleCriterion(latest, task, criterionId);
+    await store.putArtifact(partnershipId, packId, "infogap", next, next.id);
+    setSession(next);
+  };
+
+  if (sessionId === "new" && !session) {
+    return (
+      <div style={colStack}>
+        <span className="small">Pick an info-gap challenge</span>
+        <div className="cards">
+          {(pack.infoGapTasks ?? []).map((t) => (
+            <button key={t.id} className="contentcard" onClick={() => start(t.id)}>
+              <div className="cc-title">{t.title}</div>
+              <div className="muted small">{t.goal}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (!session) return <span className="muted small">…</span>;
+  const task = pack.infoGapTasks?.find((t) => t.id === session.taskId);
+  if (!task) return <span className="muted small">task not found</span>;
+  const role = infogap.roleOf(session, myId) ?? "A";
+  const brief = infogap.briefFor(task, role);
+  const done = infogap.isComplete(session, task);
+
+  return (
+    <div style={colStack}>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">You are <b>{role === "A" ? "the customer" : "the waiter"}</b></span>
+        <button className="ghost small" onClick={refresh}>↻ Refresh</button>
+      </div>
+      <p className="lead" style={{ margin: 0 }}>{task.goal}</p>
+      <div className="fb">
+        <b>{brief.brief}</b>
+        <div style={{ marginTop: 6 }}>
+          <span className="muted small">Only you know:</span>
+          <ul style={{ margin: "2px 0 0", paddingLeft: 18 }}>{brief.secretInfo.map((s, i) => <li key={i}>{s}</li>)}</ul>
+        </div>
+        <div style={{ marginTop: 6 }}>
+          <span className="muted small">You can say:</span>
+          {brief.targetPhrases.map((p, i) => (
+            <div className="row" key={i} style={{ marginTop: 2 }}>
+              <button className="spk" onClick={() => play(p.text, 0.9)}>🔊</button>
+              <span><b>{p.text}</b> <span className="muted small">— {p.gloss}</span></span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <span className="small">Together, tick off as you go:</span>
+      {task.successCriteria.map((c) => {
+        const met = session.metCriteria.includes(c.id);
+        return (
+          <button key={c.id} className={`badge ${met ? "on" : "off"}`} style={{ textAlign: "left" }} onClick={() => toggle(task, c.id)}>
+            {met ? "✓" : "○"} {c.description}
+          </button>
+        );
+      })}
+      {done && <p className="lead" style={{ color: "var(--ok)", margin: "6px 0 0" }}>🎉 Gap bridged — you pulled it off together!</p>}
+    </div>
+  );
+}
+
+// Familiarity-driven collaboration (Phase 2): one complementaryDiff over the two partners' gated
+// familiarity projections, surfaced two ways — complementary review ("your partner knows this — ask
+// them") and the protégé effect (record a short explanation of something you're ahead on). The
+// teach-back recordings are 'teachback' partner_artifacts (audio as data-URLs, like role-swap).
+function FamiliarityCollab({ store, partnershipId, packId, myId, partnerId, diff, progress }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  diff: ComplementaryDiff | null;
+  progress: Progress;
+}) {
+  const [inbox, setInbox] = useState<PartnerArtifact[]>([]);
+  const [recKey, setRecKey] = useState<string | null>(null);
+  const [busyKey, setBusyKey] = useState<string | null>(null);
+  const rec = useRef(makeRecorder());
+
+  const loadInbox = useCallback(async () => {
+    try {
+      setInbox(await store.listArtifacts(partnershipId, "teachback"));
+    } catch {
+      /* tolerate a missing list */
+    }
+  }, [store, partnershipId]);
+  useEffect(() => {
+    void loadInbox();
+  }, [loadInbox]);
+
+  if (!diff) return <p className="muted small">Turn on “Vocabulary” sharing below to swap review help with your partner.</p>;
+
+  const label = (lexKey: string) => progress.familiarity[lexKey]?.display ?? lexKey;
+  const reviewHelp = complementarySrs.routeComplementary(familiarity.dueKeys(progress.familiarity), diff).slice(0, 6);
+  const canHelp = diff.partnerCanHelpMe.slice(0, 8);
+  const prompts = teachback.proposeTeachBacks(diff, myId, partnerId, { limit: 4 });
+  const taught = new Set(inbox.filter((a) => (a.payload as { teacher?: string }).teacher === myId).map((a) => (a.payload as { lexKey?: string }).lexKey));
+  const forMe = inbox.filter((a) => {
+    const p = a.payload as { learner?: string; audio?: string };
+    return p.learner === myId && !!p.audio;
+  });
+
+  const startTeach = async (lexKey: string) => {
+    setRecKey(lexKey);
+    await rec.current.start();
+  };
+  const stopTeach = async (lexKey: string) => {
+    setRecKey(null);
+    setBusyKey(lexKey);
+    try {
+      const audio = await blobToDataUrl(await rec.current.stop());
+      await store.putArtifact(partnershipId, packId, "teachback", { lexKey, teacher: myId, learner: partnerId, audio, status: "recorded", createdAt: new Date().toISOString() });
+      await loadInbox();
+    } finally {
+      setBusyKey(null);
+    }
+  };
+
+  if (!canHelp.length && !prompts.length && !forMe.length) {
+    return <p className="muted small">No complementary gaps right now — you two know similar words. 🎯</p>;
+  }
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+      <span className="small">Help each other</span>
+      {reviewHelp.length > 0 && (
+        <p className="muted small" style={{ margin: 0 }}>Due for you & your partner knows: <b>{reviewHelp.map((r) => label(r.lexKey)).join(", ")}</b> — quiz each other.</p>
+      )}
+      {canHelp.length > 0 && (
+        <p className="muted small" style={{ margin: 0 }}>Your partner knows <b>{canHelp.map((i) => label(i.lexKey)).join(", ")}</b> — ask them.</p>
+      )}
+      {prompts.length > 0 && (
+        <div>
+          <p className="muted small" style={{ margin: "2px 0 0" }}>You're ahead here — record a quick explanation (teaching helps you most):</p>
+          {prompts.map((p) => (
+            <div className="row" key={p.lexKey} style={{ marginTop: 4 }}>
+              <b>{label(p.lexKey)}</b>
+              {taught.has(p.lexKey) ? (
+                <span className="badge on">sent ✓</span>
+              ) : recKey === p.lexKey ? (
+                <button className="rec" onClick={() => stopTeach(p.lexKey)}>⏹ Stop &amp; send</button>
+              ) : (
+                <button className="ghost small" disabled={busyKey !== null} onClick={() => startTeach(p.lexKey)}>{busyKey === p.lexKey ? "saving…" : "● explain"}</button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      {forMe.length > 0 && (
+        <div>
+          <p className="muted small" style={{ margin: "2px 0 0" }}>Your partner explained:</p>
+          {forMe.map((a) => {
+            const pl = a.payload as { lexKey?: string; audio?: string };
+            return (
+              <div className="row" key={a.id} style={{ marginTop: 4 }}>
+                <b>{label(pl.lexKey ?? "")}</b>
+                <button className="ghost small" onClick={() => pl.audio && playDataUrl(pl.audio)}>▶ play</button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Overview entry: list in-progress/ready role-swaps + start a new one.
+function RoleSwapSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
+  const pack = usePack();
+  const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
+  useEffect(() => {
+    (async () => {
+      try {
+        setSessions(await store.listArtifacts(partnershipId, "roleswap"));
+      } catch {
+        /* overview tolerates a missing list */
+      }
+    })();
+  }, [store, partnershipId]);
+  return (
+    <div>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">Role-swap</span>
+        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>Act out a 2-person dialogue together — each records their lines, then play it back with feedback.</p>
+      {sessions.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
+          {sessions.map((a) => {
+            const s = a.payload as RoleSwapSession;
+            const title = pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId;
+            const done = s.turns.filter((t) => t.recordedBy).length;
+            return (
+              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
+                <span className="small">{title} <span className="muted">· {s.status === "complete" ? "ready ▶" : `${done}/${s.turns.length} lines`}</span></span>
+                <button className="ghost small" onClick={() => onOpen(a.id)}>Open</button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+// The role-swap session: pick a scenario (when "new"), record your role's lines, see the partner's,
+// then play the stitched conversation. Each recording runs the dual-ASR feedback pipeline.
+function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  sessionId: string | "new";
+}) {
+  const pack = usePack();
+  const [session, setSession] = useState<RoleSwapSession | null>(null);
+  const [recIdx, setRecIdx] = useState<number | null>(null);
+  const [busyIdx, setBusyIdx] = useState<number | null>(null);
+  const rec = useRef(makeRecorder());
+
+  const refresh = useCallback(async () => {
+    if (sessionId === "new") return;
+    try {
+      const a = (await store.listArtifacts(partnershipId, "roleswap")).find((x) => x.id === sessionId);
+      if (a) setSession(a.payload as RoleSwapSession);
+    } catch {
+      /* keep whatever we have */
+    }
+  }, [store, partnershipId, sessionId]);
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const start = async (scenarioId: string) => {
+    const sc = pack.scenarios.find((s) => s.id === scenarioId);
+    if (!sc) return;
+    const id = crypto.randomUUID();
+    const sess = roleswap.startRoleSwap(id, packId, sc, roleswap.assignRoles(myId, partnerId));
+    await store.putArtifact(partnershipId, packId, "roleswap", sess, id);
+    setSession(sess);
+  };
+
+  const onRecord = async (turn: RoleSwapTurn) => {
+    setRecIdx(turn.index);
+    await rec.current.start();
+  };
+
+  const onStop = async (turn: RoleSwapTurn) => {
+    setRecIdx(null);
+    setBusyIdx(turn.index);
+    try {
+      const blob = await rec.current.stop();
+      const dataUrl = await blobToDataUrl(blob);
+      const asr = await api.asr(blob, packId);
+      const transcripts = { scribe: asr.eleven?.text, google: asr.google?.text };
+      // Re-read the latest session so we don't clobber the partner's concurrent recordings.
+      const latest = ((await store.listArtifacts(partnershipId, "roleswap")).find((x) => x.id === session!.id)?.payload as RoleSwapSession) ?? session!;
+      let next = roleswap.recordTurn(latest, turn.index, myId, dataUrl, transcripts);
+      const fb = await api.feedback({ answer: turn.text, translit: turn.translit, gloss: turn.gloss }, transcripts, packId);
+      if (!fb.error) next = roleswap.attachFeedback(next, turn.index, fb as unknown as SpeakingFeedback);
+      await store.putArtifact(partnershipId, packId, "roleswap", next, next.id);
+      setSession(next);
+    } finally {
+      setBusyIdx(null);
+    }
+  };
+
+  const playAll = async () => {
+    if (!session) return;
+    for (const t of session.turns) if (t.audio) await playDataUrl(t.audio);
+  };
+
+  if (sessionId === "new" && !session) {
+    return (
+      <div style={colStack}>
+        <span className="small">Pick a scenario to act out together</span>
+        <div className="cards">
+          {pack.scenarios.map((s) => (
+            <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
+              <div className="cc-title">{s.title}</div>
+              <div className="muted small">{s.setting}</div>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (!session) return <span className="muted small">…</span>;
+
+  const myRole = session.assignment[myId];
+  return (
+    <div style={colStack}>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <span className="small">You play <b>{myRole}</b> · partner plays the other lines</span>
+        <button className="ghost small" onClick={refresh}>↻ Refresh</button>
+      </div>
+      {session.turns.map((t) => {
+        const mine = t.speaker === myRole;
+        return (
+          <div className="fb" key={t.index}>
+            <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss}</span></div>
+            {t.recordedBy ? (
+              <div className="row" style={{ marginTop: 4 }}>
+                <button className="ghost small" onClick={() => t.audio && playDataUrl(t.audio)}>▶ play</button>
+                <span className="muted small">{t.recordedBy === myId ? "you" : "partner"} recorded{t.feedback ? ` · ${t.feedback.score}/100` : ""}</span>
+              </div>
+            ) : mine ? (
+              recIdx === t.index ? (
+                <button className="rec" onClick={() => onStop(t)}>⏹ Stop &amp; save</button>
+              ) : (
+                <button className="btn small" disabled={busyIdx !== null} onClick={() => onRecord(t)}>{busyIdx === t.index ? "saving…" : "● record your line"}</button>
+              )
+            ) : (
+              <span className="muted small">awaiting partner</span>
+            )}
+          </div>
+        );
+      })}
+      {roleswap.isStitchable(session) && <button className="btn" onClick={playAll}>▶ Play the whole conversation</button>}
+    </div>
+  );
+}
+
+// Shared story (Phase 1): the pace-handicapping mechanic made concrete — both partners read the SAME
+// mini-story (shared experience → conversation fuel), each at their own level (per-partner coverage,
+// tap-to-capture, Q&A). The selection is a partner_artifact; reading reuses the existing StoryView.
+function SharedStory({ store, partnershipId, packId, progress, navigateToStory }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  progress: Progress;
+  navigateToStory: (storyId: string) => void;
+}) {
+  const pack = usePack();
+  const stories = pack.stories ?? [];
+  const [picked, setPicked] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      const arts = await store.listArtifacts(partnershipId, "shared-story");
+      setPicked((arts[arts.length - 1]?.payload as { storyId?: string } | undefined)?.storyId ?? null);
+    } catch {
+      /* empty selection falls back to the first story */
+    }
+  }, [store, partnershipId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  if (!stories.length) return null;
+  const story = stories.find((s) => s.id === picked) ?? stories[0]!;
+  const cov = coverageOf(story.body.map((b) => b.text).join(" "), progress.familiarity);
+
+  const setShared = async (id: string) => {
+    setBusy(true);
+    try {
+      await store.putArtifact(partnershipId, packId, "shared-story", { storyId: id, day: localDay() });
+      setPicked(id);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <span className="small">Shared story</span>
+      <div className="row" style={{ justifyContent: "space-between", marginTop: 6 }}>
+        <span><b>★ {story.title}</b>{story.titleGloss ? <span className="muted small"> — {story.titleGloss}</span> : null}</span>
+        <span className="muted small">{Math.round(cov.familiarPct * 100)}% familiar to you</span>
+      </div>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>You both read the same story at your own level — compare notes after.</p>
+      <div className="row" style={{ marginTop: 6 }}>
+        <button className="btn" onClick={() => navigateToStory(story.id)}>Read together →</button>
+        {stories.length > 1 && (
+          <select className="lang-picker" value={story.id} disabled={busy} onChange={(e) => setShared(e.target.value)} aria-label="Shared story">
+            {stories.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+          </select>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Co-created phrasebook (Phase 1): a shared, growing deck either partner adds to. Each entry is a
+// partner_artifact (kind 'phrase'); tapping "＋ my reviews" seeds it into THIS learner's familiarity —
+// so a phrase one partner overhears becomes review fuel for both. Reuses api.gloss + familiarity.capture.
+function Phrasebook({ store, partnershipId, packId, progress, persist }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  progress: Progress;
+  persist: (p: Progress) => void;
+}) {
+  const [items, setItems] = useState<PartnerArtifact[]>([]);
+  const [text, setText] = useState("");
+  const [gloss, setGloss] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(async () => {
+    try {
+      setItems(await store.listArtifacts(partnershipId, "phrase"));
+    } catch {
+      /* panel surfaces partner errors; an empty phrasebook is a safe fallback */
+    }
+  }, [store, partnershipId]);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  const add = async () => {
+    const t = text.trim();
+    if (!t) return;
+    setBusy(true);
+    try {
+      await store.putArtifact(partnershipId, packId, "phrase", { text: t, gloss: gloss.trim(), day: localDay() });
+      setText("");
+      setGloss("");
+      await load();
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const autoGloss = async () => {
+    const t = text.trim();
+    if (!t) return;
+    const g = await api.gloss(t, "", packId);
+    if (g.gloss) setGloss(g.gloss);
+  };
+
+  // Seed a phrase into the current learner's own familiarity (the cross-partner capture, §2 triage).
+  const capture = (phrase: string, g?: string) => {
+    const lexKey = familiarity.normalize(phrase);
+    if (!lexKey || progress.familiarity[lexKey]) return;
+    persist({ ...progress, familiarity: { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "chunk", display: phrase, gloss: g }) } });
+  };
+
+  return (
+    <div>
+      <span className="small">Shared phrasebook</span>
+      <div className="row" style={{ marginTop: 6 }}>
+        <input className="lang-picker" style={{ minWidth: 150 }} placeholder="Phrase (target language)" value={text} onChange={(e) => setText(e.target.value)} />
+        <input className="lang-picker" style={{ minWidth: 110 }} placeholder="meaning" value={gloss} onChange={(e) => setGloss(e.target.value)} />
+        <button className="ghost small" disabled={busy || !text.trim()} onClick={autoGloss} title="Suggest a gloss">gloss?</button>
+        <button className="btn" disabled={busy || !text.trim()} onClick={add}>Add</button>
+      </div>
+      {items.length > 0 && (
+        <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0", display: "flex", flexDirection: "column", gap: 6 }}>
+          {items.map((it) => {
+            const pl = it.payload as { text?: string; gloss?: string };
+            const known = !!progress.familiarity[familiarity.normalize(pl.text ?? "")];
+            return (
+              <li key={it.id} className="row" style={{ justifyContent: "space-between" }}>
+                <span><b>{pl.text}</b>{pl.gloss ? <span className="muted small"> — {pl.gloss}</span> : null}</span>
+                <button className={`badge ${known ? "on" : ""}`} disabled={known} onClick={() => capture(pl.text ?? "", pl.gloss)} title="Add to my spaced-repetition reviews">
+                  {known ? "in your reviews ✓" : "＋ my reviews"}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; navigateToStory: (storyId: string) => void }) {
+  const pack = usePack();
+  const packId = pack.id;
+  const store = useMemo(() => getPartnerStore(), []);
+  const progressRef = useRef(progress);
+  progressRef.current = progress;
+
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [link, setLink] = useState<Partnership | null>(null);
+  const [vis, setVis] = useState<VisibilitySettings>(partner.DEFAULT_VISIBILITY);
+  const [partnerState, setPartnerState] = useState<PublishedState | null>(null);
+  const [diff, setDiff] = useState<ComplementaryDiff | null>(null);
+  const [shared, setShared] = useState<{ count: number; lastDay: string } | null>(null);
+  const [nudges, setNudges] = useState<PartnerArtifact[]>([]);
+  const [myId, setMyId] = useState<string>("");
+  const [joinCode, setJoinCode] = useState("");
+  const [rs, setRs] = useState<string | "new" | null>(null); // open role-swap session id, "new", or none
+  const [ig, setIg] = useState<string | "new" | null>(null); // open info-gap session id, "new", or none
+  const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
+
+  const myActivity = useCallback(
+    (): ActivityRecord => ({
+      lastActiveDay: progressRef.current.streak?.lastDay ?? "",
+      metrics: scoring.computeMetrics(progressRef.current.familiarity),
+    }),
+    [],
+  );
+
+  const refresh = useCallback(async () => {
+    if (!store) return setLoading(false);
+    setLoading(true);
+    setError(null);
+    try {
+      const active = (await store.myPartnerships(packId))[0] ?? null;
+      setLink(active);
+      if (active && active.status !== "pending") {
+        setMyId(await store.me());
+        setVis(await store.getVisibility(active.id));
+        await store.publish(active.id, packId, { activity: myActivity(), familiarity: partnerDiff.projectFamiliarity(progressRef.current.familiarity, packId) }); // gated at publish time
+        const ps = await store.readPartnerPublished(active.id);
+        setPartnerState(ps);
+        setDiff(ps?.familiarity ? partnerDiff.complementaryDiff(partnerDiff.projectFamiliarity(progressRef.current.familiarity, packId), ps.familiarity) : null);
+        // shared streak: persisted in a single 'streak' artifact both members read/write
+        const today = localDay();
+        const arts = await store.listArtifacts(active.id, "streak");
+        const prev = (arts[0]?.payload as { count: number; lastDay: string; freezes?: number }) ?? { count: 0, lastDay: "", freezes: 2 };
+        const next = partner.sharedStreak(myActivity(), ps?.activity ?? { lastActiveDay: "" }, today, { count: prev.count, lastDay: prev.lastDay }, prev.freezes ?? 2);
+        if (next.count !== prev.count || next.lastDay !== prev.lastDay) {
+          await store.putArtifact(active.id, packId, "streak", { ...next, freezes: prev.freezes ?? 2 }, arts[0]?.id);
+        }
+        setShared(next);
+        setNudges((await store.listArtifacts(active.id, "nudge")).slice(-6).reverse());
+      } else {
+        setPartnerState(null);
+        setDiff(null);
+        setShared(null);
+        setNudges([]);
+      }
+    } catch (e) {
+      const m = e as { message?: string; code?: string };
+      const missing = m.code === "PGRST205" || (m.message ?? "").includes("schema cache") || (m.message ?? "").includes("does not exist");
+      setError(missing ? "Partner tables not found — run apps/web/supabase/migrations/0002_partnered.sql, then reload." : m.message ?? "Partner sync failed.");
+    } finally {
+      setLoading(false);
+    }
+  }, [store, packId, myActivity]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  if (!store) {
+    return (
+      <div className="setting-row" style={{ flexDirection: "column", alignItems: "flex-start" }}>
+        <b>Learning partner</b>
+        <span className="muted small">Partner learning needs Supabase (cross-device sync). See SUPABASE_SETUP.md.</span>
+      </div>
+    );
+  }
+
+  const act = (fn: () => Promise<unknown>) => async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await fn();
+      await refresh();
+    } catch (e) {
+      setError((e as { message?: string }).message ?? "Action failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const content = () => {
+    if (loading) return <span className="muted small">…</span>;
+    if (!link)
+      return (
+        <div style={colStack}>
+          <p className="muted small">Learn with someone you trust — invite them, then build a shared streak now and (soon) swap spoken roles.</p>
+          <div className="row">
+            <button className="btn" disabled={busy} onClick={act(() => store.invite(packId))}>Invite a partner</button>
+          </div>
+          <div className="row">
+            <input className="lang-picker" placeholder="Enter invite code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} style={{ textTransform: "uppercase", minWidth: 150 }} />
+            <button className="ghost" disabled={busy || !joinCode.trim()} onClick={act(() => store.redeem(joinCode).then(() => setJoinCode("")))}>Join</button>
+          </div>
+        </div>
+      );
+    const l = link;
+    if (l.status === "pending")
+      return (
+        <div style={colStack}>
+          <p className="small">Invite created. Share this code with your partner:</p>
+          <div className="row"><code className="chip" style={{ fontSize: 18, letterSpacing: 3 }}>{l.inviteCode}</code></div>
+          <p className="muted small">They open <b>Me → Join</b> and enter it. This updates once they join.</p>
+          <div className="row">
+            <button className="ghost" disabled={busy} onClick={act(async () => {})}>Refresh</button>
+            <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>Cancel</button>
+          </div>
+        </div>
+      );
+    if (l.status === "paused")
+      return (
+        <div style={colStack}>
+          <p className="small">Paused — no streak pressure. Pick up whenever you both want.</p>
+          <div className="row">
+            <button className="btn" disabled={busy} onClick={act(() => store.resume(l.id))}>Resume</button>
+            <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End</button>
+          </div>
+        </div>
+      );
+    // active
+    const partnerId = l.members.find((m) => m && m !== myId) ?? "";
+    if (rs) {
+      return (
+        <div style={colStack}>
+          <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setRs(null)}>← Partner</button>
+          <RoleSwap store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} sessionId={rs} />
+        </div>
+      );
+    }
+    if (ig) {
+      return (
+        <div style={colStack}>
+          <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setIg(null)}>← Partner</button>
+          <InfoGap store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} sessionId={ig} />
+        </div>
+      );
+    }
+    if (lc) {
+      return (
+        <div style={colStack}>
+          <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setLc(null)}>← Partner</button>
+          <LiveConvo store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} sessionId={lc} />
+        </div>
+      );
+    }
+    const pm = partnerState?.activity?.metrics;
+    const pDay = partnerState?.activity?.lastActiveDay;
+    return (
+      <div style={colStack}>
+        <div className="row" style={{ justifyContent: "space-between" }}>
+          <span className="small">Your partner</span>
+          {pm ? (
+            <span className="muted small"><b style={{ color: "var(--ok)" }}>{pm.knownWordCount}</b> words known · {pm.movedToKnownThisWeek} new this week</span>
+          ) : pDay ? (
+            <span className="muted small">last active {pDay === localDay() ? "today 🎉" : pDay}</span>
+          ) : (
+            <span className="muted small">no activity shared yet</span>
+          )}
+        </div>
+        <div className="row">
+          <span className="small">Shared streak</span>
+          <span className="muted small">
+            {shared && shared.count > 0
+              ? `${shared.count} day${shared.count === 1 ? "" : "s"} you both showed up${shared.lastDay === localDay() ? " — including today 🔥" : ""}`
+              : "practise on the same day to start a shared streak"}
+          </span>
+        </div>
+        <div className="row">
+          {NUDGES.map((n) => (
+            <button key={n} className="ghost small" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
+          ))}
+        </div>
+        {nudges.length > 0 && (
+          <ul className="muted small" style={{ margin: 0, paddingLeft: 18 }}>
+            {nudges.map((nd) => {
+              const pl = nd.payload as { text?: string; day?: string };
+              return <li key={nd.id}>{nd.createdBy === myId ? "You" : "Partner"}: {pl.text} <span style={{ opacity: 0.6 }}>{pl.day}</span></li>;
+            })}
+          </ul>
+        )}
+        <LiveConvoSection store={store} partnershipId={l.id} onOpen={setLc} />
+        <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
+        <InfoGapSection store={store} partnershipId={l.id} onOpen={setIg} />
+        <FamiliarityCollab store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} diff={diff} progress={progress} />
+        <SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} />
+        <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
+        <div>
+          <span className="small">Visible to your partner</span>
+          <div className="row" style={{ marginTop: 6 }}>
+            {VIS_TOGGLES.map(([key, label]) => (
+              <button
+                key={key}
+                className={`badge ${vis[key] ? "on" : "off"}`}
+                disabled={busy}
+                title="Tap to toggle what your partner can see"
+                onClick={act(async () => {
+                  const next: VisibilitySettings = { ...vis, [key]: !vis[key] };
+                  setVis(next);
+                  await store.setVisibility(l.id, next);
+                })}
+              >
+                {label} {vis[key] ? "✓" : "✗"}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="row">
+          <button className="ghost" disabled={busy} onClick={act(() => store.pause(l.id))}>Pause (no-shame)</button>
+          <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End partnership</button>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="setting-row" style={{ flexDirection: "column", alignItems: "stretch" }}>
+      <div className="row" style={{ justifyContent: "space-between" }}>
+        <b>Learning partner</b>
+        {shared && shared.count > 0 && <span className="streak-chip" title="Shared streak — days you both practised">🤝🔥 {shared.count}</span>}
+      </div>
+      {error && <p className="small" style={{ color: "var(--warn)", margin: "4px 0 0" }}>{error}</p>}
+      {content()}
+    </div>
+  );
+}
+
+function Settings({ progress, persist, config, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; navigateToStory: (storyId: string) => void }) {
   const pack = usePack();
   const autoplay = progress.settings?.autoplay ?? false;
+  const slow = progress.settings?.slow ?? false;
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
   return (
     <section className="view">
       <h2>Settings</h2>
+      <PartnerPanel progress={progress} persist={persist} navigateToStory={navigateToStory} />
       <div className="setting-row">
         <b>Language</b>
         {packList().length > 1 ? (
@@ -1614,6 +2639,11 @@ function Settings({ progress, persist, config }: { progress: Progress; persist: 
         <b>Auto-play audio</b>
         <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } })}>{autoplay ? "🔊 On" : "🔇 Off"}</button>
         <span className="muted small">Play the other speaker's lines automatically in scenarios and stories.</span>
+      </div>
+      <div className="setting-row">
+        <b>Playback speed</b>
+        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !slow } })}>{slow ? "🐢 Slow" : "🔊 Normal"}</button>
+        <span className="muted small">One speed for all spoken audio across the app (also on the header switch).</span>
       </div>
       <div className="setting-row">
         <b>Speech &amp; AI</b>

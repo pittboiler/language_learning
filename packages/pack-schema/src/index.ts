@@ -176,6 +176,29 @@ export interface AsrConfig {
   gate: "agreement" | "single"; // dual-engine confidence gate (see core/speaking)
 }
 
+/** One half of an asymmetric info-gap task: what THIS partner knows + is trying to do. The two roles'
+ *  `secretInfo` differ — that gap is what forces real target-language exchange (see core/infogap). */
+export interface InfoGapRole {
+  role: "A" | "B";
+  brief: string; // English: what this partner is trying to accomplish
+  briefGloss?: string;
+  secretInfo: string[]; // facts only THIS partner holds (never shown to the other)
+  targetPhrases: { text: string; gloss: string; translit?: string }[]; // scaffolding for this role
+}
+
+/** Asymmetric paired task: each role holds different info; neither can finish alone (forced
+ *  interdependence). Generated offline by pipeline/infogap; gated by `confidence` like all pack content. */
+export interface InfoGapTask {
+  id: string;
+  title: string;
+  goal: string; // the shared goal both partners work toward
+  setting: string;
+  roleA: InfoGapRole;
+  roleB: InfoGapRole;
+  successCriteria: Criterion[]; // satisfied only when the information gap is bridged
+  confidence: Confidence;
+}
+
 /** The generalization layer: everything language-specific lives in one validated, cached object. */
 export interface LanguagePack {
   id: string; // e.g. "mk"
@@ -193,4 +216,6 @@ export interface LanguagePack {
   writingTasks?: WritingTask[];
   /** Mini-stories spine (comprehensible-input on-ramp + validator gold standard). Optional/additive. */
   stories?: MiniStory[];
+  /** Asymmetric info-gap tasks for forced-interdependence partnered practice. Optional/additive. */
+  infoGapTasks?: InfoGapTask[];
 }
