@@ -39,10 +39,15 @@ type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "re
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
 const usePack = () => useContext(PackContext);
-/** Play TTS in the active pack's voice. Stable across renders (keyed on pack id). */
+/** Global playback-speed switch (slow vs normal) — ONE setting for all spoken audio (replaces the
+ *  per-screen speed buttons). Provided by the root from progress.settings.slow. */
+const SlowContext = createContext(false);
+/** Play TTS in the active pack's voice at the global slow/normal speed. The per-call speed arg is now
+ *  ignored (speed is a global setting); it stays only for call-site compatibility. */
 function usePlay() {
   const pack = usePack();
-  return useCallback((text: string, speed = 1) => api.playTts(text, speed, pack.id).catch(() => {}), [pack.id]);
+  const slow = useContext(SlowContext);
+  return useCallback((text: string, _speed?: number) => api.playTts(text, slow ? 0.7 : 0.9, pack.id).catch(() => {}), [pack.id, slow]);
 }
 
 // Cosmetic flag per pack id (app-level only — not pack data).
@@ -202,10 +207,12 @@ export default function Home() {
 
   return (
     <PackContext.Provider value={pack}>
+      <SlowContext.Provider value={progress.settings?.slow ?? false}>
       <header>
         <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
         <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
-        <span className="streak-chip" style={{ marginLeft: "auto" }} title="Day streak">🔥 {progress.streak?.count ?? 0}</span>
+        <button className="ghost small" style={{ marginLeft: "auto", marginRight: 6 }} title="Playback speed for all spoken audio" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !progress.settings?.slow } })}>{progress.settings?.slow ? "🐢 Slow" : "🔊 Normal"}</button>
+        <span className="streak-chip" title="Day streak">🔥 {progress.streak?.count ?? 0}</span>
       </header>
       <nav>
         {([
@@ -230,6 +237,7 @@ export default function Home() {
         )}
         {section === "me" && <Settings progress={progress} persist={persist} config={config} navigateToStory={goToStory} />}
       </main>
+      </SlowContext.Provider>
     </PackContext.Provider>
   );
 }
@@ -914,8 +922,7 @@ function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api
       <div className="translit">{turn.translit}</div>
       <div className="muted">{turn.gloss}</div>
       <div className="row" style={{ marginTop: 12 }}>
-        <button className="ghost" onClick={() => play(turn.text, 1)}>▶︎ Play native</button>
-        <button className="ghost" onClick={() => play(turn.text, 0.7)}>🐢 Slow</button>
+        <button className="ghost" onClick={() => play(turn.text)}>🔊 Hear it</button>
         <button className={`btn ${recording ? "rec" : ""}`} onClick={onRec}>{recording ? "⏹ Stop" : "⏺ Record"}</button>
         <button className="ghost" onClick={onDone}>Skip / I said it ✓</button>
       </div>
@@ -1274,7 +1281,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
   const play = usePlay();
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   const [current, setCurrent] = useState(-1);
-  const [slow, setSlow] = useState(false);
+  const slow = useContext(SlowContext);
   const playing = useRef(false);
   const speed = slow ? 0.7 : 0.9;
 
@@ -1301,8 +1308,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
       <p className="lead">Listen and read along; tap any word to look it up.</p>
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
-        <button className="ghost" onClick={() => setSlow((s) => !s)}>{slow ? "🐢 Slow" : "▶︎ Normal"}</button>
-        <span className="muted small">🐢 shadow each line: listen, then say it back.</span>
+        <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
       </div>
       <div className="reader">
         {story.body.map((l, i) => (
@@ -2615,6 +2621,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
 function Settings({ progress, persist, config, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; navigateToStory: (storyId: string) => void }) {
   const pack = usePack();
   const autoplay = progress.settings?.autoplay ?? false;
+  const slow = progress.settings?.slow ?? false;
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
   return (
     <section className="view">
@@ -2632,6 +2639,11 @@ function Settings({ progress, persist, config, navigateToStory }: { progress: Pr
         <b>Auto-play audio</b>
         <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } })}>{autoplay ? "🔊 On" : "🔇 Off"}</button>
         <span className="muted small">Play the other speaker's lines automatically in scenarios and stories.</span>
+      </div>
+      <div className="setting-row">
+        <b>Playback speed</b>
+        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !slow } })}>{slow ? "🐢 Slow" : "🔊 Normal"}</button>
+        <span className="muted small">One speed for all spoken audio across the app (also on the header switch).</span>
       </div>
       <div className="setting-row">
         <b>Speech &amp; AI</b>
