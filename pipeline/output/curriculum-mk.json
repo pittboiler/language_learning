@@ -1,0 +1,356 @@
+{
+  "languageCode": "mk",
+  "goal": "Hold a real, live Macedonian conversation — the bar/café benchmark (the waiter AND other patrons), then the next most-frequent everyday situations.",
+  "stages": [
+    { "stage": 0, "name": "Decode & survive", "cefr": "pre-A1", "goal": "Survive AND sustain a first exchange: repair the gaps, greet, and run a tiny transaction." },
+    { "stage": 1, "name": "Core situations", "cefr": "A1", "goal": "Handle the four highest-frequency situations: café/bar, introductions, shopping, directions." },
+    { "stage": 2, "name": "Connect & sustain", "cefr": "A2", "goal": "Multi-turn conversation: opinions, your day (past/future), arranging to meet, family/work, and resolving problems." }
+  ],
+  "units": [
+    {
+      "id": "s0-repair",
+      "stage": 0,
+      "title": "Keeping the conversation alive (repair kit)",
+      "cefr": "pre-A1",
+      "functions": ["clarify", "ask-to-repeat", "ask-to-slow-down", "elicit-a-word", "backchannel", "signal-non-understanding"],
+      "situation": "any first exchange that breaks down",
+      "coreLexis": [
+        { "text": "Не разбирам.", "gloss": "I don't understand.", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Извинете.", "gloss": "Excuse me. / Sorry. (formal)", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Можете ли да повторите?", "gloss": "Can you repeat? (formal)", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Побавно, ве молам.", "gloss": "Slower, please.", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Уште еднаш, ве молам.", "gloss": "Once more, please.", "kind": "chunk", "freqRank": 2, "i1Level": 0 },
+        { "text": "Како се вели … на македонски?", "gloss": "How do you say … in Macedonian?", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "Што значи …?", "gloss": "What does … mean?", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "Сѐ уште учам.", "gloss": "I'm still learning.", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "Не знам.", "gloss": "I don't know.", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Во ред.", "gloss": "OK. / Alright.", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Аха.", "gloss": "Uh-huh. (backchannel)", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Навистина?", "gloss": "Really? (backchannel)", "kind": "word", "freqRank": 2, "i1Level": 1 }
+      ],
+      "grammarPoints": [],
+      "artifacts": ["vocab", "ministory", "scenario", "infogap"],
+      "recycles": [],
+      "dependsOn": [],
+      "rationale": "The single highest-leverage set for SUSTAINING a conversation; taught first (only Cyrillic onboarding precedes it) so a beginner can keep talking through the inevitable gaps. No grammar — chunks are learned whole."
+    },
+    {
+      "id": "s0-greet",
+      "stage": 0,
+      "title": "Greetings, politeness, yes/no",
+      "cefr": "pre-A1",
+      "functions": ["greet", "thank", "affirm", "decline", "take-leave"],
+      "situation": "meeting and parting",
+      "coreLexis": [
+        { "text": "Здраво", "gloss": "Hi (informal)", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Добар ден", "gloss": "Good day (neutral/formal)", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Добро утро", "gloss": "Good morning", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Како си?", "gloss": "How are you? (informal)", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Како сте?", "gloss": "How are you? (formal)", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Добро сум, фала.", "gloss": "I'm well, thanks.", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Фала", "gloss": "Thanks", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Ве молам", "gloss": "Please / You're welcome", "kind": "chunk", "freqRank": 1, "i1Level": 0 },
+        { "text": "Да", "gloss": "Yes", "kind": "word", "freqRank": 1, "i1Level": 0 },
+        { "text": "Не", "gloss": "No", "kind": "word", "freqRank": 1, "i1Level": 0 },
+        { "text": "Мило ми е", "gloss": "Nice to meet you", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "Пријатно", "gloss": "Have a nice time / Enjoy (parting word)", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "Догледање", "gloss": "Goodbye", "kind": "chunk", "freqRank": 1, "i1Level": 1 }
+      ],
+      "grammarPoints": [
+        { "id": "register-ti-vie", "rule": "Use вие/сте (plural 'you') with strangers and elders; ти/си with friends and family.", "produce": true, "prereqUnits": [] }
+      ],
+      "artifacts": ["vocab", "ministory", "scenario"],
+      "recycles": ["s0-repair"],
+      "dependsOn": ["s0-repair"],
+      "rationale": "The minimal politeness frame for any opening; introduces the formal/informal 'you' split (a profile social norm) before it matters in a real exchange."
+    },
+    {
+      "id": "s0-survive",
+      "stage": 0,
+      "title": "Survival operators + numbers 1–10",
+      "cefr": "pre-A1",
+      "functions": ["request", "locate", "ask-price", "quantify", "point"],
+      "situation": "a first tiny transaction",
+      "coreLexis": [
+        { "text": "Сакам …", "gloss": "I want …", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Може ли …?", "gloss": "Can I/we …? / Is it possible …?", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Каде е …?", "gloss": "Where is …?", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Колку чини?", "gloss": "How much is it?", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Имате ли …?", "gloss": "Do you have …?", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "еден / една / едно", "gloss": "one (m / f / n)", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "два, три, четири, пет", "gloss": "two, three, four, five", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "шест, седум, осум, девет, десет", "gloss": "six, seven, eight, nine, ten", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "ова / тоа", "gloss": "this / that", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "денар / денари", "gloss": "denar(s) (currency)", "kind": "word", "freqRank": 2, "i1Level": 1 }
+      ],
+      "grammarPoints": [
+        { "id": "gender", "rule": "'one/a' agrees with the noun's gender: еден (m), една (f), едно (n) — always learn a noun with its gender.", "produce": true, "prereqUnits": [] }
+      ],
+      "artifacts": ["vocab", "ministory", "scenario", "infogap"],
+      "recycles": ["s0-greet", "s0-repair"],
+      "dependsOn": ["s0-greet"],
+      "rationale": "The four operators (want / can / where-is / how-much) + numbers unlock almost any transaction; first touch of gender agreement, tied to the act of ordering one of something."
+    },
+    {
+      "id": "s1-cafe-order",
+      "stage": 1,
+      "title": "Café & bar: order and pay (the anchor)",
+      "cefr": "A1",
+      "functions": ["greet", "order", "ask-price", "pay", "toast"],
+      "situation": "a relaxed bar/café in Skopje",
+      "coreLexis": [
+        { "text": "Едно пиво, ве молам.", "gloss": "One beer, please.", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "кафе", "gloss": "coffee", "kind": "word", "freqRank": 1, "i1Level": 1 },
+        { "text": "пиво", "gloss": "beer", "kind": "word", "freqRank": 1, "i1Level": 1 },
+        { "text": "вода", "gloss": "water", "kind": "word", "freqRank": 1, "i1Level": 1 },
+        { "text": "чај", "gloss": "tea", "kind": "word", "freqRank": 2, "i1Level": 1 },
+        { "text": "сок", "gloss": "juice", "kind": "word", "freqRank": 2, "i1Level": 1 },
+        { "text": "Што ќе сакате?", "gloss": "What would you like? (formal)", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "Повелете", "gloss": "Here you go / Go ahead", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Сметката, ве молам.", "gloss": "The bill, please.", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "Наздравје!", "gloss": "Cheers!", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "педесет / сто / сто и педесет", "gloss": "fifty / a hundred / a hundred and fifty (prices)", "kind": "chunk", "freqRank": 2, "i1Level": 2 }
+      ],
+      "grammarPoints": [
+        { "id": "gender", "rule": "едно пиво (n), една вода (f), еден сок (m) — the number/article agrees with gender.", "produce": true, "prereqUnits": ["s0-survive"] },
+        { "id": "definite-articles", "rule": "'the' attaches to the END of the noun: сметка → сметката, кафе → кафето.", "produce": true, "prereqUnits": [] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "grammar", "reader", "infogap"],
+      "recycles": ["s0-survive", "s0-greet", "s0-repair"],
+      "dependsOn": ["s0-survive"],
+      "rationale": "The north-star benchmark, built first in stage 1. Most existing hand-authored content (order-a-drink scenario, ana-coffee story, café reader, café info-gap) maps here and seeds the generator's style anchor."
+    },
+    {
+      "id": "s1-greet-intro",
+      "stage": 1,
+      "title": "Greetings & introductions",
+      "cefr": "A1",
+      "functions": ["introduce-self", "ask-name", "ask-origin", "state-occupation", "state-learning"],
+      "situation": "meeting another patron at the bar / someone new",
+      "coreLexis": [
+        { "text": "Како се викаш?", "gloss": "What's your name? (informal)", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Јас сум …", "gloss": "I am …", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "Мило ми е.", "gloss": "Nice to meet you.", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "Од каде си?", "gloss": "Where are you from?", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "Од … сум.", "gloss": "I'm from …", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "Што работиш?", "gloss": "What do you do?", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "Учам македонски.", "gloss": "I'm learning Macedonian.", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "Зборувам малку.", "gloss": "I speak a little.", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "сум / си / е", "gloss": "am / are / is", "kind": "word", "freqRank": 1, "i1Level": 1 }
+      ],
+      "grammarPoints": [
+        { "id": "present-sum", "rule": "сум 'to be': јас сум, ти си, тој/таа е — high-frequency and irregular, learn as set forms.", "produce": true, "prereqUnits": ["s0-greet"] },
+        { "id": "present-verbs", "rule": "1st-person present of high-freq verbs: уч-ам, зборув-ам, работ-ам, сак-ам.", "produce": true, "prereqUnits": ["s0-survive"] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "writing"],
+      "recycles": ["s0-greet", "s0-repair", "s1-cafe-order"],
+      "dependsOn": ["s0-greet"],
+      "rationale": "The other half of the bar benchmark (the patrons, not just the waiter); introduces сум + 1st-sg present, the verbs every later unit reuses. Maps to the authored small-talk scenario."
+    },
+    {
+      "id": "s1-market",
+      "stage": 1,
+      "title": "Shopping at the market",
+      "cefr": "A1",
+      "functions": ["request-item", "specify-quantity", "ask-price", "buy"],
+      "situation": "a small shop / the pazar",
+      "coreLexis": [
+        { "text": "Сакам …", "gloss": "I'd like …", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "едно кило", "gloss": "a kilo", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "половина кило", "gloss": "half a kilo", "kind": "chunk", "freqRank": 3, "i1Level": 2 },
+        { "text": "Колку чини килото?", "gloss": "How much per kilo?", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "леб", "gloss": "bread", "kind": "word", "freqRank": 1, "i1Level": 1 },
+        { "text": "млеко", "gloss": "milk", "kind": "word", "freqRank": 2, "i1Level": 1 },
+        { "text": "сирење", "gloss": "cheese", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "јаболка", "gloss": "apples", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "Имате ли …?", "gloss": "Do you have …?", "kind": "chunk", "freqRank": 2, "i1Level": 1 },
+        { "text": "Само тоа, фала.", "gloss": "That's all, thanks.", "kind": "chunk", "freqRank": 2, "i1Level": 2 }
+      ],
+      "grammarPoints": [
+        { "id": "gender", "rule": "agreement spirals to new nouns; plurals first appear (јаболко → јаболка).", "produce": true, "prereqUnits": ["s1-cafe-order"] },
+        { "id": "definite-articles", "rule": "definite article on a known item: лебот, килото.", "produce": true, "prereqUnits": ["s1-cafe-order"] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "infogap", "reader"],
+      "recycles": ["s0-survive", "s1-cafe-order", "s0-repair"],
+      "dependsOn": ["s0-survive", "s1-cafe-order"],
+      "rationale": "Reuses the café's price/number/agreement machinery in a new situation (the spiraling that compounds retention); adds quantity language and the first plurals."
+    },
+    {
+      "id": "s1-directions",
+      "stage": 1,
+      "title": "Directions & getting around",
+      "cefr": "A1",
+      "functions": ["ask-the-way", "understand-directions", "name-transport"],
+      "situation": "a street in the city",
+      "coreLexis": [
+        { "text": "Каде е …?", "gloss": "Where is …?", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "лево", "gloss": "left", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "десно", "gloss": "right", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "право", "gloss": "straight ahead", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "близу / далеку", "gloss": "near / far", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "тука / таму", "gloss": "here / there", "kind": "chunk", "freqRank": 1, "i1Level": 1 },
+        { "text": "автобус", "gloss": "bus", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "такси", "gloss": "taxi", "kind": "word", "freqRank": 2, "i1Level": 1 },
+        { "text": "билет", "gloss": "ticket", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "во центарот", "gloss": "in/to the centre", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "Свртете лево.", "gloss": "Turn left.", "kind": "chunk", "freqRank": 3, "i1Level": 3 }
+      ],
+      "grammarPoints": [
+        { "id": "prepositions-place", "rule": "place prepositions: во (in), на (on/at), до (next to), кај (at someone's).", "produce": true, "prereqUnits": ["s0-survive"] },
+        { "id": "imperative", "rule": "polite imperative -ете (свртете, одете) — recognize now, produce later.", "produce": false, "prereqUnits": [] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "infogap", "reader"],
+      "recycles": ["s0-survive", "s0-repair", "s1-cafe-order"],
+      "dependsOn": ["s0-survive"],
+      "rationale": "High-frequency and self-contained; leans hard on the repair kit (directions are where beginners most need 'slower / repeat'). Imperatives are recognition-only — you must understand 'turn left' long before you must say it."
+    },
+    {
+      "id": "s2-smalltalk",
+      "stage": 2,
+      "title": "Small talk, likes & opinions",
+      "cefr": "A2",
+      "functions": ["express-like", "express-dislike", "give-opinion", "agree", "connect-ideas"],
+      "situation": "lingering conversation after the basics are done",
+      "coreLexis": [
+        { "text": "Ми се допаѓа.", "gloss": "I like it.", "kind": "chunk", "freqRank": 1, "i1Level": 3 },
+        { "text": "Не ми се допаѓа.", "gloss": "I don't like it.", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Сакам да …", "gloss": "I want to …", "kind": "chunk", "freqRank": 1, "i1Level": 3 },
+        { "text": "Мислам дека …", "gloss": "I think that …", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Се согласувам.", "gloss": "I agree.", "kind": "chunk", "freqRank": 3, "i1Level": 3 },
+        { "text": "убаво / грозно", "gloss": "nice / awful", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "времето", "gloss": "the weather", "kind": "word", "freqRank": 2, "i1Level": 2 },
+        { "text": "денес", "gloss": "today", "kind": "word", "freqRank": 1, "i1Level": 2 },
+        { "text": "и / ама / затоа", "gloss": "and / but / so", "kind": "chunk", "freqRank": 1, "i1Level": 2 }
+      ],
+      "grammarPoints": [
+        { "id": "clitics", "rule": "the frozen clitic chunk ми се допаѓа ('to-me + refl + pleases') — learn whole, don't decompose yet.", "produce": true, "prereqUnits": ["s1-greet-intro"] },
+        { "id": "da-construction", "rule": "сакам да + present = 'I want to …' (Macedonian has no infinitive).", "produce": true, "prereqUnits": ["s1-greet-intro"] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "writing"],
+      "recycles": ["s1-greet-intro", "s1-cafe-order", "s0-repair"],
+      "dependsOn": ["s1-greet-intro"],
+      "rationale": "Turns a transaction into a conversation. Introduces да-clauses and the highest-frequency clitic chunk as a whole, and connectives that let turns get longer."
+    },
+    {
+      "id": "s2-pasttime",
+      "stage": 2,
+      "title": "Your day: past & future",
+      "cefr": "A2",
+      "functions": ["narrate-past", "state-plans", "ask-what-happened"],
+      "situation": "talking about your day and your plans",
+      "coreLexis": [
+        { "text": "вчера / денес / утре", "gloss": "yesterday / today / tomorrow", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "бев", "gloss": "I was", "kind": "word", "freqRank": 2, "i1Level": 3 },
+        { "text": "имав", "gloss": "I had", "kind": "word", "freqRank": 2, "i1Level": 3 },
+        { "text": "отидов", "gloss": "I went", "kind": "word", "freqRank": 2, "i1Level": 3 },
+        { "text": "јадев", "gloss": "I ate", "kind": "word", "freqRank": 3, "i1Level": 3 },
+        { "text": "Ќе …", "gloss": "will … (future particle)", "kind": "chunk", "freqRank": 1, "i1Level": 3 },
+        { "text": "Ќе се видиме.", "gloss": "See you.", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Што правеше?", "gloss": "What were you doing?", "kind": "chunk", "freqRank": 3, "i1Level": 3 }
+      ],
+      "grammarPoints": [
+        { "id": "past-tense", "rule": "past (минато определено) of high-freq verbs as set forms: бев, имав, отидов, јадев.", "produce": true, "prereqUnits": ["s1-greet-intro"] },
+        { "id": "future-kje", "rule": "future = ќе + present: ќе пијам, ќе одам.", "produce": true, "prereqUnits": ["s1-greet-intro"] },
+        { "id": "verb-aspect", "rule": "first aspect contrast (пијам / попив) surfaces — recognize it, don't drill it yet.", "produce": false, "prereqUnits": ["s1-cafe-order"] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "writing"],
+      "recycles": ["s1-greet-intro", "s2-smalltalk", "s1-cafe-order"],
+      "dependsOn": ["s2-smalltalk"],
+      "rationale": "Unlocks talking beyond the present moment with a few high-frequency set forms. Aspect is deliberately recognition-only here — the hardest Slavic feature to produce, near-zero leverage for café fluency."
+    },
+    {
+      "id": "s2-home-family",
+      "stage": 2,
+      "title": "Home, family & work",
+      "cefr": "A2",
+      "functions": ["describe-family", "describe-home", "describe-work", "state-age"],
+      "situation": "telling someone about your life",
+      "coreLexis": [
+        { "text": "мајка / татко", "gloss": "mother / father", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "брат / сестра", "gloss": "brother / sister", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "жена / маж", "gloss": "wife (woman) / husband (man)", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "дете / деца", "gloss": "child / children", "kind": "chunk", "freqRank": 1, "i1Level": 2 },
+        { "text": "Живеам во …", "gloss": "I live in …", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Работам како …", "gloss": "I work as …", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Имам брат и сестра.", "gloss": "I have a brother and a sister.", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "На колку години си?", "gloss": "How old are you?", "kind": "chunk", "freqRank": 3, "i1Level": 3 },
+        { "text": "мојот / мојата", "gloss": "my (m / f)", "kind": "chunk", "freqRank": 2, "i1Level": 3 }
+      ],
+      "grammarPoints": [
+        { "id": "possessive", "rule": "possessive agrees: мој/моја/мое; short clitic ми/ти/му ('my/your/his').", "produce": true, "prereqUnits": ["s1-greet-intro"] },
+        { "id": "plural", "rule": "common irregular plurals: брат → браќа, дете → деца — recognize as set forms.", "produce": false, "prereqUnits": ["s1-market"] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "writing"],
+      "recycles": ["s1-greet-intro", "s0-survive", "s2-smalltalk"],
+      "dependsOn": ["s1-greet-intro"],
+      "rationale": "The most-asked personal topic after origin/occupation; reuses сум + present + numbers (for age) and adds possessives."
+    },
+    {
+      "id": "s2-arrange",
+      "stage": 2,
+      "title": "Phone & arranging to meet",
+      "cefr": "A2",
+      "functions": ["open-a-call", "ask-for-someone", "propose-time", "propose-place", "confirm"],
+      "situation": "a short phone call to make a plan",
+      "coreLexis": [
+        { "text": "Ало?", "gloss": "Hello? (on the phone)", "kind": "chunk", "freqRank": 2, "i1Level": 2 },
+        { "text": "Дома ли е …?", "gloss": "Is … home?", "kind": "chunk", "freqRank": 3, "i1Level": 3 },
+        { "text": "Кога?", "gloss": "When?", "kind": "word", "freqRank": 1, "i1Level": 2 },
+        { "text": "Во колку часот?", "gloss": "At what time?", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Каде да се видиме?", "gloss": "Where shall we meet?", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Ајде да …", "gloss": "Let's …", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Важи. / Договорено.", "gloss": "Deal. / Agreed.", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Оставете порака.", "gloss": "Leave a message.", "kind": "chunk", "freqRank": 3, "i1Level": 3 }
+      ],
+      "grammarPoints": [
+        { "id": "telling-time", "rule": "во + number + часот = 'at … o'clock' (the numbers thread spirals into time).", "produce": true, "prereqUnits": ["s0-survive"] },
+        { "id": "da-construction", "rule": "ајде да / да + present = a suggestion ('let's …').", "produce": true, "prereqUnits": ["s2-smalltalk"] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "infogap"],
+      "recycles": ["s0-survive", "s1-directions", "s2-pasttime"],
+      "dependsOn": ["s2-pasttime", "s1-directions"],
+      "rationale": "Combines time (numbers), place (directions) and suggestion (да-clauses) into a real coordination task — a natural home for an info-gap (two schedules, find a common slot)."
+    },
+    {
+      "id": "s2-problems",
+      "stage": 2,
+      "title": "Problems & complaints (repair kit, leveled up)",
+      "cefr": "A2",
+      "functions": ["report-a-problem", "complain-politely", "ask-for-help", "resolve"],
+      "situation": "something went wrong (a shop, a café, a booking)",
+      "coreLexis": [
+        { "text": "Има проблем.", "gloss": "There's a problem.", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Не работи.", "gloss": "It doesn't work.", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Ова не е …", "gloss": "This isn't …", "kind": "chunk", "freqRank": 3, "i1Level": 3 },
+        { "text": "Можете ли да помогнете?", "gloss": "Can you help?", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "погрешно", "gloss": "wrong", "kind": "word", "freqRank": 3, "i1Level": 3 },
+        { "text": "Сакам да вратам.", "gloss": "I'd like to return (this).", "kind": "chunk", "freqRank": 3, "i1Level": 3 },
+        { "text": "Извинете, ама …", "gloss": "Sorry, but …", "kind": "chunk", "freqRank": 2, "i1Level": 3 },
+        { "text": "Не разбирам зошто.", "gloss": "I don't understand why.", "kind": "chunk", "freqRank": 3, "i1Level": 3 }
+      ],
+      "grammarPoints": [
+        { "id": "negation", "rule": "не before the verb negates: не работи, не е, не разбирам.", "produce": true, "prereqUnits": ["s0-greet"] },
+        { "id": "polite-conditional", "rule": "би сакал/сакала = 'I would like' (politer than сакам) — recognize for now.", "produce": false, "prereqUnits": ["s2-smalltalk"] }
+      ],
+      "artifacts": ["vocab", "scenario", "ministory", "infogap"],
+      "recycles": ["s0-repair", "s1-market", "s2-smalltalk"],
+      "dependsOn": ["s2-smalltalk", "s1-market"],
+      "rationale": "Closes the loop the prompt asks for: the stage-0 repair kit spirals back, leveled up, as the strategic core of handling things going wrong — the difference between coping and stalling."
+    }
+  ],
+  "sequence": [
+    "s0-repair",
+    "s0-greet",
+    "s0-survive",
+    "s1-cafe-order",
+    "s1-greet-intro",
+    "s1-market",
+    "s1-directions",
+    "s2-smalltalk",
+    "s2-pasttime",
+    "s2-home-family",
+    "s2-arrange",
+    "s2-problems"
+  ],
+  "costUsd": 0
+}
