@@ -65,13 +65,19 @@ export function isMyTurn(session: LiveSession, userId: string): boolean {
 
 /** Record the CURRENT turn as spoken (by the current speaker) and advance the pointer. Guards that only
  *  the current speaker can speak — the turn order is the live structure. */
-export function speakTurn(session: LiveSession, userId: string, transcript: string, score: number): LiveSession {
+export function speakTurn(session: LiveSession, userId: string, transcript: string, score?: number): LiveSession {
   const turn = currentTurn(session);
   if (!turn) return session;
   if (session.assignment[userId] !== turn.speaker) throw new Error("not your turn");
   const turns = session.turns.map((t) => (t.index === turn.index ? { ...t, spokenBy: userId, transcript, score } : t));
   const turnIndex = session.turnIndex + 1;
   return { ...session, turns, turnIndex, status: turnIndex >= turns.length ? "complete" : "active" };
+}
+
+/** Backfill a turn's score after the fact — lets the conversation advance on ASR (instant) while the
+ *  slower coaching/score lands a beat later, off the critical path, instead of stalling both partners. */
+export function setTurnScore(session: LiveSession, index: number, score: number): LiveSession {
+  return { ...session, turns: session.turns.map((t) => (t.index === index ? { ...t, score } : t)) };
 }
 
 export function isComplete(session: LiveSession): boolean {

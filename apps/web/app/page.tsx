@@ -39,16 +39,18 @@ type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "re
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
 const usePack = () => useContext(PackContext);
-/** Global playback-speed switch (slow vs normal) — ONE setting for all spoken audio (replaces the
- *  per-screen speed buttons). Provided by the root from progress.settings.slow. */
-const SlowContext = createContext(false);
-/** Play TTS in the active pack's voice at the global slow/normal speed. The per-call speed arg is now
- *  ignored (speed is a global setting); it stays only for call-site compatibility. */
+/** Global playback RATE for all spoken audio (1 = normal). The root computes it from settings: 1 when
+ *  "normal", else the user's chosen slow rate (settings.slowRate, default 0.75). ONE setting app-wide. */
+const SlowContext = createContext(1);
+/** Play TTS in the active pack's voice at the global playback rate. The per-call speed arg is now
+ *  ignored (rate is a global setting); it stays only for call-site compatibility. */
 function usePlay() {
   const pack = usePack();
-  const slow = useContext(SlowContext);
-  return useCallback((text: string, _speed?: number) => api.playTts(text, slow ? 0.75 : 1, pack.id).catch(() => {}), [pack.id, slow]);
+  const rate = useContext(SlowContext);
+  return useCallback((text: string, _speed?: number) => api.playTts(text, rate, pack.id).catch(() => {}), [pack.id, rate]);
 }
+/** Resolve the effective playback rate from settings — slow on ⇒ the chosen slow rate (default 0.75). */
+const effectiveRate = (s?: { slow?: boolean; slowRate?: number }) => (s?.slow ? s.slowRate ?? 0.75 : 1);
 
 // Cosmetic flag per pack id (app-level only — not pack data).
 const FLAG: Record<string, string> = { mk: "🇲🇰", bg: "🇧🇬" };
@@ -207,7 +209,7 @@ export default function Home() {
 
   return (
     <PackContext.Provider value={pack}>
-      <SlowContext.Provider value={progress.settings?.slow ?? false}>
+      <SlowContext.Provider value={effectiveRate(progress.settings)}>
       <header>
         <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
         <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
@@ -300,7 +302,7 @@ function Today({ progress, persist, config, navigate }: {
     return (
       <section className="view">
         <TodayHeader streak={progress.streak?.count ?? 0} />
-        <p className="lead">First, the alphabet. Macedonian uses Cyrillic — learn and pass these {focusLetters(pack).length} key letters, then today&apos;s session opens up right here.</p>
+        <p className="lead">First, the alphabet. Macedonian uses Cyrillic — review all {pack.alphabet.length} letters (I&apos;ll quiz you on the {focusLetters(pack).length} trickiest), then today&apos;s session opens up right here.</p>
         <Letters progress={progress} persist={persist} onDone={() => setPhase("flow")} />
       </section>
     );
@@ -666,6 +668,7 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
   const pack = usePack();
   const play = usePlay();
   const focus = useMemo(() => focusLetters(pack), [pack]);
+  const all = pack.alphabet; // full Cyrillic alphabet — reviewed on day 1, even though we only quiz `focus`
   const unknown = useMemo(() => focus.filter((a) => !progress.letters[a.glyph]), [focus, progress.letters]);
   const [phase, setPhase] = useState<"learn" | "quiz" | "done">(unknown.length ? "learn" : "done");
   const [remaining, setRemaining] = useState<string[]>([]);
@@ -678,7 +681,7 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
   const qType = step % 2; // 0 = see glyph, pick sound; 1 = see/hear sound, pick glyph
   const options = useMemo(() => {
     if (!a) return [] as string[];
-    const distract = shuffle(focus.filter((x) => x.glyph !== a.glyph)).slice(0, 3);
+    const distract = shuffle(all.filter((x) => x.glyph !== a.glyph)).slice(0, 3);
     return shuffle(qType === 0 ? [a.sound, ...distract.map((x) => x.sound)] : [a.glyph, ...distract.map((x) => x.glyph)]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, step]);
@@ -714,10 +717,10 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
   if (phase === "learn") {
     return (
       <section className="view">
-        <h2>The {pack.name} alphabet — {unknown.length} key letters</h2>
-        <p className="lead">Cyrillic is phonetic: one letter, one sound. Study these — the <span style={{ color: "var(--ok)" }}>unique</span> letters and the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different — then I&apos;ll quiz you. Tap 🔊 to hear each.</p>
-        <div className="letters">{unknown.map((x) => <LetterCard key={x.glyph} a={x} play={play} />)}</div>
-        <div className="row"><button className="btn" onClick={startQuiz}>Quiz me on these →</button></div>
+        <h2>The {pack.name} alphabet — all {all.length} letters</h2>
+        <p className="lead">Cyrillic is phonetic: one letter, one sound. Review the whole alphabet below — many letters look and sound like English, so the ones to really learn are the <span style={{ color: "var(--ok)" }}>unique</span> letters and the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different. I&apos;ll quiz you on those {focus.length}. Tap 🔊 to hear each.</p>
+        <div className="letters">{all.map((x) => <LetterCard key={x.glyph} a={x} play={play} done={!!progress.letters[x.glyph]} />)}</div>
+        <div className="row"><button className="btn" onClick={startQuiz}>Quiz me on the tricky ones →</button></div>
       </section>
     );
   }
@@ -914,6 +917,10 @@ function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api
     }
   };
 
+  // Offer a re-record when the attempt scored low (or errored) — clears the result so they can try again.
+  const lowScore = !!fb && fb.score < 60;
+  const retry = () => { setFinished(false); setAsr(null); setFb(null); setErr(""); };
+
   return (
     <div>
       <p className="muted small">🐢 Speak slowly and clearly — recognition (and your pronunciation) both improve with deliberate pacing.</p>
@@ -944,7 +951,10 @@ function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api
       {spin && <div className="spin">{spin}</div>}
       {err && <div className="err">{err}</div>}
       {finished && (
-        <div className="row" style={{ marginTop: 12 }}><button className="btn" onClick={onDone}>Next →</button></div>
+        <div className="row" style={{ marginTop: 12 }}>
+          {lowScore && <button className="btn" onClick={retry}>🔁 Try again</button>}
+          <button className={lowScore ? "ghost" : "btn"} onClick={onDone}>Next →</button>
+        </div>
       )}
     </div>
   );
@@ -1279,9 +1289,8 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
   const play = usePlay();
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   const [current, setCurrent] = useState(-1);
-  const slow = useContext(SlowContext);
+  const speed = useContext(SlowContext);
   const playing = useRef(false);
-  const speed = slow ? 0.75 : 1;
 
   const onTap = (surface: string, line: string) => {
     const lexKey = captureWord(progress, persist, surface, line);
@@ -1733,6 +1742,7 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
   const [online, setOnline] = useState<string[]>([]);
   const [recording, setRecording] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [tip, setTip] = useState(""); // short coaching tip for my last line, fetched off the critical path
   const rec = useRef(makeRecorder());
 
   const refresh = useCallback(async () => {
@@ -1787,19 +1797,32 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
     if (!session) return;
     const turn = live.currentTurn(session);
     if (!turn) return;
+    const spokenIndex = turn.index;
     setRecording(false);
     setBusy(true);
+    setTip("");
     try {
       const blob = await rec.current.stop();
       const asr = await api.asr(blob, packId);
       const transcripts = { scribe: asr.eleven?.text, google: asr.google?.text };
-      const fb = await api.feedback({ answer: turn.text, translit: turn.translit, gloss: turn.gloss }, transcripts, packId);
       const transcript = transcripts.scribe || transcripts.google || "";
-      const score = fb.error ? 0 : fb.score;
+      // Advance the turn the instant ASR returns — don't make BOTH partners wait ~11s for coaching.
       const latest = ((await store.listArtifacts(partnershipId, "live")).find((x) => x.id === session.id)?.payload as LiveSession) ?? session;
-      const next = live.speakTurn(latest, myId, transcript, score);
+      const next = live.speakTurn(latest, myId, transcript);
       await store.putArtifact(partnershipId, packId, "live", next, next.id);
       setSession(next);
+      // Score + a short coaching tip arrive a beat later, off the critical path; realtime backfills both.
+      void (async () => {
+        try {
+          const fb = await api.feedback({ answer: turn.text, translit: turn.translit, gloss: turn.gloss }, transcripts, packId);
+          if (fb.error) return;
+          if (fb.tip) setTip(fb.tip);
+          const cur = ((await store.listArtifacts(partnershipId, "live")).find((x) => x.id === session.id)?.payload as LiveSession) ?? next;
+          await store.putArtifact(partnershipId, packId, "live", live.setTurnScore(cur, spokenIndex, fb.score), cur.id);
+        } catch {
+          /* coaching is best-effort — the turn already advanced */
+        }
+      })();
     } finally {
       setBusy(false);
     }
@@ -1837,9 +1860,11 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
       {session.turns.filter((t) => t.spokenBy).map((t) => (
         <div className="fb" key={t.index}>
           <span className="muted small">{t.speaker === myRole ? "you" : "partner"}:</span> <b>{t.text}</b>
-          {t.transcript ? <div className="muted small">heard: {t.transcript}{typeof t.score === "number" ? ` · ${t.score}/100` : ""}</div> : null}
+          {t.translit ? <span className="translit"> · {t.translit}</span> : null}
+          {t.transcript ? <div className="muted small">heard: {t.transcript}{typeof t.score === "number" ? ` · ${t.score}/100` : " · scoring…"}</div> : null}
         </div>
       ))}
+      {tip && <div className="fb"><span className="muted small">💡 on your last line: {tip}</span></div>}
       {done ? (
         <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 Conversation complete — nicely done, both of you!</p>
       ) : myTurn ? (
@@ -1850,7 +1875,11 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
           {recording ? <button className="rec" onClick={speak}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={startRec}>{busy ? "scoring…" : "● say it"}</button>}
         </div>
       ) : (
-        <div className="fb"><span className="muted small">🎙 Waiting for your partner to say their line…</span></div>
+        <div className="fb">
+          <div className="muted small">🎙 Your partner&apos;s line — follow along &amp; help:</div>
+          <div className="row"><button className="spk" onClick={() => turn && play(turn.text, 0.9)}>🔊</button> <b>{turn?.text}</b></div>
+          <div className="gloss">{turn?.gloss}{turn?.translit ? ` · ${turn.translit}` : ""}</div>
+        </div>
       )}
     </div>
   );
@@ -2269,7 +2298,7 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
         const mine = t.speaker === myRole;
         return (
           <div className="fb" key={t.index}>
-            <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss}</span></div>
+            <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss}{t.translit ? ` · ${t.translit}` : ""}</span></div>
             {t.recordedBy ? (
               <div className="row" style={{ marginTop: 4 }}>
                 <button className="ghost small" onClick={() => t.audio && playDataUrl(t.audio)}>▶ play</button>
@@ -2690,6 +2719,7 @@ function Settings({ progress, persist, config, navigateToStory }: { progress: Pr
   const pack = usePack();
   const autoplay = progress.settings?.autoplay ?? false;
   const slow = progress.settings?.slow ?? false;
+  const slowRate = progress.settings?.slowRate ?? 0.75;
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
   return (
     <section className="view">
@@ -2712,6 +2742,17 @@ function Settings({ progress, persist, config, navigateToStory }: { progress: Pr
         <b>Playback speed</b>
         <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !slow } })}>{slow ? "🐢 Slow" : "🔊 Normal"}</button>
         <span className="muted small">One speed for all spoken audio across the app (also on the header switch).</span>
+        {slow && (
+          <label className="row small" style={{ width: "100%", gap: 8, marginTop: 6 }}>
+            <span className="muted">Slow speed</span>
+            <input
+              type="range" min={0.5} max={0.9} step={0.05} value={slowRate}
+              onChange={(e) => persist({ ...progress, settings: { ...progress.settings, slowRate: Number(e.target.value) } })}
+              style={{ flex: 1 }}
+            />
+            <span className="muted" style={{ minWidth: 64, textAlign: "right" }}>{Math.round(slowRate * 100)}% {slowRate <= 0.55 ? "🐌" : "🐢"}</span>
+          </label>
+        )}
       </div>
       <div className="setting-row">
         <b>Speech &amp; AI</b>
