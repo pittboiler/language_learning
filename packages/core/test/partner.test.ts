@@ -11,6 +11,7 @@ import {
   isActive,
   partnerOf,
   sharedStreak,
+  buildPartnerSession,
   DEFAULT_VISIBILITY,
   type ActivityRecord,
 } from "../src/partner/index.js";
@@ -96,5 +97,28 @@ assert.deepEqual(
   sharedStreak(act("2026-07-01"), act("2026-07-01"), "2026-07-01", { count: 9, lastDay: "2026-06-30" }),
   { count: 10, lastDay: "2026-07-01" },
 );
+
+// ---- buildPartnerSession: the structured joint cadence ----
+
+// daily, partner can help + a scenario → light pass: review + speak (no teach-back; no story once ≥2 items)
+const daily = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 9, iCanHelpPartner: 7, speakScenarioId: "cafe-1", storyId: "s1" });
+assert.equal(daily.window, "today");
+assert.deepEqual(daily.items.map((i) => i.kind), ["review-help", "speak"]);
+assert.equal(daily.items[0]!.count, 5, "daily caps review-help at 5");
+
+// weekly widens: review (cap 12) + speak + teach-back + story
+const weekly = buildPartnerSession({ cadence: "weekly", partnerCanHelpMe: 20, iCanHelpPartner: 7, speakScenarioId: "cafe-1", storyId: "s1" });
+assert.equal(weekly.window, "this week");
+assert.deepEqual(weekly.items.map((i) => i.kind), ["review-help", "speak", "teachback", "story"]);
+assert.equal(weekly.items[0]!.count, 12, "weekly caps review-help at 12");
+
+// thin daily (nothing to review) → speak + story (story fills when the plan is < 2 items)
+const thin = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 0, iCanHelpPartner: 0, speakScenarioId: "cafe-1", storyId: "s1" });
+assert.deepEqual(thin.items.map((i) => i.kind), ["speak", "story"]);
+
+// nothing shared yet → empty plan (the UI shows a "each do a solo session first" hint), floored to 3 min
+const empty = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 0, iCanHelpPartner: 0 });
+assert.deepEqual(empty.items, []);
+assert.equal(empty.estMinutes, 3);
 
 console.log("✓ partner primitive: all assertions passed");

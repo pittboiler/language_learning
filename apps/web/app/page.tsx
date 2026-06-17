@@ -2465,6 +2465,50 @@ function Phrasebook({ store, partnershipId, packId, progress, persist }: {
   );
 }
 
+// The STRUCTURED joint session: a guided, ordered "do this together" plan that reviews each person's
+// recent solo work — vs. the flat activity menu below. Daily/weekly is a shared preference; the steps
+// deep-link into the existing surfaces (live convo, the help-each-other diff, the shared story).
+function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
+  plan: partner.PartnerSessionPlan;
+  cadence: partner.PartnerCadence;
+  onCadence: (m: partner.PartnerCadence) => void;
+  onSpeak: () => void;
+  onScrollTo: (anchor: string) => void;
+}) {
+  const pack = usePack();
+  const cadenceBtn = (m: partner.PartnerCadence, label: string) => (
+    <button className={cadence === m ? "active" : ""} onClick={() => onCadence(m)}>{label}</button>
+  );
+  const row = (icon: string, title: string, sub: string, action: () => void, cta: string) => (
+    <div className="row" style={{ justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+      <span className="small" style={{ flex: 1 }}>{icon} {title} <span className="muted">· {sub}</span></span>
+      <button className="btn small" style={{ whiteSpace: "nowrap" }} onClick={action}>{cta}</button>
+    </div>
+  );
+  return (
+    <div className="fb">
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+        <b>Session together</b>
+        <div className="picker small">{cadenceBtn("daily", "Today")}{cadenceBtn("weekly", "This week")}</div>
+      </div>
+      {plan.items.length === 0 ? (
+        <p className="muted small">Each of you do a solo session first — then come back to review {plan.window === "this week" ? "the week's" : "today's"} work together.</p>
+      ) : (
+        <div style={colStack}>
+          <p className="muted small" style={{ margin: 0 }}>~{plan.estMinutes} min · hone {plan.window === "this week" ? "the week" : "today"} together, in order:</p>
+          {plan.items.map((it, i) => {
+            const n = `${i + 1}. `;
+            if (it.kind === "review-help") return <div key={i}>{row("🤝", `${n}Review ${it.count} words your partner knows`, "lapsed words they can help you lock in", () => onScrollTo("ps-collab"), "Help each other →")}</div>;
+            if (it.kind === "teachback") return <div key={i}>{row("🎙", `${n}Teach your partner ${it.count} words`, "explain words you know that they're shaky on", () => onScrollTo("ps-collab"), "Open →")}</div>;
+            if (it.kind === "speak") { const sc = pack.scenarios.find((s) => s.id === it.ref); return <div key={i}>{row("🗣", `${n}Speak together: ${sc?.title ?? "a scenario"}`, sc?.setting ?? "take turns live, with coaching", onSpeak, "Start live →")}</div>; }
+            const st = pack.stories?.find((s) => s.id === it.ref); return <div key={i}>{row("📖", `${n}Read a story together${st ? `: ${st.title}` : ""}`, "shared text → conversation fuel", () => onScrollTo("ps-story"), "Open →")}</div>;
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; navigateToStory: (storyId: string) => void }) {
   const pack = usePack();
   const packId = pack.id;
@@ -2486,6 +2530,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [rs, setRs] = useState<string | "new" | null>(null); // open role-swap session id, "new", or none
   const [ig, setIg] = useState<string | "new" | null>(null); // open info-gap session id, "new", or none
   const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
+  const [cadence, setCadence] = useState<partner.PartnerCadence>("daily"); // shared joint-session rhythm
 
   const myActivity = useCallback(
     (): ActivityRecord => ({
@@ -2519,6 +2564,8 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         }
         setShared(next);
         setNudges((await store.listArtifacts(active.id, "nudge")).slice(-6).reverse());
+        const cadenceArt = (await store.listArtifacts(active.id, "cadence"))[0]?.payload as { mode?: partner.PartnerCadence } | undefined;
+        setCadence(cadenceArt?.mode === "weekly" ? "weekly" : "daily");
       } else {
         setPartnerState(null);
         setDiff(null);
@@ -2626,8 +2673,24 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     }
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
+    const plan = partner.buildPartnerSession({
+      cadence,
+      partnerCanHelpMe: diff?.partnerCanHelpMe.length ?? 0,
+      iCanHelpPartner: diff?.iCanHelpPartner.length ?? 0,
+      speakScenarioId: pack.scenarios.find((s) => !progress.scenarios[s.id])?.id ?? pack.scenarios[0]?.id,
+      storyId: pack.stories?.[0]?.id,
+    });
+    const scrollTo = (a: string) => document.getElementById(a)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const changeCadence = (mode: partner.PartnerCadence) => {
+      setCadence(mode);
+      void (async () => {
+        const arts = await store.listArtifacts(l.id, "cadence");
+        await store.putArtifact(l.id, packId, "cadence", { mode }, arts[0]?.id);
+      })();
+    };
     return (
       <div style={colStack}>
+        <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onScrollTo={scrollTo} />
         <div className="row" style={{ justifyContent: "space-between" }}>
           <span className="small">Your partner</span>
           {pm ? (
@@ -2662,8 +2725,8 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         <LiveConvoSection store={store} partnershipId={l.id} onOpen={setLc} />
         <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
         <InfoGapSection store={store} partnershipId={l.id} onOpen={setIg} />
-        <FamiliarityCollab store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} diff={diff} progress={progress} />
-        <SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} />
+        <div id="ps-collab"><FamiliarityCollab store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} diff={diff} progress={progress} /></div>
+        <div id="ps-story"><SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} /></div>
         <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
         <div>
           <span className="small">Visible to your partner</span>
