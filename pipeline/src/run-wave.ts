@@ -61,10 +61,20 @@ function vocabItems(items: ReviewItem[]): ValidatableItem[] {
   return items.map((v) => ({ id: v.id, kind: "vocab", text: v.answer, gloss: v.gloss }));
 }
 function scenarioItems(s: Scenario): ValidatableItem[] {
-  return s.script.filter((t) => t.speaker === "learner").map((t, i) => ({ id: `${s.id}-l${i + 1}`, kind: "scenario-line", text: t.text, gloss: t.gloss }));
+  // Validate EVERY turn's target-language line (both speakers) — partner lines are model-generated
+  // and can err too, not just learner turns.
+  return s.script.map((t, i) => ({ id: `${s.id}-${t.speaker === "learner" ? "l" : "p"}${i + 1}`, kind: "scenario-line", text: t.text, gloss: t.gloss }));
 }
 function storyItems(s: MiniStory): ValidatableItem[] {
-  return s.body.map((seg, i) => ({ id: `${s.id}-s${i + 1}`, kind: "reader-line", text: seg.text, gloss: seg.gloss }));
+  // Validate body segments AND the Q&A tail (questions + answers). The qa lines are target-language
+  // too, and skipping them previously let person-agreement errors through (e.g. "Каде отидов Марко?").
+  return [
+    ...s.body.map((seg, i) => ({ id: `${s.id}-s${i + 1}`, kind: "reader-line", text: seg.text, gloss: seg.gloss })),
+    ...s.qa.flatMap((q, i) => [
+      { id: `${s.id}-q${i + 1}`, kind: "story-question", text: q.question, gloss: q.questionGloss },
+      { id: `${s.id}-a${i + 1}`, kind: "story-answer", text: q.answer, gloss: q.answerGloss },
+    ]),
+  ];
 }
 function grammarItems(concepts: GrammarConcept[]): ValidatableItem[] {
   return concepts.flatMap((c) => [
