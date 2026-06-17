@@ -9,6 +9,10 @@ import { infoGapTasks } from "./infogap.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
 import { smallTalk } from "./scenarios/small-talk.js";
 import { generatedScenarios, generatedVocab } from "./generated.js";
+// Curriculum waves (DESIGN-content-and-curriculum.md), spot-checked + corrected → confidence:"validated".
+import * as stage0 from "./promoted-stage0.js";
+import * as stage1 from "./promoted-stage1.js";
+import * as stage2 from "./promoted-stage2.js";
 
 // Promoted from the offline generation batch after Jake's spot-check (unreviewed → validated).
 const promotedScenarios = generatedScenarios.map((s) => ({ ...s, confidence: "validated" as const }));
@@ -25,14 +29,14 @@ export const macedonian: LanguagePack = {
   asr: { engines: ["scribe", "google"], languageHints: ["mkd", "mk-MK"], gate: "agreement" },
   alphabet,
   phonology,
-  grammar,
-  vocab: [...vocab, ...promotedVocab],
-  scenarios: [orderADrink, smallTalk, ...promotedScenarios],
-  readers,
-  stories,
+  grammar: [...grammar, ...stage1.promotedGrammar],
+  vocab: [...vocab, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab],
+  scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios],
+  readers: [...readers, ...stage1.promotedReaders],
+  stories: [...stories, ...stage0.promotedStories, ...stage1.promotedStories, ...stage2.promotedStories],
   srsSeed: vocab.slice(0, 6),
-  writingTasks,
-  infoGapTasks,
+  writingTasks: [...writingTasks, ...stage1.promotedWritingTasks, ...stage2.promotedWritingTasks],
+  infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],
 };
 
 export default macedonian;
