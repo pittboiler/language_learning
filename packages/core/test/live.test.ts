@@ -2,7 +2,7 @@
 //   npx tsx packages/core/test/live.test.ts
 import assert from "node:assert/strict";
 import type { Scenario } from "@ll/pack-schema";
-import { startLive, assignLiveRoles, assignLiveRolesStable, roleOf, currentTurn, isMyTurn, speakTurn, isComplete, progress } from "../src/live/index.js";
+import { startLive, assignLiveRoles, assignLiveRolesStable, roleOf, currentTurn, isMyTurn, speakTurn, setTurnScore, isComplete, progress } from "../src/live/index.js";
 
 const A = "user-a";
 const B = "user-b";
@@ -63,5 +63,15 @@ assert.equal(s3.status, "complete");
 assert.equal(isComplete(s3), true);
 assert.equal(currentTurn(s3), undefined);
 assert.deepEqual(progress(s3), { done: 3, total: 3 });
+
+// Advance-then-backfill: a turn can be spoken with NO score (conversation flows on ASR), then the slower
+// coaching backfills the score off the critical path.
+const p0 = speakTurn(s0, A, "Здраво");
+assert.equal(p0.turnIndex, 1, "advanced without a score");
+assert.equal(p0.turns[0]!.spokenBy, A);
+assert.equal(p0.turns[0]!.score, undefined, "score pending until coaching lands");
+const p1 = setTurnScore(p0, 0, 92);
+assert.equal(p1.turns[0]!.score, 92, "score backfilled onto the right turn");
+assert.equal(p1.turnIndex, 1, "backfilling a score does not move the turn pointer");
 
 console.log("✓ live conversation turn machine: all assertions passed");
