@@ -132,3 +132,47 @@ export function sharedStreak(
   if (gap - 1 <= freezes) return { count: prev.count + 1, lastDay: today }; // freeze bridges the gap
   return { count: 1, lastDay: today }; // gap too large → reset
 }
+
+// ---- partner session cadence (the STRUCTURED joint session — a daily/weekly review of solo work) ----
+
+export type PartnerCadence = "daily" | "weekly";
+export type PartnerActivityKind = "review-help" | "speak" | "teachback" | "story";
+
+export interface PartnerSessionInputs {
+  cadence: PartnerCadence;
+  partnerCanHelpMe: number; // # items my partner knows that I'm weak/new on (from complementaryDiff)
+  iCanHelpPartner: number; // the mirror — drives teach-back
+  speakScenarioId?: string; // a scenario to produce together; omit ⇒ no speak step
+  storyId?: string; // a shared text to close on; omit ⇒ no story step
+}
+
+export interface PartnerSessionItem {
+  kind: PartnerActivityKind;
+  ref?: string; // scenario / story id, where relevant
+  count?: number; // # of words, for review-help / teachback
+}
+
+export interface PartnerSessionPlan {
+  window: "today" | "this week";
+  items: PartnerSessionItem[];
+  estMinutes: number;
+}
+
+/** Assemble the dyad's STRUCTURED joint session for the current cadence window — a guided pass that
+ *  reviews each person's recent solo work TOGETHER, rather than the flat activity menu. Pedagogy order:
+ *    1. review-help — drill what I'm weak on AND my partner knows (helping beats lonely drilling; §2/§5.6)
+ *    2. speak       — produce together on a scenario (the conversation-first core)
+ *    3. teachback   — I explain items my partner is shaky on (retrieval for me, input for them)
+ *    4. story       — a shared text as a closer / conversation fuel
+ *  Weekly widens the pass (it covers a week of solo work): more review items + teach-back included; daily
+ *  stays light (review + speak; story only if the plan is otherwise thin). Pure + language-agnostic. */
+export function buildPartnerSession(inputs: PartnerSessionInputs): PartnerSessionPlan {
+  const weekly = inputs.cadence === "weekly";
+  const items: PartnerSessionItem[] = [];
+  if (inputs.partnerCanHelpMe > 0) items.push({ kind: "review-help", count: Math.min(inputs.partnerCanHelpMe, weekly ? 12 : 5) });
+  if (inputs.speakScenarioId) items.push({ kind: "speak", ref: inputs.speakScenarioId });
+  if (weekly && inputs.iCanHelpPartner > 0) items.push({ kind: "teachback", count: Math.min(inputs.iCanHelpPartner, 5) });
+  if (inputs.storyId && (weekly || items.length < 2)) items.push({ kind: "story", ref: inputs.storyId });
+  const estMinutes = items.reduce((m, it) => m + (it.kind === "review-help" ? Math.max(1, Math.ceil((it.count ?? 0) * 0.5)) : 4), 0);
+  return { window: weekly ? "this week" : "today", items, estMinutes: Math.max(3, estMinutes) };
+}
