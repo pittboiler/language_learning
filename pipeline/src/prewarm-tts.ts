@@ -7,6 +7,7 @@
 //   pipeline/node_modules/.bin/tsx pipeline/src/prewarm-tts.ts         # warm the cache for real
 import "./env.js"; // MUST be first — populates process.env that tts-cache reads
 import { macedonian as mk } from "@ll/pack-mk";
+import { tokenize } from "@ll/core/familiarity/scoring";
 import { resolveTts, synthesize, putCached, listCachedPaths } from "../../apps/web/lib/tts-cache.js";
 
 const DRY = !!process.env.DRY;
@@ -26,8 +27,23 @@ function speakables(): string[] {
   return [...set];
 }
 
+/** Distinct word SURFACES the learner can tap-to-hear in a story/reader. Uses the SAME tokenizer the UI
+ *  does (core/familiarity/scoring) and the surface form the tap plays (sel.surface), so keys hit. */
+function tappableSurfaces(): string[] {
+  const set = new Set<string>();
+  const addLine = (text?: string) => {
+    if (!text) return;
+    for (const t of tokenize(text)) if (t.isWord && t.surface.trim()) set.add(t.surface);
+  };
+  (mk.stories ?? []).forEach((s) => s.body.forEach((b) => addLine(b.text))); // TappableText: story player
+  mk.readers.forEach((r) => r.body.forEach((b) => addLine(b.text))); //          TappableText: reader
+  return [...set];
+}
+
 async function main() {
-  const lines = speakables();
+  // Full lines (play-story / 🔊-line) + the individual word surfaces a tap plays — deduped by string,
+  // since the same string resolves to the same cache key.
+  const lines = [...new Set([...speakables(), ...tappableSurfaces()])];
   const cached = await listCachedPaths();
   const work = lines.map((text) => ({ text, ...resolveTts(text, VOICE) }));
   const misses = work.filter((w) => !cached.has(w.path));
@@ -35,7 +51,7 @@ async function main() {
   const byModel = misses.reduce<Record<string, number>>((m, w) => ((m[w.model] = (m[w.model] ?? 0) + 1), m), {});
 
   console.log(`\n=== MK TTS pre-warm${DRY ? " — DRY (no synth / no spend)" : ""} ===`);
-  console.log(`  ${lines.length} unique speakable lines · ${lines.length - misses.length} already cached · ${misses.length} to synthesize (${chars} chars)`);
+  console.log(`  ${lines.length} unique strings (lines + tappable words) · ${lines.length - misses.length} already cached · ${misses.length} to synthesize (${chars} chars)`);
   console.log(`  models for the misses: ${Object.entries(byModel).map(([k, v]) => `${k}×${v}`).join(", ") || "—"}`);
   if (DRY) { console.log(`  dry run — nothing synthesized.\n`); return; }
 
