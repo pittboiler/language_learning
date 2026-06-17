@@ -962,10 +962,8 @@ function FeedbackCard({ fb }: { fb: api.FeedbackResponse }) {
           <span className={`pill ${w.status}`} key={i} title={w.note}>{w.target} · {w.status}</span>
         ))}
       </div>
-      <div className="line"><span className="muted">Stress:</span> {fb.stress}</div>
-      <div className="line"><span className="muted">Tip:</span> {fb.tip}</div>
+      {fb.tip && <div className="line"><span className="muted">💡</span> {fb.tip}</div>}
       {fb.asrCaveat.likelyAsrError && <div className="flag">⚠ <b>Likely ASR error:</b> {fb.asrCaveat.explanation}</div>}
-      <div className="meta">Claude {fb.ms}ms · ~${fb.costUsd}</div>
     </div>
   );
 }
@@ -1363,6 +1361,7 @@ function StoryView({ progress, persist, config, onDone }: { progress: Progress; 
 function StoryQAView({ story, config, onRestart, onDone }: { story: MiniStory; config: api.Config | null; onRestart: () => void; onDone?: () => void }) {
   const play = usePlay();
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
+  const [answered, setAnswered] = useState<Record<string, boolean>>({});
   return (
     <div>
       <p className="lead">Questions — the story's words again, in a new frame. The last one is spoken.</p>
@@ -1371,10 +1370,18 @@ function StoryQAView({ story, config, onRestart, onDone }: { story: MiniStory; c
           <div className="row"><button className="spk" onClick={() => play(q.question, 0.9)}>🔊</button><b>{q.question}</b></div>
           <div className="gloss">{q.questionGloss}</div>
           {q.spokenPrompt ? (
-            <div style={{ marginTop: 8 }}>
-              <div className="muted small">Answer aloud — say:</div>
-              <LearnerTurn turn={{ speaker: "learner", text: q.answer, translit: q.answerTranslit, gloss: q.answerGloss }} config={config} onDone={() => {}} />
-            </div>
+            answered[q.id] ? (
+              <div className="row" style={{ marginTop: 8 }}>
+                <span className="muted small">✓ done —</span>
+                <span className="target">{q.answer}</span>
+                <span className="muted small">· {q.answerGloss}</span>
+              </div>
+            ) : (
+              <div style={{ marginTop: 8 }}>
+                <div className="muted small">Answer aloud — say:</div>
+                <LearnerTurn turn={{ speaker: "learner", text: q.answer, translit: q.answerTranslit, gloss: q.answerGloss }} config={config} onDone={() => setAnswered((s) => ({ ...s, [q.id]: true }))} />
+              </div>
+            )
           ) : revealed[q.id] ? (
             <div style={{ marginTop: 6 }}><span className="target">{q.answer}</span> <span className="muted small">· {q.answerGloss}</span></div>
           ) : (
@@ -1661,14 +1668,24 @@ const playDataUrl = (url: string): Promise<void> =>
 function LiveConvoSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
   const pack = usePack();
   const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
+  // Realtime so a partner SEES the session the other just started and joins it (stay-in-sync) — instead
+  // of the stale on-mount list that let both hit "Start" and create rival sessions.
   useEffect(() => {
-    (async () => {
+    let alive = true;
+    const load = async () => {
       try {
-        setSessions(await store.listArtifacts(partnershipId, "live"));
+        const a = await store.listArtifacts(partnershipId, "live");
+        if (alive) setSessions(a);
       } catch {
         /* tolerate */
       }
-    })();
+    };
+    void load();
+    const unsub = subscribeArtifacts(partnershipId, () => void load());
+    return () => {
+      alive = false;
+      unsub();
+    };
   }, [store, partnershipId]);
   const activeSessions = sessions.filter((a) => (a.payload as LiveSession).status !== "complete");
   return (
@@ -1745,8 +1762,17 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
   const start = async (scenarioId: string) => {
     const sc = pack.scenarios.find((s) => s.id === scenarioId);
     if (!sc) return;
-    const id = crypto.randomUUID();
-    const sess = live.startLive(id, packId, sc, live.assignLiveRoles(myId, partnerId));
+    // Deterministic id per (partnership, scenario): two partners starting the same scenario converge on
+    // ONE row (PK upsert) instead of minting rival sessions with swapped roles — the dual-learner/deadlock
+    // fix, no migration needed. Join an existing session rather than overwriting its in-progress state.
+    const id = `live:${partnershipId}:${scenarioId}`;
+    const existing = (await store.listArtifacts(partnershipId, "live")).find((x) => x.id === id);
+    if (existing) {
+      setSession(existing.payload as LiveSession);
+      setSid(id);
+      return;
+    }
+    const sess = live.startLive(id, packId, sc, live.assignLiveRolesStable(myId, partnerId));
     await store.putArtifact(partnershipId, packId, "live", sess, id);
     setSession(sess);
     setSid(id); // activate refresh + realtime for the just-created session
@@ -1805,7 +1831,7 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
   return (
     <div style={colStack}>
       <div className="row" style={{ justifyContent: "space-between" }}>
-        <span className="small">Live · you are <b>{myRole}</b></span>
+        <span className="small">Live · <b>{done ? "complete" : myTurn ? "your turn to speak" : "your partner's turn"}</b></span>
         <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
       </div>
       {session.turns.filter((t) => t.spokenBy).map((t) => (
@@ -1837,13 +1863,21 @@ function InfoGapSection({ store, partnershipId, onOpen }: { store: PartnerStore;
   const pack = usePack();
   const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
   useEffect(() => {
-    (async () => {
+    let alive = true;
+    const load = async () => {
       try {
-        setSessions(await store.listArtifacts(partnershipId, "infogap"));
+        const a = await store.listArtifacts(partnershipId, "infogap");
+        if (alive) setSessions(a);
       } catch {
         /* tolerate */
       }
-    })();
+    };
+    void load();
+    const unsub = subscribeArtifacts(partnershipId, () => void load());
+    return () => {
+      alive = false;
+      unsub();
+    };
   }, [store, partnershipId]);
   if (!(pack.infoGapTasks ?? []).length) return null;
   return (
@@ -1899,8 +1933,16 @@ function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
   const start = async (taskId: string) => {
     const task = pack.infoGapTasks?.find((t) => t.id === taskId);
     if (!task) return;
-    const id = crypto.randomUUID();
-    const sess = infogap.startInfoGap(id, packId, task, { [myId]: "A", [partnerId]: "B" });
+    // Deterministic id + join-don't-duplicate: one shared task per (partnership, task) so both halves
+    // and the shared checklist live on a single row. Sorted ids keep the A/B assignment stable.
+    const id = `infogap:${partnershipId}:${taskId}`;
+    const existing = (await store.listArtifacts(partnershipId, "infogap")).find((x) => x.id === id);
+    if (existing) {
+      setSession(existing.payload as InfoGapSession);
+      return;
+    }
+    const [lo, hi] = [myId, partnerId].sort();
+    const sess = infogap.startInfoGap(id, packId, task, { [lo!]: "A", [hi!]: "B" });
     await store.putArtifact(partnershipId, packId, "infogap", sess, id);
     setSession(sess);
   };
@@ -2081,13 +2123,21 @@ function RoleSwapSection({ store, partnershipId, onOpen }: { store: PartnerStore
   const pack = usePack();
   const [sessions, setSessions] = useState<PartnerArtifact[]>([]);
   useEffect(() => {
-    (async () => {
+    let alive = true;
+    const load = async () => {
       try {
-        setSessions(await store.listArtifacts(partnershipId, "roleswap"));
+        const a = await store.listArtifacts(partnershipId, "roleswap");
+        if (alive) setSessions(a);
       } catch {
         /* overview tolerates a missing list */
       }
-    })();
+    };
+    void load();
+    const unsub = subscribeArtifacts(partnershipId, () => void load());
+    return () => {
+      alive = false;
+      unsub();
+    };
   }, [store, partnershipId]);
   return (
     <div>
@@ -2147,8 +2197,16 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
   const start = async (scenarioId: string) => {
     const sc = pack.scenarios.find((s) => s.id === scenarioId);
     if (!sc) return;
-    const id = crypto.randomUUID();
-    const sess = roleswap.startRoleSwap(id, packId, sc, roleswap.assignRoles(myId, partnerId));
+    // Deterministic id + join-don't-duplicate: both partners land on ONE shared session so their
+    // recordings accumulate together instead of two rival half-recorded copies. Roles sorted for stability.
+    const id = `roleswap:${partnershipId}:${scenarioId}`;
+    const existing = (await store.listArtifacts(partnershipId, "roleswap")).find((x) => x.id === id);
+    if (existing) {
+      setSession(existing.payload as RoleSwapSession);
+      return;
+    }
+    const [lo, hi] = [myId, partnerId].sort();
+    const sess = roleswap.startRoleSwap(id, packId, sc, roleswap.assignRoles(lo!, hi!));
     await store.putArtifact(partnershipId, packId, "roleswap", sess, id);
     setSession(sess);
   };

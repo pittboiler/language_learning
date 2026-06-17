@@ -33,6 +33,17 @@ export function assignLiveRoles(learnerUserId: string, partnerUserId: string): R
   return { [learnerUserId]: "learner", [partnerUserId]: "partner" };
 }
 
+/**
+ * Stable, ORDER-INDEPENDENT role assignment: the same two users always get the same roles regardless of
+ * who creates the session. This is load-bearing for sync — if both partners hit "Start" at once and each
+ * created a session with themselves passed first, each would make THEMSELVES the learner (the "we both
+ * say 'you are the learner'" + deadlock bug). Sorting the ids first makes the two creates identical.
+ */
+export function assignLiveRolesStable(userA: string, userB: string): Record<string, LiveRole> {
+  const [first, second] = [userA, userB].sort();
+  return assignLiveRoles(first!, second!);
+}
+
 export function startLive(id: string, packId: string, s: Scenario, assignment: Record<string, LiveRole>): LiveSession {
   const turns: LiveTurn[] = s.script.map((t, index) => ({ index, speaker: t.speaker, text: t.text, gloss: t.gloss, translit: t.translit }));
   return { id, scenarioId: s.id, packId, assignment, turnIndex: 0, turns, status: turns.length ? "active" : "complete" };
