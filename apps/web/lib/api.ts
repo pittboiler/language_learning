@@ -9,27 +9,33 @@ export async function getConfig(): Promise<Config> {
   return (await fetch("/api/config")).json();
 }
 
-/** Synthesize + play TTS for the active pack's voice. speed 0.7 (slowest) … 1.2. */
-export async function playTts(text: string, speed = 1, packId?: string): Promise<void> {
+/** Synthesize (cached) + play TTS for the active pack's voice. The clip is natural speed; `rate` is the
+ *  client-side playbackRate for the slow/normal toggle (1 = normal, 0.75 = slow) — pitch-preserved. */
+export async function playTts(text: string, rate = 1, packId?: string): Promise<void> {
   const r = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, speed, packId }),
+    body: JSON.stringify({ text, packId }),
   });
   if (!r.ok) throw new Error((await r.json()).error || "TTS failed");
   const audio = new Audio(URL.createObjectURL(await r.blob()));
+  audio.preservesPitch = true;
+  audio.playbackRate = rate;
   await audio.play();
 }
 
-/** Play a TTS clip and resolve when it FINISHES — for sequential, synced story playback. */
-export async function playClip(text: string, speed = 1, packId?: string): Promise<void> {
+/** Play a TTS clip and resolve when it FINISHES — for sequential, synced story playback. `rate` =
+ *  client-side playbackRate (1 normal / 0.75 slow), pitch-preserved. */
+export async function playClip(text: string, rate = 1, packId?: string): Promise<void> {
   const r = await fetch("/api/tts", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, speed, packId }),
+    body: JSON.stringify({ text, packId }),
   });
   if (!r.ok) throw new Error((await r.json()).error || "TTS failed");
   const audio = new Audio(URL.createObjectURL(await r.blob()));
+  audio.preservesPitch = true;
+  audio.playbackRate = rate;
   await new Promise<void>((resolve, reject) => {
     audio.onended = () => resolve();
     audio.onerror = () => reject(new Error("audio playback error"));
