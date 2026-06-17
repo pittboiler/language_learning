@@ -32,6 +32,7 @@ import * as infogap from "@ll/core/infogap";
 import type { InfoGapSession } from "@ll/core/infogap";
 import * as live from "@ll/core/live";
 import type { LiveSession } from "@ll/core/live";
+import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
 type Section = "today" | "library" | "progress" | "me";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
@@ -2778,6 +2779,71 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   );
 }
 
+// Account / cross-device profile: magic-link sign-in (passwordless). Since progress already upserts to
+// user_state keyed by uid, signing in with the same email on another device makes uid() stable across
+// devices ⇒ the same row ⇒ synced learning. Anonymous sessions upgrade in place (no data loss).
+function AccountSettings() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState("");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { void currentUser().then(setUser); }, []);
+
+  if (!supabaseConfigured())
+    return (
+      <div className="setting-row">
+        <b>Account</b>
+        <span className="muted small">Cross-device sync needs Supabase — see SUPABASE_SETUP.md.</span>
+      </div>
+    );
+
+  const send = async () => {
+    const e = email.trim();
+    if (!e) return;
+    setBusy(true);
+    setStatus("");
+    try {
+      const { mode } = await sendMagicLink(e);
+      setStatus(`Check ${e} for a sign-in link${mode === "signin" ? " — it signs this device into your existing account" : " to finish setting up your account"}.`);
+    } catch (err) {
+      setStatus(err instanceof Error ? err.message : "Could not send the link — is email sign-in enabled in Supabase?");
+    } finally {
+      setBusy(false);
+    }
+  };
+  const out = async () => {
+    setBusy(true);
+    try {
+      await signOut();
+      setUser(await currentUser());
+      setStatus("Signed out on this device.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="setting-row" style={{ flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+      <b>Account</b>
+      {user && !user.isAnonymous && user.email ? (
+        <div className="row" style={{ width: "100%", justifyContent: "space-between" }}>
+          <span className="small">Signed in as <b>{user.email}</b> — your learning syncs to any device you sign in on.</span>
+          <button className="ghost small" disabled={busy} onClick={out}>Sign out</button>
+        </div>
+      ) : (
+        <>
+          <span className="muted small">Sign in to carry your progress across web and phone — we&apos;ll email a one-tap link, no password.</span>
+          <div className="row" style={{ width: "100%" }}>
+            <input className="lang-picker" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, minWidth: 160 }} />
+            <button className="btn" disabled={busy || !email.trim()} onClick={send}>{busy ? "Sending…" : "Send link"}</button>
+          </div>
+        </>
+      )}
+      {status && <span className="muted small">{status}</span>}
+    </div>
+  );
+}
+
 function Settings({ progress, persist, config, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; navigateToStory: (storyId: string) => void }) {
   const pack = usePack();
   const autoplay = progress.settings?.autoplay ?? false;
@@ -2787,6 +2853,7 @@ function Settings({ progress, persist, config, navigateToStory }: { progress: Pr
   return (
     <section className="view">
       <h2>Settings</h2>
+      <AccountSettings />
       <PartnerPanel progress={progress} persist={persist} navigateToStory={navigateToStory} />
       <div className="setting-row">
         <b>Language</b>
