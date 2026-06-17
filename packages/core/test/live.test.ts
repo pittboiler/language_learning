@@ -2,10 +2,18 @@
 //   npx tsx packages/core/test/live.test.ts
 import assert from "node:assert/strict";
 import type { Scenario } from "@ll/pack-schema";
-import { startLive, assignLiveRoles, roleOf, currentTurn, isMyTurn, speakTurn, isComplete, progress } from "../src/live/index.js";
+import { startLive, assignLiveRoles, assignLiveRolesStable, roleOf, currentTurn, isMyTurn, speakTurn, isComplete, progress } from "../src/live/index.js";
 
 const A = "user-a";
 const B = "user-b";
+
+// Stable roles are ORDER-INDEPENDENT: whoever creates the session first, both partners resolve to the
+// SAME assignment — so two simultaneous "starts" can never both make themselves the learner (the bug).
+const stableAB = assignLiveRolesStable(A, B);
+const stableBA = assignLiveRolesStable(B, A);
+assert.deepEqual(stableAB, stableBA, "role assignment must not depend on argument order");
+assert.equal(Object.values(stableAB).filter((r) => r === "learner").length, 1, "exactly one learner");
+assert.equal(Object.values(stableAB).filter((r) => r === "partner").length, 1, "exactly one partner");
 
 const scenario: Scenario = {
   id: "cafe-1",
