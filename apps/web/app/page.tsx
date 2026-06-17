@@ -47,7 +47,7 @@ const SlowContext = createContext(false);
 function usePlay() {
   const pack = usePack();
   const slow = useContext(SlowContext);
-  return useCallback((text: string, _speed?: number) => api.playTts(text, slow ? 0.7 : 0.9, pack.id).catch(() => {}), [pack.id, slow]);
+  return useCallback((text: string, _speed?: number) => api.playTts(text, slow ? 0.75 : 1, pack.id).catch(() => {}), [pack.id, slow]);
 }
 
 // Cosmetic flag per pack id (app-level only — not pack data).
@@ -1283,7 +1283,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
   const [current, setCurrent] = useState(-1);
   const slow = useContext(SlowContext);
   const playing = useRef(false);
-  const speed = slow ? 0.7 : 0.9;
+  const speed = slow ? 0.75 : 1;
 
   const onTap = (surface: string, line: string) => {
     const lexKey = captureWord(progress, persist, surface, line);
