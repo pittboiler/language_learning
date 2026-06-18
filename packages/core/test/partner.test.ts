@@ -121,4 +121,27 @@ const empty = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 0, iCanH
 assert.deepEqual(empty.items, []);
 assert.equal(empty.estMinutes, 3);
 
+// ---- adaptive cadence: tilt by who did more solo work this window ----
+// no recency signal → balanced (unchanged behavior)
+assert.equal(daily.emphasis, "balanced");
+assert.equal(weekly.emphasis, "balanced");
+
+// I did much more → I teach: teach-back included even on daily + boosted; review-help trimmed
+const youTeach = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 10, iCanHelpPartner: 10, speakScenarioId: "cafe-1", myRecent: 20, partnerRecent: 2 });
+assert.equal(youTeach.emphasis, "you-teach");
+assert.deepEqual(youTeach.items.map((i) => i.kind), ["review-help", "speak", "teachback"]);
+assert.equal(youTeach.items[0]!.count, 3, "review-help trimmed when I'm ahead (ceil(5/2))");
+assert.equal(youTeach.items[2]!.count, 8, "teach-back boosted when I'm ahead");
+
+// partner did much more → they help me: review-help widened, no teach-back on daily
+const partnerTeaches = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 20, iCanHelpPartner: 10, speakScenarioId: "cafe-1", myRecent: 1, partnerRecent: 15 });
+assert.equal(partnerTeaches.emphasis, "partner-teaches");
+assert.deepEqual(partnerTeaches.items.map((i) => i.kind), ["review-help", "speak"]);
+assert.equal(partnerTeaches.items[0]!.count, 9, "review-help widened when partner is ahead (base+4)");
+
+// partner inactive this window → light catch-up (speak + story only), regardless of the diff sizes
+const catchUp = buildPartnerSession({ cadence: "weekly", partnerCanHelpMe: 30, iCanHelpPartner: 30, speakScenarioId: "cafe-1", storyId: "s1", partnerActive: false });
+assert.equal(catchUp.emphasis, "catch-up");
+assert.deepEqual(catchUp.items.map((i) => i.kind), ["speak", "story"]);
+
 console.log("✓ partner primitive: all assertions passed");

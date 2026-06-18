@@ -144,6 +144,12 @@ export interface PartnerSessionInputs {
   iCanHelpPartner: number; // the mirror — drives teach-back
   speakScenarioId?: string; // a scenario to produce together; omit ⇒ no speak step
   storyId?: string; // a shared text to close on; omit ⇒ no story step
+  /** New words I locked in this window (recency proxy for effort; default 0). */
+  myRecent?: number;
+  /** New words my partner locked in this window (default 0). */
+  partnerRecent?: number;
+  /** Did my partner practice in this window? false ⇒ a light catch-up instead of a full review (default true). */
+  partnerActive?: boolean;
 }
 
 export interface PartnerSessionItem {
@@ -152,11 +158,18 @@ export interface PartnerSessionItem {
   count?: number; // # of words, for review-help / teachback
 }
 
+/** How the session is tilted by who did more solo work — drives the UI's framing line. */
+export type PartnerEmphasis = "balanced" | "you-teach" | "partner-teaches" | "catch-up";
+
 export interface PartnerSessionPlan {
   window: "today" | "this week";
+  emphasis: PartnerEmphasis;
   items: PartnerSessionItem[];
   estMinutes: number;
 }
+
+/** A meaningful effort gap (in new words this window) before the session tilts toward teach vs. review. */
+const EFFORT_GAP = 5;
 
 /** Assemble the dyad's STRUCTURED joint session for the current cadence window — a guided pass that
  *  reviews each person's recent solo work TOGETHER, rather than the flat activity menu. Pedagogy order:
@@ -164,15 +177,39 @@ export interface PartnerSessionPlan {
  *    2. speak       — produce together on a scenario (the conversation-first core)
  *    3. teachback   — I explain items my partner is shaky on (retrieval for me, input for them)
  *    4. story       — a shared text as a closer / conversation fuel
- *  Weekly widens the pass (it covers a week of solo work): more review items + teach-back included; daily
- *  stays light (review + speak; story only if the plan is otherwise thin). Pure + language-agnostic. */
+ *  Weekly widens the pass (it covers a week of solo work). ADAPTIVE to effort asymmetry: whoever did
+ *  more this window does more TEACHING (their fresh words → teach-back); whoever did less gets WALKED
+ *  THROUGH it (more review-help). If a partner hasn't practiced at all, it's a light catch-up + a nudge
+ *  rather than a full review — so an uneven week doesn't produce a lopsided plan. Pure + language-agnostic. */
 export function buildPartnerSession(inputs: PartnerSessionInputs): PartnerSessionPlan {
   const weekly = inputs.cadence === "weekly";
+  const window = weekly ? "this week" : "today";
+
+  // Partner hasn't shown up this window → don't build a full review around absent work; keep it light.
+  if (inputs.partnerActive === false) {
+    const items: PartnerSessionItem[] = [];
+    if (inputs.speakScenarioId) items.push({ kind: "speak", ref: inputs.speakScenarioId });
+    if (inputs.storyId) items.push({ kind: "story", ref: inputs.storyId });
+    return { window, emphasis: "catch-up", items, estMinutes: Math.max(3, items.length * 4) };
+  }
+
+  const gap = (inputs.myRecent ?? 0) - (inputs.partnerRecent ?? 0);
+  const emphasis: PartnerEmphasis = gap >= EFFORT_GAP ? "you-teach" : gap <= -EFFORT_GAP ? "partner-teaches" : "balanced";
+
   const items: PartnerSessionItem[] = [];
-  if (inputs.partnerCanHelpMe > 0) items.push({ kind: "review-help", count: Math.min(inputs.partnerCanHelpMe, weekly ? 12 : 5) });
+  // review-help (partner helps me): widened when they did more, trimmed when I did more.
+  if (inputs.partnerCanHelpMe > 0) {
+    const base = weekly ? 12 : 5;
+    const cap = emphasis === "partner-teaches" ? base + 4 : emphasis === "you-teach" ? Math.ceil(base / 2) : base;
+    items.push({ kind: "review-help", count: Math.min(inputs.partnerCanHelpMe, cap) });
+  }
   if (inputs.speakScenarioId) items.push({ kind: "speak", ref: inputs.speakScenarioId });
-  if (weekly && inputs.iCanHelpPartner > 0) items.push({ kind: "teachback", count: Math.min(inputs.iCanHelpPartner, 5) });
+  // teach-back (I teach partner): on weekly, or whenever I did more — boosted then.
+  if ((weekly || emphasis === "you-teach") && inputs.iCanHelpPartner > 0) {
+    items.push({ kind: "teachback", count: Math.min(inputs.iCanHelpPartner, emphasis === "you-teach" ? 8 : 5) });
+  }
   if (inputs.storyId && (weekly || items.length < 2)) items.push({ kind: "story", ref: inputs.storyId });
+
   const estMinutes = items.reduce((m, it) => m + (it.kind === "review-help" ? Math.max(1, Math.ceil((it.count ?? 0) * 0.5)) : 4), 0);
-  return { window: weekly ? "this week" : "today", items, estMinutes: Math.max(3, estMinutes) };
+  return { window, emphasis, items, estMinutes: Math.max(3, estMinutes) };
 }

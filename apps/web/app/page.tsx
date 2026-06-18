@@ -34,7 +34,7 @@ import * as live from "@ll/core/live";
 import type { LiveSession } from "@ll/core/live";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
-type Section = "today" | "library" | "progress" | "me";
+type Section = "today" | "library" | "progress" | "partnered";
 type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
 
 // The active pack flows through context so every view reads the same selected language.
@@ -147,6 +147,8 @@ export default function Home() {
   const [config, setConfig] = useState<api.Config | null>(null);
   const [section, setSection] = useState<Section>("today");
   const [libView, setLibView] = useState<LibView>("browse");
+  const [acctOpen, setAcctOpen] = useState(false);
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const pack = useMemo(() => getPack(progress.activePackId), [progress.activePackId]);
 
   useEffect(() => {
@@ -164,6 +166,10 @@ export default function Home() {
       api.getConfig().then(setConfig).catch(() => {});
     })();
   }, [store]);
+
+  // Who's signed in (drives the header account chip). Re-read when the account panel closes, so signing
+  // in/out there reflects immediately.
+  useEffect(() => { void currentUser().then(setAuthUser).catch(() => {}); }, [acctOpen]);
 
   const persist = useCallback(
     (next: Progress) => {
@@ -216,13 +222,14 @@ export default function Home() {
         <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
         <button className="ghost small" style={{ marginLeft: "auto", marginRight: 6 }} title="Playback speed for all spoken audio" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !progress.settings?.slow } })}>{progress.settings?.slow ? "🐢 Slow" : "🔊 Normal"}</button>
         <span className="streak-chip" title="Day streak">🔥 {progress.streak?.count ?? 0}</span>
+        <button className="streak-chip" style={{ cursor: "pointer" }} title="Account & settings" onClick={() => setAcctOpen(true)}>👤 {authUser && !authUser.isAnonymous && authUser.email ? authUser.email.split("@")[0] : "Account"}</button>
       </header>
       <nav>
         {([
           ["today", "Today"],
           ["library", "Library"],
-          ["progress", `Progress${dueCount ? " " + dueCount : ""}`],
-          ["me", "Me"],
+          ["progress", "Progress"],
+          ["partnered", "Partnered"],
         ] as [Section, string][]).map(([s, label]) => (
           <button key={s} className={section === s ? "active" : ""} onClick={() => setSection(s)}>{label}</button>
         ))}
@@ -234,12 +241,13 @@ export default function Home() {
         )}
         {section === "progress" && (
           <>
-            <ProgressDash progress={progress} />
+            <ProgressDash progress={progress} dueCount={dueCount} />
             <Review progress={progress} persist={persist} />
           </>
         )}
-        {section === "me" && <Settings progress={progress} persist={persist} config={config} navigateToStory={goToStory} />}
+        {section === "partnered" && <PartnerPanel progress={progress} persist={persist} navigateToStory={goToStory} />}
       </main>
+      {acctOpen && <AccountPanel progress={progress} persist={persist} config={config} onClose={() => setAcctOpen(false)} />}
       </SlowContext.Provider>
     </PackContext.Provider>
   );
@@ -1510,7 +1518,7 @@ function Writing({ config }: { config: api.Config | null }) {
 }
 
 // ---------- Progress section: functional stats + Strengthen ----------
-function ProgressDash({ progress }: { progress: Progress }) {
+function ProgressDash({ progress, dueCount }: { progress: Progress; dueCount: number }) {
   const pack = usePack();
   const vocab = scoring.computeMetrics(progress.familiarity);
   const level = computeLevel(pack, progress);
@@ -1526,9 +1534,13 @@ function ProgressDash({ progress }: { progress: Progress }) {
         {stat("Words known", vocab.knownWordCount, true)}
         {stat("Learning", vocab.learningCount)}
         {stat("New this week", vocab.movedToKnownThisWeek)}
+        {stat("To review", dueCount, dueCount > 0)}
         {stat("Day streak", streak)}
         {stat("Level", level.cefrBand)}
       </div>
+      <p className="muted small" style={{ marginTop: 10 }}>
+        <b>To review</b> = items due in Strengthen (below). <b>Level</b> is an estimate from letters learned, scenario goals met, and words tracked — roughly pre-A1 → A1 → A2.
+      </p>
     </section>
   );
 }
@@ -2528,6 +2540,13 @@ function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
       ) : (
         <div style={colStack}>
           <p className="muted small" style={{ margin: 0 }}>~{plan.estMinutes} min · hone {plan.window === "this week" ? "the week" : "today"} together, in order:</p>
+          {plan.emphasis !== "balanced" && (
+            <p className="small" style={{ margin: 0, color: "var(--accent)" }}>
+              {plan.emphasis === "you-teach" && `You're ahead ${plan.window} — walk your partner through what you learned.`}
+              {plan.emphasis === "partner-teaches" && `Your partner covered more ${plan.window} — have them help you lock it in.`}
+              {plan.emphasis === "catch-up" && `Your partner hasn't practised ${plan.window} yet — keep it light and send a nudge.`}
+            </p>
+          )}
           {plan.items.map((it, i) => {
             const n = `${i + 1}. `;
             if (it.kind === "review-help") return <div key={i}>{row("🤝", `${n}Review ${it.count} words your partner knows`, "lapsed words they can help you lock in", () => onScrollTo("ps-collab"), "Help each other →")}</div>;
@@ -2563,6 +2582,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [ig, setIg] = useState<string | "new" | null>(null); // open info-gap session id, "new", or none
   const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
   const [cadence, setCadence] = useState<partner.PartnerCadence>("daily"); // shared joint-session rhythm
+  const [ptab, setPtab] = useState<"together" | "practice" | "manage">("together"); // Partnered sub-tab
 
   const myActivity = useCallback(
     (): ActivityRecord => ({
@@ -2644,14 +2664,16 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     if (!link)
       return (
         <div style={colStack}>
-          <p className="muted small">Learn with someone you trust — invite them, then build a shared streak now and (soon) swap spoken roles.</p>
-          <div className="row">
+          <p className="small" style={{ margin: 0 }}><b>Learn with someone you trust.</b> This tab is for practising <i>together</i> — link up with a partner to unlock it.</p>
+          <p className="muted small" style={{ margin: 0 }}>Then you get: <b>Live conversation</b> (real-time, coached turn-by-turn) · <b>Role-swap</b> · <b>Info-gap</b> · <b>Shared story &amp; phrasebook</b> · <b>Help each other</b> (the app surfaces what your partner knows that you don&apos;t). A shared daily/weekly session reviews each of your solo work.</p>
+          <div className="row" style={{ marginTop: 4 }}>
             <button className="btn" disabled={busy} onClick={act(() => store.invite(packId))}>Invite a partner</button>
           </div>
           <div className="row">
             <input className="lang-picker" placeholder="Enter invite code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} style={{ textTransform: "uppercase", minWidth: 150 }} />
             <button className="ghost" disabled={busy || !joinCode.trim()} onClick={act(() => store.redeem(joinCode).then(() => setJoinCode("")))}>Join</button>
           </div>
+          <p className="muted small" style={{ margin: 0 }}>Private to the two of you. Pause (no penalty) or end anytime.</p>
         </div>
       );
     const l = link;
@@ -2660,7 +2682,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         <div style={colStack}>
           <p className="small">Invite created. Share this code with your partner:</p>
           <div className="row"><code className="chip" style={{ fontSize: 18, letterSpacing: 3 }}>{l.inviteCode}</code></div>
-          <p className="muted small">They open <b>Me → Join</b> and enter it. This updates once they join.</p>
+          <p className="muted small">They open <b>Partnered → Join</b> and enter it. This updates once they join.</p>
           <div className="row">
             <button className="ghost" disabled={busy} onClick={act(async () => {})}>Refresh</button>
             <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>Cancel</button>
@@ -2705,14 +2727,21 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     }
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
+    // Adaptive cadence inputs: tilt the plan by who did more this window, and detect an absent partner.
+    const today = localDay();
+    const dayMs = (d: string) => new Date(`${d}T12:00:00Z`).getTime();
+    const partnerActive = !!pDay && (cadence === "daily" ? pDay === today : dayMs(today) - dayMs(pDay) <= 7 * 86_400_000);
     const plan = partner.buildPartnerSession({
       cadence,
       partnerCanHelpMe: diff?.partnerCanHelpMe.length ?? 0,
       iCanHelpPartner: diff?.iCanHelpPartner.length ?? 0,
       speakScenarioId: pack.scenarios.find((s) => !progress.scenarios[s.id])?.id ?? pack.scenarios[0]?.id,
       storyId: pack.stories?.[0]?.id,
+      myRecent: myActivity().metrics?.movedToKnownThisWeek ?? 0,
+      partnerRecent: pm?.movedToKnownThisWeek ?? 0,
+      partnerActive,
     });
-    const scrollTo = (a: string) => document.getElementById(a)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const scrollTo = (a: string) => { setPtab("practice"); setTimeout(() => document.getElementById(a)?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
     const changeCadence = (mode: partner.PartnerCadence) => {
       setCadence(mode);
       void (async () => {
@@ -2722,91 +2751,104 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     };
     return (
       <div style={colStack}>
-        <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onScrollTo={scrollTo} />
         <div className="row" style={{ justifyContent: "space-between" }}>
-          <span className="small">Your partner</span>
+          <span className="small">🤝 Linked with your partner</span>
           {pm ? (
-            <span className="muted small"><b style={{ color: "var(--ok)" }}>{pm.knownWordCount}</b> words known · {pm.movedToKnownThisWeek} new this week</span>
+            <span className="muted small"><b style={{ color: "var(--ok)" }}>{pm.knownWordCount}</b> words · {pm.movedToKnownThisWeek} new this week</span>
           ) : pDay ? (
-            <span className="muted small">last active {pDay === localDay() ? "today 🎉" : pDay}</span>
+            <span className="muted small">partner last active {pDay === today ? "today 🎉" : pDay}</span>
           ) : (
             <span className="muted small">no activity shared yet</span>
           )}
         </div>
-        <div className="row">
-          <span className="small">Shared streak</span>
-          <span className="muted small">
-            {shared && shared.count > 0
-              ? `${shared.count} day${shared.count === 1 ? "" : "s"} you both showed up${shared.lastDay === localDay() ? " — including today 🔥" : ""}`
-              : "practise on the same day to start a shared streak"}
-          </span>
-        </div>
-        <div className="row">
-          {NUDGES.map((n) => (
-            <button key={n} className="ghost small" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
+        <div className="picker small">
+          {([["together", "Together"], ["practice", "Practice"], ["manage", "Manage"]] as const).map(([t, label]) => (
+            <button key={t} className={ptab === t ? "active" : ""} onClick={() => setPtab(t)}>{label}</button>
           ))}
         </div>
-        {nudges.length > 0 && (
-          <ul className="muted small" style={{ margin: 0, paddingLeft: 18 }}>
-            {nudges.map((nd) => {
-              const pl = nd.payload as { text?: string; day?: string };
-              return <li key={nd.id}>{nd.createdBy === myId ? "You" : "Partner"}: {pl.text} <span style={{ opacity: 0.6 }}>{pl.day}</span></li>;
-            })}
-          </ul>
-        )}
-        <LiveConvoSection store={store} partnershipId={l.id} onOpen={setLc} />
-        <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
-        <InfoGapSection store={store} partnershipId={l.id} onOpen={setIg} />
-        <div id="ps-collab"><FamiliarityCollab store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} diff={diff} progress={progress} /></div>
-        <div id="ps-story"><SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} /></div>
-        <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
-        <div>
-          <span className="small">Visible to your partner</span>
-          <div className="row" style={{ marginTop: 6 }}>
-            {VIS_TOGGLES.map(([key, label]) => (
-              <button
-                key={key}
-                className={`badge ${vis[key] ? "on" : "off"}`}
-                disabled={busy}
-                title="Tap to toggle what your partner can see"
-                onClick={act(async () => {
-                  const next: VisibilitySettings = { ...vis, [key]: !vis[key] };
-                  setVis(next);
-                  await store.setVisibility(l.id, next);
-                })}
-              >
-                {label} {vis[key] ? "✓" : "✗"}
-              </button>
-            ))}
+
+        {ptab === "together" && (
+          <div style={colStack}>
+            <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onScrollTo={scrollTo} />
+            <div className="row">
+              <span className="small">Shared streak</span>
+              <span className="muted small">
+                {shared && shared.count > 0
+                  ? `${shared.count} day${shared.count === 1 ? "" : "s"} you both showed up${shared.lastDay === today ? " — including today 🔥" : ""}`
+                  : "practise on the same day to start a shared streak"}
+              </span>
+            </div>
+            <div>
+              <div className="small" style={{ marginBottom: 4 }}>Send a nudge</div>
+              <div className="row">
+                {NUDGES.map((n) => (
+                  <button key={n} className="ghost small" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
+                ))}
+              </div>
+              {nudges.length > 0 && (
+                <ul className="muted small" style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+                  {nudges.map((nd) => {
+                    const pl = nd.payload as { text?: string; day?: string };
+                    return <li key={nd.id}>{nd.createdBy === myId ? "You" : "Partner"}: {pl.text} <span style={{ opacity: 0.6 }}>{pl.day}</span></li>;
+                  })}
+                </ul>
+              )}
+            </div>
           </div>
-        </div>
-        <div className="row">
-          <button className="ghost" disabled={busy} onClick={act(() => store.pause(l.id))}>Pause (no-shame)</button>
-          <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End partnership</button>
-        </div>
+        )}
+
+        {ptab === "practice" && (
+          <div style={colStack}>
+            <LiveConvoSection store={store} partnershipId={l.id} onOpen={setLc} />
+            <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
+            <InfoGapSection store={store} partnershipId={l.id} onOpen={setIg} />
+            <div id="ps-collab"><FamiliarityCollab store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} diff={diff} progress={progress} /></div>
+            <div id="ps-story"><SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} /></div>
+            <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
+          </div>
+        )}
+
+        {ptab === "manage" && (
+          <div style={colStack}>
+            <div>
+              <span className="small">Visible to your partner</span>
+              <div className="row" style={{ marginTop: 6 }}>
+                {VIS_TOGGLES.map(([key, label]) => (
+                  <button
+                    key={key}
+                    className={`badge ${vis[key] ? "on" : "off"}`}
+                    disabled={busy}
+                    title="Tap to toggle what your partner can see"
+                    onClick={act(async () => {
+                      const next: VisibilitySettings = { ...vis, [key]: !vis[key] };
+                      setVis(next);
+                      await store.setVisibility(l.id, next);
+                    })}
+                  >
+                    {label} {vis[key] ? "✓" : "✗"}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="row">
+              <button className="ghost" disabled={busy} onClick={act(() => store.pause(l.id))}>Pause (no-shame)</button>
+              <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End partnership</button>
+            </div>
+          </div>
+        )}
       </div>
     );
   };
 
   return (
-    <div className="setting-row" style={{ flexDirection: "column", alignItems: "stretch" }}>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <b>Learning partner</b>
+    <section className="view">
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+        <h2 style={{ margin: 0 }}>Partnered</h2>
         {shared && shared.count > 0 && <span className="streak-chip" title="Shared streak — days you both practised">🤝🔥 {shared.count}</span>}
       </div>
       {error && <p className="small" style={{ color: "var(--warn)", margin: "4px 0 0" }}>{error}</p>}
-      {(progress.settings?.partnerIntroSeen ?? false) ? (
-        content()
-      ) : (
-        <div style={colStack}>
-          <p className="small" style={{ margin: 0 }}><b>Learn with someone you trust.</b> Here&apos;s how it works:</p>
-          <p className="muted small" style={{ margin: 0 }}><b>1 · Link up.</b> One of you taps “Invite a partner” and shares the code; the other enters it under “Join.” It stays private to the two of you.</p>
-          <p className="muted small" style={{ margin: 0 }}><b>2 · Practise together.</b> <b>Live conversation</b> (real-time, turn-by-turn coaching) · <b>Role-swap</b> (record a 2-role dialogue on your own time) · <b>Info-gap</b> (you each hold half the info — talk it out) · <b>Shared story</b> · <b>Shared phrasebook</b> · <b>Help each other</b> (the app shows what your partner knows that you don&apos;t — ask them, or record a quick explanation).</p>
-          <p className="muted small" style={{ margin: 0 }}><b>3 · Stay in control.</b> The visibility toggles decide what your partner can see; pause (no penalty) or end anytime.</p>
-          <div className="row"><button className="btn" onClick={() => persist({ ...progress, settings: { ...progress.settings, partnerIntroSeen: true } })}>Got it →</button></div>
-        </div>
-      )}
-    </div>
+      {content()}
+    </section>
   );
 }
 
@@ -2875,17 +2917,22 @@ function AccountSettings() {
   );
 }
 
-function Settings({ progress, persist, config, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; navigateToStory: (storyId: string) => void }) {
+// Account & app settings — a header-triggered slide-over (was the "Me" tab body). Everything you-specific
+// that's CONFIG lives here; the Partnered tab is now purely the dyad. Backdrop click / ✕ closes it.
+function AccountPanel({ progress, persist, config, onClose }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; onClose: () => void }) {
   const pack = usePack();
   const autoplay = progress.settings?.autoplay ?? false;
   const slow = progress.settings?.slow ?? false;
   const slowRate = progress.settings?.slowRate ?? 0.75;
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
   return (
-    <section className="view">
-      <h2>Settings</h2>
-      <AccountSettings />
-      <PartnerPanel progress={progress} persist={persist} navigateToStory={navigateToStory} />
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 50, display: "flex", justifyContent: "flex-end" }}>
+      <div className="view" onClick={(e) => e.stopPropagation()} style={{ width: "min(440px, 94vw)", height: "100%", borderRadius: 0, overflowY: "auto" }}>
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ margin: 0 }}>Account &amp; settings</h2>
+          <button className="ghost small" onClick={onClose}>✕ Close</button>
+        </div>
+        <AccountSettings />
       <div className="setting-row">
         <b>Language</b>
         {packList().length > 1 ? (
@@ -2925,6 +2972,7 @@ function Settings({ progress, persist, config, navigateToStory }: { progress: Pr
           <span className="muted small">This pack's content is machine-generated, pending native review — not yet authoritative.</span>
         </div>
       )}
-    </section>
+      </div>
+    </div>
   );
 }
