@@ -146,15 +146,38 @@ export interface GlossResponse {
   error?: string;
 }
 
-/** Look up a single word (pack-vocab first, else a Haiku gloss). For tap-to-capture in the reader. */
+// In-memory gloss cache (+ inflight dedup): tap-to-look-up hits Haiku (~1-3s) for any non-pack word, so
+// without this a re-tap re-pays and a prefetch + immediate tap would double-fetch. Keyed by word+context
+// (context can change the gloss). Lives for the page session — cheap, and reading is a read-only aid.
+const glossCache = new Map<string, GlossResponse>();
+const glossInflight = new Map<string, Promise<GlossResponse>>();
+const glossKey = (word: string, context: string, packId?: string) => `${packId ?? ""}|${word.toLowerCase().trim()}|${context}`;
+
+/** Look up a single word (pack-vocab first, else a Haiku gloss). For tap-to-capture in the reader.
+ *  Cached + inflight-deduped so re-taps and prefetch are instant and never fire a duplicate request. */
 export async function gloss(word: string, context: string, packId?: string): Promise<GlossResponse> {
-  return (
-    await fetch("/api/gloss", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ word, context, packId }),
-    })
-  ).json();
+  const key = glossKey(word, context, packId);
+  const cached = glossCache.get(key);
+  if (cached) return cached;
+  const inflight = glossInflight.get(key);
+  if (inflight) return inflight;
+  const p = (async () => {
+    try {
+      const r: GlossResponse = await (
+        await fetch("/api/gloss", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ word, context, packId }),
+        })
+      ).json();
+      if (r.gloss && r.source !== "error") glossCache.set(key, r); // only cache useful results
+      return r;
+    } finally {
+      glossInflight.delete(key);
+    }
+  })();
+  glossInflight.set(key, p);
+  return p;
 }
 
 export interface ImportResponse {

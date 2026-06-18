@@ -1293,6 +1293,37 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
   const speed = useContext(SlowContext);
   const playing = useRef(false);
 
+  // Prefetch glosses for the SLOW words — those NOT in pack vocab, which hit Haiku (~1-3s) on tap — so the
+  // word panel is instant when tapped (the lookup already ran in the background). Pack-vocab words are
+  // already instant, so we skip them; deduped by word, throttled to 3 at a time, cancelled on unmount.
+  useEffect(() => {
+    let cancelled = false;
+    const vocab = new Set(pack.vocab.map((v) => familiarity.normalize(v.answer)));
+    const seen = new Set<string>();
+    const jobs: { surface: string; line: string }[] = [];
+    for (const l of story.body) {
+      for (const t of scoring.tokenize(l.text)) {
+        if (!t.isWord) continue;
+        const norm = familiarity.normalize(t.surface);
+        if (!norm || seen.has(norm) || vocab.has(norm)) continue;
+        seen.add(norm);
+        jobs.push({ surface: t.surface, line: l.text });
+      }
+    }
+    // Cap eager warm-up cost: the earliest words (reading order) are tapped first; the rest lazy-load on
+    // tap and are cached from then on. So this bounds Haiku spend per story open without slowing real taps.
+    const queue = jobs.slice(0, 16);
+    let i = 0;
+    const worker = async () => {
+      while (!cancelled && i < queue.length) {
+        const j = queue[i++]!;
+        try { await api.gloss(j.surface, j.line, pack.id); } catch { /* best-effort warm-up */ }
+      }
+    };
+    void Promise.all([worker(), worker(), worker()]);
+    return () => { cancelled = true; };
+  }, [story.id, pack.id, pack.vocab]);
+
   const onTap = (surface: string, line: string) => {
     const lexKey = captureWord(progress, persist, surface, line);
     if (lexKey) setSel({ lexKey, surface, line });
