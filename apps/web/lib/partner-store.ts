@@ -211,12 +211,19 @@ export function getPartnerStore(): PartnerStore | null {
 // Both degrade to a no-op unsubscribe when Supabase isn't configured — the live UI then falls back to a
 // manual refresh. Realtime respects RLS, so a partner only receives changes for their own partnership.
 
+// Each subscriber gets a UNIQUE channel topic. supabase-js dedupes channels by topic, so when several
+// components subscribe to the same partnership at once (the live/role-swap/info-gap section lists + the
+// live view all mount together in the active panel) a shared topic hands the 2nd+ caller the already-
+// subscribed channel, and chaining .on() onto it throws "cannot add postgres_changes callbacks after
+// subscribe()". A per-call suffix keeps each subscription independent (mount/unmount + cleanup).
+let artifactChannelSeq = 0;
+
 /** Subscribe to partner_artifact changes for a partnership (drives live-conversation sync). */
 export function subscribeArtifacts(partnershipId: string, onChange: () => void): () => void {
   const sb = supabase();
   if (!sb) return () => {};
   const channel = sb
-    .channel(`artifacts:${partnershipId}`)
+    .channel(`artifacts:${partnershipId}:${++artifactChannelSeq}`)
     .on("postgres_changes", { event: "*", schema: "public", table: "partner_artifact", filter: `partnership_id=eq.${partnershipId}` }, () => onChange())
     .subscribe();
   return () => {
