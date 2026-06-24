@@ -1,4 +1,4 @@
-import type { LanguagePack } from "@ll/pack-schema";
+import type { GrammarConcept, LanguagePack } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
 import { phonology, grammar } from "./grammar.js";
 import { vocab } from "./vocab.js";
@@ -18,6 +18,25 @@ import * as stage2 from "./promoted-stage2.js";
 const promotedScenarios = generatedScenarios.map((s) => ({ ...s, confidence: "validated" as const }));
 const promotedVocab = generatedVocab.map((v) => ({ ...v, confidence: "validated" as const }));
 
+// Merge grammar concepts by id: the first (hand-authored) concept owns the teaching fields
+// (plain title, pattern table, explanation); drills from later same-id concepts (e.g. the
+// scenario-tagged generated set) are appended for extra practice. Without this, the core and
+// promoted sets each define `gender` + `definite-articles`, producing duplicate reference cards
+// and duplicate React keys.
+function mergeGrammar(...groups: GrammarConcept[][]): GrammarConcept[] {
+  const byId = new Map<string, GrammarConcept>();
+  for (const concept of groups.flat()) {
+    const existing = byId.get(concept.id);
+    if (!existing) {
+      byId.set(concept.id, { ...concept, drills: [...concept.drills] });
+      continue;
+    }
+    const seen = new Set(existing.drills.map((d) => d.id));
+    existing.drills.push(...concept.drills.filter((d) => !seen.has(d.id)));
+  }
+  return [...byId.values()];
+}
+
 /** The Macedonian language pack — DATA ONLY. No app logic lives here. */
 export const macedonian: LanguagePack = {
   id: "mk",
@@ -29,7 +48,7 @@ export const macedonian: LanguagePack = {
   asr: { engines: ["scribe", "google"], languageHints: ["mkd", "mk-MK"], gate: "agreement" },
   alphabet,
   phonology,
-  grammar: [...grammar, ...stage1.promotedGrammar],
+  grammar: mergeGrammar(grammar, stage1.promotedGrammar),
   vocab: [...vocab, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab],
   scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios],
   readers: [...readers, ...stage1.promotedReaders],

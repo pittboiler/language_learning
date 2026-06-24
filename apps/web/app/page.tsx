@@ -474,34 +474,82 @@ function NewWordsCard({ words, onDone }: { words: { lexKey: string; gloss?: stri
   );
 }
 
-// First-encounter grammar: state the rule + examples (deductive), then one drill. Later it's just-in-time.
+// Split an example line "<target> — <English>" into its two halves (audio plays the target half).
+function splitExample(s: string): { mk: string; en: string } {
+  const i = s.indexOf(" — ");
+  return i === -1 ? { mk: s, en: "" } : { mk: s.slice(0, i), en: s.slice(i + 3) };
+}
+
+// Shared, accessible rendering of a grammar concept: a plain-English hook, an at-a-glance pattern
+// table (the changing part spotlighted), the when/why note, and tappable examples with audio. Used by
+// the daily intro card, the reference, and the inline scenario notes (compact ⇒ skip the table).
+function GrammarExplainer({ concept, compact }: { concept: GrammarConcept; compact?: boolean }) {
+  const play = usePlay();
+  const { plain, pattern, explanation, examples } = concept;
+  return (
+    <>
+      {plain && (
+        <div className="gram-plain">
+          <span className="lab">In plain English</span>
+          <p>{plain}</p>
+        </div>
+      )}
+      {!compact && pattern && (
+        <table className="gram-table">
+          <thead>
+            <tr>{pattern.headers.map((h, i) => <th key={i}>{h}</th>)}</tr>
+          </thead>
+          <tbody>
+            {pattern.rows.map((row, ri) => (
+              <tr key={ri}>
+                {row.map((cell, ci) => (
+                  <td key={ci}>{ci === pattern.spotlightCol ? <span className="gram-spot">{cell}</span> : cell}</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {explanation && <p className="gram-when">{!compact && <b>When &amp; why:&nbsp;</b>}<span>{explanation}</span></p>}
+      {examples.length > 0 && (
+        <div className="gram-ex-list">
+          {examples.map((ex, i) => {
+            const { mk, en } = splitExample(ex);
+            return (
+              <div className="gram-ex" key={i}>
+                <button className="gram-play" onClick={() => play(mk)} aria-label={`Play ${mk}`}>▶</button>
+                <span className="mk">{mk}</span>
+                {en && <span className="en">{en}</span>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </>
+  );
+}
+
+// First-encounter grammar: the explainer (rule made legible) + up to 3 quick checks. The first check
+// still gates "Continue" and reports its result (grading semantics unchanged); the rest are practice.
 function GrammarIntroCard({ concept, onDone }: { concept: GrammarConcept; onDone: (ok: boolean) => void }) {
-  const drill = concept.drills[0];
-  const [picked, setPicked] = useState<string | null>(null);
+  const drills = concept.drills.slice(0, 3);
+  const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  const firstId = drills[0]?.id;
+  const answeredFirst = firstId === undefined || firstId in answers;
   return (
     <div className="fb">
-      <h3 style={{ marginTop: 0 }}>{concept.name}</h3>
-      <p>{concept.explanation}</p>
-      <p className="muted small">{concept.examples.join("   ·   ")}</p>
-      {drill ? (
-        <div style={{ marginTop: 12 }}>
-          <div className="muted small">Quick check:</div>
-          <div className="small" style={{ margin: "6px 0 4px" }}><b>{drill.prompt}</b></div>
-          <div>
-            {(drill.options ?? []).map((o) => {
-              const cls = picked ? (o === drill.answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
-              return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)}>{o}</button>;
-            })}
-          </div>
-          {picked && (
-            <div className="why">
-              {picked === drill.answer ? "✓ " : "✗ "}{drill.why}
-              <button className="btn" style={{ marginLeft: 8 }} onClick={() => onDone(picked === drill.answer)}>Next →</button>
-            </div>
-          )}
+      <div className="gram-kicker">New grammar</div>
+      <div className="gram-title">{concept.name}</div>
+      {concept.technicalName && <div className="gram-tech">{concept.technicalName}</div>}
+      <GrammarExplainer concept={concept} />
+      {drills.length > 0 && (
+        <div className="gram-checks">
+          <div className="muted small" style={{ marginBottom: 6 }}>{drills.length > 1 ? "Quick checks" : "Quick check"}</div>
+          {drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => setAnswers((a) => ({ ...a, [d.id]: ok }))} />)}
         </div>
-      ) : (
-        <button className="btn" style={{ marginTop: 10 }} onClick={() => onDone(true)}>Got it →</button>
+      )}
+      {answeredFirst && (
+        <button className="btn" style={{ marginTop: 14 }} onClick={() => onDone(firstId === undefined ? true : !!answers[firstId])}>Continue →</button>
       )}
     </div>
   );
@@ -855,8 +903,7 @@ function ScenarioGrammar({ ids }: { ids: string[] }) {
       ))}
       {shown && (
         <div className="fb" style={{ width: "100%", marginTop: 4 }}>
-          <p className="small" style={{ marginTop: 0 }}>{shown.explanation}</p>
-          <p className="small muted" style={{ marginBottom: 0 }}>{shown.examples.join("   ·   ")}</p>
+          <GrammarExplainer concept={shown} compact />
         </div>
       )}
     </div>
@@ -1082,7 +1129,7 @@ function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progr
   const [open, setOpen] = useState<string | null>(null);
   const grade = (item: ReviewItem, correct: boolean) => persist(gradeItem(progress, item, correct));
   const needle = q.trim().toLowerCase();
-  const concepts = pack.grammar.filter((c) => !needle || `${c.name} ${c.explanation}`.toLowerCase().includes(needle));
+  const concepts = pack.grammar.filter((c) => !needle || `${c.name} ${c.technicalName ?? ""} ${c.plain ?? ""} ${c.explanation}`.toLowerCase().includes(needle));
   return (
     <section className="view">
       <h2>Grammar reference</h2>
@@ -1099,9 +1146,11 @@ function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progr
             </button>
             {isOpen && (
               <div style={{ marginTop: 10 }}>
-                <p className="small">{c.explanation}</p>
-                <p className="small muted">{c.examples.join("   ·   ")}</p>
-                {c.drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => grade(d, ok)} />)}
+                {c.technicalName && <div className="gram-tech" style={{ marginTop: -4 }}>{c.technicalName}</div>}
+                <GrammarExplainer concept={c} />
+                <div className="gram-checks">
+                  {c.drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => grade(d, ok)} />)}
+                </div>
               </div>
             )}
           </div>

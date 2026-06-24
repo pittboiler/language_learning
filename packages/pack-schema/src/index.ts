@@ -63,10 +63,27 @@ export interface PhonologyRules {
   exceptions?: string[]; // e.g. loanwords like кафе → ka-FE
 }
 
+/** An at-a-glance paradigm table for a grammar concept. `rows` are aligned to `headers` (same
+ *  length); `spotlightCol` (0-based) renders that column as an accent chip — e.g. the changing
+ *  ending or the word that must agree. Optional: concepts that don't tabulate cleanly omit it. */
+export interface GrammarPattern {
+  headers: string[];
+  rows: string[][];
+  spotlightCol?: number;
+}
+
 export interface GrammarConcept {
   id: string;
+  /** Plain-language title shown to the learner (e.g. "Saying 'the' — it goes on the end"). */
   name: string;
+  /** The technically-correct term (e.g. "Postposed definite articles"), shown small as a subtitle. */
+  technicalName?: string;
+  /** One-line plain-English hook, shown prominently before the fuller explanation. */
+  plain?: string;
   explanation: string;
+  /** Optional paradigm table that makes the pattern visible at a glance. */
+  pattern?: GrammarPattern;
+  /** Example lines, each formatted "<target> — <English>" so the UI can show both. */
   examples: string[];
   drills: ReviewItem[];
   confidence?: Confidence;

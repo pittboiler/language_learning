@@ -131,3 +131,25 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 .gram-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 0 0 16px; }
 .gram-inline button.active { border-color: var(--accent); color: var(--accent); }
 .concept-head { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; background: transparent; border: 0; color: var(--fg); font: inherit; font-size: 15px; font-weight: 600; cursor: pointer; padding: 0; text-align: left; }
+
+/* Accessible grammar lessons: plain-English hook + at-a-glance pattern table + audio examples */
+.gram-kicker { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--mut); }
+.gram-title { font-size: 18px; font-weight: 600; margin: 2px 0 1px; line-height: 1.3; }
+.gram-tech { font-size: 12px; color: var(--mut); margin-bottom: 12px; }
+.gram-plain { background: rgba(76, 142, 255, .1); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 10px 0 14px; }
+.gram-plain .lab { font-size: 11px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: .04em; }
+.gram-plain p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
+.gram-table { width: 100%; border-collapse: collapse; margin: 4px 0 14px; }
+.gram-table th { font-size: 11px; font-weight: 500; color: var(--mut); text-align: left; padding: 0 12px 6px 0; text-transform: uppercase; letter-spacing: .03em; }
+.gram-table td { font-size: 15px; padding: 9px 12px 9px 0; border-top: 1px solid var(--line); vertical-align: middle; }
+.gram-table td:last-child { color: var(--mut); font-size: 13px; }
+.gram-spot { display: inline-block; background: rgba(76, 142, 255, .15); color: var(--accent); font-weight: 600; font-size: 14px; padding: 2px 9px; border-radius: 7px; }
+.gram-when { font-size: 13px; color: var(--mut); line-height: 1.55; margin: 0 0 6px; }
+.gram-when b { color: var(--fg); font-weight: 600; }
+.gram-ex-list { margin-top: 6px; }
+.gram-ex { display: flex; align-items: center; gap: 9px; padding: 4px 0; flex-wrap: wrap; }
+.gram-ex .mk { font-size: 15px; }
+.gram-ex .en { color: var(--mut); font-size: 13px; }
+.gram-play { background: transparent; border: 1px solid var(--line); color: var(--mut); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 10px; line-height: 1; flex-shrink: 0; padding: 0; }
+.gram-play:hover { color: var(--accent); border-color: var(--accent); }
+.gram-checks { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; }
