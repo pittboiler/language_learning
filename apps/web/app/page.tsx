@@ -116,6 +116,8 @@ const bumpStreak = (p: Progress): Progress => {
 };
 // Mark a grammar concept's rule as introduced (so later it's surfaced just-in-time, not re-taught).
 const markSeen = (p: Progress, conceptId: string): Progress => ({ ...p, seenGrammar: { ...p.seenGrammar, [conceptId]: true } });
+// Mark a story as read in the daily flow, so the next session advances to the next story/unit.
+const markStorySeen = (p: Progress, storyId: string): Progress => ({ ...p, seenStories: { ...p.seenStories, [storyId]: true } });
 // Capture a batch of pre-taught words into familiarity (the "new words" step before the story).
 const captureWords = (p: Progress, words: { lexKey: string; gloss?: string }[]): Progress => {
   const fam = { ...p.familiarity };
@@ -253,6 +255,45 @@ export default function Home() {
   );
 }
 
+// ---- Today "unit" model ----
+// A daily session coheres around ONE unit: a story + the scenario that practises it. Stories follow
+// the id convention `<scenarioId>-story`; fall back to a shared theme, then required-vocab overlap.
+function partnerScenario(pack: LanguagePack, story: MiniStory): Scenario | undefined {
+  const baseId = story.id.replace(/-story$/, "");
+  return (
+    pack.scenarios.find((s) => s.id === baseId) ??
+    (story.theme ? pack.scenarios.find((s) => s.theme === story.theme) : undefined) ??
+    pack.scenarios.find((s) => {
+      const keys = new Set(story.registersVocab.map((v) => v.lexKey));
+      return s.requiredVocab.some((id) => {
+        const v = pack.vocab.find((x) => x.id === id);
+        return !!v && keys.has(familiarity.deriveKeyForItem(v).lexKey);
+      });
+    })
+  );
+}
+// Resolve a scenario's requiredVocab (ReviewItem ids) → {lexKey, gloss} so it can be pre-taught.
+function scenarioVocab(pack: LanguagePack, scen: Scenario): { lexKey: string; gloss?: string }[] {
+  return scen.requiredVocab
+    .map((id) => pack.vocab.find((v) => v.id === id))
+    .filter((v): v is ReviewItem => !!v)
+    .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, gloss: v.gloss }));
+}
+// A story is "done" for the daily flow once explicitly read, OR once every word it teaches is no
+// longer new (mastered elsewhere) — so existing learners aren't marched back through early stories.
+function storyDone(progress: Progress, story: MiniStory): boolean {
+  if (progress.seenStories?.[story.id]) return true;
+  return story.registersVocab.length > 0 && story.registersVocab.every((v) => {
+    const e = progress.familiarity[v.lexKey];
+    return !!e && e.status !== "new";
+  });
+}
+// The current unit's story = the first not-yet-done story; once all are done, review the last one.
+function currentStory(pack: LanguagePack, progress: Progress): MiniStory | undefined {
+  const stories = pack.stories ?? [];
+  return stories.find((s) => !storyDone(progress, s)) ?? stories[stories.length - 1];
+}
+
 // ---------- Today: the guided daily flow (building order: review → new words → grammar → story → speak) ----------
 type TodayStep =
   | { kind: "warmup"; items: ReviewItem[] }
@@ -275,22 +316,41 @@ function Today({ progress, persist, config, navigate }: {
     const now = new Date();
     const due = reviewPool(pack).filter((it) => isDue(progress, it, now)).slice(0, 6);
     if (due.length) out.push({ kind: "warmup", items: due });
-    const story = pack.stories?.[0];
+
+    // One coherent unit per session: a story + the scenario that practises it.
+    const story = currentStory(pack, progress);
+    const scen = story ? partnerScenario(pack, story) : undefined;
+
+    // New words: pre-teach the story's vocab AND the paired scenario's required vocab, so the speaking
+    // task at the end never needs a word this session didn't introduce.
     if (story) {
-      const words = story.registersVocab.filter((v) => {
+      const merged = new Map<string, { lexKey: string; gloss?: string }>();
+      for (const v of story.registersVocab) merged.set(v.lexKey, v);
+      if (scen) for (const v of scenarioVocab(pack, scen)) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
+      const words = [...merged.values()].filter((v) => {
         const e = progress.familiarity[v.lexKey];
         return !e || e.status === "new";
       });
-      if (words.length) out.push({ kind: "newwords", words: words.slice(0, 5) });
+      if (words.length) out.push({ kind: "newwords", words: words.slice(0, 6) });
     }
-    const concept = pack.grammar.find((c) => !progress.seenGrammar?.[c.id]);
+
+    // Grammar: prefer a concept the paired scenario needs; otherwise the next unseen one.
+    const concept =
+      (scen?.requiredStructures ?? [])
+        .map((id) => pack.grammar.find((c) => c.id === id))
+        .find((c): c is GrammarConcept => !!c && !progress.seenGrammar?.[c.id]) ??
+      pack.grammar.find((c) => !progress.seenGrammar?.[c.id]);
     if (concept) out.push({ kind: "grammar", concept });
+
     if (story) out.push({ kind: "story", story });
-    const scen = pack.scenarios.find((s) => {
+
+    // Speak: the story's paired scenario (so it uses what was just read); fall back to first-incomplete.
+    const speakScen = scen ?? pack.scenarios.find((s) => {
       const p = progress.scenarios[s.id];
       return !p || s.successCriteria.some((c) => !p.metCriteria.includes(c.id));
     }) ?? pack.scenarios[0];
-    if (scen) out.push({ kind: "speak", scenario: scen });
+    if (speakScen) out.push({ kind: "speak", scenario: speakScen });
+
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack]);
@@ -390,7 +450,7 @@ function Today({ progress, persist, config, navigate }: {
               persist={persist}
               config={config}
               doneLabel="I read it → speak"
-              onDone={() => done(seedStoryVocab(progress, step.story))}
+              onDone={() => done(markStorySeen(seedStoryVocab(progress, step.story), step.story.id))}
             />
           </div>
         )}

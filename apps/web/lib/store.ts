@@ -23,6 +23,8 @@ export interface Progress {
   streak?: { count: number; lastDay: string };
   /** Grammar concepts whose rule has been explicitly introduced once (→ later it's just-in-time). */
   seenGrammar?: Record<string, boolean>;
+  /** Mini-stories whose daily-flow reading is done — so Today advances to the next story/unit. */
+  seenStories?: Record<string, boolean>;
   /** The sentence each tapped/captured word was met in — powers in-context (cloze) review. */
   contexts?: Record<string, string>;
 }
@@ -32,7 +34,7 @@ export interface Store {
   save(p: Progress): Promise<void>;
 }
 
-export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, familiarity: {}, pick: null, settings: { autoplay: false }, streak: { count: 0, lastDay: "" }, seenGrammar: {}, contexts: {} });
+export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, familiarity: {}, pick: null, settings: { autoplay: false }, streak: { count: 0, lastDay: "" }, seenGrammar: {}, seenStories: {}, contexts: {} });
 
 // FSRS cards + familiarity timestamps serialize Dates to strings in JSON; revive them on reload.
 function reviveReviewState(r: srs.ReviewState): void {
