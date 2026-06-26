@@ -237,7 +237,11 @@ export default function Home() {
         ))}
       </nav>
       <main>
-        {section === "today" && <Today progress={progress} persist={persist} config={config} navigate={navigate} />}
+        {/* Today stays MOUNTED (just hidden) across tab switches so your place in the session — the
+            step index and the once-built plan — survives. Other sections are cheap to remount. */}
+        <div style={{ display: section === "today" ? undefined : "none" }}>
+          <Today progress={progress} persist={persist} config={config} navigate={navigate} />
+        </div>
         {section === "library" && (
           <LibrarySection progress={progress} persist={persist} config={config} lettersDone={lettersDone} mode={libView} setMode={setLibView} />
         )}
@@ -358,6 +362,9 @@ function Today({ progress, persist, config, navigate }: {
   const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
   const [subIdx, setSubIdx] = useState(0);
+  // Today now stays mounted across tab switches (so idx/phase survive). If the letters get finished
+  // elsewhere while it's mounted, open the flow rather than leaving the alphabet gate up.
+  useEffect(() => { if (lettersDone) setPhase("flow"); }, [lettersDone]);
   const est = Math.max(5, steps.length * 3);
   // Advance to the next step, persisting a single merged Progress and counting the day toward the streak.
   const done = (mutated: Progress = progress) => {
