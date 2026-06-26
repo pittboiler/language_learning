@@ -444,12 +444,11 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "story" && (
           <div>
             <Tag>Read the story</Tag>
-            <StoryReader
+            <TodayStoryStep
               story={step.story}
               progress={progress}
               persist={persist}
               config={config}
-              doneLabel="I read it → speak"
               onDone={() => done(markStorySeen(seedStoryVocab(progress, step.story), step.story.id))}
             />
           </div>
@@ -1552,6 +1551,34 @@ function StoryQAView({ story, config, onRestart, onDone }: { story: MiniStory; c
         {onDone && <button className="btn" onClick={onDone}>Done →</button>}
       </div>
     </div>
+  );
+}
+
+// Today's story step: read → Q&A → speak. Mirrors the Library's StoryView phasing, but uses the
+// session's chosen story and advances the daily flow on completion — the Q&A is the input→output
+// bridge (recall the story's words, last question spoken) before the full speak scenario.
+function TodayStoryStep({ story, progress, persist, config, onDone }: {
+  story: MiniStory;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  onDone: () => void;
+}) {
+  const [phase, setPhase] = useState<"read" | "qa">("read");
+  const hasQA = story.qa.length > 0;
+  // Seed the story's vocab when moving to Q&A so the questions reuse words now marked as met.
+  const toQA = () => { persist(seedStoryVocab(progress, story)); setPhase("qa"); };
+  return phase === "read" ? (
+    <StoryReader
+      story={story}
+      progress={progress}
+      persist={persist}
+      config={config}
+      doneLabel={hasQA ? `I read it → ${story.qa.length} questions` : "I read it → speak"}
+      onDone={hasQA ? toQA : onDone}
+    />
+  ) : (
+    <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} onDone={onDone} />
   );
 }
 
