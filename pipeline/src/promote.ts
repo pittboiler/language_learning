@@ -26,6 +26,7 @@ const SUB: [string, string][] = [
 // "во центар" ⊂ "во центарот" substring trap, and surgically removes the out-of-place coffee order).
 const WHOLE: Record<string, string> = {
   "Јас сум учителка. Една кафа, ве молам.": "Јас сум учителка.", // кафа = Serbian; and a coffee order doesn't belong in an intro
+  "Jas sum uchitelka. Edna kafa, ve molam.": "Jas sum uchitelka.", // same fix on the translit line
   "I am a teacher. One coffee, please.": "I am a teacher.",
   "во центар": "во центарот", // definite article
   "vo centar": "vo centarot",

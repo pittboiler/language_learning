@@ -1002,7 +1002,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Јас сум учителка.",
         "gloss": "I am a teacher.",
-        "translit": "Jas sum uchitelka. Edna kafa, ve molam.",
+        "translit": "Jas sum uchitelka.",
         "satisfies": [
           "stated-occupation"
         ]
