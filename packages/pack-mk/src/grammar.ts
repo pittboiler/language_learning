@@ -48,6 +48,38 @@ export const grammar: GrammarConcept[] = [
     ],
   },
   {
+    id: "verb-conjugation",
+    name: "Verb endings — who's doing it",
+    technicalName: "Present-tense conjugation (-а verbs)",
+    plain:
+      "Macedonian verbs change their ENDING to show who's doing the action — so сакам already means “I want” and сакаш means “you want”, with no separate pronoun needed.",
+    explanation:
+      "For the big “-а” group of verbs, swap the ending by person: -ам (I), -аш (you), -а (he/she), -аме (we), -ате (you all), -аат (they). You can add the pronoun (јас, ти, …) for emphasis, but the ending already carries it. (Two other groups, -е and -и verbs, follow the same idea with their own vowel.)",
+    pattern: {
+      headers: ["person", "verb form", "ending"],
+      rows: [
+        ["јас (I)", "сакам", "-ам"],
+        ["ти (you)", "сакаш", "-аш"],
+        ["тој/таа (he/she)", "сака", "-а"],
+        ["ние (we)", "сакаме", "-аме"],
+        ["вие (you all)", "сакате", "-ате"],
+        ["тие (they)", "сакаат", "-аат"],
+      ],
+      spotlightCol: 2,
+    },
+    examples: [
+      "сакам кафе — I want a coffee",
+      "сакаш чај? — do you want tea?",
+      "тие сакаат вода — they want water",
+    ],
+    confidence: "authored",
+    drills: [
+      drill("vc-i", "verb-conjugation", "“I want” (јас)", ["сакам", "сакаш", "сака"], "сакам", "јас → -ам", "I want"),
+      drill("vc-you", "verb-conjugation", "“you want” (ти)", ["сакаш", "сакам", "сакаат"], "сакаш", "ти → -аш", "you want"),
+      drill("vc-they", "verb-conjugation", "“they want” (тие)", ["сакаат", "сакаме", "сака"], "сакаат", "тие → -аат", "they want"),
+    ],
+  },
+  {
     id: "gender",
     name: "Three genders — and matching “a/one”",
     technicalName: "Grammatical gender & agreement",

@@ -646,7 +646,7 @@ function isMatchable(concept: GrammarConcept): boolean {
 function GrammarMatch({ concept, onDone }: { concept: GrammarConcept; onDone: () => void }) {
   const pattern = concept.pattern!;
   const bCol = pattern.spotlightCol && pattern.spotlightCol > 0 ? pattern.spotlightCol : 1;
-  const rows = pattern.rows.slice(0, 5);
+  const rows = pattern.rows.slice(0, 6);
   const rights = useMemo(() => shuffle(rows.map((r, i) => ({ id: i, text: r[bCol]! }))), [concept.id]);
   const [pick, setPick] = useState<{ side: "L" | "R"; id: number } | null>(null);
   const [matched, setMatched] = useState<Set<number>>(() => new Set());
