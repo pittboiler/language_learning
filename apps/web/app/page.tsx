@@ -303,6 +303,7 @@ type TodayStep =
   | { kind: "warmup"; items: ReviewItem[] }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
+  | { kind: "grammarPractice"; concept: GrammarConcept }
   | { kind: "story"; story: MiniStory }
   | { kind: "speak"; scenario: Scenario };
 
@@ -338,13 +339,15 @@ function Today({ progress, persist, config, navigate }: {
       if (words.length) out.push({ kind: "newwords", words: words.slice(0, 6) });
     }
 
-    // Grammar: prefer a concept the paired scenario needs; otherwise the next unseen one.
-    const concept =
+    // Grammar: introduce the next unseen concept (prefer one the scenario needs); once all are seen,
+    // PRACTISE one instead — rotating daily — so grammar keeps showing up in the daily flow.
+    const unseen =
       (scen?.requiredStructures ?? [])
         .map((id) => pack.grammar.find((c) => c.id === id))
         .find((c): c is GrammarConcept => !!c && !progress.seenGrammar?.[c.id]) ??
       pack.grammar.find((c) => !progress.seenGrammar?.[c.id]);
-    if (concept) out.push({ kind: "grammar", concept });
+    if (unseen) out.push({ kind: "grammar", concept: unseen });
+    else if (pack.grammar.length) out.push({ kind: "grammarPractice", concept: pack.grammar[Math.floor(now.getTime() / 86400000) % pack.grammar.length]! });
 
     if (story) out.push({ kind: "story", story });
 
@@ -445,6 +448,13 @@ function Today({ progress, persist, config, navigate }: {
                 done(markSeen(base, step.concept.id));
               }}
             />
+          </div>
+        )}
+
+        {step.kind === "grammarPractice" && (
+          <div>
+            <Tag>Grammar practice</Tag>
+            <GrammarPracticeCard concept={step.concept} onDone={() => done()} />
           </div>
         )}
 
@@ -617,6 +627,92 @@ function GrammarIntroCard({ concept, onDone }: { concept: GrammarConcept; onDone
       {answeredFirst && (
         <button className="btn" style={{ marginTop: 14 }} onClick={() => onDone(firstId === undefined ? true : !!answers[firstId])}>Continue →</button>
       )}
+    </div>
+  );
+}
+
+// A concept is "matchable" into pairs if its pattern has ≥2 rows with DISTINCT left cells (each left
+// maps to exactly one right). Clitics — whose rows repeat "ми (to me)" — fail this and fall back to drills.
+function isMatchable(concept: GrammarConcept): boolean {
+  const p = concept.pattern;
+  if (!p || p.rows.length < 2) return false;
+  const lefts = p.rows.map((r) => r[0]);
+  return new Set(lefts).size === lefts.length && p.rows.every((r) => r.length >= 2);
+}
+
+// Matching game: pair each row's first cell with its spotlight cell (noun↔article, impf↔pf, …). Tap a
+// chip, then its partner; correct pairs lock green, wrong ones flash. Driven entirely by the lesson's
+// pattern table — no new content, and it works for any future matchable lesson.
+function GrammarMatch({ concept, onDone }: { concept: GrammarConcept; onDone: () => void }) {
+  const pattern = concept.pattern!;
+  const bCol = pattern.spotlightCol && pattern.spotlightCol > 0 ? pattern.spotlightCol : 1;
+  const rows = pattern.rows.slice(0, 5);
+  const rights = useMemo(() => shuffle(rows.map((r, i) => ({ id: i, text: r[bCol]! }))), [concept.id]);
+  const [pick, setPick] = useState<{ side: "L" | "R"; id: number } | null>(null);
+  const [matched, setMatched] = useState<Set<number>>(() => new Set());
+  const [wrong, setWrong] = useState<{ side: "L" | "R"; id: number } | null>(null);
+  const allDone = matched.size === rows.length;
+
+  const tap = (side: "L" | "R", id: number) => {
+    if (matched.has(id)) return;
+    if (!pick || pick.side === side) { setPick({ side, id }); setWrong(null); return; }
+    if (pick.id === id) { setMatched((m) => new Set(m).add(id)); setPick(null); }
+    else { setWrong({ side, id }); setPick(null); setTimeout(() => setWrong(null), 600); }
+  };
+  const cls = (side: "L" | "R", id: number) =>
+    matched.has(id) ? "matchchip done"
+      : pick && pick.side === side && pick.id === id ? "matchchip sel"
+        : wrong && wrong.side === side && wrong.id === id ? "matchchip bad"
+          : "matchchip";
+
+  return (
+    <div style={{ marginTop: 8 }}>
+      <div className="muted small" style={{ marginBottom: 8 }}>Match each pair — tap one, then its partner.</div>
+      <div className="matchgrid">
+        <div className="matchcol">
+          {rows.map((r, i) => <button key={i} className={cls("L", i)} disabled={matched.has(i)} onClick={() => tap("L", i)}>{r[0]}</button>)}
+        </div>
+        <div className="matchcol">
+          {rights.map((r) => <button key={r.id} className={cls("R", r.id)} disabled={matched.has(r.id)} onClick={() => tap("R", r.id)}>{r.text}</button>)}
+        </div>
+      </div>
+      {allDone && (
+        <div className="why" style={{ marginTop: 12 }}>✓ All matched — nice.
+          <button className="btn" style={{ marginLeft: 8 }} onClick={onDone}>Continue →</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Fallback practice for non-matchable concepts (e.g. clitics): a couple of multiple-choice drills.
+function GrammarDrillPractice({ concept, onDone }: { concept: GrammarConcept; onDone: () => void }) {
+  const drills = concept.drills.slice(0, 2);
+  const [answered, setAnswered] = useState<Record<string, boolean>>({});
+  const firstId = drills[0]?.id;
+  const ready = firstId === undefined || firstId in answered;
+  return (
+    <div style={{ marginTop: 8 }}>
+      {drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => setAnswered((a) => ({ ...a, [d.id]: ok }))} />)}
+      {ready && <button className="btn" style={{ marginTop: 12 }} onClick={onDone}>Continue →</button>}
+    </div>
+  );
+}
+
+// Recurring grammar PRACTICE (after a concept's been introduced): a brief rule reminder + an exercise
+// — matching where it fits, else drills. The full rule (table + examples) is one tap away if stuck.
+function GrammarPracticeCard({ concept, onDone }: { concept: GrammarConcept; onDone: () => void }) {
+  const [showRule, setShowRule] = useState(false);
+  return (
+    <div className="fb">
+      <div className="gram-kicker">Grammar practice</div>
+      <div className="gram-title">{concept.name}</div>
+      {concept.plain && <p className="muted small" style={{ margin: "4px 0 0" }}>{concept.plain}</p>}
+      <button className="ghost small" style={{ marginTop: 10 }} onClick={() => setShowRule((v) => !v)}>{showRule ? "Hide the rule" : "Show the rule"}</button>
+      {showRule && <div style={{ marginTop: 8 }}><GrammarExplainer concept={concept} /></div>}
+      {isMatchable(concept)
+        ? <GrammarMatch concept={concept} onDone={onDone} />
+        : <GrammarDrillPractice concept={concept} onDone={onDone} />}
     </div>
   );
 }

@@ -153,3 +153,13 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 .gram-play { background: transparent; border: 1px solid var(--line); color: var(--mut); width: 26px; height: 26px; border-radius: 6px; cursor: pointer; font-size: 10px; line-height: 1; flex-shrink: 0; padding: 0; }
 .gram-play:hover { color: var(--accent); border-color: var(--accent); }
 .gram-checks { border-top: 1px solid var(--line); margin-top: 14px; padding-top: 12px; }
+
+/* Grammar matching game (pairs from the lesson's pattern table) */
+.matchgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 4px; }
+.matchcol { display: flex; flex-direction: column; gap: 8px; }
+.matchchip { border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 10px 12px; border-radius: 8px; cursor: pointer; font: inherit; font-size: 15px; text-align: left; transition: border-color .1s, color .1s; }
+.matchchip:hover:not(:disabled) { border-color: var(--accent); }
+.matchchip.sel { border-color: var(--accent); color: var(--accent); }
+.matchchip.done { border-color: var(--ok); color: var(--ok); cursor: default; }
+.matchchip.bad { border-color: var(--bad); color: var(--bad); }
+.matchchip:disabled { cursor: default; }
