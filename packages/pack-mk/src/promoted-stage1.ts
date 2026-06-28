@@ -850,7 +850,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s1-cafe-order-v5",
       "gen-s1-cafe-order-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["definite-articles", "gender", "verb-conjugation"],
     "script": [
       {
         "speaker": "partner",
@@ -1146,7 +1146,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s1-directions-v5",
       "gen-s1-directions-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["verb-conjugation-i"],
     "script": [
       {
         "speaker": "learner",

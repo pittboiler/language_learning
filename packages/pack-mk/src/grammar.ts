@@ -109,6 +109,68 @@ export const grammar: GrammarConcept[] = [
     ],
   },
   {
+    id: "verb-conjugation-e",
+    name: "“-е” verbs (eat, drink, write…)",
+    technicalName: "Present tense — e-conjugation",
+    plain: "A second verb group carries an -е- in the middle: јаде (eats), јадеш (you eat). The endings echo the -а verbs, just with -е- instead of -а-.",
+    explanation:
+      "For -е verbs like јаде (eat): -ам (I), -еш (you), -е (he/she), -еме (we), -ете (you all), -ат (they). The I-form is still -ам and the they-form -ат, exactly like the -а group — only the middle vowel changes.",
+    pattern: {
+      headers: ["person", "јаде (eat)", "ending"],
+      rows: [
+        ["јас (I)", "јадам", "-ам"],
+        ["ти (you)", "јадеш", "-еш"],
+        ["тој/таа (he/she)", "јаде", "-е"],
+        ["ние (we)", "јадеме", "-еме"],
+        ["вие (you all)", "јадете", "-ете"],
+        ["тие (they)", "јадат", "-ат"],
+      ],
+      spotlightCol: 2,
+    },
+    examples: [
+      "јадам леб — I eat bread",
+      "што јадеш? — what are you eating?",
+      "тие јадат бавно — they eat slowly",
+    ],
+    confidence: "authored",
+    drills: [
+      drill("vce-i", "verb-conjugation-e", "“I eat” (јас)", ["јадам", "јадеш", "јаде"], "јадам", "-е verb, јас → -ам", "I eat"),
+      drill("vce-you", "verb-conjugation-e", "“you eat” (ти)", ["јадеш", "јадам", "јадат"], "јадеш", "ти → -еш", "you eat"),
+      drill("vce-they", "verb-conjugation-e", "“they eat” (тие)", ["јадат", "јадеме", "јаде"], "јадат", "тие → -ат", "they eat"),
+    ],
+  },
+  {
+    id: "verb-conjugation-i",
+    name: "“-и” verbs (learn, go, carry…)",
+    technicalName: "Present tense — i-conjugation",
+    plain: "The third verb group carries an -и- in the middle: учи (learns), учиш (you learn). Same idea, with -и- as the middle vowel.",
+    explanation:
+      "For -и verbs like учи (learn): -ам (I), -иш (you), -и (he/she), -име (we), -ите (you all), -ат (they). Again the I-form (-ам) and they-form (-ат) match the other groups — only the middle vowel is -и-.",
+    pattern: {
+      headers: ["person", "учи (learn)", "ending"],
+      rows: [
+        ["јас (I)", "учам", "-ам"],
+        ["ти (you)", "учиш", "-иш"],
+        ["тој/таа (he/she)", "учи", "-и"],
+        ["ние (we)", "учиме", "-име"],
+        ["вие (you all)", "учите", "-ите"],
+        ["тие (they)", "учат", "-ат"],
+      ],
+      spotlightCol: 2,
+    },
+    examples: [
+      "учам македонски — I'm learning Macedonian",
+      "што учиш? — what are you studying?",
+      "тие учат заедно — they study together",
+    ],
+    confidence: "authored",
+    drills: [
+      drill("vci-i", "verb-conjugation-i", "“I learn” (јас)", ["учам", "учиш", "учи"], "учам", "-и verb, јас → -ам", "I learn"),
+      drill("vci-you", "verb-conjugation-i", "“you learn” (ти)", ["учиш", "учам", "учат"], "учиш", "ти → -иш", "you learn"),
+      drill("vci-they", "verb-conjugation-i", "“they learn” (тие)", ["учат", "учиме", "учи"], "учат", "тие → -ат", "they learn"),
+    ],
+  },
+  {
     id: "verb-aspect",
     name: "Two versions of every verb",
     technicalName: "Verb aspect (imperfective / perfective)",
@@ -132,6 +194,64 @@ export const grammar: GrammarConcept[] = [
     drills: [
       drill("asp-habit", "verb-aspect", "“I drink coffee every morning.” Which form?", ["пие — ongoing", "испие — finished"], "пие — ongoing", "A repeated habit → the ongoing (imperfective) form.", "ongoing action"),
       drill("asp-done", "verb-aspect", "“I drank it all up.” Which form?", ["пие — ongoing", "испие — finished"], "испие — finished", "One finished action → the completed (perfective) form.", "finished action"),
+    ],
+  },
+  {
+    id: "future-tense",
+    name: "The future — just add “ќе”",
+    technicalName: "Future tense (ќе + present)",
+    plain: "To talk about the future, put ќе in front of the normal present-tense verb. That's the whole trick: ќе јадам = “I will eat.”",
+    explanation:
+      "Macedonian has no special future endings — it's just ќе + the present form you already know. So сакам → ќе сакам, читаме → ќе читаме. (To say “won't”, you'd use нема да, but ќе covers the basics.)",
+    pattern: {
+      headers: ["meaning", "Macedonian"],
+      rows: [
+        ["I will eat", "ќе јадам"],
+        ["you will read", "ќе читаш"],
+        ["we will go", "ќе одиме"],
+        ["they will want", "ќе сакаат"],
+      ],
+      spotlightCol: 1,
+    },
+    examples: [
+      "ќе гледам филм — I'll watch a film",
+      "ќе одиме утре — we'll go tomorrow",
+      "ќе јадам подоцна — I'll eat later",
+    ],
+    confidence: "authored",
+    drills: [
+      drill("fut-read", "future-tense", "“I will read” →", ["ќе читам", "читам", "читав"], "ќе читам", "future = ќе + present", "I will read"),
+      drill("fut-which", "future-tense", "Which one is in the FUTURE?", ["ќе јаде", "јаде", "јадеше"], "ќе јаде", "ќе marks the future", "will eat"),
+    ],
+  },
+  {
+    id: "past-tense",
+    name: "Talking about the past",
+    technicalName: "Past tense (aorist)",
+    plain: "For a finished past action, swap the endings: гледам (I watch) → гледав (I watched). Heads-up: the “you” and “he/she” past forms look identical — context tells them apart.",
+    explanation:
+      "The simple past (aorist) endings: -в (I), bare stem (you / he-she), -вме (we), -вте (you all), -а (they). So гледа (watch) → гледав, гледа, гледавме, гледавте, гледаа. Use it for completed actions: гледав филм = “I watched a film.”",
+    pattern: {
+      headers: ["person", "past of гледа", "ending"],
+      rows: [
+        ["јас (I)", "гледав", "-в"],
+        ["ти / тој (you / he)", "гледа", "(bare)"],
+        ["ние (we)", "гледавме", "-вме"],
+        ["вие (you all)", "гледавте", "-вте"],
+        ["тие (they)", "гледаа", "-а"],
+      ],
+      spotlightCol: 1,
+    },
+    examples: [
+      "гледав филм — I watched a film",
+      "сакав вода — I wanted water",
+      "тие гледаа телевизија — they watched TV",
+    ],
+    confidence: "authored",
+    drills: [
+      drill("pst-i", "past-tense", "“I watched” (јас)", ["гледав", "гледам", "гледаа"], "гледав", "past, јас → -в", "I watched"),
+      drill("pst-we", "past-tense", "“we watched” (ние)", ["гледавме", "гледаме", "гледав"], "гледавме", "past, ние → -вме", "we watched"),
+      drill("pst-they", "past-tense", "“they watched” (тие)", ["гледаа", "гледаат", "гледавме"], "гледаа", "past, тие → -а", "they watched"),
     ],
   },
   {

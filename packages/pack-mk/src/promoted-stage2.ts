@@ -944,7 +944,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s2-pasttime-v5",
       "gen-s2-pasttime-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["past-tense"],
     "script": [
       {
         "speaker": "partner",
@@ -1129,7 +1129,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s2-arrange-v5",
       "gen-s2-arrange-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["future-tense"],
     "script": [
       {
         "speaker": "partner",
