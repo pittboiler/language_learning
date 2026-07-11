@@ -1509,6 +1509,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
   const play = usePlay();
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   const [current, setCurrent] = useState(-1);
+  const [revealed, setRevealed] = useState<Record<number, boolean>>({});
   const speed = useContext(SlowContext);
   const playing = useRef(false);
 
@@ -1563,16 +1564,28 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
 
   return (
     <>
-      <p className="lead">Listen and read along; tap any word to look it up.</p>
+      <p className="lead">Listen and read along; tap any word to look it up. Read each line, then tap the greyed English on the right to check yourself.</p>
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
         <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
       </div>
       <div className="reader">
         {story.body.map((l, i) => (
-          <div className={`rline2 ${current === i ? "playing" : ""}`} key={i}>
-            <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
-            <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
+          <div className={`rline2 rline-glossed ${current === i ? "playing" : ""}`} key={i}>
+            <div className="rline-mk">
+              <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
+              <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
+            </div>
+            {l.gloss && (
+              <button
+                type="button"
+                className={`rline-en ${revealed[i] ? "shown" : ""}`}
+                title={revealed[i] ? "Tap to hide" : "Tap to reveal the English"}
+                onClick={() => setRevealed((r) => ({ ...r, [i]: !r[i] }))}
+              >
+                {l.gloss}
+              </button>
+            )}
           </div>
         ))}
       </div>
