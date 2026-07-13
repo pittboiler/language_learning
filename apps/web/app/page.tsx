@@ -4,8 +4,8 @@
 // UI reads the active pack, never a hardcoded language import. Pure engines (scenario/srs/leveling) run
 // client-side; paid calls (tts/asr/feedback/chat) hit the server route handlers that hold the keys.
 //
-// Navigation is four sections — Today (the guided daily flow) / Library (browse + practice) /
-// Progress (stats + Strengthen) / Me (settings). "Today" sequences one session in a building order:
+// Navigation is four sections — Today (the guided daily flow) / Library (Situations + Flashcards +
+// Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
@@ -18,6 +18,7 @@ import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
+import { NEW_WORDS_PER_SESSION, localDay, markStorySeen, storyDone } from "../lib/daily";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
@@ -35,7 +36,7 @@ import type { LiveSession } from "@ll/core/live";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
 type Section = "today" | "library" | "progress" | "partnered";
-type LibView = "browse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
+type LibView = "browse" | "flashcards" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
 
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
@@ -103,8 +104,6 @@ const captureWord = (progress: Progress, persist: (p: Progress) => void, surface
 };
 
 // ---- daily-flow helpers ----
-const pad2 = (n: number) => String(n).padStart(2, "0");
-const localDay = (d = new Date()): string => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 /** Bump the day-streak the first time an activity completes on a new local day (idempotent per day). */
 const bumpStreak = (p: Progress): Progress => {
   const today = localDay();
@@ -116,8 +115,6 @@ const bumpStreak = (p: Progress): Progress => {
 };
 // Mark a grammar concept's rule as introduced (so later it's surfaced just-in-time, not re-taught).
 const markSeen = (p: Progress, conceptId: string): Progress => ({ ...p, seenGrammar: { ...p.seenGrammar, [conceptId]: true } });
-// Mark a story as read in the daily flow, so the next session advances to the next story/unit.
-const markStorySeen = (p: Progress, storyId: string): Progress => ({ ...p, seenStories: { ...p.seenStories, [storyId]: true } });
 // Capture a batch of pre-taught words into familiarity (the "new words" step before the story).
 const captureWords = (p: Progress, words: { lexKey: string; gloss?: string }[]): Progress => {
   const fam = { ...p.familiarity };
@@ -283,15 +280,6 @@ function scenarioVocab(pack: LanguagePack, scen: Scenario): { lexKey: string; gl
     .filter((v): v is ReviewItem => !!v)
     .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, gloss: v.gloss }));
 }
-// A story is "done" for the daily flow once explicitly read, OR once every word it teaches is no
-// longer new (mastered elsewhere) — so existing learners aren't marched back through early stories.
-function storyDone(progress: Progress, story: MiniStory): boolean {
-  if (progress.seenStories?.[story.id]) return true;
-  return story.registersVocab.length > 0 && story.registersVocab.every((v) => {
-    const e = progress.familiarity[v.lexKey];
-    return !!e && e.status !== "new";
-  });
-}
 // The current unit's story = the first not-yet-done story; once all are done, review the last one.
 function currentStory(pack: LanguagePack, progress: Progress): MiniStory | undefined {
   const stories = pack.stories ?? [];
@@ -336,7 +324,7 @@ function Today({ progress, persist, config, navigate }: {
         const e = progress.familiarity[v.lexKey];
         return !e || e.status === "new";
       });
-      if (words.length) out.push({ kind: "newwords", words: words.slice(0, 6) });
+      if (words.length) out.push({ kind: "newwords", words: words.slice(0, NEW_WORDS_PER_SESSION) });
     }
 
     // Grammar: introduce the next unseen concept (prefer one the scenario needs); once all are seen,
@@ -365,6 +353,17 @@ function Today({ progress, persist, config, navigate }: {
   const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
   const [subIdx, setSubIdx] = useState(0);
+  // Items missed this session (auto-collected) → offered as an optional recap once the flow is done.
+  const [missed, setMissed] = useState<ReviewItem[]>([]);
+  const [recap, setRecap] = useState<"offer" | "review" | "done">("offer");
+  const flag = useCallback((item: ReviewItem) => setMissed((m) => (m.some((x) => x.id === item.id) ? m : [...m, item])), []);
+  // Missed new words / spoken lines aren't pack ReviewItems — turn them into recall cards (reusing the
+  // real vocab item when one matches, so its transliteration and audio come along).
+  const flagWord = (w: { lexKey: string; gloss?: string }) => {
+    const v = pack.vocab.find((x) => familiarity.deriveKeyForItem(x).lexKey === w.lexKey);
+    flag(v ?? { id: `nw-${w.lexKey}`, kind: "vocab", prompt: w.gloss ?? w.lexKey, answer: w.lexKey, gloss: w.gloss ?? w.lexKey, i1Level: 0, tags: [] });
+  };
+  const flagTurn = (t: DialogueTurn) => flag({ id: `sp-${t.text}`, kind: "phrase", prompt: t.gloss ?? t.text, answer: t.text, translit: t.translit, gloss: t.gloss ?? t.text, i1Level: 0, tags: [] });
   // Today now stays mounted across tab switches (so idx/phase survive). If the letters get finished
   // elsewhere while it's mounted, open the flow rather than leaving the alphabet gate up.
   useEffect(() => { if (lettersDone) setPhase("flow"); }, [lettersDone]);
@@ -393,7 +392,35 @@ function Today({ progress, persist, config, navigate }: {
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
       </section>
     );
-  if (idx >= steps.length)
+  if (idx >= steps.length) {
+    // Offer a quick recap of anything you slipped on before wrapping up — retry it, or skip.
+    if (missed.length > 0 && recap === "offer")
+      return (
+        <section className="view">
+          <TodayHeader streak={progress.streak?.count ?? 0} />
+          <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
+          <p className="lead">Nice work — you finished today&apos;s session.</p>
+          <div className="fb" style={{ marginTop: 4 }}>
+            <div className="muted small" style={{ marginBottom: 6 }}>You slipped on {missed.length} item{missed.length > 1 ? "s" : ""} this session:</div>
+            <ul style={{ margin: "0 0 4px", paddingLeft: 18 }}>
+              {missed.map((m) => <li key={m.id}><b className="target">{m.answer}</b> <span className="muted small">— {m.gloss}</span></li>)}
+            </ul>
+            <div className="row" style={{ marginTop: 12 }}>
+              <button className="btn" onClick={() => setRecap("review")}>Review {missed.length} missed item{missed.length > 1 ? "s" : ""} →</button>
+              <button className="ghost" onClick={() => setRecap("done")}>Skip for now</button>
+            </div>
+          </div>
+        </section>
+      );
+    if (missed.length > 0 && recap === "review")
+      return (
+        <section className="view">
+          <TodayHeader streak={progress.streak?.count ?? 0} />
+          <h3 style={{ marginTop: 4 }}>One more pass</h3>
+          <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
+          <SessionRecap items={missed} onDone={() => setRecap("done")} />
+        </section>
+      );
     return (
       <section className="view">
         <TodayHeader streak={progress.streak?.count ?? 0} />
@@ -401,10 +428,11 @@ function Today({ progress, persist, config, navigate }: {
         <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
         <div className="row" style={{ marginTop: 4 }}>
           <button className="ghost small" onClick={() => navigate("progress")}>See your progress</button>
-          <button className="ghost small" onClick={() => navigate("library", "browse")}>Extra practice in the Library</button>
+          <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards in the Library</button>
         </div>
       </section>
     );
+  }
 
   const step = steps[idx]!;
   return (
@@ -417,6 +445,7 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "warmup" && (() => {
           const item = step.items[subIdx]!;
           const grade = (ok: boolean) => {
+            if (!ok) flag(item);
             const graded = gradeItem(progress, item, ok);
             if (subIdx + 1 >= step.items.length) done(graded);
             else { persist(graded); setSubIdx((s) => s + 1); }
@@ -434,7 +463,7 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "newwords" && (
           <div>
             <Tag>New words · {step.words.length}</Tag>
-            <NewWordsCard words={step.words} onDone={() => done(captureWords(progress, step.words))} />
+            <NewWordsCard words={step.words} onDone={() => done(captureWords(progress, step.words))} onMiss={flagWord} />
           </div>
         )}
 
@@ -444,6 +473,7 @@ function Today({ progress, persist, config, navigate }: {
             <GrammarIntroCard
               concept={step.concept}
               onDone={(ok) => {
+                if (!ok && step.concept.drills[0]) flag(step.concept.drills[0]!);
                 const base = step.concept.drills[0] ? gradeItem(progress, step.concept.drills[0]!, ok) : progress;
                 done(markSeen(base, step.concept.id));
               }}
@@ -475,7 +505,7 @@ function Today({ progress, persist, config, navigate }: {
           <div>
             <Tag>Speak · {step.scenario.title}</Tag>
             <p className="muted small">{step.scenario.goal} — use what you just read, out loud.</p>
-            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare onComplete={() => done()} />
+            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare onComplete={() => done()} onMiss={flagTurn} />
           </div>
         )}
       </div>
@@ -484,6 +514,26 @@ function Today({ progress, persist, config, navigate }: {
         <button className="ghost small" onClick={() => done()}>Skip this step →</button>
       </div>
     </section>
+  );
+}
+
+// End-of-lesson recap: re-drill exactly the items missed this session. "Good" clears a card; "Again"
+// sends it to the back — so the ones you're still shaky on loop until cleared (the same requeue idea
+// as the alphabet quiz). Pure re-exposure: it doesn't touch SRS (the original misses already did).
+function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: () => void }) {
+  const [queue, setQueue] = useState<ReviewItem[]>(() => items);
+  const [n, setN] = useState(0);
+  const current = queue[0];
+  useEffect(() => { if (!current) onDone(); }, [current, onDone]);
+  if (!current) return null;
+  const grade = (ok: boolean) => { setQueue((q) => (ok ? q.slice(1) : [...q.slice(1), q[0]!])); setN((x) => x + 1); };
+  return (
+    <div>
+      <Tag>Review misses · {queue.length} to clear</Tag>
+      {current.kind === "grammar"
+        ? <GrammarCard key={`${current.id}-${n}`} item={current} onGrade={grade} />
+        : <PhraseCard key={`${current.id}-${n}`} item={current} onGrade={grade} />}
+    </div>
   );
 }
 
@@ -507,7 +557,7 @@ const FALLBACK_GLOSSES = ["hello", "thank you", "please", "yes", "good", "water"
 
 // Pre-teach the story's new words interactively: hear each, tap its meaning (multiple choice), then
 // they're captured. Engages instead of just listing.
-function NewWordsCard({ words, onDone }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void }) {
+function NewWordsCard({ words, onDone, onMiss }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void; onMiss?: (word: { lexKey: string; gloss?: string }) => void }) {
   const play = usePlay();
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -536,7 +586,7 @@ function NewWordsCard({ words, onDone }: { words: { lexKey: string; gloss?: stri
         <div>
           {options.map((o) => {
             const cls = picked ? (o === correct ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
-            return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)}>{o}</button>;
+            return <button className={cls} key={o} disabled={!!picked} onClick={() => { setPicked(o); if (o !== correct) onMiss?.(word); }}>{o}</button>;
           })}
         </div>
         {picked && (
@@ -781,7 +831,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
   };
 
   // An opened content item or reference tool → show it with a back link to where it came from.
-  if (mode !== "browse" && mode !== "reference") {
+  if (mode !== "browse" && mode !== "reference" && mode !== "flashcards") {
     const isTool = mode === "letters" || mode === "grammar" || mode === "write";
     const view =
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
@@ -804,11 +854,17 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
     <section className="view">
       <h2>Library</h2>
       <div className="picker" style={{ margin: "2px 0 14px" }}>
-        <button className={mode === "browse" ? "active" : ""} onClick={() => setMode("browse")}>Practice</button>
+        <button className={mode === "browse" ? "active" : ""} onClick={() => setMode("browse")}>Situations</button>
+        <button className={mode === "flashcards" ? "active" : ""} onClick={() => setMode("flashcards")}>Flashcards</button>
         <button className={mode === "reference" ? "active" : ""} onClick={() => setMode("reference")}>Reference</button>
       </div>
 
-      {mode === "reference" ? (
+      {mode === "flashcards" ? (
+        <>
+          <p className="lead">Flashcards — recall each word or phrase, then reveal to check. Your most-due items come first, so the ones you&apos;re about to forget get strengthened.</p>
+          <Review progress={progress} persist={persist} />
+        </>
+      ) : mode === "reference" ? (
         <>
           <p className="lead">Tools to look things up and practise — kept separate from your situational content.</p>
           <div className="cards">
@@ -987,7 +1043,7 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
 }
 
 // ---------- Library view 2: scenarios ----------
-function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void }) {
+function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void }) {
   const pack = usePack();
   const s = pack.scenarios.find((x) => x.id === (scenarioId ?? progress.pick)) || pack.scenarios[0]!;
   const sp = progress.scenarios[s.id] || { turnIndex: 0, metCriteria: [] };
@@ -1034,6 +1090,7 @@ function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hide
           turn={turn}
           config={config}
           onDone={() => saveRun(scenario.completeTurn(run, s))}
+          onMiss={onMiss}
         />
       ) : null}
 
@@ -1088,7 +1145,7 @@ function PartnerTurn({ turn, autoplay, onContinue }: { turn: DialogueTurn; autop
   );
 }
 
-function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void }) {
+function LearnerTurn({ turn, config, onDone, onMiss }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void; onMiss?: (turn: DialogueTurn) => void }) {
   const pack = usePack();
   const play = usePlay();
   const rec = useRef(makeRecorder());
@@ -1126,6 +1183,10 @@ function LearnerTurn({ turn, config, onDone }: { turn: DialogueTurn; config: api
         );
         if (f.error) throw new Error(f.error);
         setFb(f);
+        // Flag a missed line for the end-of-lesson recap — but ONLY when the ASR gate is confident.
+        // Low-confidence (engines disagree, no target match) is exactly where scoring is unreliable, so
+        // we give the benefit of the doubt and don't count it as a miss.
+        if (f.score < 60 && f.gate?.confidence === "high") onMiss?.(turn);
       }
       setFinished(true);
     } catch (e) {
@@ -1791,7 +1852,7 @@ function ProgressDash({ progress, dueCount }: { progress: Progress; dueCount: nu
         {stat("Level", level.cefrBand)}
       </div>
       <p className="muted small" style={{ marginTop: 10 }}>
-        <b>To review</b> = items due in Strengthen (below). <b>Level</b> is an estimate from letters learned, scenario goals met, and words tracked — roughly pre-A1 → A1 → A2.
+        <b>To review</b> = items due in Flashcards (below, and in Library › Flashcards). <b>Level</b> is an estimate from letters learned, scenario goals met, and words tracked — roughly pre-A1 → A1 → A2.
       </p>
     </section>
   );
@@ -1837,14 +1898,14 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   };
 
   if (queue.length === 0)
-    return <section className="view"><h2>Strengthen</h2><p className="lead">Nothing to strengthen right now — you're caught up. New words and grammar you meet show up here to lock in.</p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead">Nothing due right now — you&apos;re caught up. New words and grammar you meet show up here to lock in.</p></section>;
   if (idx >= queue.length)
-    return <section className="view"><h2>Strengthen</h2><p className="lead">Done — {queue.length} strengthened. 🎉</p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead">Done — {queue.length} strengthened. 🎉</p></section>;
 
   const u = queue[idx]!;
   return (
     <section className="view">
-      <h2>Strengthen <span className="muted small">· {queue.length - idx} left</span></h2>
+      <h2>Flashcards <span className="muted small">· {queue.length - idx} left</span></h2>
       <p className="lead">Recall each before you reveal — your most-due items first, including words you saved while reading.</p>
       {u.type === "pool" ? (
         u.item.kind === "grammar"
