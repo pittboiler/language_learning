@@ -19,6 +19,7 @@ import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 import { NEW_WORDS_PER_SESSION, localDay, markStorySeen, storyDone } from "../lib/daily";
+import { captureWord, properNounLike } from "../lib/capture";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
@@ -86,21 +87,6 @@ const gradeItem = (p: Progress, item: ReviewItem, ok: boolean): Progress => {
 const wordStatus = (p: Progress, lexKey: string): string => {
   const e = p.familiarity[lexKey];
   return !e ? "new" : e.status === "known" ? "known" : e.status === "ignored" ? "ignored" : "learning";
-};
-// Capture a tapped word into familiarity + SRS if it's new, and remember the sentence it came from
-// (for in-context cloze review). Returns its lexKey ("" if not a word).
-const captureWord = (progress: Progress, persist: (p: Progress) => void, surface: string, context?: string): string => {
-  const lexKey = familiarity.normalize(surface);
-  if (!lexKey) return "";
-  const isNew = !progress.familiarity[lexKey];
-  const needContext = !!context && !progress.contexts?.[lexKey];
-  if (!isNew && !needContext) return lexKey;
-  persist({
-    ...progress,
-    familiarity: isNew ? { ...progress.familiarity, [lexKey]: familiarity.capture({ lexKey, kind: "word", display: surface }) } : progress.familiarity,
-    contexts: needContext ? { ...progress.contexts, [lexKey]: context! } : progress.contexts,
-  });
-  return lexKey;
 };
 
 // ---- daily-flow helpers ----
@@ -1416,8 +1402,8 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
   const [importing, setImporting] = useState(false);
   const [importErr, setImportErr] = useState("");
 
-  const onTap = (surface: string, line: string) => {
-    const lexKey = captureWord(progress, persist, surface, line);
+  const onTap = (surface: string, line: string, lineGloss?: string) => {
+    const lexKey = captureWord(progress, persist, surface, line, { gloss: lineGloss, reviewable: !properNounLike(surface, pack) });
     if (lexKey) setSel({ lexKey, surface, line });
   };
 
@@ -1465,7 +1451,7 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
         {lines.length === 0 ? (
           <p className="muted">No content yet — import some text above.</p>
         ) : (
-          lines.map((l, i) => <ReaderRow key={i} line={l} progress={progress} play={play} onTapWord={(s) => onTap(s, l.text)} />)
+          lines.map((l, i) => <ReaderRow key={i} line={l} progress={progress} play={play} onTapWord={(s) => onTap(s, l.text, l.gloss)} />)
         )}
       </div>
       {imported && <button className="ghost small" style={{ marginTop: 10 }} onClick={() => { setImported(null); setRaw(""); }}>↺ Back to the built-in reader</button>}
@@ -1605,8 +1591,8 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
     return () => { cancelled = true; };
   }, [story.id, pack.id, pack.vocab]);
 
-  const onTap = (surface: string, line: string) => {
-    const lexKey = captureWord(progress, persist, surface, line);
+  const onTap = (surface: string, line: string, lineGloss?: string) => {
+    const lexKey = captureWord(progress, persist, surface, line, { gloss: lineGloss, reviewable: !properNounLike(surface, pack) });
     if (lexKey) setSel({ lexKey, surface, line });
   };
 
@@ -1635,7 +1621,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
           <div className={`rline2 rline-glossed ${current === i ? "playing" : ""}`} key={i}>
             <div className="rline-mk">
               <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
-              <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text)} />
+              <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text, l.gloss)} />
             </div>
             {l.gloss && (
               <button
@@ -1912,7 +1898,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
           ? <GrammarCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />
           : <PhraseCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />
       ) : (
-        <ClozeCard key={u.key} entry={u.entry} context={progress.contexts?.[u.key]} onGrade={(ok) => gradeCaptured(u.key, ok)} />
+        <ClozeCard key={u.key} entry={u.entry} context={progress.contexts?.[u.key]} contextGloss={progress.contextGlosses?.[u.key]} onGrade={(ok) => gradeCaptured(u.key, ok)} />
       )}
     </section>
   );
@@ -1920,21 +1906,40 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-// Captured-word review shown in context: the word blanked inside the sentence you met it in.
-function ClozeCard({ entry, context, onGrade }: { entry: FamiliarityEntry; context?: string; onGrade: (ok: boolean) => void }) {
+// Captured-word review. When we know the sentence it was met in, blank the word inside it and show the
+// English so it's clear what to produce ("Ana wants coffee" → say the missing word). Otherwise it's a
+// plain recall card (English → target). Either way the English tells the learner what's being solved for.
+function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: FamiliarityEntry; context?: string; contextGloss?: string; onGrade: (ok: boolean) => void }) {
+  const pack = usePack();
   const play = usePlay();
   const [revealed, setRevealed] = useState(false);
   const blanked = context ? context.replace(new RegExp(`(^|[^\\p{L}])(${escapeRe(entry.display)})(?=[^\\p{L}]|$)`, "iu"), (_m, pre) => `${pre}____`) : null;
   const cloze = blanked && blanked !== context ? blanked : null;
   return (
     <div className="fb">
-      <div className="muted small">{cloze ? "Fill the blank" : "Recall this word"}{entry.gloss ? ` — “${entry.gloss}”` : ""}:</div>
-      <div style={{ fontSize: 19, margin: "8px 0", lineHeight: 1.5 }}>{cloze ?? entry.gloss ?? entry.display}</div>
+      {cloze ? (
+        <>
+          <div className="muted small">Say the missing word{contextGloss ? ` — “${contextGloss}”` : ""}:</div>
+          <div style={{ fontSize: 19, margin: "8px 0", lineHeight: 1.5 }}>{cloze}</div>
+        </>
+      ) : (
+        <>
+          <div className="muted small">Say in {pack.name}{entry.gloss ? ` — “${entry.gloss}”` : ""}:</div>
+          <div style={{ fontSize: 19, margin: "8px 0" }}>{entry.gloss ?? entry.display}</div>
+        </>
+      )}
       {!revealed ? (
         <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
       ) : (
         <div>
-          <div className="target" style={{ fontSize: 22 }}>{entry.display}</div>
+          {cloze ? (
+            <>
+              <div className="target" style={{ fontSize: 20, lineHeight: 1.5 }}>{context}</div>
+              <div className="muted small" style={{ marginTop: 2 }}>{entry.display}{entry.gloss ? ` — ${entry.gloss}` : ""}</div>
+            </>
+          ) : (
+            <div className="target" style={{ fontSize: 22 }}>{entry.display}</div>
+          )}
           <div className="row" style={{ marginTop: 10 }}>
             <button className="ghost" onClick={() => play(entry.display, 0.8)}>🔊 hear</button>
             <button className="ghost" onClick={() => onGrade(false)}>Again</button>

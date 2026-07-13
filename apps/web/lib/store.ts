@@ -31,6 +31,8 @@ export interface Progress {
   storyReads?: Record<string, string[]>;
   /** The sentence each tapped/captured word was met in — powers in-context (cloze) review. */
   contexts?: Record<string, string>;
+  /** English translation of that sentence — shown on the cloze card so it's clear what to produce. */
+  contextGlosses?: Record<string, string>;
 }
 
 export interface Store {
@@ -38,7 +40,7 @@ export interface Store {
   save(p: Progress): Promise<void>;
 }
 
-export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, familiarity: {}, pick: null, settings: { autoplay: false }, streak: { count: 0, lastDay: "" }, seenGrammar: {}, seenStories: {}, storyReads: {}, contexts: {} });
+export const emptyProgress = (): Progress => ({ activePackId: null, letters: {}, scenarios: {}, familiarity: {}, pick: null, settings: { autoplay: false }, streak: { count: 0, lastDay: "" }, seenGrammar: {}, seenStories: {}, storyReads: {}, contexts: {}, contextGlosses: {} });
 
 // FSRS cards + familiarity timestamps serialize Dates to strings in JSON; revive them on reload.
 function reviveReviewState(r: srs.ReviewState): void {
