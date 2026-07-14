@@ -6,6 +6,16 @@ import * as familiarity from "@ll/core/familiarity";
 import type { LanguagePack } from "@ll/pack-schema";
 import type { Progress } from "./store";
 
+/** Map every story/reader line (target text → English gloss) so a captured word's stored sentence can
+ *  be back-translated at review time — even for words captured before we started saving the gloss. */
+export const buildLineGlosses = (pack: LanguagePack): Map<string, string> => {
+  const m = new Map<string, string>();
+  const add = (text?: string, gloss?: string) => { const k = (text ?? "").trim(); if (k && gloss && !m.has(k)) m.set(k, gloss); };
+  for (const s of pack.stories ?? []) for (const b of s.body) add(b.text, b.gloss);
+  for (const r of pack.readers ?? []) for (const b of r.body) add(b.text, b.gloss);
+  return m;
+};
+
 /** A tapped word not worth a flashcard: a proper noun — capitalized AND not a curated vocab/story word.
  *  normalize() is case-insensitive, so genuine content words still match (even sentence-initial), and
  *  only names / uncurated capitalized tokens fall through as "name-like". */

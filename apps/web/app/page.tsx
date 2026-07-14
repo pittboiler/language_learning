@@ -19,7 +19,7 @@ import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 import { NEW_WORDS_PER_SESSION, localDay, markStorySeen, storyDone } from "../lib/daily";
-import { captureWord, properNounLike } from "../lib/capture";
+import { captureWord, properNounLike, buildLineGlosses } from "../lib/capture";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
@@ -191,7 +191,7 @@ export default function Home() {
     const pool = reviewPool(pack);
     const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
     const poolDue = pool.filter((it) => isDue(progress, it, now)).length;
-    const capturedDue = Object.values(progress.familiarity).filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey)).length;
+    const capturedDue = Object.values(progress.familiarity).filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack)).length;
     return poolDue + capturedDue;
   }, [progress, pack]);
   const level = useMemo(() => computeLevel(pack, progress), [pack, progress]);
@@ -1853,6 +1853,9 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   const pack = usePack();
   // Weakest-first queue of everything due: pack vocab/grammar PLUS words you captured while reading
   // (those are reviewed in the sentence you met them in — cloze).
+  // Back-translate a captured word's sentence at review time (covers words saved before we stored the
+  // English), so the cloze always shows what to say.
+  const lineGlosses = useMemo(() => buildLineGlosses(pack), [pack]);
   const queue = useMemo<ReviewUnit[]>(() => {
     const now = new Date();
     const pool = reviewPool(pack);
@@ -1863,8 +1866,10 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
         const k = familiarity.deriveKeyForItem(it).lexKey;
         return { type: "pool", key: k, item: it, strength: progress.familiarity[k]?.strength ?? 0 };
       });
+    // Retroactive guard: drop proper-noun captures (names enrolled before name-exclusion existed) so a
+    // stale "Ана" card never tests a name — the same rule new captures already follow.
     const capturedUnits: ReviewUnit[] = Object.values(progress.familiarity)
-      .filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey))
+      .filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack))
       .map((e) => ({ type: "captured", key: e.lexKey, entry: e, strength: e.strength }));
     const nowMs = now.getTime();
     const dueMs = (u: ReviewUnit) => {
@@ -1898,7 +1903,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
           ? <GrammarCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />
           : <PhraseCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />
       ) : (
-        <ClozeCard key={u.key} entry={u.entry} context={progress.contexts?.[u.key]} contextGloss={progress.contextGlosses?.[u.key]} onGrade={(ok) => gradeCaptured(u.key, ok)} />
+        <ClozeCard key={u.key} entry={u.entry} context={progress.contexts?.[u.key]} contextGloss={progress.contextGlosses?.[u.key] ?? (progress.contexts?.[u.key] ? lineGlosses.get(progress.contexts[u.key]!.trim()) : undefined)} onGrade={(ok) => gradeCaptured(u.key, ok)} />
       )}
     </section>
   );

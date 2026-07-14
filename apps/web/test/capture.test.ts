@@ -4,7 +4,7 @@
 import assert from "node:assert/strict";
 import type { LanguagePack } from "@ll/pack-schema";
 import type { Progress } from "../lib/store.js";
-import { properNounLike, captureWord } from "../lib/capture.js";
+import { properNounLike, captureWord, buildLineGlosses } from "../lib/capture.js";
 
 // Minimal pack: properNounLike only reads pack.vocab[].answer and pack.stories[].registersVocab[].lexKey.
 const pack = {
@@ -38,5 +38,23 @@ const persistQ = (next: Progress) => { q = next; };
 captureWord(q, persistQ, "Ана", "Ана сака кафе.", { gloss: "Ana likes coffee.", reviewable: false });
 assert.equal(q.familiarity["ана"]?.status, "ignored", "name is captured as ignored");
 assert.equal(q.familiarity["ана"]?.srs, null, "ignored name has no SRS card ⇒ never due in Flashcards");
+
+// 4. buildLineGlosses lets a pre-fix capture (context stored, no gloss) get back-translated at review
+//    time — the retroactive fix for cards like "___ сака кафе" that showed no English.
+const glossPack = {
+  stories: [{ body: [
+    { text: "Ана сака кафе.", gloss: "Ana likes coffee." },
+    { text: "Таа влегува во кафуле.", gloss: "She enters a café." },
+  ] }],
+  readers: [{ body: [{ text: "Добро утро.", gloss: "Good morning." }] }],
+} as unknown as LanguagePack;
+const lg = buildLineGlosses(glossPack);
+assert.equal(lg.get("Ана сака кафе."), "Ana likes coffee.", "story line back-translates to its English");
+assert.equal(lg.get("Добро утро."), "Good morning.", "reader lines are included too");
+assert.equal(lg.get("unseen sentence"), undefined, "unknown sentence → no gloss (card falls back gracefully)");
+// The render-time backfill is exactly: stored gloss, else the line lookup.
+const backfill = (stored: string | undefined, ctx: string) => stored ?? lg.get(ctx.trim());
+assert.equal(backfill(undefined, "Ана сака кафе."), "Ana likes coffee.", "missing stored gloss is backfilled from the pack");
+assert.equal(backfill("already there", "Ана сака кафе."), "already there", "a stored gloss wins over the backfill");
 
 console.log("capture.test.ts: all assertions passed ✓");
