@@ -273,13 +273,18 @@ function currentStory(pack: LanguagePack, progress: Progress): MiniStory | undef
 }
 
 // ---------- Today: the guided daily flow (building order: review → new words → grammar → story → speak) ----------
+// dayIndex = how many distinct days this unit's story has already been read (0 on day 1, 1 on day 2…).
+// It rotates the day-to-day content (story Q&A, grammar drills) so a repeated unit isn't a copy.
 type TodayStep =
   | { kind: "warmup"; items: ReviewItem[] }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
-  | { kind: "grammarPractice"; concept: GrammarConcept }
-  | { kind: "story"; story: MiniStory }
+  | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
+  | { kind: "story"; story: MiniStory; dayIndex: number }
   | { kind: "speak"; scenario: Scenario };
+
+// Rotate an array left by n (n=0 → unchanged). Used to vary which questions/drills lead each day.
+const rotate = <T,>(arr: T[], n: number): T[] => (arr.length ? arr.map((_, i) => arr[(i + n) % arr.length]!) : arr);
 
 function Today({ progress, persist, config, navigate }: {
   progress: Progress;
@@ -296,34 +301,42 @@ function Today({ progress, persist, config, navigate }: {
     const due = reviewPool(pack).filter((it) => isDue(progress, it, now)).slice(0, 6);
     if (due.length) out.push({ kind: "warmup", items: due });
 
-    // One coherent unit per session: a story + the scenario that practises it.
+    // One coherent unit per session: a story + the scenario that practises it. The unit stays for a few
+    // days (UNIT_MIN_DAYS); dayIndex tracks which day we're on so the day-to-day content rotates.
     const story = currentStory(pack, progress);
     const scen = story ? partnerScenario(pack, story) : undefined;
+    const dayIndex = story ? (progress.storyReads?.[story.id]?.length ?? 0) : 0;
+    const isNewWord = (v: { lexKey: string }) => { const e = progress.familiarity[v.lexKey]; return !e || e.status === "new"; };
 
-    // New words: pre-teach the story's vocab AND the paired scenario's required vocab, so the speaking
-    // task at the end never needs a word this session didn't introduce.
+    // New words: teach the paired scenario's required vocab FIRST (so the speak step never needs a word
+    // we skipped), then fill up to the cap with the story's own new words. The cap never drops a
+    // scenario-required word — that promise matters more than the pacing target.
     if (story) {
+      const required = (scen ? scenarioVocab(pack, scen) : []).filter(isNewWord);
+      const extra = story.registersVocab.filter(isNewWord);
       const merged = new Map<string, { lexKey: string; gloss?: string }>();
-      for (const v of story.registersVocab) merged.set(v.lexKey, v);
-      if (scen) for (const v of scenarioVocab(pack, scen)) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
-      const words = [...merged.values()].filter((v) => {
-        const e = progress.familiarity[v.lexKey];
-        return !e || e.status === "new";
-      });
-      if (words.length) out.push({ kind: "newwords", words: words.slice(0, NEW_WORDS_PER_SESSION) });
+      for (const v of [...required, ...extra]) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
+      const words = [...merged.values()].slice(0, Math.max(NEW_WORDS_PER_SESSION, required.length));
+      if (words.length) out.push({ kind: "newwords", words });
     }
 
-    // Grammar: introduce the next unseen concept (prefer one the scenario needs); once all are seen,
-    // PRACTISE one instead — rotating daily — so grammar keeps showing up in the daily flow.
-    const unseen =
-      (scen?.requiredStructures ?? [])
-        .map((id) => pack.grammar.find((c) => c.id === id))
-        .find((c): c is GrammarConcept => !!c && !progress.seenGrammar?.[c.id]) ??
-      pack.grammar.find((c) => !progress.seenGrammar?.[c.id]);
-    if (unseen) out.push({ kind: "grammar", concept: unseen });
-    else if (pack.grammar.length) out.push({ kind: "grammarPractice", concept: pack.grammar[Math.floor(now.getTime() / 86400000) % pack.grammar.length]! });
+    // Grammar stays tied to the unit: it comes from the paired scenario's requiredStructures. Introduce
+    // the first structure the learner hasn't seen; once the unit's structures are all seen, PRACTISE one
+    // (rotating by day so the drills change). Only if the scenario declares no grammar do we fall back to
+    // the global "next unseen concept" — so grammar no longer drifts to an unrelated concept.
+    const reqConcepts = (scen?.requiredStructures ?? [])
+      .map((id) => pack.grammar.find((c) => c.id === id))
+      .filter((c): c is GrammarConcept => !!c);
+    const unseenReq = reqConcepts.find((c) => !progress.seenGrammar?.[c.id]);
+    if (unseenReq) out.push({ kind: "grammar", concept: unseenReq });
+    else if (reqConcepts.length) out.push({ kind: "grammarPractice", concept: reqConcepts[dayIndex % reqConcepts.length]!, dayIndex });
+    else {
+      const unseen = pack.grammar.find((c) => !progress.seenGrammar?.[c.id]);
+      if (unseen) out.push({ kind: "grammar", concept: unseen });
+      else if (pack.grammar.length) out.push({ kind: "grammarPractice", concept: pack.grammar[dayIndex % pack.grammar.length]!, dayIndex });
+    }
 
-    if (story) out.push({ kind: "story", story });
+    if (story) out.push({ kind: "story", story, dayIndex });
 
     // Speak: the story's paired scenario (so it uses what was just read); fall back to first-incomplete.
     const speakScen = scen ?? pack.scenarios.find((s) => {
@@ -470,7 +483,7 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "grammarPractice" && (
           <div>
             <Tag>Grammar practice</Tag>
-            <GrammarPracticeCard concept={step.concept} onDone={() => done()} />
+            <GrammarPracticeCard concept={step.concept} dayIndex={step.dayIndex} onDone={() => done()} />
           </div>
         )}
 
@@ -479,6 +492,7 @@ function Today({ progress, persist, config, navigate }: {
             <Tag>Read the story</Tag>
             <TodayStoryStep
               story={step.story}
+              dayIndex={step.dayIndex}
               progress={progress}
               persist={persist}
               config={config}
@@ -643,8 +657,8 @@ function GrammarExplainer({ concept, compact }: { concept: GrammarConcept; compa
 
 // First-encounter grammar: the explainer (rule made legible) + up to 3 quick checks. The first check
 // still gates "Continue" and reports its result (grading semantics unchanged); the rest are practice.
-function GrammarIntroCard({ concept, onDone }: { concept: GrammarConcept; onDone: (ok: boolean) => void }) {
-  const drills = concept.drills.slice(0, 3);
+function GrammarIntroCard({ concept, onDone, dayIndex = 0 }: { concept: GrammarConcept; onDone: (ok: boolean) => void; dayIndex?: number }) {
+  const drills = rotate(concept.drills, dayIndex).slice(0, 3);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const firstId = drills[0]?.id;
   const answeredFirst = firstId === undefined || firstId in answers;
@@ -721,9 +735,10 @@ function GrammarMatch({ concept, onDone }: { concept: GrammarConcept; onDone: ()
   );
 }
 
-// Fallback practice for non-matchable concepts (e.g. clitics): a couple of multiple-choice drills.
-function GrammarDrillPractice({ concept, onDone }: { concept: GrammarConcept; onDone: () => void }) {
-  const drills = concept.drills.slice(0, 2);
+// Fallback practice for non-matchable concepts (e.g. clitics): a couple of multiple-choice drills,
+// rotated by day so a repeated unit shows different checks.
+function GrammarDrillPractice({ concept, onDone, dayIndex = 0 }: { concept: GrammarConcept; onDone: () => void; dayIndex?: number }) {
+  const drills = rotate(concept.drills, dayIndex).slice(0, 2);
   const [answered, setAnswered] = useState<Record<string, boolean>>({});
   const firstId = drills[0]?.id;
   const ready = firstId === undefined || firstId in answered;
@@ -737,7 +752,7 @@ function GrammarDrillPractice({ concept, onDone }: { concept: GrammarConcept; on
 
 // Recurring grammar PRACTICE (after a concept's been introduced): a brief rule reminder + an exercise
 // — matching where it fits, else drills. The full rule (table + examples) is one tap away if stuck.
-function GrammarPracticeCard({ concept, onDone }: { concept: GrammarConcept; onDone: () => void }) {
+function GrammarPracticeCard({ concept, onDone, dayIndex = 0 }: { concept: GrammarConcept; onDone: () => void; dayIndex?: number }) {
   const [showRule, setShowRule] = useState(false);
   return (
     <div className="fb">
@@ -748,7 +763,7 @@ function GrammarPracticeCard({ concept, onDone }: { concept: GrammarConcept; onD
       {showRule && <div style={{ marginTop: 8 }}><GrammarExplainer concept={concept} /></div>}
       {isMatchable(concept)
         ? <GrammarMatch concept={concept} onDone={onDone} />
-        : <GrammarDrillPractice concept={concept} onDone={onDone} />}
+        : <GrammarDrillPractice concept={concept} onDone={onDone} dayIndex={dayIndex} />}
     </div>
   );
 }
@@ -1678,14 +1693,17 @@ function StoryView({ progress, persist, config, onDone }: { progress: Progress; 
   );
 }
 
-function StoryQAView({ story, config, onRestart, onDone }: { story: MiniStory; config: api.Config | null; onRestart: () => void; onDone?: () => void }) {
+function StoryQAView({ story, config, onRestart, onDone, dayIndex = 0 }: { story: MiniStory; config: api.Config | null; onRestart: () => void; onDone?: () => void; dayIndex?: number }) {
   const play = usePlay();
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [answered, setAnswered] = useState<Record<string, boolean>>({});
+  // Rotate the questions by day so a repeated story asks them in a fresh order (different lead + spoken
+  // prompt each pass) rather than an identical quiz.
+  const qa = rotate(story.qa, dayIndex);
   return (
     <div>
-      <p className="lead">Questions — the story's words again, in a new frame. The last one is spoken.</p>
-      {story.qa.map((q) => (
+      <p className="lead">Questions — the story's words again, in a new frame.</p>
+      {qa.map((q) => (
         <div className="fb" key={q.id}>
           <div className="row"><button className="spk" onClick={() => play(q.question, 0.9)}>🔊</button><b>{q.question}</b></div>
           <div className="gloss">{q.questionGloss}</div>
@@ -1720,12 +1738,13 @@ function StoryQAView({ story, config, onRestart, onDone }: { story: MiniStory; c
 // Today's story step: read → Q&A → speak. Mirrors the Library's StoryView phasing, but uses the
 // session's chosen story and advances the daily flow on completion — the Q&A is the input→output
 // bridge (recall the story's words, last question spoken) before the full speak scenario.
-function TodayStoryStep({ story, progress, persist, config, onDone }: {
+function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0 }: {
   story: MiniStory;
   progress: Progress;
   persist: (p: Progress) => void;
   config: api.Config | null;
   onDone: () => void;
+  dayIndex?: number;
 }) {
   const [phase, setPhase] = useState<"read" | "qa">("read");
   const hasQA = story.qa.length > 0;
@@ -1741,7 +1760,7 @@ function TodayStoryStep({ story, progress, persist, config, onDone }: {
       onDone={hasQA ? toQA : onDone}
     />
   ) : (
-    <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} onDone={onDone} />
+    <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} onDone={onDone} dayIndex={dayIndex} />
   );
 }
 

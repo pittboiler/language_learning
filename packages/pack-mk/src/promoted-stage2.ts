@@ -860,7 +860,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s2-smalltalk-v5",
       "gen-s2-smalltalk-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["adjective-agreement", "da-modals"],
     "script": [
       {
         "speaker": "partner",
@@ -944,7 +944,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s2-pasttime-v5",
       "gen-s2-pasttime-v6"
     ],
-    "requiredStructures": ["past-tense"],
+    "requiredStructures": ["past-tense", "perfect-tense"],
     "script": [
       {
         "speaker": "partner",
@@ -1037,7 +1037,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s2-home-family-v5",
       "gen-s2-home-family-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["possessives", "prepositions"],
     "script": [
       {
         "speaker": "partner",
@@ -1129,7 +1129,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s2-arrange-v5",
       "gen-s2-arrange-v6"
     ],
-    "requiredStructures": ["future-tense"],
+    "requiredStructures": ["future-tense", "questions"],
     "script": [
       {
         "speaker": "partner",
@@ -1226,7 +1226,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s2-problems-v5",
       "gen-s2-problems-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["comparatives", "negation"],
     "script": [
       {
         "speaker": "partner",

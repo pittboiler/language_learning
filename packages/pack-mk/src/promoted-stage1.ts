@@ -947,7 +947,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s1-greet-intro-v5",
       "gen-s1-greet-intro-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["possessives"],
     "script": [
       {
         "speaker": "partner",
@@ -1049,7 +1049,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s1-market-v5",
       "gen-s1-market-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["noun-plurals", "numbers"],
     "script": [
       {
         "speaker": "partner",
@@ -1146,7 +1146,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s1-directions-v5",
       "gen-s1-directions-v6"
     ],
-    "requiredStructures": ["verb-conjugation-i"],
+    "requiredStructures": ["verb-conjugation-i", "imperatives", "prepositions"],
     "script": [
       {
         "speaker": "learner",

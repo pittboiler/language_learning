@@ -700,7 +700,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s0-repair-v5",
       "gen-s0-repair-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["negation"],
     "script": [
       {
         "speaker": "partner",
@@ -802,7 +802,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s0-greet-v5",
       "gen-s0-greet-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["to-be"],
     "script": [
       {
         "speaker": "partner",
@@ -886,7 +886,7 @@ export const promotedScenarios: Scenario[] = [
       "gen-s0-survive-v5",
       "gen-s0-survive-v6"
     ],
-    "requiredStructures": [],
+    "requiredStructures": ["numbers", "negation"],
     "script": [
       {
         "speaker": "partner",
