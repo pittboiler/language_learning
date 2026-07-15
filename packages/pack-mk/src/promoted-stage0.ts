@@ -1251,9 +1251,9 @@ export const promotedStories: MiniStory[] = [
         "gloss": "\"Do you have apples?\""
       },
       {
-        "text": "„Да, каде е лебот?“",
-        "translit": "„Da, kade e lebot?“",
-        "gloss": "\"Yes, where is the bread?\""
+        "text": "„А каде е лебот?“ прашува Ана.",
+        "translit": "„A kade e lebot?“ prašuva Ana.",
+        "gloss": "\"And where is the bread?\" asks Ana."
       },
       {
         "text": "„Може ли тоа?“ вели Ана.",

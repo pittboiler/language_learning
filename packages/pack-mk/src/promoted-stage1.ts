@@ -1471,14 +1471,14 @@ export const promotedStories: MiniStory[] = [
         "gloss": "\"Do you have milk?\" asks Ana."
       },
       {
-        "text": "„Да, имаме. Сакам едно кило јаболка.“",
-        "translit": "„Da, imame. Sakam edno kilo jabolka.“",
-        "gloss": "\"Yes, we have. I'd like a kilo of apples.\""
+        "text": "„Да, имаме“, вели продавачот.",
+        "translit": "„Da, imame“, veli prodavačot.",
+        "gloss": "\"Yes, we have,\" says the seller."
       },
       {
-        "text": "„Колку чини килото?“",
-        "translit": "„Kolku čini kiloto?“",
-        "gloss": "\"How much per kilo?\""
+        "text": "„Сакам едно кило јаболка. Колку чини?“",
+        "translit": "„Sakam edno kilo jabolka. Kolku čini?“",
+        "gloss": "\"I'd like a kilo of apples. How much?\""
       },
       {
         "text": "„Педесет денари.“",

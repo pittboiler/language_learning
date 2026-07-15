@@ -1344,24 +1344,24 @@ export const promotedStories: MiniStory[] = [
         "gloss": "\"I think that today is a nice day,\" says Ana."
       },
       {
-        "text": "„Сакам да одам надвор“, вели Марко.",
-        "translit": "„Sakam da odam nadvor“, veli Marko.",
-        "gloss": "\"I want to go outside,\" says Marko."
+        "text": "„Ама не ми се допаѓа дождот“, вели Ана.",
+        "translit": "„Ama ne mi se dopaǵa doždot“, veli Ana.",
+        "gloss": "\"But I don't like rain,\" says Ana."
       },
       {
-        "text": "Ама Ана не сака дожд.",
-        "translit": "Ama Ana ne saka dožd.",
-        "gloss": "But Ana doesn't like rain."
+        "text": "„Дождот е грозен“, вели Ана.",
+        "translit": "„Doždot e grozen“, veli Ana.",
+        "gloss": "\"The rain is awful,\" says Ana."
       },
       {
-        "text": "„Дождот е грозен, не ми се допаѓа“, вели Ана.",
-        "translit": "„Doždot e grozen, ne mi se dopaǵa“, veli Ana.",
-        "gloss": "\"The rain is awful, I don't like it,\" says Ana."
+        "text": "„Денес нема дожд. Сакам да одам надвор!“ вели Марко.",
+        "translit": "„Denes nema dožd. Sakam da odam nadvor!“ veli Marko.",
+        "gloss": "\"Today there's no rain. I want to go outside!\" says Marko."
       },
       {
-        "text": "Затоа денес тие одат надвор заедно.",
-        "translit": "Zatoa denes tie odat nadvor zaedno.",
-        "gloss": "So today they go outside together."
+        "text": "Затоа тие одат надвор заедно.",
+        "translit": "Zatoa tie odat nadvor zaedno.",
+        "gloss": "So they go outside together."
       }
     ],
     "qa": [
@@ -1550,9 +1550,9 @@ export const promotedStories: MiniStory[] = [
         "gloss": "My mother works as a doctor."
       },
       {
-        "text": "Мојот татко е добар маж.",
-        "translit": "Mojot tatko e dobar maž.",
-        "gloss": "My father is a good husband."
+        "text": "Мојот татко е добар човек.",
+        "translit": "Mojot tatko e dobar čovek.",
+        "gloss": "My father is a good man."
       },
       {
         "text": "Јас работам како учителка.",
@@ -1717,8 +1717,8 @@ export const promotedStories: MiniStory[] = [
   },
   {
     "id": "gen-s2-problems-story",
-    "title": "Кафето не е тоа",
-    "titleGloss": "The coffee isn't that",
+    "title": "Проблем во кафулето",
+    "titleGloss": "A problem at the café",
     "i1Level": 3,
     "level": "A2",
     "theme": "Problems & complaints (repair kit, leveled up)",
