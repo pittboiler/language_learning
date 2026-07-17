@@ -72,10 +72,14 @@ const reviewPool = (pack: LanguagePack): ReviewItem[] => [
 const packUnreviewed = (pack: LanguagePack) => pack.scenarios.length > 0 && pack.scenarios.every((s) => s.confidence === "unreviewed");
 
 // ---- familiarity helpers — unify vocab state + SRS in one store keyed by lexKey ----
-// new (no entry) ⇒ due; known (no SRS card) ⇒ not due; else the SRS due date governs.
+// An item is due for REVIEW only once the learner has actually MET it (has a familiarity entry) and its
+// SRS due date has arrived. A never-seen word is NOT due — it hasn't been introduced yet; the Today
+// "new words" step owns introducing it (with audio + meaning), after which capture makes it due and it
+// resurfaces here for spaced review. This keeps warm-up/flashcards to words you're learning, not the
+// whole pack. (known ⇒ srs null ⇒ not due.)
 const isDue = (p: Progress, item: ReviewItem, now: Date): boolean => {
   const e = p.familiarity[familiarity.deriveKeyForItem(item).lexKey];
-  return !e ? true : e.srs ? new Date(e.srs.due) <= now : false;
+  return !!e && !!e.srs && new Date(e.srs.due) <= now;
 };
 // Grade a review item → next Progress with its familiarity entry rescheduled via the same FSRS engine.
 const gradeItem = (p: Progress, item: ReviewItem, ok: boolean): Progress => {
@@ -1893,7 +1897,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
     const nowMs = now.getTime();
     const dueMs = (u: ReviewUnit) => {
       const srs = u.type === "captured" ? u.entry.srs : progress.familiarity[u.key]?.srs;
-      return srs ? new Date(srs.due).getTime() : nowMs; // untracked pool items count as due now
+      return srs ? new Date(srs.due).getTime() : nowMs; // every queued item is tracked+due; nowMs is a defensive fallback
     };
     return [...poolUnits, ...capturedUnits].sort((a, b) => dueMs(a) - dueMs(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
