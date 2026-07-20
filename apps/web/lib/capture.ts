@@ -42,12 +42,16 @@ export const captureWord = (
   const lexKey = familiarity.normalize(surface);
   if (!lexKey) return "";
   const reviewable = opts?.reviewable ?? true;
-  const isNew = !progress.familiarity[lexKey];
+  const existing = progress.familiarity[lexKey];
+  const isNew = !existing;
   const needContext = !!context && !progress.contexts?.[lexKey];
   const needGloss = !!opts?.gloss && !progress.contextGlosses?.[lexKey];
-  if (!isNew && !needContext && !needGloss) return lexKey;
-  let entry = isNew ? familiarity.capture({ lexKey, kind: "word", display: surface }) : undefined;
-  if (entry && !reviewable) entry = familiarity.setStatus(entry, "ignored");
+  // Tapping a word is deliberate engagement — promote an exposed (story-seeded) entry to studied so it
+  // becomes review-eligible. (Names are captured "ignored" and never carry the exposed tag.)
+  const needPromote = !isNew && reviewable && !familiarity.isStudied(existing!);
+  if (!isNew && !needContext && !needGloss && !needPromote) return lexKey;
+  let entry = isNew ? familiarity.capture({ lexKey, kind: "word", display: surface }) : needPromote ? familiarity.markStudied(existing!) : undefined;
+  if (entry && isNew && !reviewable) entry = familiarity.setStatus(entry, "ignored");
   persist({
     ...progress,
     familiarity: entry ? { ...progress.familiarity, [lexKey]: entry } : progress.familiarity,

@@ -47,6 +47,26 @@ export type FamiliarityIndex = Record<string, FamiliarityEntry>;
 /** Stability (days) at/above which an item is treated as "known". Tunable. */
 export const KNOWN_THRESHOLD = 21;
 
+/** Tag marking an entry as EXPOSED but not yet STUDIED: the learner has only met the word passively
+ *  (e.g. it was seeded by reading a story), not engaged with it directly (taught in the new-words step,
+ *  tapped, or reviewed). Exposed entries power reader coloring + comprehension scoring, but are kept OUT
+ *  of active review (warm-up / flashcards) so the learner isn't cold-quizzed on words they never studied.
+ *  An exposed word graduates to studied the moment they engage with it (see markStudied). */
+export const EXPOSED_TAG = "exposed";
+
+/** Has the learner actually STUDIED this word (vs. merely been exposed to it in passing)? Only studied
+ *  entries are eligible for active recall review. An entry with no tags is studied. */
+export function isStudied(entry: FamiliarityEntry): boolean {
+  return !(entry.tags ?? []).includes(EXPOSED_TAG);
+}
+
+/** Promote an exposed entry to studied (drop the EXPOSED_TAG) — called when the learner engages with the
+ *  word directly. Idempotent; leaves an already-studied entry unchanged. */
+export function markStudied(entry: FamiliarityEntry): FamiliarityEntry {
+  if (isStudied(entry)) return entry;
+  return { ...entry, tags: (entry.tags ?? []).filter((t) => t !== EXPOSED_TAG) };
+}
+
 const clamp01 = (n: number): number => Math.max(0, Math.min(1, n));
 
 /** Normalize a surface form to a lexKey: NFC, lowercase, trim, strip edge punctuation, collapse ws.
