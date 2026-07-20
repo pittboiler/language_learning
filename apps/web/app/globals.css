@@ -76,6 +76,12 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .opt { border: 1px solid var(--line); background: var(--card); color: var(--fg); padding: 8px 14px; border-radius: 8px; cursor: pointer; font: inherit; margin: 4px 6px 0 0; }
 .opt.right { border-color: var(--ok); color: var(--ok); }
 .opt.wrong { border-color: var(--bad); color: var(--bad); }
+.opt.sel { border-color: var(--accent); color: var(--accent); }
+.opt.matched { opacity: .5; cursor: default; }
+/* Warm-up matching game: two tap-to-pair columns (words ↔ meanings). */
+.match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.match-col { display: flex; flex-direction: column; gap: 8px; }
+.match-col .opt { width: 100%; margin: 0; text-align: center; transition: border-color .15s, opacity .2s; }
 .why { font-size: 13px; color: var(--mut); margin-top: 8px; }
 .rline { padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; background: var(--bg); cursor: pointer; }
 .rmk { font-size: 17px; }

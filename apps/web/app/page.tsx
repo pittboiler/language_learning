@@ -79,7 +79,7 @@ const packUnreviewed = (pack: LanguagePack) => pack.scenarios.length > 0 && pack
 // whole pack. (known ⇒ srs null ⇒ not due.)
 const isDue = (p: Progress, item: ReviewItem, now: Date): boolean => {
   const e = p.familiarity[familiarity.deriveKeyForItem(item).lexKey];
-  return !!e && !!e.srs && new Date(e.srs.due) <= now;
+  return !!e && familiarity.isStudied(e) && !!e.srs && new Date(e.srs.due) <= now;
 };
 // Grade a review item → next Progress with its familiarity entry rescheduled via the same FSRS engine.
 const gradeItem = (p: Progress, item: ReviewItem, ok: boolean): Progress => {
@@ -105,19 +105,26 @@ const bumpStreak = (p: Progress): Progress => {
 };
 // Mark a grammar concept's rule as introduced (so later it's surfaced just-in-time, not re-taught).
 const markSeen = (p: Progress, conceptId: string): Progress => ({ ...p, seenGrammar: { ...p.seenGrammar, [conceptId]: true } });
-// Capture a batch of pre-taught words into familiarity (the "new words" step before the story).
+// Capture a batch of pre-taught words into familiarity (the "new words" step before the story). These
+// are STUDIED — the learner just worked through them — so they're eligible for review. A word that was
+// only exposed before (seeded by an earlier story read) gets promoted to studied here.
 const captureWords = (p: Progress, words: { lexKey: string; gloss?: string }[]): Progress => {
   const fam = { ...p.familiarity };
   for (const w of words) {
-    if (!fam[w.lexKey]) fam[w.lexKey] = familiarity.capture({ lexKey: w.lexKey, kind: w.lexKey.includes(" ") ? "chunk" : "word", display: w.lexKey, gloss: w.gloss });
+    const kind = w.lexKey.includes(" ") ? "chunk" : "word";
+    fam[w.lexKey] = fam[w.lexKey]
+      ? familiarity.markStudied(fam[w.lexKey]!)
+      : familiarity.capture({ lexKey: w.lexKey, kind, display: w.lexKey, gloss: w.gloss });
   }
   return { ...p, familiarity: fam };
 };
-// Seed a story's registered vocab into familiarity (reading it "teaches" those words).
+// Seed a story's registered vocab into familiarity (reading it EXPOSES those words). Tagged "exposed":
+// they color the reader + count toward comprehension, but stay OUT of active review until the learner
+// engages with them directly — so warm-up never cold-quizzes a word only glimpsed in a story.
 const seedStoryVocab = (p: Progress, story: MiniStory): Progress => {
   const fam = { ...p.familiarity };
   for (const v of story.registersVocab) {
-    if (!fam[v.lexKey]) fam[v.lexKey] = familiarity.capture({ lexKey: v.lexKey, kind: v.lexKey.includes(" ") ? "chunk" : "word", display: v.lexKey, gloss: v.gloss });
+    if (!fam[v.lexKey]) fam[v.lexKey] = familiarity.capture({ lexKey: v.lexKey, kind: v.lexKey.includes(" ") ? "chunk" : "word", display: v.lexKey, gloss: v.gloss, tags: [familiarity.EXPOSED_TAG] });
   }
   return { ...p, familiarity: fam };
 };
@@ -195,7 +202,7 @@ export default function Home() {
     const pool = reviewPool(pack);
     const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
     const poolDue = pool.filter((it) => isDue(progress, it, now)).length;
-    const capturedDue = Object.values(progress.familiarity).filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack)).length;
+    const capturedDue = Object.values(progress.familiarity).filter((e) => familiarity.isStudied(e) && e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack)).length;
     return poolDue + capturedDue;
   }, [progress, pack]);
   const level = useMemo(() => computeLevel(pack, progress), [pack, progress]);
@@ -302,7 +309,16 @@ function Today({ progress, persist, config, navigate }: {
   const steps = useMemo<TodayStep[]>(() => {
     const out: TodayStep[] = [];
     const now = new Date();
-    const due = reviewPool(pack).filter((it) => isDue(progress, it, now)).slice(0, 6);
+    // Due studied items, deduped by lexKey — the pool can hold two items for one word (e.g. an authored
+    // vocab entry + a generated one both defining "пиво"), which would otherwise surface it twice.
+    const seenDue = new Set<string>();
+    const due = reviewPool(pack).filter((it) => {
+      if (!isDue(progress, it, now)) return false;
+      const k = familiarity.deriveKeyForItem(it).lexKey;
+      if (seenDue.has(k)) return false;
+      seenDue.add(k);
+      return true;
+    }).slice(0, 6);
     if (due.length) out.push({ kind: "warmup", items: due });
 
     // One coherent unit per session: a story + the scenario that practises it. The unit stays for a few
@@ -355,7 +371,6 @@ function Today({ progress, persist, config, navigate }: {
 
   const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
-  const [subIdx, setSubIdx] = useState(0);
   // Items missed this session (auto-collected) → offered as an optional recap once the flow is done.
   const [missed, setMissed] = useState<ReviewItem[]>([]);
   const [recap, setRecap] = useState<"offer" | "review" | "done">("offer");
@@ -374,7 +389,6 @@ function Today({ progress, persist, config, navigate }: {
   // Advance to the next step, persisting a single merged Progress and counting the day toward the streak.
   const done = (mutated: Progress = progress) => {
     persist(bumpStreak(mutated));
-    setSubIdx(0);
     setIdx((i) => i + 1);
   };
 
@@ -445,23 +459,19 @@ function Today({ progress, persist, config, navigate }: {
       <div className="muted small" style={{ marginBottom: 14 }}>Step {idx + 1} of {steps.length} · ~{est} min</div>
 
       <div key={idx}>
-        {step.kind === "warmup" && (() => {
-          const item = step.items[subIdx]!;
-          const grade = (ok: boolean) => {
-            if (!ok) flag(item);
-            const graded = gradeItem(progress, item, ok);
-            if (subIdx + 1 >= step.items.length) done(graded);
-            else { persist(graded); setSubIdx((s) => s + 1); }
-          };
-          return (
-            <div>
-              <Tag>Warm up · {step.items.length - subIdx} to review</Tag>
-              {item.kind === "grammar"
-                ? <GrammarCard key={item.id} item={item} onGrade={grade} />
-                : <PhraseCard key={item.id} item={item} onGrade={grade} />}
-            </div>
-          );
-        })()}
+        {step.kind === "warmup" && (
+          <WarmupSession
+            key={idx}
+            items={step.items}
+            progress={progress}
+            onMiss={flag}
+            onComplete={(results) => {
+              let p = progress;
+              for (const r of results) p = gradeItem(p, r.item, r.ok);
+              done(p);
+            }}
+          />
+        )}
 
         {step.kind === "newwords" && (
           <div>
@@ -537,6 +547,122 @@ function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: () => vo
       {current.kind === "grammar"
         ? <GrammarCard key={`${current.id}-${n}`} item={current} onGrade={grade} />
         : <PhraseCard key={`${current.id}-${n}`} item={current} onGrade={grade} />}
+    </div>
+  );
+}
+
+// ---------- Warm-up: an engaging, adaptive review opener ----------
+// Instead of a flat stack of flip-cards, the warm-up blends formats by how well a word is known:
+//  • a MATCHING GAME (tap-to-pair, audio + recognition) for studied-but-not-yet-cemented words,
+//  • in-CONTEXT cloze for words captured while reading (we have the sentence they were met in),
+//  • plain RECALL for mature words with no saved context, and
+//  • the usual grammar multiple-choice for grammar drills.
+// Every item is graded exactly once; results are handed back in a single batch so the caller reschedules
+// SRS + advances in one step. Recognition-before-recall keeps a shaky word from being a cold wall.
+type WarmResult = { item: ReviewItem; ok: boolean };
+
+// A quick tap-to-match game: tap a word (hear it), then tap its meaning. Pairs matched on the first try
+// grade "good"; a wrong attempt first marks that word "again". Lighter + more fun than recalling each cold.
+function MatchGame({ pairs, onDone }: { pairs: { item: ReviewItem; target: string; gloss: string }[]; onDone: (results: WarmResult[]) => void }) {
+  const play = usePlay();
+  // Each column shows the same pairs in an independent shuffle; buttons carry the pair index.
+  const leftOrder = useMemo(() => shuffle(pairs.map((_, i) => i)), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const rightOrder = useMemo(() => shuffle(pairs.map((_, i) => i)), []); // eslint-disable-line react-hooks/exhaustive-deps
+  const [sel, setSel] = useState<number | null>(null);
+  const [matched, setMatched] = useState<Set<number>>(new Set());
+  const [missed, setMissed] = useState<Set<number>>(new Set());
+  const [wrong, setWrong] = useState<number | null>(null);
+  const pickTarget = (i: number) => { if (matched.has(i)) return; setSel(i); play(pairs[i]!.target, 0.8); };
+  const pickGloss = (i: number) => {
+    if (matched.has(i) || sel === null) return;
+    if (i === sel) {
+      const next = new Set(matched); next.add(i); setMatched(next); setSel(null);
+      if (next.size === pairs.length) onDone(pairs.map((p, j) => ({ item: p.item, ok: !missed.has(j) })));
+    } else {
+      setMissed((m) => new Set(m).add(sel));
+      setWrong(i);
+      setTimeout(() => setWrong((w) => (w === i ? null : w)), 450);
+    }
+  };
+  return (
+    <div className="fb">
+      <p className="lead" style={{ marginTop: 0 }}>Match each word to its meaning — tap a word to hear it, then tap what it means.</p>
+      <div className="match-grid">
+        <div className="match-col">
+          {leftOrder.map((i) => (
+            <button key={i} className={`opt${matched.has(i) ? " right matched" : sel === i ? " sel" : ""}`} disabled={matched.has(i)} onClick={() => pickTarget(i)}>{pairs[i]!.target}</button>
+          ))}
+        </div>
+        <div className="match-col">
+          {rightOrder.map((i) => (
+            <button key={i} className={`opt${matched.has(i) ? " right matched" : wrong === i ? " wrong" : ""}`} disabled={matched.has(i)} onClick={() => pickGloss(i)}>{pairs[i]!.gloss}</button>
+          ))}
+        </div>
+      </div>
+      <div className="muted small" style={{ marginTop: 10 }}>{matched.size}/{pairs.length} matched</div>
+    </div>
+  );
+}
+
+type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string };
+type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard };
+
+function WarmupSession({ items, progress, onComplete, onMiss }: {
+  items: ReviewItem[];
+  progress: Progress;
+  onComplete: (results: WarmResult[]) => void;
+  onMiss: (item: ReviewItem) => void;
+}) {
+  // Route each due item to the format that best fits how well it's known (built once, at mount).
+  const plan = useMemo<WarmStep[]>(() => {
+    const matchPairs: { item: ReviewItem; target: string; gloss: string }[] = [];
+    const cards: WarmCard[] = [];
+    for (const it of items) {
+      if (it.kind === "grammar") { cards.push({ item: it, format: "grammar" }); continue; }
+      const spec = familiarity.deriveKeyForItem(it);
+      const entry = progress.familiarity[spec.lexKey];
+      const context = progress.contexts?.[spec.lexKey];
+      const reps = entry?.srs?.card?.reps ?? 0;
+      // A saved sentence ⇒ review the word IN CONTEXT (cloze). Otherwise young words go to the match
+      // game (recognition), and words drilled a few times get a plain recall card.
+      if (context) cards.push({ item: it, format: "cloze", entry, context });
+      else if (reps >= 2) cards.push({ item: it, format: "recall" });
+      else matchPairs.push({ item: it, target: it.answer, gloss: it.gloss || spec.gloss || it.answer });
+    }
+    // A one-word "match" is silly — turn a lone match candidate into a recall card instead.
+    if (matchPairs.length === 1) { cards.unshift({ item: matchPairs[0]!.item, format: "recall" }); matchPairs.length = 0; }
+    const steps: WarmStep[] = [];
+    if (matchPairs.length >= 2) steps.push({ kind: "match", pairs: matchPairs });
+    for (const c of cards) steps.push({ kind: "card", card: c });
+    return steps;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const [stepIdx, setStepIdx] = useState(0);
+  const results = useRef<WarmResult[]>([]);
+  const doneRef = useRef(false);
+  const record = (rs: WarmResult[]) => { for (const r of rs) { results.current.push(r); if (!r.ok) onMiss(r.item); } };
+  // Fire onComplete exactly once — when we run past the last step (or immediately if the plan is empty).
+  useEffect(() => {
+    if (doneRef.current) return;
+    if (stepIdx >= plan.length) { doneRef.current = true; onComplete(results.current); }
+  }, [stepIdx, plan.length, onComplete]);
+
+  const step = plan[stepIdx];
+  if (!step) return null;
+  const advance = () => setStepIdx((s) => s + 1);
+  return (
+    <div>
+      <Tag>Warm up · {stepIdx + 1} of {plan.length}</Tag>
+      {step.kind === "match" ? (
+        <MatchGame key={stepIdx} pairs={step.pairs} onDone={(rs) => { record(rs); advance(); }} />
+      ) : (() => {
+        const c = step.card;
+        const grade = (ok: boolean) => { record([{ item: c.item, ok }]); advance(); };
+        if (c.format === "grammar") return <GrammarCard key={stepIdx} item={c.item} onGrade={grade} />;
+        if (c.format === "cloze" && c.entry) return <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={progress.contextGlosses?.[c.entry.lexKey]} onGrade={grade} />;
+        return <PhraseCard key={stepIdx} item={c.item} onGrade={grade} />;
+      })()}
     </div>
   );
 }
@@ -1892,7 +2018,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
     // Retroactive guard: drop proper-noun captures (names enrolled before name-exclusion existed) so a
     // stale "Ана" card never tests a name — the same rule new captures already follow.
     const capturedUnits: ReviewUnit[] = Object.values(progress.familiarity)
-      .filter((e) => e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack))
+      .filter((e) => familiarity.isStudied(e) && e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack))
       .map((e) => ({ type: "captured", key: e.lexKey, entry: e, strength: e.strength }));
     const nowMs = now.getTime();
     const dueMs = (u: ReviewUnit) => {
