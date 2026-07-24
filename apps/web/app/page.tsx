@@ -604,7 +604,7 @@ function MatchGame({ pairs, onDone }: { pairs: { item: ReviewItem; target: strin
   );
 }
 
-type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string };
+type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
 type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard };
 
 function WarmupSession({ items, progress, onComplete, onMiss }: {
@@ -613,6 +613,9 @@ function WarmupSession({ items, progress, onComplete, onMiss }: {
   onComplete: (results: WarmResult[]) => void;
   onMiss: (item: ReviewItem) => void;
 }) {
+  const pack = usePack();
+  // For back-translating a stored sentence when its English wasn't saved (parity with the Library flashcards).
+  const lineGlosses = useMemo(() => buildLineGlosses(pack), [pack]);
   // Route each due item to the format that best fits how well it's known (built once, at mount).
   const plan = useMemo<WarmStep[]>(() => {
     const matchPairs: { item: ReviewItem; target: string; gloss: string }[] = [];
@@ -622,10 +625,13 @@ function WarmupSession({ items, progress, onComplete, onMiss }: {
       const spec = familiarity.deriveKeyForItem(it);
       const entry = progress.familiarity[spec.lexKey];
       const context = progress.contexts?.[spec.lexKey];
+      // The sentence's English — stored, else back-translated from the pack line. A cloze NEEDS this
+      // (a blank with no translation is unsolvable), so a sentence we can't translate isn't clozed.
+      const contextGloss = context ? (progress.contextGlosses?.[spec.lexKey] ?? lineGlosses.get(context.trim())) : undefined;
       const reps = entry?.srs?.card?.reps ?? 0;
-      // A saved sentence ⇒ review the word IN CONTEXT (cloze). Otherwise young words go to the match
-      // game (recognition), and words drilled a few times get a plain recall card.
-      if (context) cards.push({ item: it, format: "cloze", entry, context });
+      // A saved, translatable sentence ⇒ review the word IN CONTEXT (cloze). Otherwise young words go to
+      // the match game (recognition), and words drilled a few times get a plain recall card.
+      if (context && contextGloss) cards.push({ item: it, format: "cloze", entry, context, contextGloss });
       else if (reps >= 2) cards.push({ item: it, format: "recall" });
       else matchPairs.push({ item: it, target: it.answer, gloss: it.gloss || spec.gloss || it.answer });
     }
@@ -660,7 +666,7 @@ function WarmupSession({ items, progress, onComplete, onMiss }: {
         const c = step.card;
         const grade = (ok: boolean) => { record([{ item: c.item, ok }]); advance(); };
         if (c.format === "grammar") return <GrammarCard key={stepIdx} item={c.item} onGrade={grade} />;
-        if (c.format === "cloze" && c.entry) return <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={progress.contextGlosses?.[c.entry.lexKey]} onGrade={grade} />;
+        if (c.format === "cloze" && c.entry) return <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={c.contextGloss} onGrade={grade} />;
         return <PhraseCard key={stepIdx} item={c.item} onGrade={grade} />;
       })()}
     </div>
@@ -2068,12 +2074,15 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
   const play = usePlay();
   const [revealed, setRevealed] = useState(false);
   const blanked = context ? context.replace(new RegExp(`(^|[^\\p{L}])(${escapeRe(entry.display)})(?=[^\\p{L}]|$)`, "iu"), (_m, pre) => `${pre}____`) : null;
-  const cloze = blanked && blanked !== context ? blanked : null;
+  // Only blank the sentence when we also have its English — a fill-in-the-blank with no translation gives
+  // the learner no way to know which word to produce. Without the English, fall back to the plain recall
+  // card below (which shows the word's own gloss).
+  const cloze = contextGloss && blanked && blanked !== context ? blanked : null;
   return (
     <div className="fb">
       {cloze ? (
         <>
-          <div className="muted small">Say the missing word{contextGloss ? ` — “${contextGloss}”` : ""}:</div>
+          <div className="muted small">Say the missing word — “{contextGloss}”:</div>
           <div style={{ fontSize: 19, margin: "8px 0", lineHeight: 1.5 }}>{cloze}</div>
         </>
       ) : (
