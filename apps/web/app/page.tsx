@@ -1246,7 +1246,21 @@ function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hide
 
 // Focus-on-form: surface the grammar a scenario uses as bite-size, just-in-time notes — tap to expand
 // the rule + examples right where it's relevant, without leaving the conversation.
-function ScenarioGrammar({ ids }: { ids: string[] }) {
+// The grammar concepts a story exercises. Stories carry no grammar link of their own, but promoted
+// story ids follow the `<scenarioId>-story` convention, so we borrow the matching scenario's
+// requiredStructures. Falls back to a same-theme scenario (covers the hand-authored `ana-coffee`,
+// whose café theme maps to the café scenario's structures). No data changes needed.
+function storyGrammarIds(pack: LanguagePack, story: MiniStory): string[] {
+  const scenarioId = story.id.replace(/-story$/, "");
+  const direct = pack.scenarios.find((s) => s.id === scenarioId);
+  if (direct?.requiredStructures.length) return direct.requiredStructures;
+  const byTheme = story.theme
+    ? pack.scenarios.find((s) => s.theme && s.theme === story.theme && s.requiredStructures.length)
+    : undefined;
+  return byTheme?.requiredStructures ?? [];
+}
+
+function ScenarioGrammar({ ids, label = "Grammar here:" }: { ids: string[]; label?: string }) {
   const pack = usePack();
   const concepts = ids.map((id) => pack.grammar.find((c) => c.id === id)).filter((c): c is GrammarConcept => !!c);
   const [open, setOpen] = useState<string | null>(null);
@@ -1254,7 +1268,7 @@ function ScenarioGrammar({ ids }: { ids: string[] }) {
   const shown = concepts.find((c) => c.id === open);
   return (
     <div className="gram-inline">
-      <span className="muted small">Grammar here:</span>
+      <span className="muted small">{label}</span>
       {concepts.map((c) => (
         <button key={c.id} className={`ghost small ${open === c.id ? "active" : ""}`} onClick={() => setOpen(open === c.id ? null : c.id)}>ⓖ {c.name}</button>
       ))}
@@ -1780,6 +1794,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
     <>
       <p className="lead">Listen and read along; tap any word to look it up. Read each line, then tap the greyed English on the right to check yourself.</p>
       <HighlightLegend />
+      <ScenarioGrammar ids={storyGrammarIds(pack, story)} label="Grammar in this story:" />
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
         <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
