@@ -23,6 +23,7 @@ import { captureWord, properNounLike, buildLineGlosses } from "../lib/capture";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
+import { translitOr } from "../lib/romanize";
 import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
@@ -1595,9 +1596,9 @@ function Reading({ progress, persist, config }: { progress: Progress; persist: (
         </div>
       )}
       <p className="lead">
-        Tap any word to look it up — it joins your vocabulary. <b>{lines.length ? Math.round(score.knownPct * 100) : 0}% known</b> for you.{" "}
-        <span className="tok new">new</span> <span className="tok learning">learning</span> <span className="tok known">known</span>
+        Tap any word to look it up — it joins your vocabulary. <b>{lines.length ? Math.round(score.knownPct * 100) : 0}% known</b> for you.
       </p>
+      <HighlightLegend />
       <div className="reader">
         {lines.length === 0 ? (
           <p className="muted">No content yet — import some text above.</p>
@@ -1624,6 +1625,21 @@ function ReaderRow({ line, progress, play, onTapWord }: { line: { text: string; 
 
 function WordToken({ surface, status, onTap }: { surface: string; status: string; onTap: () => void }) {
   return <span className={`tok ${status}`} onClick={onTap}>{surface}</span>;
+}
+
+// A key to the word colors, shared by every tap-to-read view. Also explains the state change on tap
+// (a blue "new" word turns yellow once you've met it) so the shifting highlights don't look random.
+function HighlightLegend() {
+  return (
+    <p className="small muted" style={{ margin: "2px 0 0", lineHeight: 1.7 }}>
+      <span className="tok new">new</span> not met yet ·{" "}
+      <span className="tok learning">learning</span> in your reviews ·{" "}
+      <span className="tok known">known</span> mastered (no highlight) ·{" "}
+      <span className="tok ignored">Name</span> skipped.{" "}
+      Tapping a <span className="tok new">new</span> word looks it up and starts learning it — so it turns{" "}
+      <span className="tok learning">yellow</span>.
+    </p>
+  );
 }
 
 // Renders a line as tappable, status-colored word tokens. Shared by the reader + the story player.
@@ -1763,6 +1779,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
   return (
     <>
       <p className="lead">Listen and read along; tap any word to look it up. Read each line, then tap the greyed English on the right to check yourself.</p>
+      <HighlightLegend />
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
         <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
@@ -2392,7 +2409,7 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
       {session.turns.filter((t) => t.spokenBy).map((t) => (
         <div className="fb" key={t.index}>
           <span className="muted small">{t.speaker === myRole ? "you" : "partner"}:</span> <b>{t.text}</b>
-          {t.translit ? <span className="translit"> · {t.translit}</span> : null}
+          <span className="translit"> · {translitOr(t.text, t.translit)}</span>
           {t.transcript ? <div className="muted small">heard: {t.transcript}{typeof t.score === "number" ? ` · ${t.score}/100` : " · scoring…"}</div> : null}
         </div>
       ))}
@@ -2403,14 +2420,14 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
         <div className="fb">
           <div className="muted small">Your line:</div>
           <div className="row"><button className="spk" onClick={() => turn && play(turn.text, 0.9)}>🔊</button> <b>{turn?.text}</b></div>
-          <div className="gloss">{turn?.gloss}{turn?.translit ? ` · ${turn.translit}` : ""}</div>
+          <div className="gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
           {recording ? <button className="rec" onClick={speak}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={startRec}>{busy ? "scoring…" : "● say it"}</button>}
         </div>
       ) : (
         <div className="fb">
           <div className="muted small">🎙 Your partner&apos;s line — follow along &amp; help:</div>
           <div className="row"><button className="spk" onClick={() => turn && play(turn.text, 0.9)}>🔊</button> <b>{turn?.text}</b></div>
-          <div className="gloss">{turn?.gloss}{turn?.translit ? ` · ${turn.translit}` : ""}</div>
+          <div className="gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
         </div>
       )}
     </div>
@@ -2562,7 +2579,7 @@ function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
           {brief.targetPhrases.map((p, i) => (
             <div className="row" key={i} style={{ marginTop: 2 }}>
               <button className="spk" onClick={() => play(p.text, 0.9)}>🔊</button>
-              <span><b>{p.text}</b> <span className="muted small">— {p.gloss}</span></span>
+              <span><b>{p.text}</b> <span className="muted small">· {translitOr(p.text, p.translit)} — {p.gloss}</span></span>
             </div>
           ))}
         </div>
@@ -2844,7 +2861,7 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
         const mine = t.speaker === myRole;
         return (
           <div className="fb" key={t.index}>
-            <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss}{t.translit ? ` · ${t.translit}` : ""}</span></div>
+            <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss} · {translitOr(t.text, t.translit)}</span></div>
             {t.recordedBy ? (
               <div className="row" style={{ marginTop: 4 }}>
                 <button className="ghost small" onClick={() => t.audio && playDataUrl(t.audio)}>▶ play</button>

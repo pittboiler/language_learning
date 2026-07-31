@@ -53,6 +53,9 @@ export interface StructuredCallOpts {
   maxTokens: number;
   /** Adaptive thinking — on for offline correctness work; omit for fast live turns. */
   thinking?: boolean;
+  /** Sampling temperature. Omit for the API default (1); set 0 for reproducible outputs (e.g. a word
+   *  gloss two users must see identically). */
+  temperature?: number;
 }
 
 export interface StructuredResult<T> {
@@ -79,6 +82,7 @@ export async function structuredCall<T>(opts: StructuredCallOpts): Promise<Struc
       format: { type: "json_schema", schema: opts.schema },
     },
   };
+  if (opts.temperature !== undefined) params.temperature = opts.temperature;
   if (opts.thinking) params.thinking = { type: "adaptive" };
 
   const msg = await getClient().messages.create(params);
