@@ -63,6 +63,24 @@ const toPartnership = (r: PartnershipRow): Partnership => ({
   updatedAt: new Date(r.updated_at),
 });
 
+/**
+ * Deterministic UUID from stable parts, so both partners derive the SAME `partner_artifact.id` for a
+ * shared session (kind + partnership + scenario) and converge on ONE row instead of racing to create
+ * rival sessions. The artifact PK is a `uuid` column, so the old `"live:<pid>:<scenario>"` string id was
+ * rejected by Postgres (22P02 invalid uuid) — every picker `putArtifact` failed silently, which read as
+ * "clicking a scenario does nothing". Hashing the parts into a valid v8 uuid keeps the convergence and
+ * fixes the write. Async because it uses SubtleCrypto; the callers are already async.
+ */
+export async function sharedArtifactId(...parts: string[]): Promise<string> {
+  const bytes = new TextEncoder().encode(parts.join(""));
+  const digest = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+  const b = digest.subarray(0, 16);
+  b[6] = (b[6]! & 0x0f) | 0x80; // version 8 (custom) — value only needs to be a syntactically valid uuid
+  b[8] = (b[8]! & 0x3f) | 0x80; // RFC 4122 variant
+  const hex = Array.from(b, (x) => x.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20, 32)}`;
+}
+
 /** Short, human-shareable invite code (6 chars, no ambiguous 0/O/1/I). */
 function makeInviteCode(): string {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";

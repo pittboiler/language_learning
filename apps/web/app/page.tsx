@@ -22,7 +22,7 @@ import { NEW_WORDS_PER_SESSION, localDay, markStorySeen, storyDone } from "../li
 import { captureWord, properNounLike, buildLineGlosses } from "../lib/capture";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
-import { getPartnerStore, subscribeArtifacts, joinPresence, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
+import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
 import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
@@ -2268,6 +2268,7 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
   const [recording, setRecording] = useState(false);
   const [busy, setBusy] = useState(false);
   const [tip, setTip] = useState(""); // short coaching tip for my last line, fetched off the critical path
+  const [err, setErr] = useState(""); // surface start/sync failures instead of a dead click
   const rec = useRef(makeRecorder());
 
   const refresh = useCallback(async () => {
@@ -2297,20 +2298,25 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
   const start = async (scenarioId: string) => {
     const sc = pack.scenarios.find((s) => s.id === scenarioId);
     if (!sc) return;
-    // Deterministic id per (partnership, scenario): two partners starting the same scenario converge on
-    // ONE row (PK upsert) instead of minting rival sessions with swapped roles — the dual-learner/deadlock
-    // fix, no migration needed. Join an existing session rather than overwriting its in-progress state.
-    const id = `live:${partnershipId}:${scenarioId}`;
-    const existing = (await store.listArtifacts(partnershipId, "live")).find((x) => x.id === id);
-    if (existing) {
-      setSession(existing.payload as LiveSession);
-      setSid(id);
-      return;
+    setErr("");
+    try {
+      // Deterministic id per (partnership, scenario): two partners starting the same scenario converge on
+      // ONE row (PK upsert) instead of minting rival sessions with swapped roles — the dual-learner/deadlock
+      // fix, no migration needed. Join an existing session rather than overwriting its in-progress state.
+      const id = await sharedArtifactId("live", partnershipId, scenarioId);
+      const existing = (await store.listArtifacts(partnershipId, "live")).find((x) => x.id === id);
+      if (existing) {
+        setSession(existing.payload as LiveSession);
+        setSid(id);
+        return;
+      }
+      const sess = live.startLive(id, packId, sc, live.assignLiveRolesStable(myId, partnerId));
+      await store.putArtifact(partnershipId, packId, "live", sess, id);
+      setSession(sess);
+      setSid(id); // activate refresh + realtime for the just-created session
+    } catch (e) {
+      setErr((e as { message?: string }).message ?? "Couldn't start the session — try again.");
     }
-    const sess = live.startLive(id, packId, sc, live.assignLiveRolesStable(myId, partnerId));
-    await store.putArtifact(partnershipId, packId, "live", sess, id);
-    setSession(sess);
-    setSid(id); // activate refresh + realtime for the just-created session
   };
 
   const startRec = async () => {
@@ -2357,6 +2363,7 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
     return (
       <div style={colStack}>
         <span className="small">Pick a scenario to do live together</span>
+        {err ? <div className="err">{err}</div> : null}
         <div className="cards">
           {pack.scenarios.map((s) => (
             <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
@@ -2470,6 +2477,7 @@ function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
   const pack = usePack();
   const play = usePlay();
   const [session, setSession] = useState<InfoGapSession | null>(null);
+  const [err, setErr] = useState(""); // surface start failures instead of a dead click
 
   const refresh = useCallback(async () => {
     if (sessionId === "new") return;
@@ -2487,18 +2495,23 @@ function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
   const start = async (taskId: string) => {
     const task = pack.infoGapTasks?.find((t) => t.id === taskId);
     if (!task) return;
-    // Deterministic id + join-don't-duplicate: one shared task per (partnership, task) so both halves
-    // and the shared checklist live on a single row. Sorted ids keep the A/B assignment stable.
-    const id = `infogap:${partnershipId}:${taskId}`;
-    const existing = (await store.listArtifacts(partnershipId, "infogap")).find((x) => x.id === id);
-    if (existing) {
-      setSession(existing.payload as InfoGapSession);
-      return;
+    setErr("");
+    try {
+      // Deterministic id + join-don't-duplicate: one shared task per (partnership, task) so both halves
+      // and the shared checklist live on a single row. Sorted ids keep the A/B assignment stable.
+      const id = await sharedArtifactId("infogap", partnershipId, taskId);
+      const existing = (await store.listArtifacts(partnershipId, "infogap")).find((x) => x.id === id);
+      if (existing) {
+        setSession(existing.payload as InfoGapSession);
+        return;
+      }
+      const [lo, hi] = [myId, partnerId].sort();
+      const sess = infogap.startInfoGap(id, packId, task, { [lo!]: "A", [hi!]: "B" });
+      await store.putArtifact(partnershipId, packId, "infogap", sess, id);
+      setSession(sess);
+    } catch (e) {
+      setErr((e as { message?: string }).message ?? "Couldn't start the challenge — try again.");
     }
-    const [lo, hi] = [myId, partnerId].sort();
-    const sess = infogap.startInfoGap(id, packId, task, { [lo!]: "A", [hi!]: "B" });
-    await store.putArtifact(partnershipId, packId, "infogap", sess, id);
-    setSession(sess);
   };
 
   const toggle = async (task: InfoGapTask, criterionId: string) => {
@@ -2512,6 +2525,7 @@ function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
     return (
       <div style={colStack}>
         <span className="small">Pick an info-gap challenge</span>
+        {err ? <div className="err">{err}</div> : null}
         <div className="cards">
           {(pack.infoGapTasks ?? []).map((t) => (
             <button key={t.id} className="contentcard" onClick={() => start(t.id)}>
@@ -2733,6 +2747,7 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
   const [session, setSession] = useState<RoleSwapSession | null>(null);
   const [recIdx, setRecIdx] = useState<number | null>(null);
   const [busyIdx, setBusyIdx] = useState<number | null>(null);
+  const [err, setErr] = useState(""); // surface start failures instead of a dead click
   const rec = useRef(makeRecorder());
 
   const refresh = useCallback(async () => {
@@ -2751,18 +2766,23 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
   const start = async (scenarioId: string) => {
     const sc = pack.scenarios.find((s) => s.id === scenarioId);
     if (!sc) return;
-    // Deterministic id + join-don't-duplicate: both partners land on ONE shared session so their
-    // recordings accumulate together instead of two rival half-recorded copies. Roles sorted for stability.
-    const id = `roleswap:${partnershipId}:${scenarioId}`;
-    const existing = (await store.listArtifacts(partnershipId, "roleswap")).find((x) => x.id === id);
-    if (existing) {
-      setSession(existing.payload as RoleSwapSession);
-      return;
+    setErr("");
+    try {
+      // Deterministic id + join-don't-duplicate: both partners land on ONE shared session so their
+      // recordings accumulate together instead of two rival half-recorded copies. Roles sorted for stability.
+      const id = await sharedArtifactId("roleswap", partnershipId, scenarioId);
+      const existing = (await store.listArtifacts(partnershipId, "roleswap")).find((x) => x.id === id);
+      if (existing) {
+        setSession(existing.payload as RoleSwapSession);
+        return;
+      }
+      const [lo, hi] = [myId, partnerId].sort();
+      const sess = roleswap.startRoleSwap(id, packId, sc, roleswap.assignRoles(lo!, hi!));
+      await store.putArtifact(partnershipId, packId, "roleswap", sess, id);
+      setSession(sess);
+    } catch (e) {
+      setErr((e as { message?: string }).message ?? "Couldn't start the session — try again.");
     }
-    const [lo, hi] = [myId, partnerId].sort();
-    const sess = roleswap.startRoleSwap(id, packId, sc, roleswap.assignRoles(lo!, hi!));
-    await store.putArtifact(partnershipId, packId, "roleswap", sess, id);
-    setSession(sess);
   };
 
   const onRecord = async (turn: RoleSwapTurn) => {
@@ -2799,6 +2819,7 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
     return (
       <div style={colStack}>
         <span className="small">Pick a scenario to act out together</span>
+        {err ? <div className="err">{err}</div> : null}
         <div className="cards">
           {pack.scenarios.map((s) => (
             <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
