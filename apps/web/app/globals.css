@@ -55,6 +55,12 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .spk { background: transparent; border: 1px solid var(--line); color: var(--fg); padding: 2px 7px; font-size: 12px; border-radius: 6px; cursor: pointer; margin-right: 6px; }
 .target { font-size: 26px; font-weight: 600; }
 .translit { color: var(--accent); }
+.breakdown { margin: 12px 0 2px; border-top: 1px solid var(--line); padding-top: 10px; }
+.bd-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.bd-list li { display: flex; gap: 8px; align-items: baseline; font-size: 14px; }
+.bd-part { color: var(--fg); font-weight: 600; min-width: 30%; }
+.bd-gloss { color: var(--mut); }
+.bd-takeaway { margin-top: 10px; font-size: 13px; line-height: 1.5; color: var(--fg); background: rgba(210, 153, 34, .12); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
 .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
 .panel { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
 .panel .lab { font-size: 12px; color: var(--mut); display: flex; justify-content: space-between; }

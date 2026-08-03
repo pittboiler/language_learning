@@ -32,6 +32,11 @@ export interface ReviewItem {
   options?: string[];
   /** Why the drill answer is correct — shown after answering (generic). */
   why?: string;
+  /** Word-by-word breakdown of a multi-word `answer`, shown on the flashcard reveal so the learner
+   *  sees how each piece maps to the meaning. `part`s are surface chunks of `answer`, in order. */
+  breakdown?: { part: string; gloss: string }[];
+  /** One-line "how the pieces fit together" grammar takeaway for a phrase/chunk (learner-facing). */
+  takeaway?: string;
   /** Trust level for generated items; gated until reviewed. Omit ⇒ treated as authored pack data. */
   confidence?: Confidence;
   /** Language-specific fields (gender, aspect, stress notes, …) live here so the schema stays generic. */

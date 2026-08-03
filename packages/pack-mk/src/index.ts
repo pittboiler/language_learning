@@ -1,5 +1,6 @@
-import type { GrammarConcept, LanguagePack } from "@ll/pack-schema";
+import type { GrammarConcept, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
+import { breakdowns } from "./breakdowns.js";
 import { phonology, grammar } from "./grammar.js";
 import { vocab } from "./vocab.js";
 import { readers } from "./readers.js";
@@ -17,6 +18,15 @@ import * as stage2 from "./promoted-stage2.js";
 // Promoted from the offline generation batch after Jake's spot-check (unreviewed → validated).
 const promotedScenarios = generatedScenarios.map((s) => ({ ...s, confidence: "validated" as const }));
 const promotedVocab = generatedVocab.map((v) => ({ ...v, confidence: "validated" as const }));
+
+// Attach the pre-authored word-by-word breakdown + grammar takeaway (breakdowns.ts) to any review item
+// whose `answer` has one, so multi-word phrases/chunks explain their pieces on the flashcard reveal.
+function withBreakdowns(items: ReviewItem[]): ReviewItem[] {
+  return items.map((it) => {
+    const b = breakdowns[it.answer.trim()];
+    return b ? { ...it, breakdown: b.breakdown, takeaway: b.takeaway } : it;
+  });
+}
 
 // Merge grammar concepts by id: the first (hand-authored) concept owns the teaching fields
 // (plain title, pattern table, explanation); drills from later same-id concepts (e.g. the
@@ -49,11 +59,11 @@ export const macedonian: LanguagePack = {
   alphabet,
   phonology,
   grammar: mergeGrammar(grammar, stage1.promotedGrammar),
-  vocab: [...vocab, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab],
+  vocab: withBreakdowns([...vocab, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]),
   scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios],
   readers: [...readers, ...stage1.promotedReaders],
   stories: [...stories, ...stage0.promotedStories, ...stage1.promotedStories, ...stage2.promotedStories],
-  srsSeed: vocab.slice(0, 6),
+  srsSeed: withBreakdowns(vocab.slice(0, 6)),
   writingTasks: [...writingTasks, ...stage1.promotedWritingTasks, ...stage2.promotedWritingTasks],
   infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],
 };

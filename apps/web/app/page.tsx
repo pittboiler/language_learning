@@ -2146,6 +2146,24 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
   );
 }
 
+// Word-by-word breakdown + a one-line "how it fits" takeaway, shown on a phrase/chunk reveal so the
+// learner sees which piece means what and how they combine. Renders nothing for single-word items.
+function PhraseBreakdown({ item }: { item: ReviewItem }) {
+  if (!item.breakdown?.length && !item.takeaway) return null;
+  return (
+    <div className="breakdown">
+      {item.breakdown?.length ? (
+        <ul className="bd-list">
+          {item.breakdown.map((b, i) => (
+            <li key={i}><span className="bd-part">{b.part}</span><span className="bd-gloss">{b.gloss}</span></li>
+          ))}
+        </ul>
+      ) : null}
+      {item.takeaway ? <div className="bd-takeaway">💡 {item.takeaway}</div> : null}
+    </div>
+  );
+}
+
 function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
@@ -2160,6 +2178,7 @@ function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean
         <div>
           <div className="target" style={{ fontSize: 22 }}>{item.answer}</div>
           <div className="translit">{item.translit}</div>
+          <PhraseBreakdown item={item} />
           <div className="row" style={{ marginTop: 10 }}>
             <button className="ghost" onClick={() => play(item.answer, 0.8)}>🔊 hear</button>
             <button className="ghost" onClick={() => onGrade(false)}>Again</button>
