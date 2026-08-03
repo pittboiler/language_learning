@@ -5,6 +5,13 @@ import { structuredCall, MODELS } from "@ll/core/llm";
 import { normalize } from "@ll/core/familiarity";
 import { getPack } from "../../../lib/packs";
 import { getCachedGloss, putCachedGloss, normalizeContext } from "../../../lib/gloss-cache";
+import { romanize } from "../../../lib/romanize";
+
+// Transliteration is a deterministic property of the (Cyrillic) spelling, so we compute it locally
+// rather than trust the LLM — the LLM occasionally slips a homoglyph (надвор → "nadvop"). For a
+// non-Cyrillic word there's nothing to romanize, so we fall back to the authored/LLM value.
+const hasCyrillic = (s: string) => /[Ѐ-ӿ]/.test(s);
+const translitFor = (word: string, fallback?: string) => (hasCyrillic(word) ? romanize(word) : fallback ?? "");
 
 export const runtime = "nodejs";
 export const maxDuration = 20;
@@ -25,15 +32,17 @@ export async function POST(req: Request) {
   const pack = getPack(packId);
   const key = normalize(word);
 
-  // 1. Trusted pack vocab (free, instant).
+  // 1. Trusted pack vocab (free, instant). Authored translit wins; compute only to fill a gap.
   const hit = pack.vocab.find((v) => normalize(v.answer) === key);
-  if (hit) return Response.json({ gloss: hit.gloss, translit: hit.translit ?? "", source: "pack" });
+  if (hit) return Response.json({ gloss: hit.gloss, translit: hit.translit || translitFor(word), source: "pack" });
 
   // 2. Shared cross-user cache (see gloss-cache.ts): the first resolution of a (pack, word, sentence)
   //    is reused by every later reader — so two partners tapping the same word get the SAME definition.
   const ctxKey = normalizeContext(context);
   const cached = await getCachedGloss(pack.id, key, ctxKey);
-  if (cached) return Response.json({ gloss: cached.gloss, translit: cached.translit, lemma: cached.lemma, source: "cache" });
+  // Compute translit fresh (deterministic) so a Cyrillic word is right even if an older cached row
+  // stored a bad LLM romanization.
+  if (cached) return Response.json({ gloss: cached.gloss, translit: translitFor(word, cached.translit), lemma: cached.lemma, source: "cache" });
 
   // 3. Haiku fallback (mechanical), temperature 0 so the same word+sentence resolves reproducibly.
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ gloss: "", translit: "", source: "none" });
@@ -46,9 +55,11 @@ export async function POST(req: Request) {
       schema: GLOSS_SCHEMA,
       maxTokens: 300,
     });
+    // Prefer the computed romanization; keep the LLM's only for non-Cyrillic scripts.
+    const translit = translitFor(word, data.translit);
     // Store for everyone else (best-effort; keyed by normalized word + sentence).
-    await putCachedGloss(pack.id, key, ctxKey, { gloss: data.gloss, translit: data.translit, lemma: data.lemma });
-    return Response.json({ gloss: data.gloss, translit: data.translit, lemma: data.lemma, source: "llm", costUsd });
+    await putCachedGloss(pack.id, key, ctxKey, { gloss: data.gloss, translit, lemma: data.lemma });
+    return Response.json({ gloss: data.gloss, translit, lemma: data.lemma, source: "llm", costUsd });
   } catch (e) {
     return Response.json({ gloss: "", translit: "", source: "error", error: String(e instanceof Error ? e.message : e) }, { status: 500 });
   }
