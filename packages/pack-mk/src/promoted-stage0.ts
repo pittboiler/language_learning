@@ -1029,7 +1029,7 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "„Сѐ уште учам,“ вели Ана.",
-        "translit": "„Sѐ ušte učam,“ veli Ana.",
+        "translit": "„Sè ušte učam,“ veli Ana.",
         "gloss": "\"I'm still learning,\" Ana says."
       },
       {
@@ -1062,7 +1062,7 @@ export const promotedStories: MiniStory[] = [
         "questionGloss": "Does Ana know Macedonian well?",
         "answer": "Не, сѐ уште учи.",
         "answerGloss": "No, she is still learning.",
-        "answerTranslit": "Ne, sѐ ušte uči."
+        "answerTranslit": "Ne, sè ušte uči."
       }
     ],
     "registersVocab": [

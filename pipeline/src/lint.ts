@@ -1,4 +1,4 @@
-import type { GrammarConcept } from "@ll/pack-schema";
+import type { GrammarConcept, LanguagePack } from "@ll/pack-schema";
 
 // Language-agnostic STRUCTURAL lint for grammar drills. The line-level Validator checks whether the
 // answer text is correct, natural Bulgarian/etc. — but it never sees the option SET, so it can't
@@ -13,6 +13,45 @@ export interface DrillLintIssue {
   drillId: string;
   kind: DrillLintKind;
   detail: string;
+}
+
+// --- Transliteration homoglyph lint -------------------------------------------------------------
+// The LLM romanizer occasionally keeps a source-script glyph inside an otherwise-Latin translit — e.g.
+// Cyrillic "ѐ" (U+0450) pasted into "Sѐ ušte…" where Latin "è" was meant. It renders as a normal-looking
+// Latin letter, so it's invisible to review but wrong (and it breaks any text->romanization matching).
+// A translit / answerTranslit / targetPhrase.translit value must contain NO Cyrillic (U+0400–U+04FF).
+
+export interface TranslitLintIssue {
+  location: string; // e.g. "story gen-s0-repair-story body[3].translit"
+  value: string; // the offending string
+  cyrillic: string[]; // the specific out-of-place Cyrillic character(s)
+}
+
+const CYRILLIC = /[\u0400-\u04FF]/;
+const cyrillicChars = (s: string): string[] => [...new Set([...s].filter((ch) => CYRILLIC.test(ch)))];
+
+/** Every translit-bearing field in a pack whose value smuggles in a Cyrillic homoglyph (empty ⇒ clean). */
+export function lintTranslit(pack: LanguagePack): TranslitLintIssue[] {
+  const issues: TranslitLintIssue[] = [];
+  const check = (value: string | undefined, location: string) => {
+    if (!value) return;
+    const bad = cyrillicChars(value);
+    if (bad.length) issues.push({ location, value, cyrillic: bad });
+  };
+  pack.vocab.forEach((v) => check(v.translit, `vocab ${v.id}.translit`));
+  pack.srsSeed.forEach((v) => check(v.translit, `srsSeed ${v.id}.translit`));
+  pack.scenarios.forEach((s) => s.script.forEach((t, i) => check(t.translit, `scenario ${s.id} script[${i}].translit`)));
+  pack.readers.forEach((r) => r.body.forEach((t, i) => check(t.translit, `reader ${r.id} body[${i}].translit`)));
+  (pack.stories ?? []).forEach((st) => {
+    st.body.forEach((seg, i) => check(seg.translit, `story ${st.id} body[${i}].translit`));
+    st.qa.forEach((q) => check(q.answerTranslit, `story ${st.id} qa ${q.id}.answerTranslit`));
+  });
+  (pack.infoGapTasks ?? []).forEach((task) => {
+    for (const role of [task.roleA, task.roleB]) {
+      role.targetPhrases.forEach((p, i) => check(p.translit, `infogap ${task.id} role${role.role} targetPhrases[${i}].translit`));
+    }
+  });
+  return issues;
 }
 
 /** Structural issues across a pack's grammar drills (empty array ⇒ all drills are well-formed). */
