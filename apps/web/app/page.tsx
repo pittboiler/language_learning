@@ -2066,7 +2066,23 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
     return [...poolUnits, ...capturedUnits].sort((a, b) => dueMs(a) - dueMs(b));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack]);
+
+  // Classify each due card as a single WORD or a SENTENCE/phrase, so the learner can drill the bare word
+  // first and let the sentence reinforce it. Word = a one-token vocab item, or a word captured without a
+  // sentence around it. Sentence = a multi-word phrase, a captured word met inside a sentence (cloze), or
+  // a grammar drill. (A single-token greeting authored as a "phrase" still counts as a word.)
+  const isWordUnit = (u: ReviewUnit): boolean =>
+    u.type === "pool"
+      ? u.item.kind === "vocab" || (u.item.kind === "phrase" && !/\s/.test(u.item.answer.trim()))
+      : u.entry.kind === "word" && !progress.contexts?.[u.key];
+  const words = queue.filter(isWordUnit);
+  const sentences = queue.filter((u) => !isWordUnit(u));
+
+  const [filter, setFilter] = useState<"all" | "words" | "sentences">("all");
   const [idx, setIdx] = useState(0);
+  useEffect(() => { setIdx(0); }, [filter]); // restart the deck when the filter changes
+  // Words-first: in "all", drill every due word before its reinforcing sentences (each group stays due-sorted).
+  const view = filter === "words" ? words : filter === "sentences" ? sentences : [...words, ...sentences];
 
   const gradePool = (item: ReviewItem, ok: boolean) => { persist(gradeItem(progress, item, ok)); setIdx((i) => i + 1); };
   const gradeCaptured = (lexKey: string, ok: boolean) => {
@@ -2077,14 +2093,26 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
 
   if (queue.length === 0)
     return <section className="view"><h2>Flashcards</h2><p className="lead">Nothing due right now — you&apos;re caught up. New words and grammar you meet show up here to lock in.</p></section>;
-  if (idx >= queue.length)
-    return <section className="view"><h2>Flashcards</h2><p className="lead">Done — {queue.length} strengthened. 🎉</p></section>;
 
-  const u = queue[idx]!;
+  const Filter = (
+    <div className="picker small" style={{ marginBottom: 12 }}>
+      {([["all", `All · ${queue.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
+        <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>{label}</button>
+      ))}
+    </div>
+  );
+
+  if (view.length === 0)
+    return <section className="view"><h2>Flashcards</h2>{Filter}<p className="lead">Nothing due in this filter right now.</p></section>;
+  if (idx >= view.length)
+    return <section className="view"><h2>Flashcards</h2>{Filter}<p className="lead">Done — {view.length} strengthened. 🎉</p></section>;
+
+  const u = view[idx]!;
   return (
     <section className="view">
-      <h2>Flashcards <span className="muted small">· {queue.length - idx} left</span></h2>
-      <p className="lead">Recall each before you reveal — your most-due items first, including words you saved while reading.</p>
+      <h2>Flashcards <span className="muted small">· {view.length - idx} left</span></h2>
+      <p className="lead">Recall each before you reveal. Words come first, then the sentences that reinforce them — or filter below.</p>
+      {Filter}
       {u.type === "pool" ? (
         u.item.kind === "grammar"
           ? <GrammarCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />
