@@ -243,7 +243,7 @@ export default function Home() {
         {section === "progress" && (
           <>
             <ProgressDash progress={progress} dueCount={dueCount} />
-            <Review progress={progress} persist={persist} onBrowseWords={() => navigate("library", "words")} />
+            <Review progress={progress} persist={persist} />
           </>
         )}
         {section === "partnered" && <PartnerPanel progress={progress} persist={persist} navigateToStory={goToStory} />}
@@ -1012,10 +1012,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
       {mode === "words" ? (
         <Words progress={progress} persist={persist} />
       ) : mode === "flashcards" ? (
-        <>
-          <p className="lead">Flashcards — recall each word or phrase, then reveal to check. Your most-due items come first, so the ones you&apos;re about to forget get strengthened.</p>
-          <Review progress={progress} persist={persist} onBrowseWords={() => setMode("words")} />
-        </>
+        <Review progress={progress} persist={persist} />
       ) : mode === "reference" ? (
         <>
           <p className="lead">Tools to look things up and practise — kept separate from your situational content.</p>
@@ -2077,7 +2074,7 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
 
   return (
     <>
-      <p className="lead">Browse vocabulary by theme and learn the word itself. Tap <b>＋</b> to start a word — it moves into your <b>Words</b> flashcards to review. <b>{started}/{all.length}</b> started.</p>
+      <p className="lead">Browse the vocabulary by theme — tap 🔊 to hear a word, <b>＋</b> to mark it started (so it&apos;s prioritised in review). You can drill any of these anytime in <b>Flashcards</b>, filtered by theme. <b>{started}/{all.length}</b> started.</p>
       {groups.map(([theme, items]) => {
         const unmet = items.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) === "new");
         return (
@@ -2109,61 +2106,92 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
   );
 }
 
+// Map a phrase's scenario tag → a readable situational theme for the flashcard theme filter (phrases are
+// tagged by the scenario they came from, e.g. "s1-cafe-order"). Words carry their own semantic tag.
+const SCENARIO_THEME: Record<string, string> = {
+  "s0-repair": "repair & clarify", "s0-greet": "greetings", "s0-survive": "survival basics",
+  "s1-cafe-order": "café & ordering", "s1-greet-intro": "introductions", "s1-market": "shopping",
+  "s1-directions": "directions", "s2-smalltalk": "small talk", "s2-pasttime": "past & future",
+  "s2-home-family": "home & family", "s2-arrange": "phone & plans", "s2-problems": "problems",
+  directions: "directions", shopping: "shopping", introductions: "introductions", phone: "phone & plans",
+  greeting: "greetings", ordering: "café & ordering", paying: "café & ordering", social: "social", "small-talk": "small talk",
+};
+
 // ---------- Progress section: Strengthen (unified SRS over phrases + grammar) ----------
 type ReviewUnit =
   | { type: "pool"; key: string; item: ReviewItem; strength: number }
   | { type: "captured"; key: string; entry: FamiliarityEntry; strength: number };
 
-function Review({ progress, persist, onBrowseWords }: { progress: Progress; persist: (p: Progress) => void; onBrowseWords?: () => void }) {
+function Review({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
   // Weakest-first queue of everything due: pack vocab/grammar PLUS words you captured while reading
   // (those are reviewed in the sentence you met them in — cloze).
   // Back-translate a captured word's sentence at review time (covers words saved before we stored the
   // English), so the cloze always shows what to say.
   const lineGlosses = useMemo(() => buildLineGlosses(pack), [pack]);
-  const queue = useMemo<ReviewUnit[]>(() => {
+  // The FULL deck — every pack word/phrase/grammar drill plus words you captured while reading. Nothing is
+  // hidden behind "studied": you filter down to what you want to drill. Ordered so anything already due for
+  // review (most-due first) leads, then new words before new sentences. Grading a new card enrolls it in SRS.
+  const deck = useMemo<ReviewUnit[]>(() => {
     const now = new Date();
     const pool = reviewPool(pack);
     const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
-    const poolUnits: ReviewUnit[] = pool
-      .filter((it) => isDue(progress, it, now))
-      .map((it) => {
-        const k = familiarity.deriveKeyForItem(it).lexKey;
-        return { type: "pool", key: k, item: it, strength: progress.familiarity[k]?.strength ?? 0 };
-      });
-    // Retroactive guard: drop proper-noun captures (names enrolled before name-exclusion existed) so a
-    // stale "Ана" card never tests a name — the same rule new captures already follow.
+    const poolUnits: ReviewUnit[] = pool.map((it) => {
+      const k = familiarity.deriveKeyForItem(it).lexKey;
+      return { type: "pool", key: k, item: it, strength: progress.familiarity[k]?.strength ?? 0 };
+    });
     const capturedUnits: ReviewUnit[] = Object.values(progress.familiarity)
-      .filter((e) => familiarity.isStudied(e) && e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack))
+      .filter((e) => familiarity.isStudied(e) && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack))
       .map((e) => ({ type: "captured", key: e.lexKey, entry: e, strength: e.strength }));
-    const nowMs = now.getTime();
-    const dueMs = (u: ReviewUnit) => {
+    const isWord = (u: ReviewUnit) => u.type === "pool" ? (u.item.kind === "vocab" || (u.item.kind === "phrase" && !/\s/.test(u.item.answer.trim()))) : u.entry.kind === "word" && !progress.contexts?.[u.key];
+    const dueMs = (u: ReviewUnit): number | null => {
       const srs = u.type === "captured" ? u.entry.srs : progress.familiarity[u.key]?.srs;
-      return srs ? new Date(srs.due).getTime() : nowMs; // every queued item is tracked+due; nowMs is a defensive fallback
+      return srs && new Date(srs.due) <= now ? new Date(srs.due).getTime() : null; // null ⇒ not currently due (new / scheduled ahead)
     };
-    return [...poolUnits, ...capturedUnits].sort((a, b) => dueMs(a) - dueMs(b));
+    return [...poolUnits, ...capturedUnits].sort((a, b) => {
+      const da = dueMs(a), db = dueMs(b);
+      if (da !== null && db !== null) return da - db; // both due → most-due first
+      if (da !== null) return -1;
+      if (db !== null) return 1;
+      return (isWord(a) ? 0 : 1) - (isWord(b) ? 0 : 1); // new items → words before sentences
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack]);
 
-  // Classify each due card as a single WORD or a SENTENCE/phrase, so the learner can drill the bare word
-  // first and let the sentence reinforce it. Word = a one-token vocab item, or a word captured without a
-  // sentence around it. Sentence = a multi-word phrase, a captured word met inside a sentence (cloze), or
-  // a grammar drill. (A single-token greeting authored as a "phrase" still counts as a word.)
+  // Word (single token) vs sentence/phrase, for the type filter.
   const isWordUnit = (u: ReviewUnit): boolean =>
     u.type === "pool"
       ? u.item.kind === "vocab" || (u.item.kind === "phrase" && !/\s/.test(u.item.answer.trim()))
       : u.entry.kind === "word" && !progress.contexts?.[u.key];
-  const words = queue.filter(isWordUnit);
-  const sentences = queue.filter((u) => !isWordUnit(u));
-  // Single words in the pack you haven't started yet — the deck only holds words you've MET, so this is
-  // why "Words" can look small. Surface a one-tap path to add more from Library → Words.
-  const addable = pack.vocab.filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()) && wordStatus(progress, familiarity.deriveKeyForItem(v).lexKey) === "new").length;
 
-  const [filter, setFilter] = useState<"all" | "words" | "sentences">("all");
+  // A readable theme per card: words carry a semantic tag ("pronouns", "food & drink"); phrases carry a
+  // situational one via their scenario tag; captured words + grammar get their own buckets.
+  const themeOf = (u: ReviewUnit): string => {
+    if (u.type === "captured") return "from your reading";
+    const it = u.item;
+    if (it.kind === "grammar") return "grammar";
+    const tags = it.tags ?? [];
+    for (const t of tags) { const m = SCENARIO_THEME[t]; if (m) return m; }
+    const clean = tags.find((t) => t && !/^(generated|validated|unreviewed|core|authored)$/i.test(t) && !/^s\d+-/.test(t));
+    return clean ?? "more";
+  };
+
+  const [type, setType] = useState<"all" | "words" | "sentences">("all");
+  const [themes, setThemes] = useState<Set<string>>(new Set()); // empty ⇒ all themes
   const [idx, setIdx] = useState(0);
-  useEffect(() => { setIdx(0); }, [filter]); // restart the deck when the filter changes
-  // Words-first: in "all", drill every due word before its reinforcing sentences (each group stays due-sorted).
-  const view = filter === "words" ? words : filter === "sentences" ? sentences : [...words, ...sentences];
+  useEffect(() => { setIdx(0); }, [type, themes]); // restart the deck when a filter changes
+
+  const words = deck.filter(isWordUnit);
+  const sentences = deck.filter((u) => !isWordUnit(u));
+  const byType = type === "words" ? words : type === "sentences" ? sentences : deck;
+  // Themes available within the current type, with counts. "more"/"grammar"/"from your reading" sort last.
+  const themeCounts = new Map<string, number>();
+  for (const u of byType) themeCounts.set(themeOf(u), (themeCounts.get(themeOf(u)) ?? 0) + 1);
+  const LAST = new Set(["more", "grammar", "from your reading"]);
+  const themeList = [...themeCounts.entries()].sort((a, b) => (LAST.has(a[0]) ? 1 : 0) - (LAST.has(b[0]) ? 1 : 0) || a[0].localeCompare(b[0]));
+  const view = themes.size === 0 ? byType : byType.filter((u) => themes.has(themeOf(u)));
+
+  const toggleTheme = (t: string) => setThemes((prev) => { const next = new Set(prev); if (next.has(t)) next.delete(t); else next.add(t); return next; });
 
   const gradePool = (item: ReviewItem, ok: boolean) => { persist(gradeItem(progress, item, ok)); setIdx((i) => i + 1); };
   const gradeCaptured = (lexKey: string, ok: boolean) => {
@@ -2172,35 +2200,33 @@ function Review({ progress, persist, onBrowseWords }: { progress: Progress; pers
     setIdx((i) => i + 1);
   };
 
-  if (queue.length === 0)
-    return <section className="view"><h2>Flashcards</h2><p className="lead">Nothing due right now — you&apos;re caught up. New words and grammar you meet show up here to lock in.</p></section>;
-
-  const Filter = (
+  const Filters = (
     <>
-      <div className="picker small" style={{ marginBottom: onBrowseWords && addable > 0 ? 6 : 12 }}>
-        {([["all", `All · ${queue.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
-          <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>{label}</button>
+      <div className="picker small" style={{ marginBottom: 8 }}>
+        {([["all", `All · ${deck.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
+          <button key={f} className={type === f ? "active" : ""} onClick={() => setType(f)}>{label}</button>
         ))}
       </div>
-      {onBrowseWords && addable > 0 && (
-        <p className="small muted" style={{ margin: "0 0 12px" }}>
-          Only words you&apos;ve started show here. <button className="linklike" onClick={onBrowseWords}>＋ Add {addable} more words</button> from the Words library.
-        </p>
-      )}
+      <div className="theme-chips">
+        <button className={`chip-toggle${themes.size === 0 ? " active" : ""}`} onClick={() => setThemes(new Set())}>All themes</button>
+        {themeList.map(([t, n]) => (
+          <button key={t} className={`chip-toggle${themes.has(t) ? " active" : ""}`} onClick={() => toggleTheme(t)} style={{ textTransform: "capitalize" }}>{t} · {n}</button>
+        ))}
+      </div>
     </>
   );
 
   if (view.length === 0)
-    return <section className="view"><h2>Flashcards</h2>{Filter}<p className="lead">Nothing due in this filter right now.</p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and theme.</p>{Filters}<p className="lead">Nothing in this filter. Pick another theme.</p></section>;
   if (idx >= view.length)
-    return <section className="view"><h2>Flashcards</h2>{Filter}<p className="lead">Done — {view.length} strengthened. 🎉</p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and theme.</p>{Filters}<p className="lead">Done — {view.length} reviewed. 🎉 <button className="linklike" onClick={() => setIdx(0)}>Go again</button></p></section>;
 
   const u = view[idx]!;
   return (
     <section className="view">
       <h2>Flashcards <span className="muted small">· {view.length - idx} left</span></h2>
-      <p className="lead">Recall each before you reveal. Words come first, then the sentences that reinforce them — or filter below.</p>
-      {Filter}
+      <p className="lead" style={{ marginBottom: 12 }}>Every word &amp; phrase is here — filter by type and theme to drill what you want. Grading strengthens it in your reviews.</p>
+      {Filters}
       {u.type === "pool" ? (
         u.item.kind === "grammar"
           ? <GrammarCard key={u.key} item={u.item} onGrade={(ok) => gradePool(u.item, ok)} />

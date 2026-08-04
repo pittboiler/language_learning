@@ -67,6 +67,9 @@ button:disabled { opacity: .4; cursor: not-allowed; }
 .word-mk b { font-size: 16px; }
 .word-gloss { flex: 1; text-align: right; }
 .linklike { background: none; border: 0; padding: 0; color: var(--accent); font: inherit; cursor: pointer; text-decoration: underline; }
+.theme-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip-toggle { border: 1px solid var(--line); background: var(--bg); color: var(--mut); padding: 4px 10px; border-radius: 99px; cursor: pointer; font: inherit; font-size: 12px; }
+.chip-toggle.active { border-color: var(--accent); color: var(--accent); background: rgba(76, 142, 255, .12); }
 .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; }
 .panel { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
 .panel .lab { font-size: 12px; color: var(--mut); display: flex; justify-content: space-between; }
