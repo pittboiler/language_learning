@@ -243,7 +243,7 @@ export default function Home() {
         {section === "progress" && (
           <>
             <ProgressDash progress={progress} dueCount={dueCount} />
-            <Review progress={progress} persist={persist} />
+            <Review progress={progress} persist={persist} onBrowseWords={() => navigate("library", "words")} />
           </>
         )}
         {section === "partnered" && <PartnerPanel progress={progress} persist={persist} navigateToStory={goToStory} />}
@@ -1014,7 +1014,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
       ) : mode === "flashcards" ? (
         <>
           <p className="lead">Flashcards — recall each word or phrase, then reveal to check. Your most-due items come first, so the ones you&apos;re about to forget get strengthened.</p>
-          <Review progress={progress} persist={persist} />
+          <Review progress={progress} persist={persist} onBrowseWords={() => setMode("words")} />
         </>
       ) : mode === "reference" ? (
         <>
@@ -2114,7 +2114,7 @@ type ReviewUnit =
   | { type: "pool"; key: string; item: ReviewItem; strength: number }
   | { type: "captured"; key: string; entry: FamiliarityEntry; strength: number };
 
-function Review({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+function Review({ progress, persist, onBrowseWords }: { progress: Progress; persist: (p: Progress) => void; onBrowseWords?: () => void }) {
   const pack = usePack();
   // Weakest-first queue of everything due: pack vocab/grammar PLUS words you captured while reading
   // (those are reviewed in the sentence you met them in — cloze).
@@ -2155,6 +2155,9 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
       : u.entry.kind === "word" && !progress.contexts?.[u.key];
   const words = queue.filter(isWordUnit);
   const sentences = queue.filter((u) => !isWordUnit(u));
+  // Single words in the pack you haven't started yet — the deck only holds words you've MET, so this is
+  // why "Words" can look small. Surface a one-tap path to add more from Library → Words.
+  const addable = pack.vocab.filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()) && wordStatus(progress, familiarity.deriveKeyForItem(v).lexKey) === "new").length;
 
   const [filter, setFilter] = useState<"all" | "words" | "sentences">("all");
   const [idx, setIdx] = useState(0);
@@ -2173,11 +2176,18 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
     return <section className="view"><h2>Flashcards</h2><p className="lead">Nothing due right now — you&apos;re caught up. New words and grammar you meet show up here to lock in.</p></section>;
 
   const Filter = (
-    <div className="picker small" style={{ marginBottom: 12 }}>
-      {([["all", `All · ${queue.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
-        <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>{label}</button>
-      ))}
-    </div>
+    <>
+      <div className="picker small" style={{ marginBottom: onBrowseWords && addable > 0 ? 6 : 12 }}>
+        {([["all", `All · ${queue.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
+          <button key={f} className={filter === f ? "active" : ""} onClick={() => setFilter(f)}>{label}</button>
+        ))}
+      </div>
+      {onBrowseWords && addable > 0 && (
+        <p className="small muted" style={{ margin: "0 0 12px" }}>
+          Only words you&apos;ve started show here. <button className="linklike" onClick={onBrowseWords}>＋ Add {addable} more words</button> from the Words library.
+        </p>
+      )}
+    </>
   );
 
   if (view.length === 0)
