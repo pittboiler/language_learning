@@ -38,7 +38,7 @@ import type { LiveSession } from "@ll/core/live";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
 type Section = "today" | "library" | "progress" | "partnered";
-type LibView = "browse" | "flashcards" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
+type LibView = "browse" | "flashcards" | "words" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
 
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
@@ -335,8 +335,19 @@ function Today({ progress, persist, config, navigate }: {
     if (story) {
       const required = (scen ? scenarioVocab(pack, scen) : []).filter(isNewWord);
       const extra = story.registersVocab.filter(isNewWord);
+      // A gentle daily trickle of the core single-word vocabulary (Library → Words also lets you pull more
+      // on demand). Rotated by day so different words surface, and interleaved with the story's own words
+      // so both get represented within the same pacing cap.
+      const coreAll = pack.vocab
+        .filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()))
+        .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, gloss: v.gloss }))
+        .filter(isNewWord);
+      const rot = coreAll.length ? dayIndex % coreAll.length : 0;
+      const core = [...coreAll.slice(rot), ...coreAll.slice(0, rot)];
+      const fill: { lexKey: string; gloss?: string }[] = [];
+      for (let i = 0; i < Math.max(extra.length, core.length); i++) { if (extra[i]) fill.push(extra[i]!); if (core[i]) fill.push(core[i]!); }
       const merged = new Map<string, { lexKey: string; gloss?: string }>();
-      for (const v of [...required, ...extra]) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
+      for (const v of [...required, ...fill]) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
       const words = [...merged.values()].slice(0, Math.max(NEW_WORDS_PER_SESSION, required.length));
       if (words.length) out.push({ kind: "newwords", words });
     }
@@ -969,7 +980,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
   };
 
   // An opened content item or reference tool → show it with a back link to where it came from.
-  if (mode !== "browse" && mode !== "reference" && mode !== "flashcards") {
+  if (mode !== "browse" && mode !== "reference" && mode !== "flashcards" && mode !== "words") {
     const isTool = mode === "letters" || mode === "grammar" || mode === "write";
     const view =
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
@@ -993,11 +1004,14 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
       <h2>Library</h2>
       <div className="picker" style={{ margin: "2px 0 14px" }}>
         <button className={mode === "browse" ? "active" : ""} onClick={() => setMode("browse")}>Situations</button>
+        <button className={mode === "words" ? "active" : ""} onClick={() => setMode("words")}>Words</button>
         <button className={mode === "flashcards" ? "active" : ""} onClick={() => setMode("flashcards")}>Flashcards</button>
         <button className={mode === "reference" ? "active" : ""} onClick={() => setMode("reference")}>Reference</button>
       </div>
 
-      {mode === "flashcards" ? (
+      {mode === "words" ? (
+        <Words progress={progress} persist={persist} />
+      ) : mode === "flashcards" ? (
         <>
           <p className="lead">Flashcards — recall each word or phrase, then reveal to check. Your most-due items come first, so the ones you&apos;re about to forget get strengthened.</p>
           <Review progress={progress} persist={persist} />
@@ -2028,6 +2042,70 @@ function ProgressDash({ progress, dueCount }: { progress: Progress; dueCount: nu
         <b>To review</b> = items due in Flashcards (below, and in Library › Flashcards). <b>Level</b> is an estimate from letters learned, scenario goals met, and words tracked — roughly pre-A1 → A1 → A2.
       </p>
     </section>
+  );
+}
+
+// ---------- Library → Words: browse the core vocabulary by theme and pick up words on demand ----------
+// The flashcard deck only surfaces words you've MET, so this is where you meet single words directly:
+// tap ＋ to capture one (it becomes a studied, due card in the Words flashcard filter).
+function Words({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+  const pack = usePack();
+  const play = usePlay();
+  const groups = useMemo(() => {
+    // Some older vocab is tagged with pipeline labels ("generated"/"validated"/…) rather than a real
+    // theme — bucket those under "more words" so the section headers read cleanly.
+    const themeOf = (v: ReviewItem) => { const t = (v.tags[0] || "").trim(); return !t || /^(generated|validated|unreviewed|core|authored)$/i.test(t) ? "more words" : t; };
+    const single = pack.vocab.filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()));
+    const m = new Map<string, ReviewItem[]>();
+    for (const v of single) { const t = themeOf(v); const arr = m.get(t); if (arr) arr.push(v); else m.set(t, [v]); }
+    // Themed groups first (alphabetical), the catch-all "more words" last.
+    return [...m.entries()].sort((a, b) => (a[0] === "more words" ? 1 : 0) - (b[0] === "more words" ? 1 : 0) || a[0].localeCompare(b[0]));
+  }, [pack]);
+
+  const learn = (items: ReviewItem[]) => {
+    const fam = { ...progress.familiarity };
+    for (const it of items) {
+      const spec = familiarity.deriveKeyForItem(it);
+      const existing = fam[spec.lexKey];
+      fam[spec.lexKey] = existing ? familiarity.markStudied(existing) : familiarity.capture(spec);
+    }
+    persist({ ...progress, familiarity: fam });
+  };
+
+  const all = groups.flatMap(([, v]) => v);
+  const started = all.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) !== "new").length;
+
+  return (
+    <>
+      <p className="lead">Browse vocabulary by theme and learn the word itself. Tap <b>＋</b> to start a word — it moves into your <b>Words</b> flashcards to review. <b>{started}/{all.length}</b> started.</p>
+      {groups.map(([theme, items]) => {
+        const unmet = items.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) === "new");
+        return (
+          <div key={theme} className="word-group">
+            <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+              <h3 style={{ margin: "14px 0 6px", textTransform: "capitalize" }}>{theme}</h3>
+              {unmet.length > 0 && <button className="ghost small" onClick={() => learn(unmet)}>＋ Learn all {unmet.length}</button>}
+            </div>
+            <div className="word-list">
+              {items.map((it) => {
+                const status = wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey);
+                const gender = it.meta?.gender ? ` · ${String(it.meta.gender)}` : "";
+                return (
+                  <div className="word-row" key={it.id}>
+                    <button className="spk" onClick={() => play(it.answer, 0.9)}>🔊</button>
+                    <span className="word-mk"><b>{it.answer}</b> <span className="translit">{it.translit}</span></span>
+                    <span className="word-gloss muted small">{it.gloss}{gender}</span>
+                    {status === "new"
+                      ? <button className="ghost small" onClick={() => learn([it])}>＋ Learn</button>
+                      : <span className={`badge ${status === "known" ? "on" : ""}`}>{status === "known" ? "known ✓" : "learning"}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })}
+    </>
   );
 }
 

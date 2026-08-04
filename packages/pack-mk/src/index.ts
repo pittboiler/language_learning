@@ -1,6 +1,7 @@
 import type { GrammarConcept, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
 import { breakdowns } from "./breakdowns.js";
+import { coreWords } from "./words.js";
 import { phonology, grammar } from "./grammar.js";
 import { vocab } from "./vocab.js";
 import { readers } from "./readers.js";
@@ -59,7 +60,7 @@ export const macedonian: LanguagePack = {
   alphabet,
   phonology,
   grammar: mergeGrammar(grammar, stage1.promotedGrammar),
-  vocab: withBreakdowns([...vocab, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]),
+  vocab: withBreakdowns([...vocab, ...coreWords, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]),
   scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios],
   readers: [...readers, ...stage1.promotedReaders],
   stories: [...stories, ...stage0.promotedStories, ...stage1.promotedStories, ...stage2.promotedStories],
