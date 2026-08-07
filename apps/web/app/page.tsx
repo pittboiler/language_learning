@@ -19,7 +19,7 @@ import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 import { NEW_WORDS_PER_SESSION, localDay, markStorySeen, storyDone } from "../lib/daily";
-import { captureWord, properNounLike, buildLineGlosses } from "../lib/capture";
+import { captureWord, properNounLike, buildLineGlosses, toggleStar } from "../lib/capture";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
@@ -383,6 +383,11 @@ function Today({ progress, persist, config, navigate }: {
 
   const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
+  // Once today's session is finished we record the local day (below). On a later reload/reopen that flag
+  // survives even though `idx` resets to 0 — so we open on the "done for today" screen instead of
+  // marching the learner back through step 1. "Practice more anyway" opts back into the full flow.
+  const completedToday = progress.lastSessionDay === localDay();
+  const [practiceMore, setPracticeMore] = useState(false);
   // Items missed this session (auto-collected) → offered as an optional recap once the flow is done.
   const [missed, setMissed] = useState<ReviewItem[]>([]);
   const [recap, setRecap] = useState<"offer" | "review" | "done">("offer");
@@ -397,6 +402,14 @@ function Today({ progress, persist, config, navigate }: {
   // Today now stays mounted across tab switches (so idx/phase survive). If the letters get finished
   // elsewhere while it's mounted, open the flow rather than leaving the alphabet gate up.
   useEffect(() => { if (lettersDone) setPhase("flow"); }, [lettersDone]);
+  // Reaching the end of the plan = today's session is done. Stamp the local day (once) so a reload opens
+  // on the "done for today" screen. Guarded by the date check so this persists at most once per day.
+  useEffect(() => {
+    if (steps.length > 0 && idx >= steps.length && progress.lastSessionDay !== localDay()) {
+      persist({ ...progress, lastSessionDay: localDay() });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [idx, steps.length]);
   const est = Math.max(5, steps.length * 3);
   // Advance to the next step, persisting a single merged Progress and counting the day toward the streak.
   const done = (mutated: Progress = progress) => {
@@ -411,6 +424,21 @@ function Today({ progress, persist, config, navigate }: {
         <TodayHeader streak={progress.streak?.count ?? 0} />
         <p className="lead">First, the alphabet. Macedonian uses Cyrillic — review all {pack.alphabet.length} letters (I&apos;ll quiz you on the {focusLetters(pack).length} trickiest), then today&apos;s session opens up right here.</p>
         <Letters progress={progress} persist={persist} onDone={() => setPhase("flow")} />
+      </section>
+    );
+  // Already finished today's session (and this is a fresh mount, so idx is back at 0): show the wrap-up
+  // screen rather than replaying step 1. "Practice more anyway" drops back into the full flow on demand.
+  if (completedToday && !practiceMore && idx < steps.length)
+    return (
+      <section className="view">
+        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <h3 style={{ marginTop: 4 }}>Done for today 🎉</h3>
+        <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
+        <div className="row" style={{ marginTop: 4 }}>
+          <button className="btn" onClick={() => { setIdx(0); setPracticeMore(true); }}>Practice more anyway →</button>
+          <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
+          <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
+        </div>
       </section>
     );
   if (steps.length === 0)
@@ -488,7 +516,13 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "newwords" && (
           <div>
             <Tag>New words · {step.words.length}</Tag>
-            <NewWordsCard words={step.words} onDone={() => done(captureWords(progress, step.words))} onMiss={flagWord} />
+            <NewWordsCard
+              words={step.words}
+              onDone={() => done(captureWords(progress, step.words))}
+              onMiss={flagWord}
+              isStarred={(w) => { const e = progress.familiarity[w.lexKey]; return !!e && familiarity.isStarred(e); }}
+              onStar={(w) => toggleStar(progress, persist, w.lexKey, { gloss: w.gloss })}
+            />
           </div>
         )}
 
@@ -705,7 +739,7 @@ const FALLBACK_GLOSSES = ["hello", "thank you", "please", "yes", "good", "water"
 
 // Pre-teach the story's new words interactively: hear each, tap its meaning (multiple choice), then
 // they're captured. Engages instead of just listing.
-function NewWordsCard({ words, onDone, onMiss }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void; onMiss?: (word: { lexKey: string; gloss?: string }) => void }) {
+function NewWordsCard({ words, onDone, onMiss, onStar, isStarred }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void; onMiss?: (word: { lexKey: string; gloss?: string }) => void; onStar?: (word: { lexKey: string; gloss?: string }) => void; isStarred?: (word: { lexKey: string; gloss?: string }) => boolean }) {
   const play = usePlay();
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -729,6 +763,7 @@ function NewWordsCard({ words, onDone, onMiss }: { words: { lexKey: string; glos
         <div className="row" style={{ alignItems: "center" }}>
           <button className="spk" onClick={() => play(word.lexKey, 0.8)}>🔊</button>
           <b className="target" style={{ fontSize: 26 }}>{word.lexKey}</b>
+          {onStar && <button className={`ghost small${isStarred?.(word) ? " active" : ""}`} style={{ marginLeft: "auto" }} title="Save to your flashcard deck" onClick={() => onStar(word)}>{isStarred?.(word) ? "★ Saved" : "☆ Save"}</button>}
         </div>
         <div className="muted small" style={{ margin: "10px 0 6px" }}>Tap the meaning</div>
         <div>
@@ -979,15 +1014,19 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
     setMode(kind);
   };
 
+  // The alphabet is a browsable reference that renders its OWN inline back-header (next to the title),
+  // so it opts out of the shared floating back-row below — which is what read as "misplaced".
+  if (mode === "letters")
+    return <Letters progress={progress} persist={persist} reference onBack={() => setMode("reference")} onDone={() => setMode("reference")} />;
+
   // An opened content item or reference tool → show it with a back link to where it came from.
   if (mode !== "browse" && mode !== "reference" && mode !== "flashcards" && mode !== "words") {
-    const isTool = mode === "letters" || mode === "grammar" || mode === "write";
+    const isTool = mode === "grammar" || mode === "write";
     const view =
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
       mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
       mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
       mode === "grammar" ? <Grammar progress={progress} persist={persist} /> :
-      mode === "letters" ? <Letters progress={progress} persist={persist} onDone={() => setMode("reference")} /> :
       <Writing config={config} />;
     return (
       <>
@@ -1019,8 +1058,8 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
           <div className="cards">
             <button className="contentcard" onClick={() => setMode("letters")}>
               <div className="cc-top"><span className="cc-type">🔤 Alphabet</span>{lettersDone && <span className="diff just">done</span>}</div>
-              <div className="cc-title">Learn the letters</div>
-              <div className="muted small">Cyrillic, learned and tested set by set</div>
+              <div className="cc-title">The alphabet</div>
+              <div className="muted small">All {pack.alphabet.length} Cyrillic letters — browse, hear, and quiz</div>
             </button>
             <button className="contentcard" onClick={() => setMode("grammar")}>
               <div className="cc-top"><span className="cc-type">ⓖ Grammar</span></div>
@@ -1079,7 +1118,9 @@ function LetterCard({ a, play, done }: { a: GlyphLesson; play: (t: string, s?: n
       <div className="g">{a.glyph}</div>
       <div className="n">{a.name}{a.unique ? <span className="tag uniq">unique</span> : a.falseFriend ? <span className="tag ff">looks Latin</span> : null}</div>
       <div className="s">{a.sound}</div>
-      <div className="ex">{ex?.text} <span className="muted small">· {ex?.gloss}</span></div>
+      {ex ? (
+        <div className="ex">{ex.text} <span className="muted small">{translitOr(ex.text, ex.translit)} · {ex.gloss}</span></div>
+      ) : null}
       <div className="acts"><button className="ghost" onClick={() => ex && play(ex.text, 0.7)}>🔊</button></div>
     </div>
   );
@@ -1088,13 +1129,16 @@ function LetterCard({ a, play, done }: { a: GlyphLesson; play: (t: string, s?: n
 // ---------- Reference: the alphabet, learned and TESTED set by set ----------
 // Study the key letters (unique + false-friends), then a quiz: glyph→sound and sound→glyph (with audio).
 // A letter is marked "known" only after a correct answer; misses go to the back of the queue.
-function Letters({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone: () => void }) {
+function Letters({ progress, persist, onDone, reference, onBack }: { progress: Progress; persist: (p: Progress) => void; onDone: () => void; reference?: boolean; onBack?: () => void }) {
   const pack = usePack();
   const play = usePlay();
   const focus = useMemo(() => focusLetters(pack), [pack]);
   const all = pack.alphabet; // full Cyrillic alphabet — reviewed on day 1, even though we only quiz `focus`
   const unknown = useMemo(() => focus.filter((a) => !progress.letters[a.glyph]), [focus, progress.letters]);
-  const [phase, setPhase] = useState<"learn" | "quiz" | "done">(unknown.length ? "learn" : "done");
+  // Two homes for this component: the Today gate is a learn→quiz→done teaching flow; the Library's
+  // Reference tab is a browsable full-alphabet reference (all letters, always — never collapsed to the
+  // quiz subset). `reference` selects the browse home + an inline back-header next to the title.
+  const [phase, setPhase] = useState<"browse" | "learn" | "quiz" | "done">(reference ? "browse" : unknown.length ? "learn" : "done");
   const [remaining, setRemaining] = useState<string[]>([]);
   const [step, setStep] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -1112,14 +1156,16 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
   const correctAnswer = a ? (qType === 0 ? a.sound : a.glyph) : "";
   const isCorrect = picked != null && picked === correctAnswer;
 
-  const startQuiz = () => { setTotal(unknown.length); setRemaining(unknown.map((x) => x.glyph)); setStep(0); setPicked(null); setPhase("quiz"); };
+  // Quiz the not-yet-known tricky letters; if they're all already known (e.g. a returning learner opening
+  // the reference), quiz the full tricky set as a refresher so the button never lands on an empty quiz.
+  const startQuiz = () => { const q = unknown.length ? unknown : focus; setTotal(q.length); setRemaining(q.map((x) => x.glyph)); setStep(0); setPicked(null); setPhase("quiz"); };
   const next = () => {
     if (!a) return;
     if (isCorrect) {
       persist({ ...progress, letters: { ...progress.letters, [a.glyph]: true } });
       const rest = remaining.slice(1);
       setRemaining(rest);
-      if (rest.length === 0) setPhase("done");
+      if (rest.length === 0) setPhase(reference ? "browse" : "done"); // reference: back to the full grid
     } else {
       setRemaining((r) => [...r.slice(1), r[0]!]); // missed → back of the queue
     }
@@ -1127,7 +1173,23 @@ function Letters({ progress, persist, onDone }: { progress: Progress; persist: (
     setStep((s) => s + 1);
   };
 
-  if (phase === "done" || unknown.length === 0) {
+  // Reference home: the ENTIRE alphabet, always — a returning learner (all focus letters "known") still
+  // sees every letter here, not just the 13 quizzed ones. Back-link sits inline in the header.
+  if (phase === "browse") {
+    return (
+      <section className="view">
+        <div className="row" style={{ alignItems: "center", gap: 10, marginBottom: 6 }}>
+          {onBack && <button className="ghost small" onClick={onBack}>‹ Reference</button>}
+          <h2 style={{ margin: 0 }}>The {pack.name} alphabet — all {all.length} letters</h2>
+        </div>
+        <p className="lead">Cyrillic is phonetic — one letter, one sound. The whole alphabet is here for reference; the ones to really drill are the <span style={{ color: "var(--ok)" }}>unique</span> letters and the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different. Tap 🔊 to hear any.</p>
+        <div className="letters">{all.map((x) => <LetterCard key={x.glyph} a={x} play={play} done={!!progress.letters[x.glyph]} />)}</div>
+        <div className="row" style={{ marginTop: 8 }}><button className="btn" onClick={startQuiz}>Quiz me on the tricky ones →</button></div>
+      </section>
+    );
+  }
+
+  if (!reference && (phase === "done" || unknown.length === 0)) {
     return (
       <section className="view">
         <h2>The {pack.name} alphabet</h2>
@@ -1702,11 +1764,15 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
   }, [sel.surface, sel.line, pack.id]);
 
   const entry = progress.familiarity[sel.lexKey];
+  const starred = !!entry && familiarity.isStarred(entry);
   const setStat = (status: "known" | "ignored") => {
     const e = entry ?? familiarity.capture({ lexKey: sel.lexKey, kind: "word", display: sel.surface });
     persist({ ...progress, familiarity: { ...progress.familiarity, [sel.lexKey]: familiarity.setStatus(e, status) } });
     onClose();
   };
+  // Save/unsave to the custom deck — remembers the sentence + its English (once we have the gloss) so this
+  // word reviews in context. Keeps the panel open so the ★ state visibly flips.
+  const star = () => toggleStar(progress, persist, sel.surface, { gloss: g?.gloss || undefined, context: sel.line });
 
   return (
     <div className="wordpanel">
@@ -1727,6 +1793,7 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
         <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No translation found." : "Translation needs Claude configured."}</div>
       )}
       <div className="row" style={{ marginTop: 10 }}>
+        <button className={`ghost${starred ? " active" : ""}`} onClick={star} title="Save to your flashcard deck">{starred ? "★ Saved" : "☆ Save"}</button>
         <button className="ghost" onClick={() => setStat("known")}>✓ Known</button>
         <button className="ghost" onClick={() => setStat("ignored")}>✕ Ignore</button>
         <span className="muted small">{entry ? `tracked · ${entry.status}` : "captured"}</span>
@@ -2074,7 +2141,7 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
 
   return (
     <>
-      <p className="lead">Browse the vocabulary by theme — tap 🔊 to hear a word, <b>＋</b> to mark it started (so it&apos;s prioritised in review). You can drill any of these anytime in <b>Flashcards</b>, filtered by theme. <b>{started}/{all.length}</b> started.</p>
+      <p className="lead">Browse the vocabulary by theme — tap 🔊 to hear a word, <b>☆</b> to save it to your <b>★ Starred</b> flashcard deck, or <b>＋</b> to mark it started (so it&apos;s prioritised in review). You can drill any of these anytime in <b>Flashcards</b>, filtered by theme. <b>{started}/{all.length}</b> started.</p>
       {groups.map(([theme, items]) => {
         const unmet = items.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) === "new");
         return (
@@ -2085,13 +2152,16 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
             </div>
             <div className="word-list">
               {items.map((it) => {
-                const status = wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey);
+                const key = familiarity.deriveKeyForItem(it).lexKey;
+                const status = wordStatus(progress, key);
                 const gender = it.meta?.gender ? ` · ${String(it.meta.gender)}` : "";
+                const on = !!progress.familiarity[key] && familiarity.isStarred(progress.familiarity[key]!);
                 return (
                   <div className="word-row" key={it.id}>
                     <button className="spk" onClick={() => play(it.answer, 0.9)}>🔊</button>
                     <span className="word-mk"><b>{it.answer}</b> <span className="translit">{it.translit}</span></span>
                     <span className="word-gloss muted small">{it.gloss}{gender}</span>
+                    <button className={`ghost small${on ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, it.answer, { gloss: it.gloss })}>{on ? "★" : "☆"}</button>
                     {status === "new"
                       ? <button className="ghost small" onClick={() => learn([it])}>＋ Learn</button>
                       : <span className={`badge ${status === "known" ? "on" : ""}`}>{status === "known" ? "known ✓" : "learning"}</span>}
@@ -2164,6 +2234,13 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
       ? u.item.kind === "vocab" || (u.item.kind === "phrase" && !/\s/.test(u.item.answer.trim()))
       : u.entry.kind === "word" && !progress.contexts?.[u.key];
 
+  // Saved to the custom deck? Read live from familiarity (not the memoized unit) so a just-starred pool
+  // word reflects immediately; captured units carry their own entry.
+  const isStarredUnit = (u: ReviewUnit): boolean => {
+    const e = u.type === "captured" ? u.entry : progress.familiarity[u.key];
+    return !!e && familiarity.isStarred(e);
+  };
+
   // A readable theme per card: words carry a semantic tag ("pronouns", "food & drink"); phrases carry a
   // situational one via their scenario tag; captured words + grammar get their own buckets.
   const themeOf = (u: ReviewUnit): string => {
@@ -2178,12 +2255,16 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
 
   const [type, setType] = useState<"all" | "words" | "sentences">("all");
   const [themes, setThemes] = useState<Set<string>>(new Set()); // empty ⇒ all themes
+  const [starredOnly, setStarredOnly] = useState(false); // the learner's custom "★ saved" deck
   const [idx, setIdx] = useState(0);
-  useEffect(() => { setIdx(0); }, [type, themes]); // restart the deck when a filter changes
+  useEffect(() => { setIdx(0); }, [type, themes, starredOnly]); // restart the deck when a filter changes
 
-  const words = deck.filter(isWordUnit);
-  const sentences = deck.filter((u) => !isWordUnit(u));
-  const byType = type === "words" ? words : type === "sentences" ? sentences : deck;
+  // Scope to the starred (custom) deck first when that toggle is on; type/theme filters then narrow within it.
+  const starred = deck.filter(isStarredUnit);
+  const scoped = starredOnly ? starred : deck;
+  const words = scoped.filter(isWordUnit);
+  const sentences = scoped.filter((u) => !isWordUnit(u));
+  const byType = type === "words" ? words : type === "sentences" ? sentences : scoped;
   // Themes available within the current type, with counts. "more"/"grammar"/"from your reading" sort last.
   const themeCounts = new Map<string, number>();
   for (const u of byType) themeCounts.set(themeOf(u), (themeCounts.get(themeOf(u)) ?? 0) + 1);
@@ -2203,11 +2284,12 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   const Filters = (
     <>
       <div className="picker small" style={{ marginBottom: 8 }}>
-        {([["all", `All · ${deck.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
+        {([["all", `All · ${scoped.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
           <button key={f} className={type === f ? "active" : ""} onClick={() => setType(f)}>{label}</button>
         ))}
       </div>
       <div className="theme-chips">
+        <button className={`chip-toggle${starredOnly ? " active" : ""}`} onClick={() => setStarredOnly((v) => !v)} title="Your saved words">★ Starred{starred.length ? ` · ${starred.length}` : ""}</button>
         <button className={`chip-toggle${themes.size === 0 ? " active" : ""}`} onClick={() => setThemes(new Set())}>All themes</button>
         {themeList.map(([t, n]) => (
           <button key={t} className={`chip-toggle${themes.has(t) ? " active" : ""}`} onClick={() => toggleTheme(t)} style={{ textTransform: "capitalize" }}>{t} · {n}</button>
@@ -2217,7 +2299,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   );
 
   if (view.length === 0)
-    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and theme.</p>{Filters}<p className="lead">Nothing in this filter. Pick another theme.</p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and theme.</p>{Filters}<p className="lead">{starredOnly && starred.length === 0 ? "No saved words yet. Tap ★ on a word while you learn — in a story, the Words list, or a lesson — to build your own deck here." : "Nothing in this filter. Pick another theme."}</p></section>;
   if (idx >= view.length)
     return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and theme.</p>{Filters}<p className="lead">Done — {view.length} reviewed. 🎉 <button className="linklike" onClick={() => setIdx(0)}>Go again</button></p></section>;
 
@@ -2278,7 +2360,14 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
             <div className="target" style={{ fontSize: 22 }}>{entry.display}</div>
           )}
           <div className="row" style={{ marginTop: 10 }}>
-            <button className="ghost" onClick={() => play(entry.display, 0.8)}>🔊 hear</button>
+            {cloze && context ? (
+              <>
+                <button className="ghost" onClick={() => play(context, 0.8)}>🔊 hear phrase</button>
+                <button className="ghost" onClick={() => play(entry.display, 0.8)}>🔊 word</button>
+              </>
+            ) : (
+              <button className="ghost" onClick={() => play(entry.display, 0.8)}>🔊 hear</button>
+            )}
             <button className="ghost" onClick={() => onGrade(false)}>Again</button>
             <button className="btn" onClick={() => onGrade(true)}>Good</button>
           </div>
@@ -3265,7 +3354,12 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [link, setLink] = useState<Partnership | null>(null);
+  // All of the learner's partnerships (a person can have several 1:1 partners), plus which one is
+  // currently in focus. The heavy per-partnership data below (visibility, partner state, streak…) is
+  // loaded for the selected one; switching partners re-runs refresh.
+  const [links, setLinks] = useState<Partnership[]>([]);
+  const [currentId, setCurrentId] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false); // showing the invite/join view while other partners exist
   const [vis, setVis] = useState<VisibilitySettings>(partner.DEFAULT_VISIBILITY);
   const [partnerState, setPartnerState] = useState<PublishedState | null>(null);
   const [diff, setDiff] = useState<ComplementaryDiff | null>(null);
@@ -3287,13 +3381,18 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     [],
   );
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (preferId?: string) => {
     if (!store) return setLoading(false);
     setLoading(true);
     setError(null);
     try {
-      const active = (await store.myPartnerships(packId))[0] ?? null;
-      setLink(active);
+      const all = await store.myPartnerships(packId);
+      setLinks(all);
+      // Focus the requested partner (e.g. one just created), else keep the current, else the most recent.
+      const wantId = preferId ?? currentId;
+      const active = all.find((p) => p.id === wantId) ?? all[0] ?? null;
+      if ((active?.id ?? null) !== currentId) setCurrentId(active?.id ?? null);
+      if (active) setAdding(false);
       if (active && active.status !== "pending") {
         setMyId(await store.me());
         setVis(await store.getVisibility(active.id));
@@ -3326,7 +3425,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     } finally {
       setLoading(false);
     }
-  }, [store, packId, myActivity]);
+  }, [store, packId, myActivity, currentId]);
 
   useEffect(() => {
     void refresh();
@@ -3354,19 +3453,49 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     }
   };
 
+  // Invite/join create a NEW partnership and immediately focus it (so its code / new dyad is what you see),
+  // rather than defaulting back to whichever partner was already selected.
+  const invitePartner = async () => {
+    setBusy(true); setError(null);
+    try { const { partnership } = await store.invite(packId); setAdding(false); await refresh(partnership.id); }
+    catch (e) { setError((e as { message?: string }).message ?? "Action failed."); }
+    finally { setBusy(false); }
+  };
+  const joinPartner = async () => {
+    setBusy(true); setError(null);
+    try { const p = await store.redeem(joinCode); setJoinCode(""); setAdding(false); await refresh(p.id); }
+    catch (e) { setError((e as { message?: string }).message ?? "Action failed."); }
+    finally { setBusy(false); }
+  };
+
+  // The partnership currently in focus (heavy data below is loaded for it), and a switcher across all of
+  // the learner's partners. Numbered because we don't store partner display names.
+  const link = links.find((x) => x.id === currentId) ?? null;
+  const partnerLabel = (p: Partnership, i: number) =>
+    p.status === "pending" ? "Pending invite" : `Partner ${i + 1}${p.status === "paused" ? " · paused" : ""}`;
+  const Switcher = links.length > 0 && !adding ? (
+    <div className="theme-chips" style={{ marginBottom: 2 }}>
+      {links.map((p, i) => (
+        <button key={p.id} className={`chip-toggle${p.id === currentId ? " active" : ""}`} onClick={() => setCurrentId(p.id)}>{partnerLabel(p, i)}</button>
+      ))}
+      <button className="chip-toggle" onClick={() => setAdding(true)} title="Add another learning partner">＋ Add partner</button>
+    </div>
+  ) : null;
+
   const content = () => {
     if (loading) return <span className="muted small">…</span>;
-    if (!link)
+    if (adding || !link)
       return (
         <div style={colStack}>
+          {links.length > 0 && <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setAdding(false)}>← Back to partners</button>}
           <p className="small" style={{ margin: 0 }}><b>Learn with someone you trust.</b> This tab is for practising <i>together</i> — link up with a partner to unlock it.</p>
           <p className="muted small" style={{ margin: 0 }}>Then you get: <b>Live conversation</b> (real-time, coached turn-by-turn) · <b>Role-swap</b> · <b>Info-gap</b> · <b>Shared story &amp; phrasebook</b> · <b>Help each other</b> (the app surfaces what your partner knows that you don&apos;t). A shared daily/weekly session reviews each of your solo work.</p>
           <div className="row" style={{ marginTop: 4 }}>
-            <button className="btn" disabled={busy} onClick={act(() => store.invite(packId))}>Invite a partner</button>
+            <button className="btn" disabled={busy} onClick={invitePartner}>Invite a partner</button>
           </div>
           <div className="row">
             <input className="lang-picker" placeholder="Enter invite code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} style={{ textTransform: "uppercase", minWidth: 150 }} />
-            <button className="ghost" disabled={busy || !joinCode.trim()} onClick={act(() => store.redeem(joinCode).then(() => setJoinCode("")))}>Join</button>
+            <button className="ghost" disabled={busy || !joinCode.trim()} onClick={joinPartner}>Join</button>
           </div>
           <p className="muted small" style={{ margin: 0 }}>Private to the two of you. Pause (no penalty) or end anytime.</p>
         </div>
@@ -3527,8 +3656,9 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
             </div>
             <div className="row">
               <button className="ghost" disabled={busy} onClick={act(() => store.pause(l.id))}>Pause (no-shame)</button>
-              <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End partnership</button>
+              <button className="ghost" disabled={busy} onClick={act(async () => { if (typeof window !== "undefined" && !window.confirm("Unpair from this partner? This ends the partnership — you can always invite them again later.")) return; await store.end(l.id); })}>Unpair (end)</button>
             </div>
+            <p className="muted small" style={{ margin: 0 }}>Unpairing affects only this partner{links.length > 1 ? " — your other partners stay linked" : ""}.</p>
           </div>
         )}
       </div>
@@ -3542,6 +3672,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         {shared && shared.count > 0 && <span className="streak-chip" title="Shared streak — days you both practised">🤝🔥 {shared.count}</span>}
       </div>
       {error && <p className="small" style={{ color: "var(--warn)", margin: "4px 0 0" }}>{error}</p>}
+      {Switcher}
       {content()}
     </section>
   );

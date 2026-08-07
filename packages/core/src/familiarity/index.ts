@@ -67,6 +67,31 @@ export function markStudied(entry: FamiliarityEntry): FamiliarityEntry {
   return { ...entry, tags: (entry.tags ?? []).filter((t) => t !== EXPOSED_TAG) };
 }
 
+/** Tag marking an entry the learner has explicitly SAVED to their custom deck ("★"). Independent of the
+ *  SRS status — it's a hand-picked grouping the learner controls (add/remove). Starring also studies the
+ *  word (see markStarred) so a saved word both surfaces in the deck AND recurs in normal review. */
+export const STARRED_TAG = "starred";
+
+/** Has the learner saved this word to their custom (starred) deck? */
+export function isStarred(entry: FamiliarityEntry): boolean {
+  return (entry.tags ?? []).includes(STARRED_TAG);
+}
+
+/** Save to the custom deck: add STARRED_TAG and promote to studied (drop EXPOSED_TAG) so the word both
+ *  lives in the starred deck and RECURS in normal review — the point of "I want to see it again". Idempotent. */
+export function markStarred(entry: FamiliarityEntry): FamiliarityEntry {
+  const tags = new Set(entry.tags ?? []);
+  tags.delete(EXPOSED_TAG); // starring is direct engagement → studied
+  tags.add(STARRED_TAG);
+  return { ...entry, tags: [...tags] };
+}
+
+/** Remove from the custom deck. Leaves studied status intact (the learner already engaged with it). Idempotent. */
+export function unstar(entry: FamiliarityEntry): FamiliarityEntry {
+  if (!isStarred(entry)) return entry;
+  return { ...entry, tags: (entry.tags ?? []).filter((t) => t !== STARRED_TAG) };
+}
+
 const clamp01 = (n: number): number => Math.max(0, Math.min(1, n));
 
 /** Normalize a surface form to a lexKey: NFC, lowercase, trim, strip edge punctuation, collapse ws.

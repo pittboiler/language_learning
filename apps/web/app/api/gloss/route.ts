@@ -5,6 +5,7 @@ import { structuredCall, MODELS } from "@ll/core/llm";
 import { normalize } from "@ll/core/familiarity";
 import { getPack } from "../../../lib/packs";
 import { getCachedGloss, putCachedGloss, normalizeContext } from "../../../lib/gloss-cache";
+import { glossOverride, baseFormCandidates } from "../../../lib/gloss-overrides";
 import { romanize } from "../../../lib/romanize";
 
 // Transliteration is a deterministic property of the (Cyrillic) spelling, so we compute it locally
@@ -32,9 +33,23 @@ export async function POST(req: Request) {
   const pack = getPack(packId);
   const key = normalize(word);
 
+  // 0. Curated override — highest authority, wins over the shared cache and the LLM. This is how a
+  //    word the LLM reliably mis-glosses (лебот → "swan") gets pinned to the right meaning; because
+  //    it short-circuits here, any stale/poisoned cache row for the word is never consulted again.
+  const override = glossOverride(pack.id, key);
+  if (override) return Response.json({ gloss: override.gloss, translit: translitFor(word, override.translit), lemma: override.lemma, source: "override" });
+
   // 1. Trusted pack vocab (free, instant). Authored translit wins; compute only to fill a gap.
   const hit = pack.vocab.find((v) => normalize(v.answer) === key);
   if (hit) return Response.json({ gloss: hit.gloss, translit: hit.translit || translitFor(word), source: "pack" });
+
+  // 1b. Inflected form of a trusted vocab word: strip the definite article (лебот → леб) and re-check
+  //     pack vocab. Only a stem that MATCHES known vocab is accepted, so a bad strip can't invent a
+  //     meaning — this keeps definite forms off the LLM path (the source of the wrong cached glosses).
+  for (const base of baseFormCandidates(pack.id, key)) {
+    const baseHit = pack.vocab.find((v) => normalize(v.answer) === base);
+    if (baseHit) return Response.json({ gloss: baseHit.gloss, translit: translitFor(word, baseHit.translit), lemma: baseHit.answer, source: "pack-lemma" });
+  }
 
   // 2. Shared cross-user cache (see gloss-cache.ts): the first resolution of a (pack, word, sentence)
   //    is reused by every later reader — so two partners tapping the same word get the SAME definition.

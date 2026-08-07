@@ -60,3 +60,37 @@ export const captureWord = (
   });
   return lexKey;
 };
+
+/** Save/unsave a word to the learner's custom (starred) deck — the "I want to see it again" flag. Captures
+ *  the word first if it isn't tracked yet (so a brand-new word can be starred straight from a reader or the
+ *  Words list), remembers its sentence + English when supplied (for in-context cloze review), then toggles
+ *  the star. Starring also promotes the word to studied so it RECURS in normal review, not just the deck.
+ *  Returns the new starred state. Pure w.r.t. `progress`; side effects go through `persist`. */
+export const toggleStar = (
+  progress: Progress,
+  persist: (p: Progress) => void,
+  surface: string,
+  opts?: { gloss?: string; context?: string },
+): boolean => {
+  const lexKey = familiarity.normalize(surface);
+  if (!lexKey) return false;
+  const existing = progress.familiarity[lexKey];
+  const base = existing ?? familiarity.capture({ lexKey, kind: "word", display: surface, gloss: opts?.gloss });
+  const wasStarred = familiarity.isStarred(base);
+  const entry = wasStarred ? familiarity.unstar(base) : familiarity.markStarred(base);
+  const needContext = !!opts?.context && !progress.contexts?.[lexKey];
+  const needGloss = !!opts?.gloss && !!opts?.context && !progress.contextGlosses?.[lexKey];
+  persist({
+    ...progress,
+    familiarity: { ...progress.familiarity, [lexKey]: entry },
+    contexts: needContext ? { ...progress.contexts, [lexKey]: opts!.context! } : progress.contexts,
+    contextGlosses: needGloss ? { ...progress.contextGlosses, [lexKey]: opts!.gloss! } : progress.contextGlosses,
+  });
+  return !wasStarred;
+};
+
+/** Is this word currently in the learner's starred deck? Convenience for rendering the ★ toggle state. */
+export const isWordStarred = (progress: Progress, surface: string): boolean => {
+  const e = progress.familiarity[familiarity.normalize(surface)];
+  return !!e && familiarity.isStarred(e);
+};

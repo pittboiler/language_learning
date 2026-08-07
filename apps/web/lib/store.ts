@@ -21,6 +21,9 @@ export interface Progress {
   settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean };
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
   streak?: { count: number; lastDay: string };
+  /** Local day (YYYY-MM-DD) the daily session was last finished. When it equals today, Today opens on the
+   *  "done for today" screen instead of replaying step 1 after a reload/reopen. */
+  lastSessionDay?: string;
   /** Grammar concepts whose rule has been explicitly introduced once (→ later it's just-in-time). */
   seenGrammar?: Record<string, boolean>;
   /** @deprecated legacy "read once → done" flag; superseded by `storyReads` (still honored on read so
