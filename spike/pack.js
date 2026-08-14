@@ -71,7 +71,7 @@ export const scenarios = [
     ],
     turns: [
       { speaker: "partner", text: "Здраво! Како се викаш?", gloss: "Hi! What's your name?" },
-      { speaker: "learner", text: "Здраво! Јас сум Џејкоб.", translit: "Zdravo! Jas sum Jacob.", gloss: "Hi! I'm Jacob.", criteria: ["greeted"] },
+      { speaker: "learner", text: "Здраво! Јас сум Џејкоб.", translit: "Zdravo! Yas sum Jacob.", gloss: "Hi! I'm Jacob.", criteria: ["greeted"] },
       { speaker: "partner", text: "Мило ми е! Од каде си?", gloss: "Nice to meet you! Where are you from?" },
       { speaker: "learner", text: "Од Америка сум.", translit: "Od Amerika sum.", gloss: "I'm from America.", criteria: ["origin"] },
       { speaker: "partner", text: "Супер! Зборуваш македонски?", gloss: "Cool! Do you speak Macedonian?" },
@@ -129,7 +129,7 @@ export const reviewItems = [
   { id: "v-edno-pivo", cyrillic: "Едно пиво, ве молам", translit: "Edno pivo, ve molam", english: "One beer, please" },
   { id: "v-kolku-chini", cyrillic: "Колку чини?", translit: "Kolku chini?", english: "How much is it?" },
   { id: "v-smetka", cyrillic: "Сметката, ве молам", translit: "Smetkata, ve molam", english: "The bill, please" },
-  { id: "v-nazdravje", cyrillic: "Наздравје!", translit: "Nazdravje!", english: "Cheers!" },
+  { id: "v-nazdravje", cyrillic: "Наздравје!", translit: "Nazdravye!", english: "Cheers!" },
   { id: "v-od-kade", cyrillic: "Од каде си?", translit: "Od kade si?", english: "Where are you from?" },
   { id: "v-ucam", cyrillic: "Учам македонски", translit: "Učam makedonski", english: "I'm learning Macedonian" },
 ];

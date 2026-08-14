@@ -269,7 +269,7 @@ export const promotedVocab: ReviewItem[] = [
     "kind": "vocab",
     "prompt": "I ate",
     "answer": "јадев",
-    "translit": "jadev",
+    "translit": "yadev",
     "gloss": "I ate",
     "note": "Imperfect of 'jade' (to eat), 1st sg.",
     "i1Level": 3,
@@ -349,7 +349,7 @@ export const promotedVocab: ReviewItem[] = [
     "kind": "phrase",
     "prompt": "mother / father",
     "answer": "мајка / татко",
-    "translit": "majka / tatko",
+    "translit": "mayka / tatko",
     "gloss": "mother / father",
     "note": "Two nouns: majka (f), tatko (m).",
     "i1Level": 2,
@@ -509,7 +509,7 @@ export const promotedVocab: ReviewItem[] = [
     "kind": "phrase",
     "prompt": "my (m / f)",
     "answer": "мојот / мојата",
-    "translit": "mojot / mojata",
+    "translit": "moyot / moyata",
     "gloss": "my (m / f)",
     "note": "Possessive 'my' with definite article: m / f.",
     "i1Level": 3,
@@ -629,7 +629,7 @@ export const promotedVocab: ReviewItem[] = [
     "kind": "phrase",
     "prompt": "Let's …",
     "answer": "Ајде да …",
-    "translit": "Ajde da …",
+    "translit": "Ayde da …",
     "gloss": "Let's …",
     "note": "Common encouraging phrase; 'ajde' = come on.",
     "i1Level": 3,
@@ -970,7 +970,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Отидов во кафуле и јадев сендвич.",
         "gloss": "I went to a café and ate a sandwich.",
-        "translit": "Otidov vo kafe i jadev sendvich.",
+        "translit": "Otidov vo kafe i yadev sendvich.",
         "satisfies": [
           "narrate-past"
         ]
@@ -998,7 +998,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Утре ќе одам на кафе со пријател.",
         "gloss": "Tomorrow I will go for coffee with a friend.",
-        "translit": "Utre kje odam na kafe so prijatel.",
+        "translit": "Utre kje odam na kafe so priyatel.",
         "satisfies": [
           "state-plans"
         ]
@@ -1062,7 +1062,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Живеам во Скопје, во голем стан.",
         "gloss": "I live in Skopje, in a big apartment.",
-        "translit": "Zhiveam vo Skopje, vo golem stan.",
+        "translit": "Zhiveam vo Skopye, vo golem stan.",
         "satisfies": [
           "describe-home"
         ]
@@ -1155,7 +1155,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Ајде да се видиме денес. Во колку часот?",
         "gloss": "Let's meet today. At what time?",
-        "translit": "Ajde da se vidime denes. Vo kolku chasot?",
+        "translit": "Ayde da se vidime denes. Vo kolku chasot?",
         "satisfies": [
           "proposed-time"
         ]
@@ -1169,7 +1169,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Ајде во кафулето на плоштадот.",
         "gloss": "Let's meet at the cafe on the square.",
-        "translit": "Ajde vo kafeto na ploshtadot.",
+        "translit": "Ayde vo kafeto na ploshtadot.",
         "satisfies": [
           "proposed-place"
         ]
@@ -1431,7 +1431,7 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "Тој имаше многу работа.",
-        "translit": "Toj imav mnogu rabota.",
+        "translit": "Toy imav mnogu rabota.",
         "gloss": "He had a lot of work."
       },
       {
@@ -1441,7 +1441,7 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "Таму јадеше сендвич.",
-        "translit": "Tamu jadev sendvich.",
+        "translit": "Tamu yadev sendvich.",
         "gloss": "There he ate a sandwich."
       },
       {
@@ -1531,12 +1531,12 @@ export const promotedStories: MiniStory[] = [
     "body": [
       {
         "text": "Јас сум Ана.",
-        "translit": "Jas sum Ana.",
+        "translit": "Yas sum Ana.",
         "gloss": "I am Ana."
       },
       {
         "text": "Живеам во Скопје.",
-        "translit": "Živeam vo Skopje.",
+        "translit": "Živeam vo Skopye.",
         "gloss": "I live in Skopje."
       },
       {
@@ -1546,17 +1546,17 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "Мојата мајка работи како доктор.",
-        "translit": "Mojata majka raboti kako doktor.",
+        "translit": "Moyata mayka raboti kako doktor.",
         "gloss": "My mother works as a doctor."
       },
       {
         "text": "Мојот татко е добар човек.",
-        "translit": "Mojot tatko e dobar čovek.",
+        "translit": "Moyot tatko e dobar čovek.",
         "gloss": "My father is a good man."
       },
       {
         "text": "Јас работам како учителка.",
-        "translit": "Jas rabotam kako učitelka.",
+        "translit": "Yas rabotam kako učitelka.",
         "gloss": "I work as a teacher."
       },
       {
@@ -1566,12 +1566,12 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "Мојата сестра прашува: „На колку години си?“",
-        "translit": "Mojata sestra prašuva: „Na kolku godini si?“",
+        "translit": "Moyata sestra prašuva: „Na kolku godini si?“",
         "gloss": "My sister asks: \"How old are you?\""
       },
       {
         "text": "Јас имам триесет години.",
-        "translit": "Jas imam trieset godini.",
+        "translit": "Yas imam trieset godini.",
         "gloss": "I am thirty years old."
       }
     ],
@@ -1582,7 +1582,7 @@ export const promotedStories: MiniStory[] = [
         "questionGloss": "Where does Ana live?",
         "answer": "Во Скопје.",
         "answerGloss": "In Skopje.",
-        "answerTranslit": "Vo Skopje."
+        "answerTranslit": "Vo Skopye."
       },
       {
         "id": "q2",
@@ -1635,12 +1635,12 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "Да, јас сум. Здраво, Марко!",
-        "translit": "Da, jas sum. Zdravo, Marko!",
+        "translit": "Da, yas sum. Zdravo, Marko!",
         "gloss": "Yes, it's me. Hi, Marko!"
       },
       {
         "text": "Ајде да се видиме денес.",
-        "translit": "Ajde da se vidime denes.",
+        "translit": "Ayde da se vidime denes.",
         "gloss": "Let's meet today."
       },
       {
@@ -1655,7 +1655,7 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "Ајде во кафулето кај плоштадот.",
-        "translit": "Ajde vo kafuleto kaj ploštadot.",
+        "translit": "Ayde vo kafuleto kay ploštadot.",
         "gloss": "Let's go to the café by the square."
       },
       {
@@ -1679,7 +1679,7 @@ export const promotedStories: MiniStory[] = [
         "questionGloss": "Where do they meet?",
         "answer": "Во кафулето кај плоштадот.",
         "answerGloss": "At the café by the square.",
-        "answerTranslit": "Vo kafuleto kaj ploštadot."
+        "answerTranslit": "Vo kafuleto kay ploštadot."
       },
       {
         "id": "q3",
@@ -1929,7 +1929,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
         {
           "text": "Ајде да се видиме утре во седум часот.",
           "gloss": "Let's meet tomorrow at seven o'clock.",
-          "translit": "Ajde da se vidime utre vo sedum chasot."
+          "translit": "Ayde da se vidime utre vo sedum chasot."
         },
         {
           "text": "Каде да се видиме?",
@@ -1950,7 +1950,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
         {
           "text": "Ало, јас сум Марко!",
           "gloss": "Hello, it's me, Marko!",
-          "translit": "Alo, jas sum Marko!"
+          "translit": "Alo, yas sum Marko!"
         },
         {
           "text": "Во седум часот е добро. Кога? Утре?",
@@ -1960,7 +1960,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
         {
           "text": "Ајде да се видиме во кафулето кај плоштадот.",
           "gloss": "Let's meet at the café by the square.",
-          "translit": "Ajde da se vidime vo kafuleto kaj ploshtadot."
+          "translit": "Ayde da se vidime vo kafuleto kay ploshtadot."
         },
         {
           "text": "Тоа е надесно, до банката.",
@@ -2011,7 +2011,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
         {
           "text": "Ова не е чај, ова е кафе.",
           "gloss": "This isn't tea, this is coffee.",
-          "translit": "Ova ne e chaj, ova e kafe."
+          "translit": "Ova ne e chay, ova e kafe."
         },
         {
           "text": "Сакам да вратам кафе. Можете ли да помогнете?",
@@ -2047,7 +2047,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
         {
           "text": "Веднаш носам чај. Чајот е 40 денари.",
           "gloss": "I'll bring tea right away. The tea is 40 denars.",
-          "translit": "Vednash nosam chaj. Chajot e 40 denari."
+          "translit": "Vednash nosam chay. Chayot e 40 denari."
         },
         {
           "text": "Вкупно е 40 денари. Во ред?",

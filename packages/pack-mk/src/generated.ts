@@ -206,7 +206,7 @@ export const generatedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Здраво! Јас се викам Марко.",
         "gloss": "Hi! My name is Marko.",
-        "translit": "Zdravo! Jas se vikam Marko.",
+        "translit": "Zdravo! Yas se vikam Marko.",
         "satisfies": [
           "greeted",
           "said-name"
@@ -221,7 +221,7 @@ export const generatedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Јас сум од Англија.",
         "gloss": "I'm from England.",
-        "translit": "Jas sum od Anglija.",
+        "translit": "Yas sum od Angliya.",
         "satisfies": [
           "said-origin"
         ]
@@ -235,7 +235,7 @@ export const generatedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Јас сум студент.",
         "gloss": "I'm a student.",
-        "translit": "Jas sum student.",
+        "translit": "Yas sum student.",
         "satisfies": [
           "said-job"
         ]
@@ -329,7 +329,7 @@ export const generatedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Јас сум Ана. Ве молам, нека ме повика.",
         "gloss": "I am Ana. Please, have him call me.",
-        "translit": "Jas sum Ana. Ve molam, neka me povika.",
+        "translit": "Yas sum Ana. Ve molam, neka me povika.",
         "satisfies": [
           "left-message"
         ]
@@ -343,7 +343,7 @@ export const generatedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Благодарам! Пријатно.",
         "gloss": "Thank you! Have a nice day.",
-        "translit": "Blagodaram! Prijatno.",
+        "translit": "Blagodaram! Priyatno.",
         "satisfies": [
           "said-bye"
         ]
@@ -559,7 +559,7 @@ export const generatedVocab: ReviewItem[] = [
     "kind": "phrase",
     "prompt": "My name is...",
     "answer": "Јас се викам...",
-    "translit": "Jas se vikam...",
+    "translit": "Yas se vikam...",
     "gloss": "My name is...",
     "i1Level": 2,
     "tags": [
@@ -587,7 +587,7 @@ export const generatedVocab: ReviewItem[] = [
     "kind": "phrase",
     "prompt": "I'm from...",
     "answer": "Јас сум од...",
-    "translit": "Jas sum od...",
+    "translit": "Yas sum od...",
     "gloss": "I'm from...",
     "i1Level": 2,
     "tags": [
@@ -699,7 +699,7 @@ export const generatedVocab: ReviewItem[] = [
     "kind": "phrase",
     "prompt": "Have a nice day / goodbye",
     "answer": "Пријатно",
-    "translit": "Prijatno",
+    "translit": "Priyatno",
     "gloss": "Have a nice day / goodbye",
     "i1Level": 2,
     "tags": [

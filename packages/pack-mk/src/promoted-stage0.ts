@@ -448,7 +448,7 @@ export const promotedVocab: ReviewItem[] = [
     "kind": "phrase",
     "prompt": "Have a nice time / enjoy (a parting pleasantry)",
     "answer": "Пријатно",
-    "translit": "Prijatno",
+    "translit": "Priyatno",
     "gloss": "Have a nice time / enjoy (a parting pleasantry)",
     "note": "Said when parting; also 'enjoy'. Stress on antepenult: pri-JAT-no.",
     "i1Level": 1,
@@ -755,7 +755,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Да, точно. Од Германија сум.",
         "gloss": "Yes, exactly. I'm from Germany.",
-        "translit": "Da, tochno. Od Germanija sum.",
+        "translit": "Da, tochno. Od Germaniya sum.",
         "satisfies": [
           "clarify"
         ]
@@ -843,7 +843,7 @@ export const promotedScenarios: Scenario[] = [
         "speaker": "learner",
         "text": "Се гледаме! Пријатно!",
         "gloss": "See you! Have a nice day!",
-        "translit": "Se gledame! Prijatno!",
+        "translit": "Se gledame! Priyatno!",
         "satisfies": [
           "took-leave"
         ]
@@ -994,7 +994,7 @@ export const promotedStories: MiniStory[] = [
     "body": [
       {
         "text": "Ана е во Скопје.",
-        "translit": "Ana e vo Skopje.",
+        "translit": "Ana e vo Skopye.",
         "gloss": "Ana is in Skopje."
       },
       {
@@ -1142,12 +1142,12 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "„Чај?“ „Не, фала.“",
-        "translit": "„Čaj?“ „Ne, fala.“",
+        "translit": "„Čay?“ „Ne, fala.“",
         "gloss": "\"Tea?\" \"No, thanks.\""
       },
       {
         "text": "„Пријатно, Ана!“ „Догледање, Марко!“",
-        "translit": "„Prijatno, Ana!“ „Dogledanje, Marko!“",
+        "translit": "„Priyatno, Ana!“ „Dogledanje, Marko!“",
         "gloss": "\"Take care, Ana!\" \"Goodbye, Marko!\""
       }
     ],
@@ -1242,12 +1242,12 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "„Добар ден! Сакам јаболка.“",
-        "translit": "„Dobar den! Sakam jabolka.“",
+        "translit": "„Dobar den! Sakam yabolka.“",
         "gloss": "\"Good day! I want apples.\""
       },
       {
         "text": "„Имате ли јаболка?“",
-        "translit": "„Imate li jabolka?“",
+        "translit": "„Imate li yabolka?“",
         "gloss": "\"Do you have apples?\""
       },
       {
@@ -1262,7 +1262,7 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "text": "„Сакам пет јаболка и еден леб.“",
-        "translit": "„Sakam pet jabolka i eden leb.“",
+        "translit": "„Sakam pet yabolka i eden leb.“",
         "gloss": "\"I want five apples and one bread.\""
       },
       {
@@ -1288,7 +1288,7 @@ export const promotedStories: MiniStory[] = [
         "questionGloss": "How many apples does Ana want?",
         "answer": "Пет јаболка.",
         "answerGloss": "Five apples.",
-        "answerTranslit": "Pet jabolka."
+        "answerTranslit": "Pet yabolka."
       },
       {
         "id": "q2",
@@ -1418,12 +1418,12 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
         {
           "text": "Добар ден! Каде се јаболката?",
           "gloss": "Good day! Where are the apples?",
-          "translit": "Dobar den! Kade se jabolkata?"
+          "translit": "Dobar den! Kade se yabolkata?"
         },
         {
           "text": "Сакам три јаболка и еден леб.",
           "gloss": "I want three apples and one bread.",
-          "translit": "Sakam tri jabolka i eden leb."
+          "translit": "Sakam tri yabolka i eden leb."
         },
         {
           "text": "Имате ли леб? Колку чини сè?",
@@ -1449,12 +1449,12 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
         {
           "text": "Добар ден! Јаболката се таму, десно.",
           "gloss": "Good day! The apples are there, on the right.",
-          "translit": "Dobar den! Jabolkata se tamu, desno."
+          "translit": "Dobar den! Yabolkata se tamu, desno."
         },
         {
           "text": "Да, имаме леб. Едно јаболко чини 20 денари.",
           "gloss": "Yes, we have bread. One apple costs 20 denars.",
-          "translit": "Da, imame leb. Edno jabolko chini 20 denari."
+          "translit": "Da, imame leb. Edno yabolko chini 20 denari."
         },
         {
           "text": "Лебот е 30 денари.",

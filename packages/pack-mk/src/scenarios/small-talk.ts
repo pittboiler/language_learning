@@ -12,7 +12,7 @@ export const smallTalk: Scenario = {
   requiredStructures: [],
   script: [
     { speaker: "partner", text: "Здраво! Како се викаш?", gloss: "Hi! What's your name?" },
-    { speaker: "learner", text: "Здраво! Јас сум Џејкоб.", translit: "Zdravo! Jas sum Jacob.", gloss: "Hi! I'm Jacob.", satisfies: ["greeted"] },
+    { speaker: "learner", text: "Здраво! Јас сум Џејкоб.", translit: "Zdravo! Yas sum Jacob.", gloss: "Hi! I'm Jacob.", satisfies: ["greeted"] },
     { speaker: "partner", text: "Мило ми е! Од каде си?", gloss: "Nice to meet you! Where are you from?" },
     { speaker: "learner", text: "Од Америка сум.", translit: "Od Amerika sum.", gloss: "I'm from America.", satisfies: ["origin"] },
     { speaker: "partner", text: "Супер! Зборуваш македонски?", gloss: "Cool! Do you speak Macedonian?" },

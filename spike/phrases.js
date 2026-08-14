@@ -47,7 +47,7 @@ export const phrases = [
   {
     id: "nazdravje",
     cyrillic: "Наздравје!",
-    translit: "Nazdravje!",
+    translit: "Nazdravye!",
     english: "Cheers!",
   },
   {

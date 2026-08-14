@@ -11,7 +11,7 @@ export const vocab: ReviewItem[] = [
   { id: "v-edno-pivo", kind: "phrase", prompt: "One beer, please", answer: "Едно пиво, ве молам", translit: "Edno pivo, ve molam", gloss: "One beer, please", i1Level: 2, tags: ["ordering"], note: "ве молам = 'please' (literally 'I ask you').", confidence: "authored" },
   { id: "v-kolku-chini", kind: "phrase", prompt: "How much is it?", answer: "Колку чини?", translit: "Kolku chini?", gloss: "How much does it cost?", i1Level: 2, tags: ["ordering"], confidence: "authored" },
   { id: "v-smetka", kind: "phrase", prompt: "The bill, please", answer: "Сметката, ве молам", translit: "Smetkata, ve molam", gloss: "The bill, please", i1Level: 2, tags: ["paying"], confidence: "authored" },
-  { id: "v-nazdravje", kind: "phrase", prompt: "Cheers!", answer: "Наздравје!", translit: "Nazdravje!", gloss: "Cheers!", i1Level: 1, tags: ["social"], confidence: "authored" },
+  { id: "v-nazdravje", kind: "phrase", prompt: "Cheers!", answer: "Наздравје!", translit: "Nazdravye!", gloss: "Cheers!", i1Level: 1, tags: ["social"], confidence: "authored" },
   { id: "v-od-kade", kind: "phrase", prompt: "Where are you from?", answer: "Од каде си?", translit: "Od kade si?", gloss: "Where are you from?", i1Level: 2, tags: ["small-talk"], confidence: "authored" },
   { id: "v-ucam", kind: "phrase", prompt: "I'm learning Macedonian", answer: "Учам македонски", translit: "Učam makedonski", gloss: "I'm learning Macedonian", i1Level: 2, tags: ["small-talk"], confidence: "authored" },
 ];
