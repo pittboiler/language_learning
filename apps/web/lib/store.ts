@@ -36,6 +36,10 @@ export interface Progress {
   contexts?: Record<string, string>;
   /** English translation of that sentence — shown on the cloze card so it's clear what to produce. */
   contextGlosses?: Record<string, string>;
+  /** Epoch-ms of the last save (stamped by the Store on write). Used only to reconcile the Supabase row
+   *  with the synchronous localStorage mirror on load, so a last-write-before-exit that didn't reach the
+   *  network (e.g. finishing a session then immediately closing the app) isn't lost to a stale remote row. */
+  savedAt?: number;
 }
 
 export interface Store {
@@ -86,7 +90,7 @@ export function localStore(): Store {
     },
     async save(p) {
       if (typeof localStorage === "undefined") return;
-      localStorage.setItem(KEY, JSON.stringify(p));
+      localStorage.setItem(KEY, JSON.stringify({ ...p, savedAt: Date.now() }));
     },
   };
 }
@@ -97,25 +101,42 @@ export function localStore(): Store {
  */
 export function supabaseStore(): Store {
   const sb = supabase()!;
+  const local = localStore();
+
+  const save: Store["save"] = async (p) => {
+    const stamped = { ...p, savedAt: Date.now() };
+    // Mirror to localStorage synchronously (fast optimistic reads / offline resilience) BEFORE the
+    // network round-trip — so even if the upsert never lands (app closed right after), the mirror holds it.
+    void local.save(stamped);
+    const id = await uid();
+    await sb.from("user_state").upsert({ user_id: id, data: stamped, updated_at: new Date().toISOString() });
+  };
 
   return {
     async load() {
+      // The synchronous mirror always reflects this device's most recent write; the Supabase row may lag
+      // if the last upsert was interrupted (finishing a session, then immediately closing the app).
+      const cached = await local.load();
       try {
         const id = await uid();
         const { data } = await sb.from("user_state").select("data").eq("user_id", id).maybeSingle();
         const blob = (data as { data?: Partial<Progress> } | null)?.data;
-        return blob ? revive({ ...emptyProgress(), ...blob }) : emptyProgress();
+        const remote = blob ? revive({ ...emptyProgress(), ...blob }) : null;
+        // Prefer whichever was saved more recently. A newer local mirror means a write didn't reach the
+        // network — use it (and heal the remote so other devices catch up). A newer remote means another
+        // device moved ahead — use it. Ties favour the canonical remote.
+        if (remote && (remote.savedAt ?? 0) >= (cached.savedAt ?? 0)) return remote;
+        if ((cached.savedAt ?? 0) > 0) {
+          void save(cached); // reconcile the stale remote in the background
+          return cached;
+        }
+        return remote ?? cached;
       } catch {
         // Fall back to local cache if Supabase is unreachable, so the app still works offline.
-        return localStore().load();
+        return cached;
       }
     },
-    async save(p) {
-      // Mirror to localStorage too (fast optimistic reads / offline resilience).
-      void localStore().save(p);
-      const id = await uid();
-      await sb.from("user_state").upsert({ user_id: id, data: p, updated_at: new Date().toISOString() });
-    },
+    save,
   };
 }
 
