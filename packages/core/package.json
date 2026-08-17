@@ -23,7 +23,8 @@
     "./roleswap": "./src/roleswap/index.ts",
     "./teachback": "./src/teachback/index.ts",
     "./infogap": "./src/infogap/index.ts",
-    "./live": "./src/live/index.ts"
+    "./live": "./src/live/index.ts",
+    "./together": "./src/together/index.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

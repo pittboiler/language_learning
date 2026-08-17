@@ -28,13 +28,14 @@ import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
 import * as partnerDiff from "@ll/core/partner/familiarity-diff";
-import type { ComplementaryDiff } from "@ll/core/partner/familiarity-diff";
+import type { ComplementaryDiff, FamiliarityProjection } from "@ll/core/partner/familiarity-diff";
 import * as teachback from "@ll/core/teachback";
 import * as complementarySrs from "@ll/core/partner/complementary-srs";
 import * as infogap from "@ll/core/infogap";
 import type { InfoGapSession } from "@ll/core/infogap";
 import * as live from "@ll/core/live";
 import type { LiveSession } from "@ll/core/live";
+import * as together from "@ll/core/together";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
 type Section = "today" | "library" | "progress" | "partnered";
@@ -2699,6 +2700,212 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
   );
 }
 
+// ---------- v2 "Together session" (see DESIGN-partnered-v2.md) ----------
+// The re-envisioned flagship: a short, live, two-device co-op recall drill for two matched beginners.
+// The launcher shows Start (or Join, if the partner already started one, via Realtime).
+function TogetherLauncher({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
+  const [active, setActive] = useState<PartnerArtifact | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const a = (await store.listArtifacts(partnershipId, "together")).find((x) => (x.payload as together.TogetherSession).status !== "complete") ?? null;
+        if (alive) setActive(a);
+      } catch {
+        /* tolerate — the button still works */
+      }
+    };
+    void load();
+    const unsub = subscribeArtifacts(partnershipId, () => void load());
+    return () => {
+      alive = false;
+      unsub();
+    };
+  }, [store, partnershipId]);
+  return (
+    <div className="fb" style={{ textAlign: "center" }}>
+      <div className="small" style={{ marginBottom: 8 }}>{active ? "Your partner started a session — jump in." : "A quick drill you do together, in real time."}</div>
+      {active ? (
+        <button className="btn" onClick={() => onOpen(active.id)}>Join the session →</button>
+      ) : (
+        <button className="btn" onClick={() => onOpen("new")}>▶ Start a session together</button>
+      )}
+      <div className="muted small" style={{ marginTop: 8 }}>~6 min · you both need to be here now</div>
+    </div>
+  );
+}
+
+// The session itself. One partner PRODUCES (says the target from the English prompt); the other CHECKS
+// (holds the answer, taps ✓/↻). Roles flip per item. Synced over the same Realtime channel LiveConvo uses.
+// Each partner grades their OWN produced turns into their private SRS (familiarity is per-user).
+function TogetherSession({ store, partnershipId, packId, myId, partnerId, progress, persist, partnerProjection, sessionId, onExit }: {
+  store: PartnerStore;
+  partnershipId: string;
+  packId: string;
+  myId: string;
+  partnerId: string;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  partnerProjection: FamiliarityProjection | null;
+  sessionId: string | "new";
+  onExit: () => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const [session, setSession] = useState<together.TogetherSession | null>(null);
+  const [sid, setSid] = useState<string | "new">(sessionId);
+  const [online, setOnline] = useState<string[]>([]);
+  const [err, setErr] = useState("");
+  const gradedRef = useRef<Set<string>>(new Set()); // "<queue-sig>#<index>" of my produced turns already graded
+  useEffect(() => { setSid(sessionId); }, [sessionId]);
+
+  // Drillable pool: single words + phrases with a gloss and a target form.
+  const candidates = useMemo<together.TogetherCandidate[]>(
+    () => pack.vocab
+      .filter((v) => (v.kind === "vocab" || v.kind === "phrase") && !!v.answer && !!v.gloss)
+      .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, prompt: v.gloss, answer: v.answer, translit: v.translit })),
+    [pack],
+  );
+
+  const refresh = useCallback(async () => {
+    if (sid === "new") return;
+    try {
+      const a = (await store.listArtifacts(partnershipId, "together")).find((x) => x.id === sid);
+      if (a) setSession(a.payload as together.TogetherSession);
+    } catch {
+      /* keep current */
+    }
+  }, [store, partnershipId, sid]);
+  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    if (sid === "new") return;
+    const unsubArtifacts = subscribeArtifacts(partnershipId, () => void refresh());
+    const unsubPresence = joinPresence(partnershipId, myId, setOnline);
+    return () => { unsubArtifacts(); unsubPresence(); };
+  }, [partnershipId, sid, myId, refresh]);
+
+  const buildAndStart = useCallback(async () => {
+    setErr("");
+    try {
+      // Deterministic id per partnership (mirrors LiveConvo): both partners converge on ONE session row.
+      const id = await sharedArtifactId("together", partnershipId, "recall");
+      const existing = (await store.listArtifacts(partnershipId, "together")).find((x) => x.id === id);
+      if (existing && (existing.payload as together.TogetherSession).status !== "complete") {
+        setSession(existing.payload as together.TogetherSession);
+        setSid(id);
+        return; // join the partner's in-progress session rather than overwriting it
+      }
+      const members = [myId, partnerId].sort() as [string, string];
+      const myProj = partnerDiff.projectFamiliarity(progress.familiarity, packId);
+      const pProj = partnerProjection ?? { packId, entries: {} };
+      // Arrange projections to match the sorted members so both clients build an identical queue.
+      const projections = (members[0] === myId ? [myProj, pProj] : [pProj, myProj]) as [FamiliarityProjection, FamiliarityProjection];
+      const turns = together.buildQueue(members, projections, candidates, { limit: 12 });
+      const sess = together.startTogether(id, packId, members[0], members[1], turns);
+      await store.putArtifact(partnershipId, packId, "together", sess, id);
+      setSession(sess);
+      setSid(id);
+    } catch (e) {
+      setErr((e as { message?: string }).message ?? "Couldn't start — try again.");
+    }
+  }, [store, partnershipId, packId, myId, partnerId, progress.familiarity, partnerProjection, candidates]);
+
+  useEffect(() => { if (sessionId === "new" && !session) void buildAndStart(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [sessionId]);
+
+  // Grade MY produced turns into MY private SRS as the checker's verdicts land (via realtime). Namespaced
+  // by the queue signature so a fresh "Go again" session re-grades cleanly.
+  useEffect(() => {
+    if (!session) return;
+    const sig = session.turns.map((t) => t.lexKey).join(",");
+    const mine = session.turns.filter((t) => t.result && t.producer === myId && !gradedRef.current.has(`${sig}#${t.index}`));
+    if (!mine.length) return;
+    let p = progress;
+    for (const t of mine) {
+      gradedRef.current.add(`${sig}#${t.index}`);
+      const base = p.familiarity[t.lexKey] ?? familiarity.capture({ lexKey: t.lexKey, kind: t.answer.includes(" ") ? "chunk" : "word", display: t.answer, gloss: t.prompt });
+      p = { ...p, familiarity: { ...p.familiarity, [t.lexKey]: familiarity.grade(familiarity.markStudied(base), t.result === "got" ? "good" : "again") } };
+    }
+    persist(p);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
+
+  const check = async (got: boolean) => {
+    if (!session) return;
+    setErr("");
+    try {
+      const latest = ((await store.listArtifacts(partnershipId, "together")).find((x) => x.id === session.id)?.payload as together.TogetherSession) ?? session;
+      const next = together.checkTurn(latest, myId, got);
+      await store.putArtifact(partnershipId, packId, "together", next, next.id);
+      setSession(next);
+    } catch (e) {
+      setErr((e as { message?: string }).message ?? "Sync hiccup — tap ↻.");
+    }
+  };
+
+  const partnerOnline = online.includes(partnerId);
+  const HeaderRow = (
+    <div className="row" style={{ justifyContent: "space-between" }}>
+      <button className="ghost small" onClick={onExit}>← Together</button>
+      <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
+    </div>
+  );
+
+  if (!session) return <div style={colStack}>{HeaderRow}{err ? <div className="err">{err}</div> : <span className="muted small">Setting up…</span>}</div>;
+
+  const sc = together.score(session);
+  if (session.status === "complete") {
+    return (
+      <div style={colStack}>
+        {HeaderRow}
+        {sc.total === 0 ? (
+          <p className="lead" style={{ margin: 0 }}>Nothing new to drill together right now — do a solo lesson to build up some words, then come back. 🎉</p>
+        ) : (
+          <>
+            <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 You cleared <b>{sc.got}/{sc.total}</b> together!</p>
+            <p className="muted small" style={{ margin: 0 }}>Each of you kept the words you produced in your own reviews.</p>
+          </>
+        )}
+        <div className="row">
+          <button className="btn" onClick={buildAndStart}>Go again →</button>
+          <button className="ghost" onClick={onExit}>Done</button>
+        </div>
+      </div>
+    );
+  }
+
+  const turn = together.currentTurn(session)!;
+  const iProduce = together.isMyTurnToProduce(session, myId);
+  const total = session.turns.length;
+  return (
+    <div style={colStack}>
+      {HeaderRow}
+      <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
+      <div className="muted small">Turn {session.turnIndex + 1} of {total} · cleared {sc.got}</div>
+      {err ? <div className="err">{err}</div> : null}
+      {iProduce ? (
+        <div className="fb">
+          <div className="muted small">Your turn — say this in {pack.name}, out loud:</div>
+          <div className="target" style={{ fontSize: 24, margin: "8px 0" }}>{turn.prompt}</div>
+          <div className="muted small">🎙 {partnerOnline ? "Your partner is checking you…" : "waiting for your partner to check…"}</div>
+        </div>
+      ) : (
+        <div className="fb">
+          <div className="muted small">Your partner is saying <b>“{turn.prompt}”</b> — did they get it?</div>
+          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
+            <button className="spk" onClick={() => play(turn.answer, 0.9)}>🔊</button>
+            <b className="target" style={{ fontSize: 22 }}>{turn.answer}</b>
+            <span className="translit"> · {translitOr(turn.answer, turn.translit)}</span>
+          </div>
+          <div className="row">
+            <button className="btn" onClick={() => check(true)}>✓ Got it</button>
+            <button className="ghost" onClick={() => check(false)}>↻ Again</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Info-gap (Phase 3, forced interdependence): each partner holds DIFFERENT secret info + a shared
 // goal neither can reach alone. The view renders ONLY this partner's half (briefFor) — the asymmetry
 // is the task. The shared checklist is one 'infogap' partner_artifact; ticks re-read latest to merge.
@@ -3370,8 +3577,8 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [rs, setRs] = useState<string | "new" | null>(null); // open role-swap session id, "new", or none
   const [ig, setIg] = useState<string | "new" | null>(null); // open info-gap session id, "new", or none
   const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
+  const [tg, setTg] = useState<string | "new" | null>(null); // open v2 Together session id, "new", or none
   const [cadence, setCadence] = useState<partner.PartnerCadence>("daily"); // shared joint-session rhythm
-  const [ptab, setPtab] = useState<"together" | "practice" | "manage">("together"); // Partnered sub-tab
 
   const myActivity = useCallback(
     (): ActivityRecord => ({
@@ -3525,6 +3732,22 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
       );
     // active
     const partnerId = l.members.find((m) => m && m !== myId) ?? "";
+    if (tg) {
+      return (
+        <TogetherSession
+          store={store}
+          partnershipId={l.id}
+          packId={packId}
+          myId={myId}
+          partnerId={partnerId}
+          progress={progress}
+          persist={persist}
+          partnerProjection={partnerState?.familiarity ?? null}
+          sessionId={tg}
+          onExit={() => { setTg(null); void refresh(); }}
+        />
+      );
+    }
     if (rs) {
       return (
         <div style={colStack}>
@@ -3551,28 +3774,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     }
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
-    // Adaptive cadence inputs: tilt the plan by who did more this window, and detect an absent partner.
     const today = localDay();
-    const dayMs = (d: string) => new Date(`${d}T12:00:00Z`).getTime();
-    const partnerActive = !!pDay && (cadence === "daily" ? pDay === today : dayMs(today) - dayMs(pDay) <= 7 * 86_400_000);
-    const plan = partner.buildPartnerSession({
-      cadence,
-      partnerCanHelpMe: diff?.partnerCanHelpMe.length ?? 0,
-      iCanHelpPartner: diff?.iCanHelpPartner.length ?? 0,
-      speakScenarioId: pack.scenarios.find((s) => !progress.scenarios[s.id])?.id ?? pack.scenarios[0]?.id,
-      storyId: pack.stories?.[0]?.id,
-      myRecent: myActivity().metrics?.movedToKnownThisWeek ?? 0,
-      partnerRecent: pm?.movedToKnownThisWeek ?? 0,
-      partnerActive,
-    });
-    const scrollTo = (a: string) => { setPtab("practice"); setTimeout(() => document.getElementById(a)?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
-    const changeCadence = (mode: partner.PartnerCadence) => {
-      setCadence(mode);
-      void (async () => {
-        const arts = await store.listArtifacts(l.id, "cadence");
-        await store.putArtifact(l.id, packId, "cadence", { mode }, arts[0]?.id);
-      })();
-    };
     return (
       <div style={colStack}>
         <div className="row" style={{ justifyContent: "space-between" }}>
@@ -3585,44 +3787,39 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
             <span className="muted small">no activity shared yet</span>
           )}
         </div>
-        <div className="picker small">
-          {([["together", "Together"], ["practice", "Practice"], ["manage", "Manage"]] as const).map(([t, label]) => (
-            <button key={t} className={ptab === t ? "active" : ""} onClick={() => setPtab(t)}>{label}</button>
-          ))}
+        {/* Hero: the one thing to do together — a short live session in real time (DESIGN-partnered-v2.md §2). */}
+        <TogetherLauncher store={store} partnershipId={l.id} onOpen={setTg} />
+
+        <div className="row">
+          <span className="small">Shared streak</span>
+          <span className="muted small">
+            {shared && shared.count > 0
+              ? `${shared.count} day${shared.count === 1 ? "" : "s"} you both showed up${shared.lastDay === today ? " — including today 🔥" : ""}`
+              : "practise on the same day to start a shared streak"}
+          </span>
         </div>
 
-        {ptab === "together" && (
-          <div style={colStack}>
-            <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onScrollTo={scrollTo} />
-            <div className="row">
-              <span className="small">Shared streak</span>
-              <span className="muted small">
-                {shared && shared.count > 0
-                  ? `${shared.count} day${shared.count === 1 ? "" : "s"} you both showed up${shared.lastDay === today ? " — including today 🔥" : ""}`
-                  : "practise on the same day to start a shared streak"}
-              </span>
-            </div>
-            <div>
-              <div className="small" style={{ marginBottom: 4 }}>Send a nudge</div>
-              <div className="row">
-                {NUDGES.map((n) => (
-                  <button key={n} className="ghost small" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
-                ))}
-              </div>
-              {nudges.length > 0 && (
-                <ul className="muted small" style={{ margin: "6px 0 0", paddingLeft: 18 }}>
-                  {nudges.map((nd) => {
-                    const pl = nd.payload as { text?: string; day?: string };
-                    return <li key={nd.id}>{nd.createdBy === myId ? "You" : "Partner"}: {pl.text} <span style={{ opacity: 0.6 }}>{pl.day}</span></li>;
-                  })}
-                </ul>
-              )}
-            </div>
+        <div>
+          <div className="small" style={{ marginBottom: 4 }}>Send a nudge</div>
+          <div className="row">
+            {NUDGES.map((n) => (
+              <button key={n} className="ghost small" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
+            ))}
           </div>
-        )}
+          {nudges.length > 0 && (
+            <ul className="muted small" style={{ margin: "6px 0 0", paddingLeft: 18 }}>
+              {nudges.map((nd) => {
+                const pl = nd.payload as { text?: string; day?: string };
+                return <li key={nd.id}>{nd.createdBy === myId ? "You" : "Partner"}: {pl.text} <span style={{ opacity: 0.6 }}>{pl.day}</span></li>;
+              })}
+            </ul>
+          )}
+        </div>
 
-        {ptab === "practice" && (
-          <div style={colStack}>
+        {/* v1 activities, demoted per v2 §8 — still reachable, no longer competing for the top of the screen. */}
+        <details className="partner-more">
+          <summary className="small" style={{ cursor: "pointer" }}>More ways to practise</summary>
+          <div style={{ ...colStack, marginTop: 10 }}>
             <LiveConvoSection store={store} partnershipId={l.id} onOpen={setLc} />
             <RoleSwapSection store={store} partnershipId={l.id} onOpen={setRs} />
             <InfoGapSection store={store} partnershipId={l.id} onOpen={setIg} />
@@ -3630,10 +3827,11 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
             <div id="ps-story"><SharedStory store={store} partnershipId={l.id} packId={packId} progress={progress} navigateToStory={navigateToStory} /></div>
             <Phrasebook store={store} partnershipId={l.id} packId={packId} progress={progress} persist={persist} />
           </div>
-        )}
+        </details>
 
-        {ptab === "manage" && (
-          <div style={colStack}>
+        <details className="partner-more">
+          <summary className="small" style={{ cursor: "pointer" }}>Partner settings</summary>
+          <div style={{ ...colStack, marginTop: 10 }}>
             <div>
               <span className="small">Visible to your partner</span>
               <div className="row" style={{ marginTop: 6 }}>
@@ -3660,7 +3858,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
             </div>
             <p className="muted small" style={{ margin: 0 }}>Unpairing affects only this partner{links.length > 1 ? " — your other partners stay linked" : ""}.</p>
           </div>
-        )}
+        </details>
       </div>
     );
   };
