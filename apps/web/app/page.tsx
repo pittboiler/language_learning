@@ -1348,6 +1348,10 @@ function ScenarioGrammar({ ids, label = "Grammar here:" }: { ids: string[]; labe
       ))}
       {shown && (
         <div className="fb" style={{ width: "100%", marginTop: 4 }}>
+          <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
+            <span className="gram-title" style={{ fontSize: 15 }}>ⓖ {shown.name}</span>
+            <button className="ghost small" onClick={() => setOpen(null)}>Hide ▲</button>
+          </div>
           <GrammarExplainer concept={shown} compact />
         </div>
       )}
