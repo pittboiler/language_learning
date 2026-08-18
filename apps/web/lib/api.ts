@@ -1,4 +1,5 @@
 // Typed client for the server API routes (which hold the provider keys).
+import { uid } from "./supabase";
 
 export interface Config {
   engines: { eleven: boolean; google: boolean; anthropic: boolean };
@@ -197,4 +198,29 @@ export async function importText(text: string, packId?: string): Promise<ImportR
       body: JSON.stringify({ text, packId }),
     })
   ).json();
+}
+
+export interface ExplainResponse {
+  answer?: string;
+  source?: string;
+  error?: string;
+  costUsd?: number;
+}
+
+/** "Have a question?" — ask one scoped question about a Today conversation. Server caches the answer
+ *  cross-user and rate-limits per user (25/day). `canned` carries a grammar-concept id for the derived
+ *  chips (cacheable); free-text goes in `question`. */
+export async function explain(opts: { packId?: string; convoId: string; lines: { text: string; gloss?: string }[]; question?: string; canned?: string }): Promise<ExplainResponse> {
+  let userId = "";
+  try { userId = await uid(); } catch { /* anon id best-effort — server treats missing id as unlimited-but-cached */ }
+  try {
+    const res = await fetch("/api/explain", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...opts, userId }),
+    });
+    return (await res.json()) as ExplainResponse;
+  } catch {
+    return { error: "network" };
+  }
 }

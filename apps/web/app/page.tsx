@@ -566,7 +566,7 @@ function Today({ progress, persist, config, navigate }: {
           <div>
             <Tag>Speak · {step.scenario.title}</Tag>
             <p className="muted small">{step.scenario.goal} — use what you just read, out loud.</p>
-            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare onComplete={() => done()} onMiss={flagTurn} />
+            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare askable onComplete={() => done()} onMiss={flagTurn} />
           </div>
         )}
       </div>
@@ -1255,7 +1255,7 @@ function Letters({ progress, persist, onDone, reference, onBack }: { progress: P
 }
 
 // ---------- Library view 2: scenarios ----------
-function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void }) {
+function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss, askable }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void; askable?: boolean }) {
   const pack = usePack();
   const s = pack.scenarios.find((x) => x.id === (scenarioId ?? progress.pick)) || pack.scenarios[0]!;
   const sp = progress.scenarios[s.id] || { turnIndex: 0, metCriteria: [] };
@@ -1306,6 +1306,8 @@ function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hide
         />
       ) : null}
 
+      {askable && <HaveAQuestion convoId={s.id} lines={s.script} conceptIds={s.requiredStructures} />}
+
       <div className="row" style={{ marginTop: 14 }}>
         <button className="ghost" onClick={restart}>↺ Restart</button>
         <button className="ghost" onClick={toggleAutoplay} title="Auto-play the other speaker's lines for hands-free listening practice">
@@ -1353,6 +1355,67 @@ function ScenarioGrammar({ ids, label = "Grammar here:" }: { ids: string[]; labe
             <button className="ghost small" onClick={() => setOpen(null)}>Hide ▲</button>
           </div>
           <GrammarExplainer concept={shown} compact />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// "Have a question?" — a scoped AI explainer for the conversation in a Today session step (story read /
+// speak scenario). Concept-derived canned chips + a bounded (≤120 char) free-text box; the answer is cached
+// cross-user and rate-limited server-side (see DESIGN-ai-explain.md). Rendered ONLY in the Today flow.
+function HaveAQuestion({ convoId, lines, conceptIds }: { convoId: string; lines: { text: string; gloss?: string }[]; conceptIds: string[] }) {
+  const pack = usePack();
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [spin, setSpin] = useState(false);
+  const [err, setErr] = useState("");
+  const concepts = conceptIds.map((id) => pack.grammar.find((c) => c.id === id)).filter((c): c is GrammarConcept => !!c);
+
+  const ask = async (question: string, canned?: string) => {
+    setSpin(true); setErr(""); setAnswer(null);
+    try {
+      const r = await api.explain({ packId: pack.id, convoId, lines, question, canned });
+      if (r.answer) setAnswer(r.answer);
+      else if (r.error === "rate_limited") setErr("You've asked a lot today — take a look at the grammar reference for now, and come back tomorrow.");
+      else if (r.error === "unconfigured") setErr("AI help isn't configured in this environment.");
+      else setErr("Couldn't answer that one — try rephrasing.");
+    } catch {
+      setErr("Something went wrong — try again.");
+    } finally {
+      setSpin(false);
+    }
+  };
+
+  return (
+    <div style={{ marginTop: 12 }}>
+      <button className="ghost small" onClick={() => setOpen((o) => !o)}>{open ? "▲" : "▾"} Have a question?</button>
+      {open && (
+        <div className="fb" style={{ marginTop: 8 }}>
+          <div className="muted small">Ask about the grammar or wording in this conversation.</div>
+          {concepts.length > 0 && (
+            <div className="row" style={{ flexWrap: "wrap", margin: "8px 0" }}>
+              {concepts.map((c) => (
+                <button key={c.id} className="ghost small" disabled={spin} onClick={() => ask(`Why "${c.name}"? Explain how it shows up in this conversation.`, c.id)}>ⓖ {c.name}?</button>
+              ))}
+            </div>
+          )}
+          <div className="row">
+            <input className="lang-picker" style={{ flex: 1, minWidth: 180 }} maxLength={120} placeholder="e.g. why is there a тоа here?" value={q}
+              onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && q.trim() && !spin) ask(q.trim()); }} />
+            <button className="btn" disabled={spin || !q.trim()} onClick={() => ask(q.trim())}>{spin ? "…" : "Ask"}</button>
+          </div>
+          {err && <div className="muted small" style={{ marginTop: 6 }}>{err}</div>}
+          {answer && (
+            <div className="fb" style={{ marginTop: 8 }}>
+              <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+                <span className="muted small">Answer</span>
+                <button className="ghost small" onClick={() => setAnswer(null)}>Hide ▲</button>
+              </div>
+              <p style={{ margin: "4px 0 0" }}>{answer}</p>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -1808,13 +1871,14 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
 }
 
 // ---------- shared story reader (synced audio + tap-capture) — used by Today and the Library Story view ----------
-function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
+function StoryReader({ story, progress, persist, config, onDone, doneLabel, askable }: {
   story: MiniStory;
   progress: Progress;
   persist: (p: Progress) => void;
   config: api.Config | null;
   onDone: () => void;
   doneLabel: string;
+  askable?: boolean;
 }) {
   const pack = usePack();
   const play = usePlay();
@@ -1903,6 +1967,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel }: {
         ))}
       </div>
       {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
+      {askable && <HaveAQuestion convoId={story.id} lines={story.body} conceptIds={storyGrammarIds(pack, story)} />}
       <div className="row" style={{ marginTop: 14 }}>
         <button className="btn" onClick={onDone}>{doneLabel}</button>
       </div>
@@ -2007,6 +2072,7 @@ function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0
       progress={progress}
       persist={persist}
       config={config}
+      askable
       doneLabel={hasQA ? `I read it → ${story.qa.length} questions` : "I read it → speak"}
       onDone={hasQA ? toQA : onDone}
     />
