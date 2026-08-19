@@ -18,9 +18,11 @@ export interface Progress {
   /** Active mini-story id for the story reader (null ⇒ first story). Lets the partner "shared story" deep-link. */
   storyPick?: string | null;
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
-  settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean; typeAnswers?: boolean };
+  settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean };
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
   streak?: { count: number; lastDay: string };
+  /** Verb lemmas already drilled in the warm-up conjugation match game — so each day picks a new one. */
+  seenConjugations?: string[];
   /** Local day (YYYY-MM-DD) the daily session was last finished. When it equals today, Today opens on the
    *  "done for today" screen instead of replaying step 1 after a reload/reopen. */
   lastSessionDay?: string;

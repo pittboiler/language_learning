@@ -8,7 +8,7 @@
 // Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import type { DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { ConjugationSet, DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -47,9 +47,6 @@ const usePack = () => useContext(PackContext);
 /** Global playback RATE for all spoken audio (1 = normal). The root computes it from settings: 1 when
  *  "normal", else the user's chosen slow rate (settings.slowRate, default 0.75). ONE setting app-wide. */
 const SlowContext = createContext(1);
-/** When on, recall flashcards ask you to TYPE the answer (Latin ok, checked against the transliteration)
- *  instead of reveal-and-self-grade. One app-wide setting, provided from progress.settings.typeAnswers. */
-const TypeModeContext = createContext(false);
 /** Play TTS in the active pack's voice at the global playback rate. The per-call speed arg is now
  *  ignored (rate is a global setting); it stays only for call-site compatibility. */
 function usePlay() {
@@ -218,7 +215,6 @@ export default function Home() {
   return (
     <PackContext.Provider value={pack}>
       <SlowContext.Provider value={effectiveRate(progress.settings)}>
-      <TypeModeContext.Provider value={progress.settings?.typeAnswers ?? false}>
       <header>
         <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
         <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
@@ -254,7 +250,6 @@ export default function Home() {
         {section === "partnered" && <PartnerPanel progress={progress} persist={persist} navigateToStory={goToStory} />}
       </main>
       {acctOpen && <AccountPanel progress={progress} persist={persist} config={config} onClose={() => setAcctOpen(false)} />}
-      </TypeModeContext.Provider>
       </SlowContext.Provider>
     </PackContext.Provider>
   );
@@ -294,7 +289,7 @@ function currentStory(pack: LanguagePack, progress: Progress): MiniStory | undef
 // dayIndex = how many distinct days this unit's story has already been read (0 on day 1, 1 on day 2…).
 // It rotates the day-to-day content (story Q&A, grammar drills) so a repeated unit isn't a copy.
 type TodayStep =
-  | { kind: "warmup"; items: ReviewItem[] }
+  | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
@@ -303,6 +298,24 @@ type TodayStep =
 
 // Rotate an array left by n (n=0 → unchanged). Used to vary which questions/drills lead each day.
 const rotate = <T,>(arr: T[], n: number): T[] => (arr.length ? arr.map((_, i) => arr[(i + n) % arr.length]!) : arr);
+
+// Person order for the warm-up conjugation drill.
+const PRONOUNS: { key: keyof ConjugationSet["forms"]; en: string; mk: string }[] = [
+  { key: "1sg", en: "I", mk: "јас" },
+  { key: "2sg", en: "you", mk: "ти" },
+  { key: "3sg", en: "he/she", mk: "тој/таа" },
+  { key: "1pl", en: "we", mk: "ние" },
+  { key: "2pl", en: "you all", mk: "вие" },
+  { key: "3pl", en: "they", mk: "тие" },
+];
+// The daily conjugation drill picks the first verb not yet drilled (marked seen on completion), so a new
+// verb comes up each day; once every verb has been seen it cycles.
+const pickConjVerb = (pack: LanguagePack, progress: Progress): ConjugationSet | undefined => {
+  const all = pack.conjugations ?? [];
+  if (!all.length) return undefined;
+  const seen = new Set(progress.seenConjugations ?? []);
+  return all.find((v) => !seen.has(v.lemma)) ?? all[(progress.seenConjugations?.length ?? 0) % all.length];
+};
 
 function Today({ progress, persist, config, navigate }: {
   progress: Progress;
@@ -326,7 +339,8 @@ function Today({ progress, persist, config, navigate }: {
       seenDue.add(k);
       return true;
     }).slice(0, 6);
-    if (due.length) out.push({ kind: "warmup", items: due });
+    const conjVerb = pickConjVerb(pack, progress);
+    if (due.length || conjVerb) out.push({ kind: "warmup", items: due, conjVerb });
 
     // One coherent unit per session: a story + the scenario that practises it. The unit stays for a few
     // days (UNIT_MIN_DAYS); dayIndex tracks which day we're on so the day-to-day content rotates.
@@ -509,6 +523,7 @@ function Today({ progress, persist, config, navigate }: {
           <WarmupSession
             key={idx}
             items={step.items}
+            conjVerb={step.conjVerb}
             progress={progress}
             persist={persist}
             onMiss={flag}
@@ -616,7 +631,7 @@ type WarmResult = { item: ReviewItem; ok: boolean };
 
 // A quick tap-to-match game: tap a word (hear it), then tap its meaning. Pairs matched on the first try
 // grade "good"; a wrong attempt first marks that word "again". Lighter + more fun than recalling each cold.
-function MatchGame({ pairs, onDone }: { pairs: { item: ReviewItem; target: string; gloss: string }[]; onDone: (results: WarmResult[]) => void }) {
+function MatchGame({ pairs, onDone, lead }: { pairs: { item: ReviewItem; target: string; gloss: string }[]; onDone: (results: WarmResult[]) => void; lead?: string }) {
   const play = usePlay();
   // Each column shows the same pairs in an independent shuffle; buttons carry the pair index.
   const leftOrder = useMemo(() => shuffle(pairs.map((_, i) => i)), []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -639,7 +654,7 @@ function MatchGame({ pairs, onDone }: { pairs: { item: ReviewItem; target: strin
   };
   return (
     <div className="fb">
-      <p className="lead" style={{ marginTop: 0 }}>Match each word to its meaning — tap a word to hear it, then tap what it means.</p>
+      <p className="lead" style={{ marginTop: 0 }}>{lead ?? "Match each word to its meaning — tap a word to hear it, then tap what it means."}</p>
       <div className="match-grid">
         <div className="match-col">
           {leftOrder.map((i) => (
@@ -658,10 +673,11 @@ function MatchGame({ pairs, onDone }: { pairs: { item: ReviewItem; target: strin
 }
 
 type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
-type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard };
+type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard } | { kind: "conjugation"; verb: ConjugationSet };
 
-function WarmupSession({ items, progress, persist, onComplete, onMiss }: {
+function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss }: {
   items: ReviewItem[];
+  conjVerb?: ConjugationSet;
   progress: Progress;
   persist: (p: Progress) => void;
   onComplete: (results: WarmResult[]) => void;
@@ -692,6 +708,7 @@ function WarmupSession({ items, progress, persist, onComplete, onMiss }: {
     // A one-word "match" is silly — turn a lone match candidate into a recall card instead.
     if (matchPairs.length === 1) { cards.unshift({ item: matchPairs[0]!.item, format: "recall" }); matchPairs.length = 0; }
     const steps: WarmStep[] = [];
+    if (conjVerb) steps.push({ kind: "conjugation", verb: conjVerb });
     if (matchPairs.length >= 2) steps.push({ kind: "match", pairs: matchPairs });
     for (const c of cards) steps.push({ kind: "card", card: c });
     return steps;
@@ -713,14 +730,17 @@ function WarmupSession({ items, progress, persist, onComplete, onMiss }: {
   const step = allSteps[stepIdx];
   if (!step) return null;
   const advance = () => setStepIdx((s) => s + 1);
-  const typed = progress.settings?.typeAnswers ?? false;
   return (
     <div>
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-        <Tag>Warm up · {stepIdx + 1} of {allSteps.length}</Tag>
-        <button className={`ghost small${typed ? " active" : ""}`} title="Type the answer instead of revealing" onClick={() => persist({ ...progress, settings: { ...progress.settings, typeAnswers: !typed } })}>⌨ Type</button>
-      </div>
-      {step.kind === "match" ? (
+      <Tag>Warm up · {stepIdx + 1} of {allSteps.length}</Tag>
+      {step.kind === "conjugation" ? (
+        <MatchGame
+          key={stepIdx}
+          lead={`Match each pronoun to the right form of “${step.verb.gloss}” (${step.verb.lemma}).`}
+          pairs={PRONOUNS.map((pr) => ({ item: { id: `conj-${step.verb.lemma}-${pr.key}`, kind: "vocab", prompt: pr.en, answer: step.verb.forms[pr.key], gloss: `${pr.en} · ${pr.mk}`, i1Level: 0, tags: [] }, target: step.verb.forms[pr.key], gloss: `${pr.en} · ${pr.mk}` }))}
+          onDone={() => { persist({ ...progress, seenConjugations: [...(progress.seenConjugations ?? []), step.verb.lemma] }); advance(); }}
+        />
+      ) : step.kind === "match" ? (
         <MatchGame key={stepIdx} pairs={step.pairs} onDone={(rs) => { record(rs); advance(); }} />
       ) : (() => {
         const c = step.card;
@@ -2375,7 +2395,6 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
         ))}
       </div>
       <div className="theme-chips">
-        <button className={`chip-toggle${(progress.settings?.typeAnswers ?? false) ? " active" : ""}`} onClick={() => persist({ ...progress, settings: { ...progress.settings, typeAnswers: !(progress.settings?.typeAnswers ?? false) } })} title="Type the answer instead of revealing">⌨ Type</button>
         <button className={`chip-toggle${starredOnly ? " active" : ""}`} onClick={() => setStarredOnly((v) => !v)} title="Your saved words">★ Starred{starred.length ? ` · ${starred.length}` : ""}</button>
         <button className={`chip-toggle${themes.size === 0 ? " active" : ""}`} onClick={() => setThemes(new Set())}>All themes</button>
         {themeList.map(([t, n]) => (
@@ -2419,13 +2438,14 @@ function typedMatches(typed: string, target: string): boolean {
   return norm(typed) === norm(target) || norm(romanize(typed)) === norm(romanize(target));
 }
 
-function TypedRecall({ onChecked }: { onChecked: (val: string) => void }) {
+function TypedRecall({ onChecked, onReveal }: { onChecked: (val: string) => void; onReveal: () => void }) {
   const [val, setVal] = useState("");
   return (
-    <div className="row" style={{ marginTop: 8 }}>
-      <input className="lang-picker" autoFocus placeholder="type it (Latin ok)" value={val} style={{ flex: 1, minWidth: 160 }}
+    <div className="row" style={{ marginTop: 8, flexWrap: "wrap" }}>
+      <input className="lang-picker" placeholder="type it (Latin ok)" value={val} style={{ flex: 1, minWidth: 160 }}
         onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && val.trim()) onChecked(val.trim()); }} />
       <button className="btn" disabled={!val.trim()} onClick={() => onChecked(val.trim())}>Check</button>
+      <button className="ghost" onClick={onReveal}>Reveal</button>
     </div>
   );
 }
@@ -2433,7 +2453,6 @@ function TypedRecall({ onChecked }: { onChecked: (val: string) => void }) {
 function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: FamiliarityEntry; context?: string; contextGloss?: string; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
-  const typed = useContext(TypeModeContext);
   const [revealed, setRevealed] = useState(false);
   const [typedVal, setTypedVal] = useState<string | null>(null);
   const blanked = context ? context.replace(new RegExp(`(^|[^\\p{L}])(${escapeRe(entry.display)})(?=[^\\p{L}]|$)`, "iu"), (_m, pre) => `${pre}____`) : null;
@@ -2455,7 +2474,7 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
         </>
       )}
       {!revealed ? (
-        typed ? <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} /> : <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
+        <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
       ) : (
         <div>
           {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, entry.display) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
@@ -2506,7 +2525,6 @@ function PhraseBreakdown({ item }: { item: ReviewItem }) {
 function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
-  const typed = useContext(TypeModeContext);
   const [revealed, setRevealed] = useState(false);
   const [typedVal, setTypedVal] = useState<string | null>(null);
   return (
@@ -2514,7 +2532,7 @@ function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean
       <div className="muted small">Say in {pack.name}:</div>
       <div style={{ fontSize: 20, margin: "6px 0" }}>{item.gloss}</div>
       {!revealed ? (
-        typed ? <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} /> : <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
+        <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
       ) : (
         <div>
           {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, item.answer) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
