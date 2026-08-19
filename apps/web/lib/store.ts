@@ -23,6 +23,9 @@ export interface Progress {
   streak?: { count: number; lastDay: string };
   /** Verb lemmas already drilled in the warm-up conjugation match game — so each day picks a new one. */
   seenConjugations?: string[];
+  /** "<lemma>:<person>" pairs the learner has correctly BUILT in the sentence exercise — steers toward
+   *  not-yet-produced persons so every conjugation gets practised. */
+  builtConjugations?: string[];
   /** Local day (YYYY-MM-DD) the daily session was last finished. When it equals today, Today opens on the
    *  "done for today" screen instead of replaying step 1 after a reload/reopen. */
   lastSessionDay?: string;

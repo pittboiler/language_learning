@@ -222,6 +222,26 @@ export interface InfoGapTask {
 }
 
 /** The generalization layer: everything language-specific lives in one validated, cached object. */
+/** One rung of a Build-a-sentence item: an English prompt and its target sentence. Verb items carry a
+ *  `person` so the exercise can offer I/you/we/they tabs; non-verb items have a single variant. */
+export interface SentenceVariant {
+  person?: "1sg" | "2sg" | "3sg" | "1pl" | "2pl" | "3pl";
+  en: string; // English prompt shown to the learner
+  mk: string; // the target sentence to build from tiles
+}
+
+/** A tap-the-tiles "Build a sentence" item (see DESIGN plan). Scoped to taught words via `supportWords`,
+ *  tagged by the grammar it exercises, and — when built around a conjugating verb — offered across all
+ *  six persons so pronoun/conjugation coverage is systematic. Offline-generated + spot-checked. */
+export interface SentenceItem {
+  id: string;
+  conceptIds: string[]; // grammar concepts this exercises (e.g. "verb-conjugation", "definite-articles")
+  verbLemma?: string; // present ⇒ the item has person tabs (from pack.conjugations)
+  supportWords: string[]; // the non-verb content words used — all must be "met" for the item to be in scope
+  variants: SentenceVariant[]; // one per person for verb items; a single entry otherwise
+  confidence?: "authored" | "validated" | "unreviewed";
+}
+
 /** A verb's present-tense paradigm, backing the Build-a-sentence conjugation tabs (I/you/we/they). Person
  *  keys: 1sg (I), 2sg (you), 3sg (he/she/it), 1pl (we), 2pl (you all), 3pl (they). Offline-generated
  *  (pipeline/src/run-conjugations.ts) + spot-checked like other pack content. */
@@ -254,4 +274,6 @@ export interface LanguagePack {
   infoGapTasks?: InfoGapTask[];
   /** Present-tense verb paradigms for the Build-a-sentence conjugation tabs. Optional/additive. */
   conjugations?: ConjugationSet[];
+  /** Tap-the-tiles "Build a sentence" items. Optional/additive. */
+  sentences?: SentenceItem[];
 }

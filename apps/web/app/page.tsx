@@ -8,7 +8,7 @@
 // Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import type { ConjugationSet, DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { ConjugationSet, DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -39,7 +39,7 @@ import * as together from "@ll/core/together";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
 type Section = "today" | "library" | "progress" | "partnered";
-type LibView = "browse" | "flashcards" | "words" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write";
+type LibView = "browse" | "flashcards" | "words" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write" | "build";
 
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
@@ -294,7 +294,8 @@ type TodayStep =
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
   | { kind: "story"; story: MiniStory; dayIndex: number }
-  | { kind: "speak"; scenario: Scenario };
+  | { kind: "speak"; scenario: Scenario }
+  | { kind: "build" };
 
 // Rotate an array left by n (n=0 → unchanged). Used to vary which questions/drills lead each day.
 const rotate = <T,>(arr: T[], n: number): T[] => (arr.length ? arr.map((_, i) => arr[(i + n) % arr.length]!) : arr);
@@ -389,6 +390,10 @@ function Today({ progress, persist, config, navigate }: {
     }
 
     if (story) out.push({ kind: "story", story, dayIndex });
+
+    // Build-a-sentence (typed/tiled output) — only when the learner has met enough words to build one.
+    const canBuild = (pack.sentences ?? []).some((it) => it.supportWords.every((w) => !!progress.familiarity[familiarity.normalize(w)]));
+    if (canBuild) out.push({ kind: "build" });
 
     // Speak: the story's paired scenario (so it uses what was just read); fall back to first-incomplete.
     const speakScen = scen ?? pack.scenarios.find((s) => {
@@ -580,6 +585,13 @@ function Today({ progress, persist, config, navigate }: {
               config={config}
               onDone={() => done(markStorySeen(seedStoryVocab(progress, step.story), step.story.id))}
             />
+          </div>
+        )}
+
+        {step.kind === "build" && (
+          <div>
+            <Tag>Build a sentence</Tag>
+            <SentenceBuilder progress={progress} persist={persist} onDone={() => done()} />
           </div>
         )}
 
@@ -1057,12 +1069,13 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
 
   // An opened content item or reference tool → show it with a back link to where it came from.
   if (mode !== "browse" && mode !== "reference" && mode !== "flashcards" && mode !== "words") {
-    const isTool = mode === "grammar" || mode === "write";
+    const isTool = mode === "grammar" || mode === "write" || mode === "build";
     const view =
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
       mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
       mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
       mode === "grammar" ? <Grammar progress={progress} persist={persist} /> :
+      mode === "build" ? <SentenceBuilder progress={progress} persist={persist} /> :
       <Writing config={config} />;
     return (
       <>
@@ -1106,6 +1119,11 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
               <div className="cc-top"><span className="cc-type">✎ Writing</span></div>
               <div className="cc-title">Writing practice</div>
               <div className="muted small">Short prompts; type in Latin, get corrected</div>
+            </button>
+            <button className="contentcard" onClick={() => setMode("build")}>
+              <div className="cc-top"><span className="cc-type">🧩 Build</span></div>
+              <div className="cc-title">Build a sentence</div>
+              <div className="muted small">Tap tiles to make full sentences — with I/you/we/they tabs</div>
             </button>
           </div>
         </>
@@ -2117,6 +2135,119 @@ function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0
 }
 
 // ---------- Library view 6: writing (prompted production + correction-why) ----------
+// ---------- "Build a sentence" — tap-the-tiles production with I/you/we/they conjugation tabs ----------
+const buildNorm = (w: string) => w.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}]/gu, "");
+
+function TileBuilder({ variant, verb, onSolved }: { variant: SentenceVariant; verb?: ConjugationSet; onSolved: () => void }) {
+  const play = usePlay();
+  const targetWords = useMemo(() => variant.mk.split(/\s+/).filter(Boolean), [variant.mk]);
+  // Bank = the sentence's words, shuffled, plus up to 2 OTHER forms of the verb as distractors (so picking
+  // the right conjugation is part of the task).
+  const bank = useMemo(() => {
+    const distract: string[] = [];
+    if (verb) {
+      const cur = new Set(targetWords.map(buildNorm));
+      for (const f of Object.values(verb.forms)) { if (distract.length >= 2) break; if (!cur.has(buildNorm(f)) && !distract.includes(f)) distract.push(f); }
+    }
+    return shuffle([...targetWords, ...distract]).map((w, i) => ({ id: i, w }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant.mk]);
+  const [placed, setPlaced] = useState<number[]>([]);
+  const [result, setResult] = useState<null | boolean>(null);
+  useEffect(() => { setPlaced([]); setResult(null); }, [variant.mk]);
+  const placedSet = new Set(placed);
+  const wordOf = (id: number) => bank.find((t) => t.id === id)!.w;
+  const check = () => {
+    const got = placed.map(wordOf);
+    const ok = got.length === targetWords.length && got.every((w, i) => buildNorm(w) === buildNorm(targetWords[i]!));
+    setResult(ok);
+    if (ok) onSolved();
+  };
+  return (
+    <div>
+      <div className="muted small" style={{ marginTop: 6 }}>Build: <b>“{variant.en}”</b></div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minHeight: 42, margin: "8px 0", padding: 8, border: "1px dashed var(--border)", borderRadius: 8 }}>
+        {placed.length === 0 ? <span className="muted small">tap the tiles below…</span> :
+          placed.map((id) => <button key={id} className="opt" onClick={() => { setPlaced((pl) => pl.filter((x) => x !== id)); setResult(null); }}>{wordOf(id)}</button>)}
+      </div>
+      <div className="row" style={{ flexWrap: "wrap" }}>
+        {bank.filter((t) => !placedSet.has(t.id)).map((t) => <button key={t.id} className="opt" onClick={() => { setPlaced((pl) => [...pl, t.id]); setResult(null); }}>{t.w}</button>)}
+      </div>
+      <div className="row" style={{ marginTop: 10 }}>
+        {result === true ? (
+          <span className="target">✓ {variant.mk} <button className="spk" onClick={() => play(variant.mk, 0.85)}>🔊</button></span>
+        ) : (
+          <>
+            <button className="btn" disabled={!placed.length} onClick={check}>Check</button>
+            {result === false && <span className="muted small">Not quite — tap a placed tile to remove it, then rearrange.</span>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone?: () => void }) {
+  const pack = usePack();
+  // Scope to items whose complement words the learner has met (taught-up-to-now).
+  const scoped = useMemo(
+    () => (pack.sentences ?? []).filter((it) => it.supportWords.every((w) => !!progress.familiarity[familiarity.normalize(w)])),
+    [pack, progress.familiarity],
+  );
+  const [nonce, setNonce] = useState(0);
+  const items = useMemo(() => shuffle(scoped).slice(0, 6), [scoped.length, nonce]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [idx, setIdx] = useState(0);
+  const item = items[idx];
+  const verb = item?.verbLemma ? (pack.conjugations ?? []).find((v) => v.lemma === item.verbLemma) : undefined;
+  // Default the person tab to the least-covered one for this verb, so every conjugation gets produced.
+  const firstUnbuilt = (): SentenceVariant["person"] => {
+    if (!verb || !item) return undefined;
+    const built = new Set(progress.builtConjugations ?? []);
+    return item.variants.find((x) => x.person && !built.has(`${verb.lemma}:${x.person}`))?.person ?? item.variants[0]?.person;
+  };
+  const [person, setPerson] = useState<SentenceVariant["person"]>(undefined);
+  useEffect(() => { setPerson(firstUnbuilt()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [idx, items]);
+
+  if (!scoped.length) return <p className="lead">Learn a few more words first — then come back to build sentences with the words you know.</p>;
+  if (idx >= items.length || !item) return (
+    <div className="fb">
+      <p className="lead" style={{ color: "var(--ok)" }}>🎉 Nice — you built {items.length} sentence{items.length === 1 ? "" : "s"}.</p>
+      <div className="row">
+        {onDone ? <button className="btn" onClick={onDone}>Done →</button> : <button className="btn" onClick={() => { setIdx(0); setNonce((n) => n + 1); }}>Go again →</button>}
+      </div>
+    </div>
+  );
+
+  const variant = (verb ? item.variants.find((v) => v.person === person) : item.variants[0]) ?? item.variants[0]!;
+  const builtSet = new Set(progress.builtConjugations ?? []);
+  const onSolved = () => {
+    let p = progress;
+    for (const cid of item.conceptIds) p = gradeItem(p, { id: cid, kind: "grammar", prompt: "", answer: "", gloss: "", i1Level: 0, tags: [] }, true);
+    if (verb && variant.person) p = { ...p, builtConjugations: [...new Set([...(p.builtConjugations ?? []), `${verb.lemma}:${variant.person}`])] };
+    persist(p);
+  };
+
+  return (
+    <div className="fb">
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+        <Tag>Build a sentence · {idx + 1} of {items.length}</Tag>
+        {verb && <span className="muted small">verb: {verb.gloss}</span>}
+      </div>
+      {verb && (
+        <div className="picker small" style={{ flexWrap: "wrap" }}>
+          {PRONOUNS.filter((pr) => item.variants.some((v) => v.person === pr.key)).map((pr) => (
+            <button key={pr.key} className={person === pr.key ? "active" : ""} onClick={() => setPerson(pr.key)}>{pr.en}{builtSet.has(`${verb.lemma}:${pr.key}`) ? " ✓" : ""}</button>
+          ))}
+        </div>
+      )}
+      <TileBuilder key={`${item.id}-${variant.person ?? ""}`} variant={variant} verb={verb} onSolved={onSolved} />
+      <div className="row" style={{ marginTop: 12 }}>
+        <button className="ghost small" onClick={() => setIdx((i) => i + 1)}>{idx + 1 >= items.length ? "Finish →" : "Next word →"}</button>
+      </div>
+    </div>
+  );
+}
+
 function Writing({ config }: { config: api.Config | null }) {
   const pack = usePack();
   const tasks = pack.writingTasks ?? [];
