@@ -510,6 +510,7 @@ function Today({ progress, persist, config, navigate }: {
             key={idx}
             items={step.items}
             progress={progress}
+            persist={persist}
             onMiss={flag}
             onComplete={(results) => {
               let p = progress;
@@ -659,9 +660,10 @@ function MatchGame({ pairs, onDone }: { pairs: { item: ReviewItem; target: strin
 type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
 type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard };
 
-function WarmupSession({ items, progress, onComplete, onMiss }: {
+function WarmupSession({ items, progress, persist, onComplete, onMiss }: {
   items: ReviewItem[];
   progress: Progress;
+  persist: (p: Progress) => void;
   onComplete: (results: WarmResult[]) => void;
   onMiss: (item: ReviewItem) => void;
 }) {
@@ -697,26 +699,34 @@ function WarmupSession({ items, progress, onComplete, onMiss }: {
   }, []);
 
   const [stepIdx, setStepIdx] = useState(0);
+  const [extra, setExtra] = useState<WarmStep[]>([]); // cards re-queued after "Again", to try again this session
+  const allSteps = [...plan, ...extra];
   const results = useRef<WarmResult[]>([]);
   const doneRef = useRef(false);
   const record = (rs: WarmResult[]) => { for (const r of rs) { results.current.push(r); if (!r.ok) onMiss(r.item); } };
   // Fire onComplete exactly once — when we run past the last step (or immediately if the plan is empty).
   useEffect(() => {
     if (doneRef.current) return;
-    if (stepIdx >= plan.length) { doneRef.current = true; onComplete(results.current); }
-  }, [stepIdx, plan.length, onComplete]);
+    if (stepIdx >= allSteps.length) { doneRef.current = true; onComplete(results.current); }
+  }, [stepIdx, allSteps.length, onComplete]);
 
-  const step = plan[stepIdx];
+  const step = allSteps[stepIdx];
   if (!step) return null;
   const advance = () => setStepIdx((s) => s + 1);
+  const typed = progress.settings?.typeAnswers ?? false;
   return (
     <div>
-      <Tag>Warm up · {stepIdx + 1} of {plan.length}</Tag>
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+        <Tag>Warm up · {stepIdx + 1} of {allSteps.length}</Tag>
+        <button className={`ghost small${typed ? " active" : ""}`} title="Type the answer instead of revealing" onClick={() => persist({ ...progress, settings: { ...progress.settings, typeAnswers: !typed } })}>⌨ Type</button>
+      </div>
       {step.kind === "match" ? (
         <MatchGame key={stepIdx} pairs={step.pairs} onDone={(rs) => { record(rs); advance(); }} />
       ) : (() => {
         const c = step.card;
-        const grade = (ok: boolean) => { record([{ item: c.item, ok }]); advance(); };
+        // "Again" (ok=false) re-queues the card to the end so you see it again this session instead of
+        // just skipping ahead; "Good" advances.
+        const grade = (ok: boolean) => { record([{ item: c.item, ok }]); if (!ok) setExtra((e) => [...e, { kind: "card", card: c }]); advance(); };
         if (c.format === "grammar") return <GrammarCard key={stepIdx} item={c.item} onGrade={grade} />;
         if (c.format === "cloze" && c.entry) return <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={c.contextGloss} onGrade={grade} />;
         return <PhraseCard key={stepIdx} item={c.item} onGrade={grade} />;
