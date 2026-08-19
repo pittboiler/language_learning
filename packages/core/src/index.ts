@@ -18,3 +18,4 @@ export * as teachback from "./teachback/index.js";
 export * as infogap from "./infogap/index.js";
 export * as live from "./live/index.js";
 export * as together from "./together/index.js";
+export * as explain from "./explain/index.js";
