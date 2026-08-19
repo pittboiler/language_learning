@@ -23,7 +23,7 @@ import { captureWord, properNounLike, buildLineGlosses, toggleStar } from "../li
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
-import { translitOr } from "../lib/romanize";
+import { translitOr, romanize } from "../lib/romanize";
 import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
@@ -47,6 +47,9 @@ const usePack = () => useContext(PackContext);
 /** Global playback RATE for all spoken audio (1 = normal). The root computes it from settings: 1 when
  *  "normal", else the user's chosen slow rate (settings.slowRate, default 0.75). ONE setting app-wide. */
 const SlowContext = createContext(1);
+/** When on, recall flashcards ask you to TYPE the answer (Latin ok, checked against the transliteration)
+ *  instead of reveal-and-self-grade. One app-wide setting, provided from progress.settings.typeAnswers. */
+const TypeModeContext = createContext(false);
 /** Play TTS in the active pack's voice at the global playback rate. The per-call speed arg is now
  *  ignored (rate is a global setting); it stays only for call-site compatibility. */
 function usePlay() {
@@ -215,6 +218,7 @@ export default function Home() {
   return (
     <PackContext.Provider value={pack}>
       <SlowContext.Provider value={effectiveRate(progress.settings)}>
+      <TypeModeContext.Provider value={progress.settings?.typeAnswers ?? false}>
       <header>
         <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
         <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
@@ -250,6 +254,7 @@ export default function Home() {
         {section === "partnered" && <PartnerPanel progress={progress} persist={persist} navigateToStory={goToStory} />}
       </main>
       {acctOpen && <AccountPanel progress={progress} persist={persist} config={config} onClose={() => setAcctOpen(false)} />}
+      </TypeModeContext.Provider>
       </SlowContext.Provider>
     </PackContext.Provider>
   );
@@ -2037,7 +2042,7 @@ function StoryQAView({ story, config, onRestart, onDone, dayIndex = 0 }: { story
               </div>
             )
           ) : revealed[q.id] ? (
-            <div style={{ marginTop: 6 }}><span className="target">{q.answer}</span> <span className="muted small">· {q.answerGloss}</span></div>
+            <div className="row" style={{ marginTop: 6 }}><button className="spk" onClick={() => play(q.answer, 0.9)}>🔊</button> <span className="target">{q.answer}</span> <span className="muted small">· {q.answerGloss}</span></div>
           ) : (
             <button className="ghost" style={{ marginTop: 8 }} onClick={() => setRevealed((s) => ({ ...s, [q.id]: true }))}>Reveal answer</button>
           )}
@@ -2360,6 +2365,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
         ))}
       </div>
       <div className="theme-chips">
+        <button className={`chip-toggle${(progress.settings?.typeAnswers ?? false) ? " active" : ""}`} onClick={() => persist({ ...progress, settings: { ...progress.settings, typeAnswers: !(progress.settings?.typeAnswers ?? false) } })} title="Type the answer instead of revealing">⌨ Type</button>
         <button className={`chip-toggle${starredOnly ? " active" : ""}`} onClick={() => setStarredOnly((v) => !v)} title="Your saved words">★ Starred{starred.length ? ` · ${starred.length}` : ""}</button>
         <button className={`chip-toggle${themes.size === 0 ? " active" : ""}`} onClick={() => setThemes(new Set())}>All themes</button>
         {themeList.map(([t, n]) => (
@@ -2396,10 +2402,30 @@ const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // Captured-word review. When we know the sentence it was met in, blank the word inside it and show the
 // English so it's clear what to produce ("Ana wants coffee" → say the missing word). Otherwise it's a
 // plain recall card (English → target). Either way the English tells the learner what's being solved for.
+// Type-in production for recall cards (Part A): accepts Latin (or Cyrillic) and matches against the
+// transliteration, so no Cyrillic keyboard is needed. Comparison strips case/spaces/punctuation.
+function typedMatches(typed: string, target: string): boolean {
+  const norm = (x: string) => x.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}]/gu, "");
+  return norm(typed) === norm(target) || norm(romanize(typed)) === norm(romanize(target));
+}
+
+function TypedRecall({ onChecked }: { onChecked: (val: string) => void }) {
+  const [val, setVal] = useState("");
+  return (
+    <div className="row" style={{ marginTop: 8 }}>
+      <input className="lang-picker" autoFocus placeholder="type it (Latin ok)" value={val} style={{ flex: 1, minWidth: 160 }}
+        onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && val.trim()) onChecked(val.trim()); }} />
+      <button className="btn" disabled={!val.trim()} onClick={() => onChecked(val.trim())}>Check</button>
+    </div>
+  );
+}
+
 function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: FamiliarityEntry; context?: string; contextGloss?: string; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
+  const typed = useContext(TypeModeContext);
   const [revealed, setRevealed] = useState(false);
+  const [typedVal, setTypedVal] = useState<string | null>(null);
   const blanked = context ? context.replace(new RegExp(`(^|[^\\p{L}])(${escapeRe(entry.display)})(?=[^\\p{L}]|$)`, "iu"), (_m, pre) => `${pre}____`) : null;
   // Only blank the sentence when we also have its English — a fill-in-the-blank with no translation gives
   // the learner no way to know which word to produce. Without the English, fall back to the plain recall
@@ -2419,9 +2445,10 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
         </>
       )}
       {!revealed ? (
-        <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
+        typed ? <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} /> : <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
       ) : (
         <div>
+          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, entry.display) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
           {cloze ? (
             <>
               <div className="target" style={{ fontSize: 20, lineHeight: 1.5 }}>{context}</div>
@@ -2469,15 +2496,18 @@ function PhraseBreakdown({ item }: { item: ReviewItem }) {
 function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
+  const typed = useContext(TypeModeContext);
   const [revealed, setRevealed] = useState(false);
+  const [typedVal, setTypedVal] = useState<string | null>(null);
   return (
     <div className="fb">
       <div className="muted small">Say in {pack.name}:</div>
       <div style={{ fontSize: 20, margin: "6px 0" }}>{item.gloss}</div>
       {!revealed ? (
-        <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
+        typed ? <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} /> : <button className="btn" onClick={() => setRevealed(true)}>Reveal</button>
       ) : (
         <div>
+          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, item.answer) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
           <div className="target" style={{ fontSize: 22 }}>{item.answer}</div>
           <div className="translit">{item.translit}</div>
           <PhraseBreakdown item={item} />
