@@ -284,6 +284,18 @@ function currentStory(pack: LanguagePack, progress: Progress): MiniStory | undef
   const stories = pack.stories ?? [];
   return stories.find((s) => !storyDone(progress, s)) ?? stories[stories.length - 1];
 }
+// Free-writing is the GATED unit capstone: it opens only once the unit's vocab is mostly "known" AND its
+// grammar has been practised (introduced/drilled, or produced in Build-a-sentence). Until then, producing
+// a free sentence is just frustration — see the writing plan.
+function writingUnlocked(pack: LanguagePack, progress: Progress, story: MiniStory): boolean {
+  const scen = partnerScenario(pack, story);
+  const vocab = scen ? scenarioVocab(pack, scen) : story.registersVocab.map((v) => ({ lexKey: v.lexKey }));
+  if (!vocab.length) return false;
+  const known = vocab.filter((v) => progress.familiarity[v.lexKey]?.status === "known").length;
+  if (known / vocab.length < 0.7) return false;
+  const concepts = scen?.requiredStructures?.length ? scen.requiredStructures : storyGrammarIds(pack, story);
+  return concepts.every((id) => !!progress.seenGrammar?.[id] || !!progress.familiarity[`grammar:${id}`]);
+}
 
 // ---------- Today: the guided daily flow (building order: review → new words → grammar → story → speak) ----------
 // dayIndex = how many distinct days this unit's story has already been read (0 on day 1, 1 on day 2…).
@@ -295,7 +307,8 @@ type TodayStep =
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
   | { kind: "story"; story: MiniStory; dayIndex: number }
   | { kind: "speak"; scenario: Scenario }
-  | { kind: "build" };
+  | { kind: "build" }
+  | { kind: "writing"; prompt: string };
 
 // Rotate an array left by n (n=0 → unchanged). Used to vary which questions/drills lead each day.
 const rotate = <T,>(arr: T[], n: number): T[] => (arr.length ? arr.map((_, i) => arr[(i + n) % arr.length]!) : arr);
@@ -401,6 +414,12 @@ function Today({ progress, persist, config, navigate }: {
       return !p || s.successCriteria.some((c) => !p.metCriteria.includes(c.id));
     }) ?? pack.scenarios[0];
     if (speakScen) out.push({ kind: "speak", scenario: speakScen });
+
+    // Writing capstone (gated): the unit's culminating free-production step, once vocab is known + grammar
+    // practised. Prompt = the paired scenario's goal, scoped to what the learner just consolidated.
+    if (story && writingUnlocked(pack, progress, story)) {
+      out.push({ kind: "writing", prompt: scen?.goal ?? "Write a short line using today\u2019s words." });
+    }
 
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -592,6 +611,13 @@ function Today({ progress, persist, config, navigate }: {
           <div>
             <Tag>Build a sentence</Tag>
             <SentenceBuilder progress={progress} persist={persist} onDone={() => done()} />
+          </div>
+        )}
+
+        {step.kind === "writing" && (
+          <div>
+            <Tag>Write it — unit capstone</Tag>
+            <WritingCapstone prompt={step.prompt} config={config} onDone={() => done()} />
           </div>
         )}
 
@@ -2243,6 +2269,54 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
       <TileBuilder key={`${item.id}-${variant.person ?? ""}`} variant={variant} verb={verb} onSolved={onSolved} />
       <div className="row" style={{ marginTop: 12 }}>
         <button className="ghost small" onClick={() => setIdx((i) => i + 1)}>{idx + 1 >= items.length ? "Finish →" : "Next word →"}</button>
+      </div>
+    </div>
+  );
+}
+
+// The gated Today writing capstone: one unit-scoped prompt (the scenario goal), free production with the
+// same tutor correction as the Library Writing — but woven into the daily flow instead of sitting idle.
+function WritingCapstone({ prompt, config, onDone }: { prompt: string; config: api.Config | null; onDone: () => void }) {
+  const pack = usePack();
+  const [text, setText] = useState("");
+  const [spin, setSpin] = useState(false);
+  const [err, setErr] = useState("");
+  const [result, setResult] = useState<api.WriteResponse | null>(null);
+  const submit = async () => {
+    if (!text.trim()) return;
+    setErr(""); setResult(null); setSpin(true);
+    try {
+      const r = await api.writeCorrect(text, "", pack.id, prompt);
+      if (r.error) throw new Error(r.error);
+      setResult(r);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSpin(false);
+    }
+  };
+  return (
+    <div className="fb">
+      <p className="lead" style={{ marginTop: 0 }}>You’ve got the words and the grammar — now put it together in your own words. <b>Latin letters are fine.</b></p>
+      <p className="lead"><b>Write:</b> {prompt}</p>
+      <textarea className="text" style={{ width: "100%", minHeight: 70 }} placeholder={`Write in ${pack.name} — e.g. "sakam kafe, ve molam"`} value={text} onChange={(e) => setText(e.target.value)} />
+      <div className="row" style={{ marginTop: 10 }}>
+        <button className="btn" onClick={submit} disabled={spin || !text.trim() || !config?.engines.anthropic}>{spin ? "Checking\u2026" : "Check my writing"}</button>
+        {!config?.engines.anthropic && <span className="muted small">Claude not configured</span>}
+      </div>
+      {err && <div className="err">{err}</div>}
+      {result && (
+        <div className="fb" style={{ marginTop: 8 }}>
+          <div className="line">{result.isCorrect ? "\u2713 " : ""}{result.overall}</div>
+          <div className="line"><span className="muted">{result.isCorrect ? `In ${pack.name}:` : "Corrected:"}</span> <span className="target" style={{ fontSize: 18 }}>{result.corrected}</span>{result.correctedTranslit && <span className="translit"> · {result.correctedTranslit}</span>}</div>
+          {result.issues.map((it, i) => (
+            <div className="line" key={i}><span className="pill wrong">{it.original}</span> → <span className="pill correct">{it.fix}</span><div className="why">{it.why}</div></div>
+          ))}
+          <div className="line muted">{result.encouragement}</div>
+        </div>
+      )}
+      <div className="row" style={{ marginTop: 12 }}>
+        <button className={result ? "btn" : "ghost small"} onClick={onDone}>{result ? "Done \u2192" : "Skip \u2192"}</button>
       </div>
     </div>
   );

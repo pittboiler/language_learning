@@ -7,12 +7,13 @@ export const maxDuration = 30;
 
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
-  const { attempt, taskId, packId } = (await req.json()) as { attempt: string; taskId: string; packId?: string };
+  const { attempt, taskId, packId, prompt } = (await req.json()) as { attempt: string; taskId: string; packId?: string; prompt?: string };
   const pack = getPack(packId);
-  const task = pack.writingTasks?.find((t) => t.id === taskId);
-  if (!task) return Response.json({ error: "unknown task" }, { status: 400 });
+  // An inline prompt (the Today writing capstone, scoped to the unit) wins; else look up a pack task.
+  const promptText = (prompt ?? "").trim() || pack.writingTasks?.find((t) => t.id === taskId)?.prompt;
+  if (!promptText) return Response.json({ error: "unknown task" }, { status: 400 });
   try {
-    const out = await writing.correct(attempt, task.prompt, { languageName: pack.name });
+    const out = await writing.correct(attempt, promptText, { languageName: pack.name });
     return Response.json({ ...out.correction, ms: out.ms, costUsd: out.costUsd });
   } catch (e) {
     return Response.json({ error: String(e instanceof Error ? e.message : e) }, { status: 500 });
