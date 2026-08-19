@@ -1,6 +1,7 @@
 import type { GrammarConcept, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
 import { breakdowns } from "./breakdowns.js";
+import { conjugations } from "./conjugations.js";
 import { coreWords } from "./words.js";
 import { phonology, grammar } from "./grammar.js";
 import { vocab } from "./vocab.js";
@@ -67,6 +68,7 @@ export const macedonian: LanguagePack = {
   srsSeed: withBreakdowns(vocab.slice(0, 6)),
   writingTasks: [...writingTasks, ...stage1.promotedWritingTasks, ...stage2.promotedWritingTasks],
   infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],
+  conjugations,
 };
 
 export default macedonian;
