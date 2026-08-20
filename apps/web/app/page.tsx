@@ -625,7 +625,7 @@ function Today({ progress, persist, config, navigate }: {
           <div>
             <Tag>Speak · {step.scenario.title}</Tag>
             <p className="muted small">{step.scenario.goal} — use what you just read, out loud.</p>
-            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare askable onComplete={() => done()} onMiss={flagTurn} />
+            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare askable restartIfDone onComplete={() => done()} onMiss={flagTurn} />
           </div>
         )}
       </div>
@@ -1334,7 +1334,7 @@ function Letters({ progress, persist, onDone, reference, onBack }: { progress: P
 }
 
 // ---------- Library view 2: scenarios ----------
-function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss, askable }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void; askable?: boolean }) {
+function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss, askable, restartIfDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void; askable?: boolean; restartIfDone?: boolean }) {
   const pack = usePack();
   const s = pack.scenarios.find((x) => x.id === (scenarioId ?? progress.pick)) || pack.scenarios[0]!;
   const sp = progress.scenarios[s.id] || { turnIndex: 0, metCriteria: [] };
@@ -1346,6 +1346,14 @@ function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hide
   const restart = () => saveRun(scenario.start(s));
   const autoplay = progress.settings?.autoplay ?? false;
   const toggleAutoplay = () => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } });
+
+  // Daily speak step: if this scenario was already finished on a previous day, start it fresh so the
+  // learner actually gets a conversation to practise (instead of landing on the "Finish session" screen).
+  const resetOnce = useRef(false);
+  useEffect(() => {
+    if (restartIfDone && !resetOnce.current && sp.turnIndex >= s.script.length) { resetOnce.current = true; restart(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const turn = scenario.currentTurn(run, s);
   const done = run.turnIndex >= s.script.length;
