@@ -2221,31 +2221,42 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
     [pack, progress.familiarity],
   );
   const [nonce, setNonce] = useState(0);
-  const items = useMemo(() => shuffle(scoped).slice(0, 6), [scoped.length, nonce]); // eslint-disable-line react-hooks/exhaustive-deps
-  const [idx, setIdx] = useState(0);
-  const item = items[idx];
-  const verb = item?.verbLemma ? (pack.conjugations ?? []).find((v) => v.lemma === item.verbLemma) : undefined;
-  // Default the person tab to the least-covered one for this verb, so every conjugation gets produced.
-  const firstUnbuilt = (): SentenceVariant["person"] => {
-    if (!verb || !item) return undefined;
+  // ONE sentence per card. Flatten each verb item into its six person-variants, then pick ~6 cards that
+  // cover DIFFERENT conjugations: not-yet-built (verb:person) pairs first, capped to 2 per verb so the
+  // session spreads across verbs and persons rather than flipping tabs on a single verb.
+  const cards = useMemo(() => {
     const built = new Set(progress.builtConjugations ?? []);
-    return item.variants.find((x) => x.person && !built.has(`${verb.lemma}:${x.person}`))?.person ?? item.variants[0]?.person;
-  };
-  const [person, setPerson] = useState<SentenceVariant["person"]>(undefined);
-  useEffect(() => { setPerson(firstUnbuilt()); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [idx, items]);
+    const flat = scoped.flatMap((it) => (it.verbLemma ? it.variants : it.variants.slice(0, 1)).map((v) => ({ item: it, variant: v })));
+    const keyOf = (c: { item: SentenceItem; variant: SentenceVariant }) => (c.item.verbLemma && c.variant.person ? `${c.item.verbLemma}:${c.variant.person}` : c.item.id);
+    const ordered = [...shuffle(flat.filter((c) => !built.has(keyOf(c)))), ...shuffle(flat.filter((c) => built.has(keyOf(c))))];
+    const pick: { item: SentenceItem; variant: SentenceVariant }[] = [];
+    const perVerb = new Map<string, number>();
+    for (const c of ordered) {
+      if (pick.length >= 6) break;
+      const vl = c.item.verbLemma ?? c.item.id;
+      if ((perVerb.get(vl) ?? 0) >= 2) continue;
+      perVerb.set(vl, (perVerb.get(vl) ?? 0) + 1);
+      pick.push(c);
+    }
+    for (const c of ordered) { if (pick.length >= 6) break; if (!pick.includes(c)) pick.push(c); }
+    return pick.slice(0, 6);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scoped.length, nonce]);
+  const [idx, setIdx] = useState(0);
 
   if (!scoped.length) return <p className="lead">Learn a few more words first — then come back to build sentences with the words you know.</p>;
-  if (idx >= items.length || !item) return (
+  if (idx >= cards.length || !cards[idx]) return (
     <div className="fb">
-      <p className="lead" style={{ color: "var(--ok)" }}>🎉 Nice — you built {items.length} sentence{items.length === 1 ? "" : "s"}.</p>
+      <p className="lead" style={{ color: "var(--ok)" }}>🎉 Nice — you built {cards.length} sentence{cards.length === 1 ? "" : "s"}.</p>
       <div className="row">
         {onDone ? <button className="btn" onClick={onDone}>Done →</button> : <button className="btn" onClick={() => { setIdx(0); setNonce((n) => n + 1); }}>Go again →</button>}
       </div>
     </div>
   );
 
-  const variant = (verb ? item.variants.find((v) => v.person === person) : item.variants[0]) ?? item.variants[0]!;
-  const builtSet = new Set(progress.builtConjugations ?? []);
+  const { item, variant } = cards[idx]!;
+  const verb = item.verbLemma ? (pack.conjugations ?? []).find((v) => v.lemma === item.verbLemma) : undefined;
+  const personEn = variant.person ? PRONOUNS.find((pr) => pr.key === variant.person)?.en : undefined;
   const onSolved = () => {
     let p = progress;
     for (const cid of item.conceptIds) p = gradeItem(p, { id: cid, kind: "grammar", prompt: "", answer: "", gloss: "", i1Level: 0, tags: [] }, true);
@@ -2256,24 +2267,16 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
   return (
     <div className="fb">
       <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-        <Tag>Build a sentence · {idx + 1} of {items.length}</Tag>
-        {verb && <span className="muted small">verb: {verb.gloss}</span>}
+        <Tag>Build a sentence · {idx + 1} of {cards.length}</Tag>
+        {verb && <span className="muted small">{personEn ? `${personEn} · ` : ""}{verb.gloss}</span>}
       </div>
-      {verb && (
-        <div className="picker small" style={{ flexWrap: "wrap" }}>
-          {PRONOUNS.filter((pr) => item.variants.some((v) => v.person === pr.key)).map((pr) => (
-            <button key={pr.key} className={person === pr.key ? "active" : ""} onClick={() => setPerson(pr.key)}>{pr.en}{builtSet.has(`${verb.lemma}:${pr.key}`) ? " ✓" : ""}</button>
-          ))}
-        </div>
-      )}
       <TileBuilder key={`${item.id}-${variant.person ?? ""}`} variant={variant} verb={verb} onSolved={onSolved} />
       <div className="row" style={{ marginTop: 12 }}>
-        <button className="ghost small" onClick={() => setIdx((i) => i + 1)}>{idx + 1 >= items.length ? "Finish →" : "Next word →"}</button>
+        <button className="ghost small" onClick={() => setIdx((i) => i + 1)}>{idx + 1 >= cards.length ? "Finish →" : "Next →"}</button>
       </div>
     </div>
   );
 }
-
 // The gated Today writing capstone: one unit-scoped prompt (the scenario goal), free production with the
 // same tutor correction as the Library Writing — but woven into the daily flow instead of sitting idle.
 function WritingCapstone({ prompt, config, onDone }: { prompt: string; config: api.Config | null; onDone: () => void }) {
