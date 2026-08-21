@@ -3893,6 +3893,28 @@ function Phrasebook({ store, partnershipId, packId, progress, persist }: {
 // The STRUCTURED joint session: a guided, ordered "do this together" plan that reviews each person's
 // recent solo work — vs. the flat activity menu below. Daily/weekly is a shared preference; the steps
 // deep-link into the existing surfaces (live convo, the help-each-other diff, the shared story).
+// Pick the scenario / story / grammar for the joint session by SHARED readiness — the content the pair has
+// both actually studied the vocabulary for — so the session lands at their level instead of jumping to
+// unseen material. Falls back to the learner's own readiness when the partner hasn't shared familiarity yet.
+function sharedReadySession(pack: LanguagePack, progress: Progress, partnerEntries: Record<string, unknown>): { speakScenarioId?: string; storyId?: string; grammarConceptId?: string } {
+  const lexOf = (id: string) => { const v = pack.vocab.find((x) => x.id === id); return v ? familiarity.deriveKeyForItem(v).lexKey : null; };
+  const iStudied = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStudied(e); };
+  const partnerShared = Object.keys(partnerEntries).length > 0;
+  const readiness = (s: Scenario): number => {
+    const keys = s.requiredVocab.map(lexOf).filter((k): k is string => !!k);
+    if (!keys.length) return 0;
+    const mine = keys.filter(iStudied).length / keys.length;
+    const theirs = keys.filter((k) => !!partnerEntries[k]).length / keys.length;
+    return partnerShared ? Math.min(mine, theirs) : mine; // both must be ready; else fall back to me
+  };
+  const done = (s: Scenario) => (progress.scenarios[s.id]?.metCriteria?.length ?? 0) >= s.successCriteria.length;
+  const ranked = pack.scenarios.map((s) => ({ s, r: readiness(s) })).filter((x) => x.r > 0).sort((a, b) => Number(done(a.s)) - Number(done(b.s)) || b.r - a.r);
+  const scen = ranked[0]?.s;
+  if (!scen) return {};
+  const story = pack.stories?.find((st) => st.id === `${scen.id}-story`);
+  return { speakScenarioId: scen.id, storyId: story?.id, grammarConceptId: scen.requiredStructures?.[0] };
+}
+
 function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
   plan: partner.PartnerSessionPlan;
   cadence: partner.PartnerCadence;
@@ -3901,6 +3923,7 @@ function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
   onScrollTo: (anchor: string) => void;
 }) {
   const pack = usePack();
+  const [openGrammar, setOpenGrammar] = useState(false); // expand the grammar rule inline
   const cadenceBtn = (m: partner.PartnerCadence, label: string) => (
     <button className={cadence === m ? "active" : ""} onClick={() => onCadence(m)}>{label}</button>
   );
@@ -3931,6 +3954,15 @@ function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
           {plan.items.map((it, i) => {
             const n = `${i + 1}. `;
             if (it.kind === "review-help") return <div key={i}>{row("🤝", `${n}Review ${it.count} words your partner knows`, "lapsed words they can help you lock in", () => onScrollTo("ps-collab"), "Help each other →")}</div>;
+            if (it.kind === "grammar") {
+              const c = pack.grammar.find((g) => g.id === it.ref);
+              return (
+                <div key={i}>
+                  {row("📚", `${n}Grammar together: ${c?.name ?? "a pattern"}`, c?.technicalName ?? "review the rule, then use it below", () => setOpenGrammar((v) => !v), openGrammar ? "Hide" : "Show rule")}
+                  {openGrammar && c && <div className="fb" style={{ marginTop: 4 }}><GrammarExplainer concept={c} compact /></div>}
+                </div>
+              );
+            }
             if (it.kind === "teachback") return <div key={i}>{row("🎙", `${n}Teach your partner ${it.count} words`, "explain words you know that they're shaky on", () => onScrollTo("ps-collab"), "Open →")}</div>;
             if (it.kind === "speak") { const sc = pack.scenarios.find((s) => s.id === it.ref); return <div key={i}>{row("🗣", `${n}Speak together: ${sc?.title ?? "a scenario"}`, sc?.setting ?? "take turns live, with coaching", onSpeak, "Start live →")}</div>; }
             const st = pack.stories?.find((s) => s.id === it.ref); return <div key={i}>{row("📖", `${n}Read a story together${st ? `: ${st.title}` : ""}`, "shared text → conversation fuel", () => onScrollTo("ps-story"), "Open →")}</div>;
@@ -3969,6 +4001,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
   const [tg, setTg] = useState<string | "new" | null>(null); // open v2 Together session id, "new", or none
   const [cadence, setCadence] = useState<partner.PartnerCadence>("daily"); // shared joint-session rhythm
+  const [showMore, setShowMore] = useState(false); // the "More ways to practise" details (also opened by session-plan CTAs)
 
   const myActivity = useCallback(
     (): ActivityRecord => ({
@@ -4165,6 +4198,24 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
     const today = localDay();
+    // The structured joint session: a guided "today/this week together" plan (review-help → grammar →
+    // speak → teach-back → story), sized to the diff and matched to content the pair has both studied.
+    const dayMs = (d: string) => new Date(`${d}T12:00:00Z`).getTime();
+    const partnerActive = !!pDay && (cadence === "daily" ? pDay === today : dayMs(today) - dayMs(pDay) <= 7 * 86_400_000);
+    const sess = sharedReadySession(pack, progress, partnerState?.familiarity?.entries ?? {});
+    const plan = partner.buildPartnerSession({
+      cadence,
+      partnerCanHelpMe: diff?.partnerCanHelpMe.length ?? 0,
+      iCanHelpPartner: diff?.iCanHelpPartner.length ?? 0,
+      grammarConceptId: sess.grammarConceptId,
+      speakScenarioId: sess.speakScenarioId,
+      storyId: sess.storyId,
+      myRecent: myActivity().metrics?.movedToKnownThisWeek ?? 0,
+      partnerRecent: pm?.movedToKnownThisWeek ?? 0,
+      partnerActive,
+    });
+    const changeCadence = (mode: partner.PartnerCadence) => { setCadence(mode); void (async () => { const arts = await store.listArtifacts(l.id, "cadence"); await store.putArtifact(l.id, packId, "cadence", { mode }, arts[0]?.id); })(); };
+    const scrollTo = (anchor: string) => { setShowMore(true); setTimeout(() => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
     return (
       <div style={colStack}>
         <div className="row" style={{ justifyContent: "space-between" }}>
@@ -4179,6 +4230,9 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         </div>
         {/* Hero: the one thing to do together — a short live session in real time (DESIGN-partnered-v2.md §2). */}
         <TogetherLauncher store={store} partnershipId={l.id} onOpen={setTg} />
+
+        {/* The structured joint session — a guided plan over what you've both been studying. */}
+        <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onScrollTo={scrollTo} />
 
         <div className="row">
           <span className="small">Shared streak</span>
@@ -4207,7 +4261,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         </div>
 
         {/* v1 activities, demoted per v2 §8 — still reachable, no longer competing for the top of the screen. */}
-        <details className="partner-more">
+        <details className="partner-more" open={showMore} onToggle={(e) => setShowMore((e.currentTarget as HTMLDetailsElement).open)}>
           <summary className="small" style={{ cursor: "pointer" }}>More ways to practise</summary>
           <div style={{ ...colStack, marginTop: 10 }}>
             <LiveConvoSection store={store} partnershipId={l.id} onOpen={setLc} />

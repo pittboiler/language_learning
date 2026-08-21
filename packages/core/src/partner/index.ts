@@ -136,12 +136,13 @@ export function sharedStreak(
 // ---- partner session cadence (the STRUCTURED joint session — a daily/weekly review of solo work) ----
 
 export type PartnerCadence = "daily" | "weekly";
-export type PartnerActivityKind = "review-help" | "speak" | "teachback" | "story";
+export type PartnerActivityKind = "review-help" | "grammar" | "speak" | "teachback" | "story";
 
 export interface PartnerSessionInputs {
   cadence: PartnerCadence;
   partnerCanHelpMe: number; // # items my partner knows that I'm weak/new on (from complementaryDiff)
   iCanHelpPartner: number; // the mirror — drives teach-back
+  grammarConceptId?: string; // a grammar pattern the pair is both working on; omit ⇒ no grammar step
   speakScenarioId?: string; // a scenario to produce together; omit ⇒ no speak step
   storyId?: string; // a shared text to close on; omit ⇒ no story step
   /** New words I locked in this window (recency proxy for effort; default 0). */
@@ -203,6 +204,8 @@ export function buildPartnerSession(inputs: PartnerSessionInputs): PartnerSessio
     const cap = emphasis === "partner-teaches" ? base + 4 : emphasis === "you-teach" ? Math.ceil(base / 2) : base;
     items.push({ kind: "review-help", count: Math.min(inputs.partnerCanHelpMe, cap) });
   }
+  // grammar: review the rule together BEFORE speaking, so the scenario is where you apply it.
+  if (inputs.grammarConceptId) items.push({ kind: "grammar", ref: inputs.grammarConceptId });
   if (inputs.speakScenarioId) items.push({ kind: "speak", ref: inputs.speakScenarioId });
   // teach-back (I teach partner): on weekly, or whenever I did more — boosted then.
   if ((weekly || emphasis === "you-teach") && inputs.iCanHelpPartner > 0) {

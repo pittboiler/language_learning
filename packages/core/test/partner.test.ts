@@ -116,6 +116,11 @@ assert.equal(weekly.items[0]!.count, 12, "weekly caps review-help at 12");
 const thin = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 0, iCanHelpPartner: 0, speakScenarioId: "cafe-1", storyId: "s1" });
 assert.deepEqual(thin.items.map((i) => i.kind), ["speak", "story"]);
 
+// a shared grammar concept inserts a "grammar" step (review the rule) before the scenario where you use it
+const withGrammar = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 4, iCanHelpPartner: 0, grammarConceptId: "definite-articles", speakScenarioId: "cafe-1" });
+assert.deepEqual(withGrammar.items.map((i) => i.kind), ["review-help", "grammar", "speak"]);
+assert.equal(withGrammar.items.find((i) => i.kind === "grammar")!.ref, "definite-articles");
+
 // nothing shared yet → empty plan (the UI shows a "each do a solo session first" hint), floored to 3 min
 const empty = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 0, iCanHelpPartner: 0 });
 assert.deepEqual(empty.items, []);
