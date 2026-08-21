@@ -36,6 +36,7 @@ import type { InfoGapSession } from "@ll/core/infogap";
 import * as live from "@ll/core/live";
 import type { LiveSession } from "@ll/core/live";
 import * as together from "@ll/core/together";
+import * as storyTog from "@ll/core/story-together";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
 type Section = "today" | "library" | "progress" | "partnered";
@@ -3293,6 +3294,113 @@ function TogetherSession({ store, partnershipId, packId, myId, partnerId, progre
   );
 }
 
+// "Read it together": the dyad walks a story LINE BY LINE, taking turns. On your line you read it aloud
+// and say what it means; your partner holds the English gloss and taps got/not-quite. Realtime-synced over
+// partner_artifact 'story-together', exactly like the live conversation. Turns come from @ll/core/story-together.
+function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId, onExit }: {
+  store: PartnerStore; partnershipId: string; packId: string; myId: string; partnerId: string; storyId: string; onExit: () => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const story = pack.stories?.find((s) => s.id === storyId);
+  const [session, setSession] = useState<storyTog.StorySession | null>(null);
+  const [sid, setSid] = useState<string | null>(null);
+  const [online, setOnline] = useState<string[]>([]);
+  const [err, setErr] = useState("");
+
+  const refresh = useCallback(async () => {
+    if (!sid) return;
+    try { const a = (await store.listArtifacts(partnershipId, "story-together")).find((x) => x.id === sid); if (a) setSession(a.payload as storyTog.StorySession); } catch { /* keep current */ }
+  }, [store, partnershipId, sid]);
+  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    if (!sid) return;
+    const unsubArtifacts = subscribeArtifacts(partnershipId, () => void refresh());
+    const unsubPresence = joinPresence(partnershipId, myId, setOnline);
+    return () => { unsubArtifacts(); unsubPresence(); };
+  }, [partnershipId, sid, myId, refresh]);
+
+  const buildAndStart = useCallback(async () => {
+    setErr("");
+    try {
+      const id = await sharedArtifactId("story-together", partnershipId, storyId);
+      const existing = (await store.listArtifacts(partnershipId, "story-together")).find((x) => x.id === id);
+      if (existing && (existing.payload as storyTog.StorySession).status !== "complete") { setSession(existing.payload as storyTog.StorySession); setSid(id); return; }
+      const lines = (story?.body ?? []).map((b) => ({ text: b.text, translit: b.translit, gloss: b.gloss }));
+      const sess = storyTog.startStoryTogether(id, packId, storyId, myId, partnerId, lines);
+      await store.putArtifact(partnershipId, packId, "story-together", sess, id);
+      setSession(sess); setSid(id);
+    } catch (e) { setErr((e as { message?: string }).message ?? "Couldn't start — try again."); }
+  }, [store, partnershipId, packId, myId, partnerId, storyId, story]);
+  useEffect(() => { void buildAndStart(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [storyId]);
+
+  const check = async (got: boolean) => {
+    if (!session) return;
+    setErr("");
+    try {
+      const latest = ((await store.listArtifacts(partnershipId, "story-together")).find((x) => x.id === session.id)?.payload as storyTog.StorySession) ?? session;
+      const next = storyTog.checkTurn(latest, myId, got);
+      await store.putArtifact(partnershipId, packId, "story-together", next, next.id);
+      setSession(next);
+    } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup — tap ↻."); }
+  };
+
+  const partnerOnline = online.includes(partnerId);
+  const HeaderRow = (
+    <div className="row" style={{ justifyContent: "space-between" }}>
+      <button className="ghost small" onClick={onExit}>← Partner</button>
+      <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
+    </div>
+  );
+  if (!story) return <div style={colStack}>{HeaderRow}<span className="muted small">Story not found.</span></div>;
+  if (!session) return <div style={colStack}>{HeaderRow}{err ? <div className="err">{err}</div> : <span className="muted small">Setting up…</span>}</div>;
+
+  const sc = storyTog.score(session);
+  if (session.status === "complete") {
+    return (
+      <div style={colStack}>{HeaderRow}
+        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 You read <b>{story.title}</b> together — <b>{sc.got}/{sc.total}</b> meanings nailed.</p>
+        <div className="row"><button className="btn" onClick={buildAndStart}>Read again →</button><button className="ghost" onClick={onExit}>Done</button></div>
+      </div>
+    );
+  }
+  const turn = storyTog.currentTurn(session)!;
+  const iRead = storyTog.isMyTurnToRead(session, myId);
+  const total = session.turns.length;
+  return (
+    <div style={colStack}>{HeaderRow}
+      <span className="small">📖 Read together · <b>{story.title}</b></span>
+      <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
+      <div className="muted small">Line {session.turnIndex + 1} of {total} · {sc.got} nailed</div>
+      {err ? <div className="err">{err}</div> : null}
+      {iRead ? (
+        <div className="fb">
+          <div className="muted small">Your line — read it aloud, then tell your partner what it means:</div>
+          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
+            <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
+            <b className="target" style={{ fontSize: 22 }}>{turn.text}</b>
+          </div>
+          <div className="translit">{translitOr(turn.text, turn.translit)}</div>
+          <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking your meaning…" : "waiting for your partner to check…"}</div>
+        </div>
+      ) : (
+        <div className="fb">
+          <div className="muted small">Your partner reads this line &amp; says what it means — did they get it?</div>
+          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
+            <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
+            <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
+          </div>
+          <div className="gloss">means: {turn.gloss}</div>
+          <div className="row" style={{ marginTop: 6 }}>
+            <button className="btn" onClick={() => check(true)}>✓ Got it</button>
+            <button className="ghost" onClick={() => check(false)}>↻ Not quite</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // Info-gap (Phase 3, forced interdependence): each partner holds DIFFERENT secret info + a shared
 // goal neither can reach alone. The view renders ONLY this partner's half (briefFor) — the asymmetry
 // is the task. The shared checklist is one 'infogap' partner_artifact; ticks re-read latest to merge.
@@ -3915,11 +4023,12 @@ function sharedReadySession(pack: LanguagePack, progress: Progress, partnerEntri
   return { speakScenarioId: scen.id, storyId: story?.id, grammarConceptId: scen.requiredStructures?.[0] };
 }
 
-function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
+function PartnerSession({ plan, cadence, onCadence, onSpeak, onStory, onScrollTo }: {
   plan: partner.PartnerSessionPlan;
   cadence: partner.PartnerCadence;
   onCadence: (m: partner.PartnerCadence) => void;
   onSpeak: () => void;
+  onStory: (storyId: string) => void;
   onScrollTo: (anchor: string) => void;
 }) {
   const pack = usePack();
@@ -3964,7 +4073,7 @@ function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
               );
             }
             if (it.kind === "speak") { const sc = pack.scenarios.find((s) => s.id === it.ref); return <div key={i}>{row("🗣", `${n}Speak together: ${sc?.title ?? "a scenario"}`, sc?.setting ?? "take turns live, with coaching", onSpeak, "Start live →")}</div>; }
-            const st = pack.stories?.find((s) => s.id === it.ref); return <div key={i}>{row("📖", `${n}Read a story together${st ? `: ${st.title}` : ""}`, "shared text → conversation fuel", () => onScrollTo("ps-story"), "Open →")}</div>;
+            const st = pack.stories?.find((s) => s.id === it.ref); return <div key={i}>{row("📖", `${n}Read a story together${st ? `: ${st.title}` : ""}`, "take turns, line by line — say what each means", () => it.ref && onStory(it.ref), "Read together →")}</div>;
           })}
         </div>
       )}
@@ -3999,6 +4108,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [ig, setIg] = useState<string | "new" | null>(null); // open info-gap session id, "new", or none
   const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
   const [tg, setTg] = useState<string | "new" | null>(null); // open v2 Together session id, "new", or none
+  const [stg, setStg] = useState<string | null>(null); // open "Read together" for a storyId, or none
   const [cadence, setCadence] = useState<partner.PartnerCadence>("daily"); // shared joint-session rhythm
   const [showMore, setShowMore] = useState(false); // the "More ways to practise" details (also opened by session-plan CTAs)
 
@@ -4194,6 +4304,9 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         </div>
       );
     }
+    if (stg) {
+      return <StoryTogether store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} storyId={stg} onExit={() => setStg(null)} />;
+    }
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
     const today = localDay();
@@ -4231,7 +4344,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         <TogetherLauncher store={store} partnershipId={l.id} onOpen={setTg} />
 
         {/* The structured joint session — a guided plan over what you've both been studying. */}
-        <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onScrollTo={scrollTo} />
+        <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onStory={setStg} onScrollTo={scrollTo} />
 
         <div className="row">
           <span className="small">Shared streak</span>

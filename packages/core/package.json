@@ -25,6 +25,7 @@
     "./infogap": "./src/infogap/index.ts",
     "./live": "./src/live/index.ts",
     "./together": "./src/together/index.ts",
+    "./story-together": "./src/story-together/index.ts",
     "./explain": "./src/explain/index.ts"
   },
   "dependencies": {
