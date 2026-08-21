@@ -65,9 +65,11 @@ function needs(entry: { status: string; strength: number } | undefined, needThre
  * deterministic: pass `members` sorted and `projections` in that same order, so both partners' clients
  * compute an IDENTICAL session (the dual-start convergence guarantee, mirroring @ll/core/live).
  *
- * Selection (matched-beginner bias): items BOTH members still need come first (learn the same words at the
- * same time → you can use them with each other), then items one needs. Within a tier, the lowest combined
- * strength (the rawest material) leads.
+ * Selection (matched-beginner bias): only words BOTH members have STUDIED are eligible — nobody is ever
+ * asked to produce (or drilled on) a word the other has never met, so being ahead never pushes your words
+ * onto your partner before they've studied them. Among those, items both still need come first (learn the
+ * same words at the same time → you can use them with each other), then items one needs; within a tier, the
+ * lowest combined strength (the rawest material) leads.
  *
  * Role per item: the MORE-familiar member CHECKS (validates against the answer), the other PRODUCES (gets
  * the retrieval practice they need). When strengths tie — the common case for two beginners — roles
@@ -93,7 +95,8 @@ export function buildQueue(
     seenKeys.add(c.lexKey);
     const ea = projA.entries[c.lexKey];
     const eb = projB.entries[c.lexKey];
-    if (!ea && !eb) continue; // NEITHER partner has studied it — not shared material, don't drill it cold
+    if (!ea || !eb) continue; // BOTH must have studied it — never drill (or make someone produce) a word
+    //                           the other has never met; new words come only after both have studied them.
     const needA = needs(ea, needThreshold);
     const needB = needs(eb, needThreshold);
     if (!needA && !needB) continue; // both already own it — nothing to drill together

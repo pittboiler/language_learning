@@ -16,16 +16,19 @@ const cands: TogetherCandidate[] = [
   { lexKey: "voda", prompt: "water", answer: "вода" },
   { lexKey: "kafe", prompt: "coffee", answer: "кафе" },
   { lexKey: "maka", prompt: "known-by-both", answer: "мака" },
+  { lexKey: "solo", prompt: "only-A-studied", answer: "соло" },
   { lexKey: "nov", prompt: "never-studied", answer: "нов" },
 ];
 
 // Both are LEARNING leb/voda (studied, weak). A knows kafe strongly; B is learning it. Both KNOW maka
-// (excluded). NEITHER has studied nov (must be excluded — the queue never drills a word cold).
+// (excluded). Only A has studied `solo` (B ahead-word — must be excluded so B is never drilled on it).
+// NEITHER has studied nov (must be excluded — the queue never drills a word cold).
 const projA = proj({
   leb: { status: "learning", strength: 0.1 },
   voda: { status: "learning", strength: 0.1 },
   kafe: { status: "known", strength: 0.9 },
   maka: { status: "known", strength: 0.95 },
+  solo: { status: "learning", strength: 0.2 },
 });
 const projB = proj({
   leb: { status: "learning", strength: 0.1 },
@@ -38,8 +41,9 @@ const q = buildQueue(members, [projA, projB], cands);
 
 // --- selection ---
 assert.ok(!q.some((t) => t.lexKey === "maka"), "an item both partners already know is excluded");
+assert.ok(!q.some((t) => t.lexKey === "solo"), "a word only ONE partner has studied is excluded (never drill the other on it)");
 assert.ok(!q.some((t) => t.lexKey === "nov"), "a word neither partner has studied is excluded (no cold drills)");
-assert.equal(q.length, 3, "the three still-needed, studied items are queued");
+assert.equal(q.length, 3, "the three still-needed, both-studied items are queued");
 // both-need items (leb, voda) lead; the one-needs item (kafe) trails.
 assert.deepEqual(q.slice(0, 2).map((t) => t.lexKey).sort(), ["leb", "voda"], "both-need items come first");
 assert.equal(q[2]!.lexKey, "kafe", "the one-needs item trails");
