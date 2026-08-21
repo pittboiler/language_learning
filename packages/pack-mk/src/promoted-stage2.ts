@@ -1088,9 +1088,9 @@ export const promotedScenarios: Scenario[] = [
       },
       {
         "speaker": "learner",
-        "text": "Работам како наставник.",
+        "text": "Работам како учител.",
         "gloss": "I work as a teacher.",
-        "translit": "Rabotam kako nastavnik.",
+        "translit": "Rabotam kako učitel.",
         "satisfies": [
           "describe-work"
         ]

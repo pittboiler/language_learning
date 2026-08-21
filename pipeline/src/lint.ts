@@ -54,6 +54,51 @@ export function lintTranslit(pack: LanguagePack): TranslitLintIssue[] {
   return issues;
 }
 
+// --- Vocabulary-consistency lint ----------------------------------------------------------------
+// A pack should teach ONE word per everyday concept. A beginner who learned учител and then meets
+// наставник in a scenario reads it as a mistake, not as vocabulary range — and the same for доктор vs
+// лекар. Synonymy can't be inferred, so the choices are DECLARED (see run-lint.ts); this only enforces
+// one once it's been made, across every string the pack serves (target text AND translit).
+export interface SynonymGroup {
+  concept: string; // what the word means, for the report ("teacher")
+  preferred: string; // the form the pack teaches
+  avoid: string[]; // competing stems — Cyrillic and/or Latin (translit)
+}
+
+export interface SynonymLintIssue {
+  location: string; // dotted path into the pack, e.g. "scenarios[7].script[9].text"
+  concept: string;
+  found: string;
+  preferred: string;
+  value: string;
+}
+
+// Stem + at most 2 more letters, so inflections count (наставникот, учители) but a different word that
+// merely starts the same does not (лекарство "medicine" is stem+4, and stays clean).
+const stemRe = (stem: string) => new RegExp(`(?<!\\p{L})${stem}\\p{L}{0,2}(?!\\p{L})`, "iu");
+
+/** Every served string using a competing synonym instead of the pack's chosen word (empty ⇒ consistent). */
+export function lintSynonyms(pack: LanguagePack, groups: SynonymGroup[]): SynonymLintIssue[] {
+  const issues: SynonymLintIssue[] = [];
+  const walk = (node: unknown, path: string) => {
+    if (typeof node === "string") {
+      for (const g of groups) {
+        for (const stem of g.avoid) {
+          const hit = node.match(stemRe(stem));
+          if (hit) issues.push({ location: path, concept: g.concept, found: hit[0], preferred: g.preferred, value: node });
+        }
+      }
+      return;
+    }
+    if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`));
+    if (node && typeof node === "object") {
+      for (const [k, v] of Object.entries(node)) walk(v, path ? `${path}.${k}` : k);
+    }
+  };
+  walk(pack, "");
+  return issues;
+}
+
 /** Structural issues across a pack's grammar drills (empty array ⇒ all drills are well-formed). */
 export function lintDrills(concepts: GrammarConcept[]): DrillLintIssue[] {
   const issues: DrillLintIssue[] = [];

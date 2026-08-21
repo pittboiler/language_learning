@@ -657,38 +657,38 @@ export const sentences: SentenceItem[] = [
     ],
     "verbLemma": "прашува",
     "supportWords": [
-      "лекар"
+      "доктор"
     ],
     "variants": [
       {
         "person": "1sg",
         "en": "I ask the doctor",
-        "mk": "Прашувам лекар"
+        "mk": "Прашувам доктор"
       },
       {
         "person": "2sg",
         "en": "You ask the doctor",
-        "mk": "Прашуваш лекар"
+        "mk": "Прашуваш доктор"
       },
       {
         "person": "3sg",
         "en": "He/she asks the doctor",
-        "mk": "Прашува лекар"
+        "mk": "Прашува доктор"
       },
       {
         "person": "1pl",
         "en": "We ask the doctor",
-        "mk": "Прашуваме лекар"
+        "mk": "Прашуваме доктор"
       },
       {
         "person": "2pl",
         "en": "You ask the doctor",
-        "mk": "Прашувате лекар"
+        "mk": "Прашувате доктор"
       },
       {
         "person": "3pl",
         "en": "They ask the doctor",
-        "mk": "Прашуваат лекар"
+        "mk": "Прашуваат доктор"
       }
     ],
     "confidence": "unreviewed"

@@ -35,11 +35,11 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
-    "id": "word-lekar",
+    "id": "word-doktor",
     "kind": "vocab",
     "prompt": "doctor",
-    "answer": "лекар",
-    "translit": "lekar",
+    "answer": "доктор",
+    "translit": "doktor",
     "gloss": "doctor",
     "i1Level": 1,
     "tags": [

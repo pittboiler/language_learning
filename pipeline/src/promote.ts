@@ -2,6 +2,10 @@
 // corrections (the major issues found in human + LLM review), flip confidence "unreviewed"→"validated",
 // and write promoted-stage{0,1}.ts (SEPARATE files, so re-running a wave can't clobber reviewed
 // content). index.ts serves the promoted-* files. Pure transform — no API calls.
+//
+// ⚠ NOT idempotent against today's tree: the promoted-* files have since been hand-edited (requiredStructures,
+// story-line rewrites) without those edits landing here, so re-running this OVERWRITES them. Treat it as an
+// audit trail of the corrections, and patch promoted-* directly — the fixes below are recorded, not replayed.
 import { writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -49,6 +53,10 @@ const WHOLE: Record<string, string> = {
   "Марко телефонира на Ана.": "Марко ѝ телефонира на Ана.",
   "Што има проблем? Извинете.": "Каков е проблемот? Извинете.",
   "Тоа е десно, до банката.": "Тоа е надесно, до банката.",
+  // One word per concept: the pack teaches учител/учителка for "teacher", so the lone наставник goes.
+  // (Same reason доктор — not лекар — is the taught word for "doctor" everywhere in the pack.)
+  "Работам како наставник.": "Работам како учител.",
+  "Rabotam kako nastavnik.": "Rabotam kako učitel.",
 };
 
 function fix(v: unknown): unknown {
