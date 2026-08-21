@@ -3963,7 +3963,6 @@ function PartnerSession({ plan, cadence, onCadence, onSpeak, onScrollTo }: {
                 </div>
               );
             }
-            if (it.kind === "teachback") return <div key={i}>{row("🎙", `${n}Teach your partner ${it.count} words`, "explain words you know that they're shaky on", () => onScrollTo("ps-collab"), "Open →")}</div>;
             if (it.kind === "speak") { const sc = pack.scenarios.find((s) => s.id === it.ref); return <div key={i}>{row("🗣", `${n}Speak together: ${sc?.title ?? "a scenario"}`, sc?.setting ?? "take turns live, with coaching", onSpeak, "Start live →")}</div>; }
             const st = pack.stories?.find((s) => s.id === it.ref); return <div key={i}>{row("📖", `${n}Read a story together${st ? `: ${st.title}` : ""}`, "shared text → conversation fuel", () => onScrollTo("ps-story"), "Open →")}</div>;
           })}

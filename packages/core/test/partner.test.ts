@@ -106,10 +106,10 @@ assert.equal(daily.window, "today");
 assert.deepEqual(daily.items.map((i) => i.kind), ["review-help", "speak"]);
 assert.equal(daily.items[0]!.count, 5, "daily caps review-help at 5");
 
-// weekly widens: review (cap 12) + speak + teach-back + story
+// weekly widens: review (cap 12) + speak + story
 const weekly = buildPartnerSession({ cadence: "weekly", partnerCanHelpMe: 20, iCanHelpPartner: 7, speakScenarioId: "cafe-1", storyId: "s1" });
 assert.equal(weekly.window, "this week");
-assert.deepEqual(weekly.items.map((i) => i.kind), ["review-help", "speak", "teachback", "story"]);
+assert.deepEqual(weekly.items.map((i) => i.kind), ["review-help", "speak", "story"]);
 assert.equal(weekly.items[0]!.count, 12, "weekly caps review-help at 12");
 
 // thin daily (nothing to review) → speak + story (story fills when the plan is < 2 items)
@@ -131,12 +131,11 @@ assert.equal(empty.estMinutes, 3);
 assert.equal(daily.emphasis, "balanced");
 assert.equal(weekly.emphasis, "balanced");
 
-// I did much more → I teach: teach-back included even on daily + boosted; review-help trimmed
+// I did much more → "you-teach": review-help trimmed (I need less hand-holding)
 const youTeach = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 10, iCanHelpPartner: 10, speakScenarioId: "cafe-1", myRecent: 20, partnerRecent: 2 });
 assert.equal(youTeach.emphasis, "you-teach");
-assert.deepEqual(youTeach.items.map((i) => i.kind), ["review-help", "speak", "teachback"]);
+assert.deepEqual(youTeach.items.map((i) => i.kind), ["review-help", "speak"]);
 assert.equal(youTeach.items[0]!.count, 3, "review-help trimmed when I'm ahead (ceil(5/2))");
-assert.equal(youTeach.items[2]!.count, 8, "teach-back boosted when I'm ahead");
 
 // partner did much more → they help me: review-help widened, no teach-back on daily
 const partnerTeaches = buildPartnerSession({ cadence: "daily", partnerCanHelpMe: 20, iCanHelpPartner: 10, speakScenarioId: "cafe-1", myRecent: 1, partnerRecent: 15 });
