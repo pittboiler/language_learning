@@ -16,14 +16,21 @@ const cands: TogetherCandidate[] = [
   { lexKey: "voda", prompt: "water", answer: "вода" },
   { lexKey: "kafe", prompt: "coffee", answer: "кафе" },
   { lexKey: "maka", prompt: "known-by-both", answer: "мака" },
+  { lexKey: "nov", prompt: "never-studied", answer: "нов" },
 ];
 
-// A knows kafe strongly; B is new to it. Both are new to leb/voda. Both KNOW maka (should be excluded).
+// Both are LEARNING leb/voda (studied, weak). A knows kafe strongly; B is learning it. Both KNOW maka
+// (excluded). NEITHER has studied nov (must be excluded — the queue never drills a word cold).
 const projA = proj({
+  leb: { status: "learning", strength: 0.1 },
+  voda: { status: "learning", strength: 0.1 },
   kafe: { status: "known", strength: 0.9 },
   maka: { status: "known", strength: 0.95 },
 });
 const projB = proj({
+  leb: { status: "learning", strength: 0.1 },
+  voda: { status: "learning", strength: 0.1 },
+  kafe: { status: "learning", strength: 0.15 },
   maka: { status: "known", strength: 0.95 },
 });
 
@@ -31,7 +38,8 @@ const q = buildQueue(members, [projA, projB], cands);
 
 // --- selection ---
 assert.ok(!q.some((t) => t.lexKey === "maka"), "an item both partners already know is excluded");
-assert.equal(q.length, 3, "the three still-needed items are queued");
+assert.ok(!q.some((t) => t.lexKey === "nov"), "a word neither partner has studied is excluded (no cold drills)");
+assert.equal(q.length, 3, "the three still-needed, studied items are queued");
 // both-need items (leb, voda) lead; the one-needs item (kafe) trails.
 assert.deepEqual(q.slice(0, 2).map((t) => t.lexKey).sort(), ["leb", "voda"], "both-need items come first");
 assert.equal(q[2]!.lexKey, "kafe", "the one-needs item trails");
@@ -46,9 +54,10 @@ assert.equal(kafeTurn.producer, B, "the less-familiar member produces");
 assert.notEqual(q[0]!.producer, q[1]!.producer, "tied items alternate the producer role");
 assert.ok(q.every((t) => t.producer !== t.checker), "producer and checker are always distinct");
 
-// --- limit ---
+// --- limit --- (both partners are learning all 30, so all are in play; the cap trims to 12)
 const many: TogetherCandidate[] = Array.from({ length: 30 }, (_, i) => ({ lexKey: `w${i}`, prompt: `p${i}`, answer: `a${i}` }));
-assert.equal(buildQueue(members, [proj({}), proj({})], many, { limit: 12 }).length, 12, "queue respects the limit");
+const manyProj = proj(Object.fromEntries(many.map((c) => [c.lexKey, { status: "learning" as const, strength: 0.1 }])));
+assert.equal(buildQueue(members, [manyProj, manyProj], many, { limit: 12 }).length, 12, "queue respects the limit");
 
 // --- check / advance loop ---
 let s = startTogether("sess1", "mk", B, A, q); // pass members out of order — startTogether sorts them

@@ -3,17 +3,19 @@
 // projections. Language-agnostic: operates on lexKeys + the FSRS-derived {status,strength}. Privacy by
 // construction — only the learning-state vector is projected, never gloss / context / personal state.
 // See DESIGN-partnered-learning.md §1.1 / §3.2.
-import type { FamiliarityIndex, FamiliarityStatus } from "../familiarity/index.js";
+import { isStudied, type FamiliarityIndex, type FamiliarityStatus, type LexKind } from "../familiarity/index.js";
 
 /** The privacy-safe snapshot one member publishes for the partner (gated by `shareFamiliarity`).
- *  Just the per-lexKey learning state — enough for the diff, nothing sensitive crosses the boundary. */
+ *  Just the per-lexKey learning state — enough for the diff, nothing sensitive crosses the boundary.
+ *  `kind` lets the surface label a word vs a chunk vs a grammar pattern (older projections omit it). */
 export interface FamiliarityProjection {
   packId: string;
-  entries: Record<string /*lexKey*/, { status: FamiliarityStatus; strength: number }>;
+  entries: Record<string /*lexKey*/, { status: FamiliarityStatus; strength: number; kind?: LexKind }>;
 }
 
 export interface ComplementaryItem {
   lexKey: string;
+  kind: LexKind;
   mineStatus: FamiliarityStatus | "untracked";
   mineStrength: number; // 0..1
   partnerStrength: number; // 0..1
@@ -33,20 +35,24 @@ export interface DiffOptions {
   limit?: number;
 }
 
-/** Project a full familiarity index down to the publishable {status,strength} vector (§1.1). Ignored
- *  items are withheld — they aren't learning signal and needn't be shared. */
+/** Project a full familiarity index down to the publishable {status,strength,kind} vector (§1.1).
+ *  Only STUDIED items are shared: exposed-but-not-studied entries (words merely met in passing while
+ *  reading) and ignored items aren't things the pair has actually worked on, so they must not drive
+ *  partner activities — otherwise the dyad gets quizzed on content it has never really encountered. */
 export function projectFamiliarity(index: FamiliarityIndex, packId: string): FamiliarityProjection {
   const entries: FamiliarityProjection["entries"] = {};
   for (const [lexKey, e] of Object.entries(index)) {
-    if (!e || e.status === "ignored") continue;
-    entries[lexKey] = { status: e.status, strength: e.strength };
+    if (!e || e.status === "ignored" || !isStudied(e)) continue;
+    entries[lexKey] = { status: e.status, strength: e.strength, kind: e.kind };
   }
   return { packId, entries };
 }
 
-/** Does a learner (status,strength) still need help on an item the other partner knows? */
+/** Does a learner (status,strength) still need help on an item the other partner knows? An item the
+ *  learner has never studied (`undefined`) is NOT "needs help" — you can't be coached on a word you've
+ *  never met; complementary help is only for things you're actually learning but your partner has down. */
 function needsHelp(m: { status: FamiliarityStatus; strength: number } | undefined, needThreshold: number): boolean {
-  if (!m) return true; // untracked
+  if (!m) return false; // not studied by me → not a complementary-help candidate
   if (m.status === "new" || m.status === "learning") return true;
   return m.strength < needThreshold; // "known" but still shaky
 }
@@ -62,12 +68,14 @@ export function complementaryDiff(
   const needThreshold = opts.needThreshold ?? 0.5;
   const limit = opts.limit ?? 50;
 
+  // Both help-sets now require the LEARNER to have studied the item too (needsHelp rejects untracked), so
+  // every surfaced item is something the pair has actually encountered — one strong, the other still learning.
   const partnerCanHelpMe: ComplementaryItem[] = [];
   for (const [lexKey, t] of Object.entries(theirs.entries)) {
     if (t.status !== "known") continue; // the helper must actually know it
     const m = mine.entries[lexKey];
     if (!needsHelp(m, needThreshold)) continue;
-    partnerCanHelpMe.push({ lexKey, mineStatus: m?.status ?? "untracked", mineStrength: m?.strength ?? 0, partnerStrength: t.strength });
+    partnerCanHelpMe.push({ lexKey, kind: m!.kind ?? "word", mineStatus: m!.status, mineStrength: m!.strength, partnerStrength: t.strength });
   }
 
   const iCanHelpPartner: ComplementaryItem[] = [];
@@ -75,7 +83,7 @@ export function complementaryDiff(
     if (m.status !== "known") continue;
     const t = theirs.entries[lexKey];
     if (!needsHelp(t, needThreshold)) continue;
-    iCanHelpPartner.push({ lexKey, mineStatus: m.status, mineStrength: m.strength, partnerStrength: t?.strength ?? 0 });
+    iCanHelpPartner.push({ lexKey, kind: m.kind ?? "word", mineStatus: m.status, mineStrength: m.strength, partnerStrength: t?.strength ?? 0 });
   }
 
   partnerCanHelpMe.sort((a, b) => b.partnerStrength - b.mineStrength - (a.partnerStrength - a.mineStrength));

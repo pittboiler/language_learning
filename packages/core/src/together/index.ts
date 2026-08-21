@@ -51,9 +51,11 @@ export interface QueueOptions {
 
 const clamp = (n: number) => Math.max(0, Math.min(1, n));
 
-/** Does this member still need practice on the item? Untracked / new / learning / shaky-known all qualify. */
+/** Does this member still need practice on the item? new / learning / shaky-known qualify. Untracked does
+ *  NOT — a word this member has never studied isn't something to drill them on here (the queue only draws
+ *  from what at least one partner has actually encountered; see buildQueue). */
 function needs(entry: { status: string; strength: number } | undefined, needThreshold: number): boolean {
-  if (!entry) return true; // untracked
+  if (!entry) return false; // not studied by this member
   if (entry.status === "new" || entry.status === "learning") return true;
   return entry.strength < needThreshold;
 }
@@ -85,9 +87,13 @@ export function buildQueue(
 
   type Scored = { c: TogetherCandidate; sa: number; sb: number; bothNeed: boolean; combined: number };
   const inPlay: Scored[] = [];
+  const seenKeys = new Set<string>();
   for (const c of candidates) {
+    if (seenKeys.has(c.lexKey)) continue; // dedupe: the same word can appear as several pack items
+    seenKeys.add(c.lexKey);
     const ea = projA.entries[c.lexKey];
     const eb = projB.entries[c.lexKey];
+    if (!ea && !eb) continue; // NEITHER partner has studied it — not shared material, don't drill it cold
     const needA = needs(ea, needThreshold);
     const needB = needs(eb, needThreshold);
     if (!needA && !needB) continue; // both already own it — nothing to drill together

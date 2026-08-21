@@ -1149,7 +1149,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
             <button className="contentcard" onClick={() => setMode("build")}>
               <div className="cc-top"><span className="cc-type">🧩 Build</span></div>
               <div className="cc-title">Build a sentence</div>
-              <div className="muted small">Tap tiles to make full sentences — with I/you/we/they tabs</div>
+              <div className="muted small">Tap tiles to make full sentences — one person (I / you / you all / we / they) per card</div>
             </button>
           </div>
         </>
@@ -2169,8 +2169,19 @@ function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0
 }
 
 // ---------- Library view 6: writing (prompted production + correction-why) ----------
-// ---------- "Build a sentence" — tap-the-tiles production with I/you/we/they conjugation tabs ----------
+// ---------- "Build a sentence" — tap-the-tiles production, one person form per card ----------
 const buildNorm = (w: string) => w.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}]/gu, "");
+
+// English collapses 2sg and 2pl into one "you", so "You ask the doctor" is the prompt for BOTH Прашуваш
+// and Прашувате — and the person chip in the corner is easy to miss. Spell the person out inside the
+// sentence itself so the prompt alone determines the verb form.
+const YOU_LABEL: Record<string, string> = { "2sg": "You (one person)", "2pl": "You all" };
+function personedEn(variant: SentenceVariant): string {
+  const label = variant.person ? YOU_LABEL[variant.person] : undefined;
+  if (!label) return variant.en;
+  if (!/\byou\b/i.test(variant.en)) return `${label}: ${variant.en}`;
+  return variant.en.replace(/\byou\b/i, (m) => (m[0] === "Y" ? label : label.toLowerCase()));
+}
 
 function TileBuilder({ variant, verb, onSolved }: { variant: SentenceVariant; verb?: ConjugationSet; onSolved: () => void }) {
   const play = usePlay();
@@ -2199,7 +2210,7 @@ function TileBuilder({ variant, verb, onSolved }: { variant: SentenceVariant; ve
   };
   return (
     <div>
-      <div className="muted small" style={{ marginTop: 6 }}>Build: <b>“{variant.en}”</b></div>
+      <div className="muted small" style={{ marginTop: 6 }}>Build: <b>“{personedEn(variant)}”</b></div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minHeight: 42, margin: "8px 0", padding: 8, border: "1px dashed var(--border)", borderRadius: 8 }}>
         {placed.length === 0 ? <span className="muted small">tap the tiles below…</span> :
           placed.map((id) => <button key={id} className="opt" onClick={() => { setPlaced((pl) => pl.filter((x) => x !== id)); setResult(null); }}>{wordOf(id)}</button>)}
@@ -2264,7 +2275,8 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
 
   const { item, variant } = cards[idx]!;
   const verb = item.verbLemma ? (pack.conjugations ?? []).find((v) => v.lemma === item.verbLemma) : undefined;
-  const personEn = variant.person ? PRONOUNS.find((pr) => pr.key === variant.person)?.en : undefined;
+  const person = variant.person ? PRONOUNS.find((pr) => pr.key === variant.person) : undefined;
+  const personEn = person ? `${person.en} (${person.mk})` : undefined;
   const onSolved = () => {
     let p = progress;
     for (const cid of item.conceptIds) p = gradeItem(p, { id: cid, kind: "grammar", prompt: "", answer: "", gloss: "", i1Level: 0, tags: [] }, true);
@@ -2644,6 +2656,20 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
 
 const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
+// A type-in should be a FILL-IN-THE-BLANK, not a cold "produce the whole sentence" box: a learner three
+// days in can't write "Од каде си?" from "Where are you from?", but they can supply the missing word once
+// the sentence's shape is in front of them. Blank the most contentful word — the longest, since function
+// words (си, во, е) are short, ties going to the later one so a leading pronoun isn't what gets hidden —
+// and show the rest. Single-word answers have nothing to scaffold and stay a plain recall card.
+const BLANK_WORD_RE = /\p{L}[\p{L}\p{M}\u2019'-]*/gu;
+function blankOne(answer: string): { skeleton: string; missing: string } | null {
+  const words = [...answer.matchAll(BLANK_WORD_RE)];
+  if (words.length < 2) return null;
+  const pick = words.reduce((a, b) => (b[0].length >= a[0].length ? b : a));
+  const at = pick.index ?? 0;
+  return { missing: pick[0], skeleton: `${answer.slice(0, at)}____${answer.slice(at + pick[0].length)}` };
+}
+
 // Captured-word review. When we know the sentence it was met in, blank the word inside it and show the
 // English so it's clear what to produce ("Ana wants coffee" → say the missing word). Otherwise it's a
 // plain recall card (English → target). Either way the English tells the learner what's being solved for.
@@ -2654,11 +2680,11 @@ function typedMatches(typed: string, target: string): boolean {
   return norm(typed) === norm(target) || norm(romanize(typed)) === norm(romanize(target));
 }
 
-function TypedRecall({ onChecked, onReveal }: { onChecked: (val: string) => void; onReveal: () => void }) {
+function TypedRecall({ onChecked, onReveal, placeholder }: { onChecked: (val: string) => void; onReveal: () => void; placeholder?: string }) {
   const [val, setVal] = useState("");
   return (
     <div className="row" style={{ marginTop: 8, flexWrap: "wrap" }}>
-      <input className="lang-picker" placeholder="type it (Latin ok)" value={val} style={{ flex: 1, minWidth: 160 }}
+      <input className="lang-picker" placeholder={placeholder ?? "type it (Latin ok)"} value={val} style={{ flex: 1, minWidth: 160 }}
         onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && val.trim()) onChecked(val.trim()); }} />
       <button className="btn" disabled={!val.trim()} onClick={() => onChecked(val.trim())}>Check</button>
       <button className="ghost" onClick={onReveal}>Reveal</button>
@@ -2676,6 +2702,9 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
   // the learner no way to know which word to produce. Without the English, fall back to the plain recall
   // card below (which shows the word's own gloss).
   const cloze = contextGloss && blanked && blanked !== context ? blanked : null;
+  // No usable sentence ⇒ recall from the word's own gloss. A multi-word chunk still gets a blank rather
+  // than a cold box, so every type-in in the app asks for one missing word.
+  const gap = cloze ? null : blankOne(entry.display);
   return (
     <div className="fb">
       {cloze ? (
@@ -2687,13 +2716,19 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
         <>
           <div className="muted small">Say in {pack.name}{entry.gloss ? ` — “${entry.gloss}”` : ""}:</div>
           <div style={{ fontSize: 19, margin: "8px 0" }}>{entry.gloss ?? entry.display}</div>
+          {gap && !revealed && (
+            <>
+              <div className="muted small">Then fill the blank:</div>
+              <div style={{ fontSize: 19, margin: "4px 0", lineHeight: 1.5 }}>{gap.skeleton}</div>
+            </>
+          )}
         </>
       )}
       {!revealed ? (
-        <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
+        <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
       ) : (
         <div>
-          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, entry.display) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
+          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, gap ? gap.missing : entry.display) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
           {cloze ? (
             <>
               <div className="target" style={{ fontSize: 20, lineHeight: 1.5 }}>{context}</div>
@@ -2743,15 +2778,23 @@ function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean
   const play = usePlay();
   const [revealed, setRevealed] = useState(false);
   const [typedVal, setTypedVal] = useState<string | null>(null);
+  // Say the whole phrase aloud (the spoken task is unchanged); the WRITTEN check is one blank in it.
+  const gap = useMemo(() => blankOne(item.answer), [item.answer]);
   return (
     <div className="fb">
       <div className="muted small">Say in {pack.name}:</div>
       <div style={{ fontSize: 20, margin: "6px 0" }}>{item.gloss}</div>
+      {gap && !revealed && (
+        <>
+          <div className="muted small" style={{ marginTop: 10 }}>Then fill the blank:</div>
+          <div style={{ fontSize: 19, margin: "4px 0", lineHeight: 1.5 }}>{gap.skeleton}</div>
+        </>
+      )}
       {!revealed ? (
-        <TypedRecall onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
+        <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
       ) : (
         <div>
-          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, item.answer) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
+          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, gap ? gap.missing : item.answer) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
           <div className="target" style={{ fontSize: 22 }}>{item.answer}</div>
           <div className="translit">{item.translit}</div>
           <PhraseBreakdown item={item} />
@@ -3446,9 +3489,12 @@ function FamiliarityCollab({ store, partnershipId, packId, myId, partnerId, diff
   if (!diff) return <p className="muted small">Turn on “Vocabulary” sharing below to swap review help with your partner.</p>;
 
   const label = (lexKey: string) => progress.familiarity[lexKey]?.display ?? lexKey;
-  const reviewHelp = complementarySrs.routeComplementary(familiarity.dueKeys(progress.familiarity), diff).slice(0, 6);
-  const canHelp = diff.partnerCanHelpMe.slice(0, 8);
-  const prompts = teachback.proposeTeachBacks(diff, myId, partnerId, { limit: 4 });
+  // These surfaces are word/phrase oriented ("ask them", "record an explanation") — keep grammar patterns
+  // out (they'd render as a raw drill prompt); words and chunks/phrases both flow through.
+  const notGrammar = (lexKey: string) => progress.familiarity[lexKey]?.kind !== "grammar";
+  const reviewHelp = complementarySrs.routeComplementary(familiarity.dueKeys(progress.familiarity), diff).filter((r) => notGrammar(r.lexKey)).slice(0, 6);
+  const canHelp = diff.partnerCanHelpMe.filter((i) => notGrammar(i.lexKey)).slice(0, 8);
+  const prompts = teachback.proposeTeachBacks(diff, myId, partnerId, { limit: 8 }).filter((p) => notGrammar(p.lexKey)).slice(0, 4);
   const taught = new Set(inbox.filter((a) => (a.payload as { teacher?: string }).teacher === myId).map((a) => (a.payload as { lexKey?: string }).lexKey));
   const forMe = inbox.filter((a) => {
     const p = a.payload as { learner?: string; audio?: string };
