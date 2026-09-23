@@ -2187,7 +2187,9 @@ function personedEn(variant: SentenceVariant): string {
   const label = variant.person ? YOU_LABEL[variant.person] : undefined;
   if (!label) return variant.en;
   if (!/\byou\b/i.test(variant.en)) return `${label}: ${variant.en}`;
-  return variant.en.replace(/\byou\b/i, (m) => (m[0] === "Y" ? label : label.toLowerCase()));
+  // Expand contractions so the label doesn't strand them: "you're" → "you (one person) are".
+  const CONTR: Record<string, string> = { "'re": " are", "'ll": " will", "'ve": " have", "'d": " would" };
+  return variant.en.replace(/\byou('re|'ll|'ve|'d)?\b/i, (m, c?: string) => (m[0] === "Y" ? label : label.toLowerCase()) + (c ? CONTR[c.toLowerCase()] : ""));
 }
 
 function TileBuilder({ variant, verb, onSolved }: { variant: SentenceVariant; verb?: ConjugationSet; onSolved: () => void }) {
@@ -2239,6 +2241,15 @@ function TileBuilder({ variant, verb, onSolved }: { variant: SentenceVariant; ve
   );
 }
 
+// Complexity ladder for Build-a-sentence. A tier unlocks once the learner has built this many distinct
+// (sentence × person) cards; a session then mixes tiers per SESSION_TIERS (a short one or two to warm up,
+// most at the new level). Tier-1 keys stay `lemma:person` (pre-ladder progress keeps counting).
+const SENTENCE_TIER_UNLOCK = [0, 6, 18, 36] as const; // built cards needed for tier 1, 2, 3, 4
+const SESSION_TIERS: Record<number, number[]> = { 1: [1, 1, 1, 1, 1, 1], 2: [1, 1, 2, 2, 2, 2], 3: [1, 2, 2, 3, 3, 3], 4: [1, 2, 3, 3, 4, 4] };
+const unlockedSentenceTier = (builtCount: number) => SENTENCE_TIER_UNLOCK.reduce((t, need, i) => (builtCount >= need ? i + 1 : t), 1);
+const builtKey = (item: SentenceItem, variant: SentenceVariant) =>
+  (item.tier ?? 1) === 1 && item.verbLemma ? `${item.verbLemma}:${variant.person}` : `${item.id}:${variant.person ?? ""}`;
+
 function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone?: () => void }) {
   const pack = usePack();
   // Scope to items whose complement words the learner has met (taught-up-to-now).
@@ -2247,25 +2258,34 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
     [pack, progress.familiarity],
   );
   const [nonce, setNonce] = useState(0);
-  // ONE sentence per card. Flatten each verb item into its six person-variants, then pick ~6 cards that
-  // cover DIFFERENT conjugations: not-yet-built (verb:person) pairs first, capped to 2 per verb so the
-  // session spreads across verbs and persons rather than flipping tabs on a single verb.
+  // ONE sentence per card. Flatten each verb item into its six person-variants, then pick 6 cards along a
+  // COMPLEXITY LADDER: items carry a tier (1 = two words … 4 = two clauses), higher tiers unlock as the
+  // learner builds more, and each session mixes a short warm-up with longer ones (SESSION_TIERS), ordered
+  // short → long. Within a tier: not-yet-built (item:person) first, capped to 2 per verb for spread.
   const cards = useMemo(() => {
     const built = new Set(progress.builtConjugations ?? []);
-    const flat = scoped.flatMap((it) => (it.verbLemma ? it.variants : it.variants.slice(0, 1)).map((v) => ({ item: it, variant: v })));
-    const keyOf = (c: { item: SentenceItem; variant: SentenceVariant }) => (c.item.verbLemma && c.variant.person ? `${c.item.verbLemma}:${c.variant.person}` : c.item.id);
-    const ordered = [...shuffle(flat.filter((c) => !built.has(keyOf(c)))), ...shuffle(flat.filter((c) => built.has(keyOf(c))))];
+    const top = unlockedSentenceTier(built.size);
+    const flat = scoped
+      .filter((it) => (it.tier ?? 1) <= top)
+      .flatMap((it) => (it.verbLemma ? it.variants : it.variants.slice(0, 1)).map((v) => ({ item: it, variant: v })));
+    const ordered = [...shuffle(flat.filter((c) => !built.has(builtKey(c.item, c.variant)))), ...shuffle(flat.filter((c) => built.has(builtKey(c.item, c.variant))))];
     const pick: { item: SentenceItem; variant: SentenceVariant }[] = [];
     const perVerb = new Map<string, number>();
-    for (const c of ordered) {
-      if (pick.length >= 6) break;
+    const take = (ok: (c: { item: SentenceItem; variant: SentenceVariant }) => boolean, capped: boolean) => {
+      const c = ordered.find((c) => !pick.includes(c) && ok(c) && (!capped || (perVerb.get(c.item.verbLemma ?? c.item.id) ?? 0) < 2));
+      if (!c) return false;
       const vl = c.item.verbLemma ?? c.item.id;
-      if ((perVerb.get(vl) ?? 0) >= 2) continue;
       perVerb.set(vl, (perVerb.get(vl) ?? 0) + 1);
       pick.push(c);
+      return true;
+    };
+    // Each slot wants a tier; fall back to the nearest lower tier the learner has in scope, then anything.
+    for (const want of SESSION_TIERS[top]!) {
+      let got = false;
+      for (let t = want; t >= 1 && !got; t--) got = take((c) => (c.item.tier ?? 1) === t, true);
+      if (!got) take(() => true, false);
     }
-    for (const c of ordered) { if (pick.length >= 6) break; if (!pick.includes(c)) pick.push(c); }
-    return pick.slice(0, 6);
+    return pick.sort((x, y) => (x.item.tier ?? 1) - (y.item.tier ?? 1));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scoped.length, nonce]);
   const [idx, setIdx] = useState(0);
@@ -2287,7 +2307,7 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
   const onSolved = () => {
     let p = progress;
     for (const cid of item.conceptIds) p = gradeItem(p, { id: cid, kind: "grammar", prompt: "", answer: "", gloss: "", i1Level: 0, tags: [] }, true);
-    if (verb && variant.person) p = { ...p, builtConjugations: [...new Set([...(p.builtConjugations ?? []), `${verb.lemma}:${variant.person}`])] };
+    p = { ...p, builtConjugations: [...new Set([...(p.builtConjugations ?? []), builtKey(item, variant)])] };
     persist(p);
   };
 
