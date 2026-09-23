@@ -1368,7 +1368,7 @@ function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hide
           ))}
         </div>
       )}
-      {!lettersDone && !bare && <div className="banner">Tip: finish <b>Letters</b> first — but practice here anyway (transliteration is shown).</div>}
+      {!lettersDone && !bare && <div className="banner">Tip: finish <b>Letters</b> first — but practice here anyway (tap “Show pronunciation” for the Latin spelling).</div>}
       {!bare && <h2>{s.title}</h2>}
       {!bare && <p className="lead">{s.goal} — <span className="muted">{s.setting}</span></p>}
       <div className="check">
@@ -1536,6 +1536,8 @@ function LearnerTurn({ turn, config, onDone, onMiss }: { turn: DialogueTurn; con
   const [asr, setAsr] = useState<api.AsrResponse | null>(null);
   const [fb, setFb] = useState<api.FeedbackResponse | null>(null);
   const [finished, setFinished] = useState(false);
+  // Romanization starts hidden so the learner reads the Cyrillic first; tap to reveal (and hide again).
+  const [showTranslit, setShowTranslit] = useState(false);
 
   const onRec = async () => {
     setErr("");
@@ -1586,7 +1588,11 @@ function LearnerTurn({ turn, config, onDone, onMiss }: { turn: DialogueTurn; con
       <p className="muted small">🐢 Speak slowly and clearly — recognition (and your pronunciation) both improve with deliberate pacing.</p>
       <p className="muted small">Your turn — say:</p>
       <div className="target">{turn.text}</div>
-      <div className="translit">{turn.translit}</div>
+      {turn.translit && (showTranslit ? (
+        <div className="translit" style={{ cursor: "pointer" }} title="Tap to hide" onClick={() => setShowTranslit(false)}>{turn.translit}</div>
+      ) : (
+        <button className="ghost small" onClick={() => setShowTranslit(true)}>Show pronunciation</button>
+      ))}
       <div className="muted">{turn.gloss}</div>
       <div className="row" style={{ marginTop: 12 }}>
         <button className="ghost" onClick={() => play(turn.text)}>🔊 Hear it</button>
