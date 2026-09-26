@@ -161,3 +161,35 @@ export function lintChapters(pack: LanguagePack): ChapterLintIssue[] {
   }
   return issues;
 }
+
+// --- Hint lint ----------------------------------------------------------------------------------
+// A retrieval hint must point AT a word without containing it — a hint that says the answer turns the
+// flashcard into a reading exercise, and in the partnered drill it hands the learner the word their
+// partner is holding. The generator rejects leaks at authoring time; this catches any that arrive by a
+// hand-edit or a re-generation. Script-agnostic: it compares against the lexKey the hint is filed under.
+export interface HintLintIssue {
+  kind: "leaks-answer" | "empty" | "too-long";
+  lexKey: string;
+  detail: string;
+}
+
+const HINT_MAX = 120;
+
+export function lintHints(pack: LanguagePack): HintLintIssue[] {
+  const issues: HintLintIssue[] = [];
+  const norm = (s: string) => s.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+  for (const [lexKey, hint] of Object.entries(pack.hints ?? {})) {
+    const h = norm(hint);
+    if (!h) { issues.push({ kind: "empty", lexKey, detail: "no hint text" }); continue; }
+    if (hint.length > HINT_MAX) issues.push({ kind: "too-long", lexKey, detail: `${hint.length} chars (max ${HINT_MAX}) — a hint is one short clause` });
+    for (const tok of norm(lexKey).split(" ")) {
+      if (tok.length < 3) continue;
+      const stem = tok.length > 4 ? tok.slice(0, -1) : tok; // tolerate one inflectional ending
+      if (h.includes(stem)) {
+        issues.push({ kind: "leaks-answer", lexKey, detail: `contains "${tok}" — the hint gives away the answer: “${hint}”` });
+        break;
+      }
+    }
+  }
+  return issues;
+}

@@ -6,6 +6,7 @@
 //
 // Run:  pipeline/node_modules/.bin/tsx pipeline/src/run-words.ts
 import "./env.js";
+import { romanize } from "./romanize.js";
 import { writeFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -19,24 +20,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = join(ROOT, "packages", "pack-mk", "src", "words.ts");
 const BATCH = 20;
 
-// Compute transliteration deterministically from the Cyrillic in the app's standard sh/ch/kj style, so
-// every card matches the rest of the app (the LLM sometimes returns academic diacritics like č/š/ḱ).
-// Mirrors apps/web/lib/romanize.ts.
-const ROMAN: Record<string, string> = {
-  а: "a", б: "b", в: "v", г: "g", д: "d", ѓ: "gj", е: "e", ж: "zh", з: "z", ѕ: "dz", и: "i", ј: "y",
-  к: "k", л: "l", љ: "lj", м: "m", н: "n", њ: "nj", о: "o", п: "p", р: "r", с: "s", т: "t", ќ: "kj",
-  у: "u", ф: "f", х: "h", ц: "c", ч: "ch", џ: "dj", ш: "sh", ѐ: "e", ѝ: "i",
-};
-const romanize = (text: string): string => {
-  let out = "";
-  for (const ch of text) {
-    const lower = ch.toLowerCase();
-    const m = ROMAN[lower];
-    if (!m) { out += ch; continue; }
-    out += ch === lower ? m : m.charAt(0).toUpperCase() + m.slice(1);
-  }
-  return out;
-};
+// Transliteration comes from the shared pipeline romanizer (mirrors apps/web/lib/romanize.ts), so every
+// card matches the rest of the app.
 
 // The single words to ENSURE exist as standalone cards, grouped by the theme header they show under.
 // Content words (nouns/verbs/adjectives) were seeded earlier; this list adds the grammatical building
