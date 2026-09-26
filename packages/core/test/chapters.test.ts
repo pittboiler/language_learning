@@ -6,7 +6,7 @@
 // by pipeline/src/run-lint.ts, which is allowed to see packs.
 import assert from "node:assert/strict";
 import type { Chapter, LanguagePack, ReviewItem } from "@ll/pack-schema";
-import { resolveChapters, chapterMap, chapterOf, unchaptered, MIN_WORDS_KNOWN, type ChapterProgressInput } from "../src/chapters/index.js";
+import { resolveChapters, chapterMap, chapterOf, unchaptered, nextCheckpoint, passCheckpoint, MIN_WORDS_KNOWN, type ChapterProgressInput } from "../src/chapters/index.js";
 
 const chapter = (id: string, order: number, extra: Partial<Chapter> = {}): Chapter => ({
   id, order, stage: 0, stageTitle: "Stage", title: `Chapter ${order}`, shortTitle: `C${order}`, cefr: "A1", goal: "g", ...extra,
@@ -85,4 +85,24 @@ const mostly = { ...finished, familiarity: known("aa", "bb", "cc") };
 assert.ok(3 / 4 >= MIN_WORDS_KNOWN);
 assert.equal(chapterMap(pack, mostly)[0]!.state, "done", "70% of words is enough to finish a chapter");
 
-console.log("✓ chapters: resolution (prefix/tag/extraIds/wordTags), leftovers, four-strand progress, current-marker advance");
+// ---- checkpoints ----
+// A finished chapter is `done`, but owes its checkpoint until one is recorded.
+let fin = chapterMap(pack, finished)[0]!;
+assert.equal(fin.state, "done");
+assert.equal(fin.checkpointPassed, false);
+assert.equal(fin.readyForCheckpoint, true, "content finished ⇒ the chapter owes a checkpoint");
+assert.equal(nextCheckpoint(pack, finished)?.id, "c1", "the daily flow is handed the earliest owed checkpoint");
+
+// Recording a pass clears it — and doesn't touch other chapters.
+const passed: ChapterProgressInput = { ...finished, chapters: passCheckpoint(finished.chapters, "c1", new Date("2026-09-26")) };
+fin = chapterMap(pack, passed)[0]!;
+assert.equal(fin.checkpointPassed, true);
+assert.equal(fin.readyForCheckpoint, false);
+assert.equal(fin.state, "done", "passing a checkpoint doesn't change what content-complete means");
+assert.equal(nextCheckpoint(pack, passed), undefined, "nothing owed once it's passed");
+
+// An unfinished chapter never asks for a checkpoint.
+assert.equal(nextCheckpoint(pack, empty), undefined, "a chapter still in progress owes nothing");
+assert.equal(passCheckpoint(undefined, "c2")["c2"]?.passedAt.length! > 0, true, "passCheckpoint works from an empty map");
+
+console.log("✓ chapters: resolution (prefix/tag/extraIds/wordTags), leftovers, four-strand progress, current-marker advance, checkpoint gate");

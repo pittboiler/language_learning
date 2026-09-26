@@ -305,6 +305,7 @@ function writingUnlocked(pack: LanguagePack, progress: Progress, story: MiniStor
 // It rotates the day-to-day content (story Q&A, grammar drills) so a repeated unit isn't a copy.
 type TodayStep =
   | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet }
+  | { kind: "checkpoint"; chapter: Chapter; items: ReviewItem[]; scenario?: Scenario }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
@@ -357,7 +358,23 @@ function Today({ progress, persist, config, navigate }: {
       return true;
     }).slice(0, 6);
     const conjVerb = pickConjVerb(pack, progress);
-    if (due.length || conjVerb) out.push({ kind: "warmup", items: due, conjVerb });
+
+    // A finished chapter owes a CHECKPOINT before the flow moves on: a recap of that chapter's own words
+    // and grammar, then its conversation again. It replaces the warm-up (both are review — doing both
+    // would make the session a slog) and always leads the session, so consolidation comes before new
+    // material. Failing it simply doesn't record a pass, so it comes back tomorrow.
+    const owed = chapterSpine.nextCheckpoint(pack, progress);
+    const owedContent = owed ? chapterSpine.resolveChapters(pack).find((c) => c.chapter.id === owed.id) : undefined;
+    if (owed && owedContent) {
+      // Only what the learner has actually studied — a checkpoint should test the chapter, not ambush it
+      // with words that were never taught. Grammar drills for its concepts come along in the same pass.
+      const studied = owedContent.vocab.filter((v) => !!progress.familiarity[familiarity.deriveKeyForItem(v).lexKey]);
+      const drills = owedContent.grammarIds.flatMap((id) => pack.grammar.find((c) => c.id === id)?.drills.slice(0, 1) ?? []);
+      const items = [...shuffle(studied).slice(0, 8), ...drills];
+      if (items.length) out.push({ kind: "checkpoint", chapter: owedContent.chapter, items, scenario: owedContent.scenarios[0] });
+    } else if (due.length || conjVerb) {
+      out.push({ kind: "warmup", items: due, conjVerb });
+    }
 
     // One coherent unit per session: a story + the scenario that practises it. The unit stays for a few
     // days (UNIT_MIN_DAYS); dayIndex tracks which day we're on so the day-to-day content rotates.
@@ -562,6 +579,20 @@ function Today({ progress, persist, config, navigate }: {
           />
         )}
 
+        {step.kind === "checkpoint" && (
+          <ChapterCheckpoint
+            key={idx}
+            chapter={step.chapter}
+            items={step.items}
+            scenario={step.scenario}
+            progress={progress}
+            persist={persist}
+            config={config}
+            onMiss={flag}
+            onDone={(p) => done(p)}
+          />
+        )}
+
         {step.kind === "newwords" && (
           <div>
             <Tag>New words · {step.words.length}</Tag>
@@ -643,6 +674,84 @@ function Today({ progress, persist, config, navigate }: {
 // End-of-lesson recap: re-drill exactly the items missed this session. "Good" clears a card; "Again"
 // sends it to the back — so the ones you're still shaky on loop until cleared (the same requeue idea
 // as the alphabet quiz). Pure re-exposure: it doesn't touch SRS (the original misses already did).
+// ---------- The chapter checkpoint: a consolidation gate between chapters ----------
+// When a chapter's content is finished, the next session opens with this instead of the usual warm-up:
+// recall its words + its grammar, then run its conversation again. Passing (PASS_MARK of the recall
+// graded right, and the conversation's goals met) records the chapter as checked in Progress.chapters;
+// failing records nothing, so the checkpoint simply comes round again tomorrow. That's the brake — the
+// course doesn't quietly move on from a chapter the learner can't yet use.
+const CHECKPOINT_PASS = 0.7;
+
+function ChapterCheckpoint({ chapter, items, scenario, progress, persist, config, onMiss, onDone }: {
+  chapter: Chapter;
+  items: ReviewItem[];
+  scenario?: Scenario;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  onMiss: (item: ReviewItem) => void;
+  onDone: (p: Progress) => void;
+}) {
+  const [phase, setPhase] = useState<"drill" | "speak" | "result">("drill");
+  const [score, setScore] = useState({ got: 0, total: 0 });
+  const [spoke, setSpoke] = useState(false);
+  const recallOk = score.total === 0 || score.got / score.total >= CHECKPOINT_PASS;
+  const passed = recallOk && (!scenario || spoke);
+
+  const finishDrill = useCallback((results: WarmResult[]) => {
+    setScore({ got: results.filter((r) => r.ok).length, total: results.length });
+    setPhase(scenario ? "speak" : "result");
+  }, [scenario]);
+
+
+  if (phase === "drill")
+    return (
+      <div>
+        <Tag>Checkpoint · chapter {chapter.order}</Tag>
+        <p className="lead" style={{ marginTop: 0 }}>Before we move on from <b>{chapter.shortTitle}</b> — a quick check that it stuck.</p>
+        <WarmupSession items={items} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} />
+      </div>
+    );
+
+  if (phase === "speak" && scenario)
+    return (
+      <div>
+        <Tag>Checkpoint · use it</Tag>
+        <p className="lead" style={{ marginTop: 0 }}>{score.got}/{score.total} recalled. Now use it for real — <b>{scenario.title}</b>.</p>
+        <ScenarioView
+          progress={progress} persist={persist} config={config} lettersDone
+          scenarioId={scenario.id} hidePicker bare askable restartIfDone
+          onComplete={() => { setSpoke(true); setPhase("result"); }}
+        />
+        <div className="row" style={{ marginTop: 12 }}>
+          <button className="ghost small" onClick={() => setPhase("result")}>Not now — finish the checkpoint →</button>
+        </div>
+      </div>
+    );
+
+  return (
+    <div className="fb">
+      <Tag>Checkpoint · chapter {chapter.order}</Tag>
+      {passed ? (
+        <>
+          <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>✓ <b>{chapter.shortTitle}</b> is checked off — {score.got}/{score.total} recalled{scenario ? ", conversation done" : ""}.</p>
+          <p className="muted small">It stays in your reviews, but Today will move on to chapter {chapter.order + 1}.</p>
+        </>
+      ) : (
+        <>
+          <p className="lead" style={{ margin: 0 }}>{score.got}/{score.total} recalled{scenario && !spoke ? " · conversation not done" : ""} — not quite yet.</p>
+          <p className="muted small">No harm done: <b>{chapter.shortTitle}</b> stays with you and the checkpoint comes round again next session. The rest of today&apos;s session carries on as usual.</p>
+        </>
+      )}
+      <div className="row" style={{ marginTop: 10 }}>
+        {/* The pass rides out with the same Progress the parent persists, so it can't be lost to a race
+            between an effect-write and the step advance. */}
+        <button className="btn" onClick={() => onDone(passed ? { ...progress, chapters: chapterSpine.passCheckpoint(progress.chapters, chapter.id) as Progress["chapters"] } : progress)}>Carry on →</button>
+      </div>
+    </div>
+  );
+}
+
 function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: () => void }) {
   const [queue, setQueue] = useState<ReviewItem[]>(() => items);
   const [n, setN] = useState(0);
@@ -1081,9 +1190,14 @@ const CHAPTER_STATE_CHIP: Record<ChapterStatus["state"], { label: string; cls: s
   upcoming: { label: "coming up", cls: "hard" },
 };
 
+/** What to badge a chapter with: its state, except that a finished chapter still owing its end-of-chapter
+ *  checkpoint says so — that's the next thing Today will hand back. */
+const chapterChip = (st: ChapterStatus): { label: string; cls: string } =>
+  st.readyForCheckpoint ? { label: "checkpoint due", cls: "stretch" } : CHAPTER_STATE_CHIP[st.state];
+
 /** One chapter's headline: number, name, where you stand, and a bar over the four strands. */
 function ChapterHeading({ chapter, status, sub }: { chapter: Chapter; status?: ChapterStatus; sub?: ReactNode }) {
-  const chip = status ? CHAPTER_STATE_CHIP[status.state] : undefined;
+  const chip = status ? chapterChip(status) : undefined;
   return (
     <>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 18 }}>
@@ -2532,7 +2646,7 @@ function ChapterProgressMap({ progress }: { progress: Progress }) {
         {statuses.map((st) => {
           const ch = byId.get(st.id);
           if (!ch) return null;
-          const chip = CHAPTER_STATE_CHIP[st.state];
+          const chip = chapterChip(st);
           return (
             <div key={st.id} className={`chapter-row ${st.state}`}>
               <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
@@ -2551,6 +2665,9 @@ function ChapterProgressMap({ progress }: { progress: Progress }) {
         })}
       </div>
       {current && <p className="muted small">You&apos;re on <b>{byId.get(current.id)?.title}</b> — Today keeps bringing you back to it until it&apos;s solid.</p>}
+      {statuses.some((s) => s.readyForCheckpoint) && (
+        <p className="muted small">A <b>checkpoint</b> is waiting: your next session opens with a recap of that chapter before anything new.</p>
+      )}
     </>
   );
 }

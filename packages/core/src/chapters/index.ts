@@ -34,6 +34,8 @@ export interface ChapterProgressInput {
   seenGrammar?: Record<string, boolean>;
   storyReads?: Record<string, string[]>;
   scenarios?: Record<string, { turnIndex: number; metCriteria: string[] }>;
+  /** Chapter checkpoints the learner has passed (chapter id → when). */
+  chapters?: Record<string, { passedAt: string }>;
 }
 
 export type ChapterState = "done" | "current" | "upcoming";
@@ -53,6 +55,10 @@ export interface ChapterStatus {
   storyTotal: number;
   criteriaMet: number;
   criteriaTotal: number;
+  /** The end-of-chapter checkpoint has been passed. */
+  checkpointPassed: boolean;
+  /** The chapter's content is finished but its checkpoint hasn't been passed — it's owed a recap. */
+  readyForCheckpoint: boolean;
 }
 
 const prefix = (chapterId: string) => `gen-${chapterId}`;
@@ -135,9 +141,11 @@ export function chapterStatus(content: ChapterContent, p: ChapterProgressInput):
   if (content.stories.length) strands.push(storyDays > 0 ? 1 : 0);
   if (criteriaTotal) strands.push(criteriaMet / criteriaTotal);
   const percent = strands.length ? strands.reduce((a, b) => a + b, 0) / strands.length : 0;
+  const checkpointPassed = !!p.chapters?.[content.chapter.id]?.passedAt;
   return {
     id: content.chapter.id,
     percent,
+    checkpointPassed,
     wordsKnown,
     wordsTotal,
     grammarSeen,
@@ -147,9 +155,12 @@ export function chapterStatus(content: ChapterContent, p: ChapterProgressInput):
     storyTotal: content.stories.length,
     criteriaMet,
     criteriaTotal,
+    readyForCheckpoint: false, // filled in by chapterStatus's caller once completeness is known
   };
 }
 
+/** Content-complete: all four strands satisfied. The checkpoint is a separate, later gate — a chapter
+ *  can be finished on paper and still owe its recap. */
 const isComplete = (s: Omit<ChapterStatus, "state">): boolean =>
   (!s.wordsTotal || s.wordsKnown / s.wordsTotal >= MIN_WORDS_KNOWN) &&
   s.grammarSeen === s.grammarTotal &&
@@ -165,8 +176,24 @@ export function chapterMap(pack: LanguagePack, p: ChapterProgressInput): Chapter
   const currentIdx = raw.findIndex((s) => !isComplete(s));
   return raw.map((s, i) => ({
     ...s,
+    readyForCheckpoint: isComplete(s) && !s.checkpointPassed,
     state: isComplete(s) ? "done" : i === (currentIdx === -1 ? raw.length - 1 : currentIdx) ? "current" : "upcoming",
   }));
+}
+
+/** The earliest chapter that is finished but hasn't had its checkpoint — what the daily flow should
+ *  hand back as a recap before it introduces anything new. Undefined when nothing is owed. */
+export function nextCheckpoint(pack: LanguagePack, p: ChapterProgressInput): ChapterStatus | undefined {
+  return chapterMap(pack, p).find((s) => s.readyForCheckpoint);
+}
+
+/** Record a passed checkpoint (pure — returns the new map to persist). */
+export function passCheckpoint(
+  chapters: ChapterProgressInput["chapters"],
+  chapterId: string,
+  at = new Date(),
+): NonNullable<ChapterProgressInput["chapters"]> {
+  return { ...(chapters ?? {}), [chapterId]: { passedAt: at.toISOString() } };
 }
 
 /** The chapter the learner is working through right now. */
