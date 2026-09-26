@@ -8,12 +8,14 @@
 // Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import type { ConjugationSet, DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
 import * as scoring from "@ll/core/familiarity/scoring";
 import * as leveling from "@ll/core/leveling";
+import * as chapterSpine from "@ll/core/chapters";
+import type { ChapterStatus } from "@ll/core/chapters";
 import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
@@ -466,7 +468,7 @@ function Today({ progress, persist, config, navigate }: {
   if (phase === "gate")
     return (
       <section className="view">
-        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <TodayHeader progress={progress} />
         <p className="lead">First, the alphabet. Macedonian uses Cyrillic — review all {pack.alphabet.length} letters (I&apos;ll quiz you on the {focusLetters(pack).length} trickiest), then today&apos;s session opens up right here.</p>
         <Letters progress={progress} persist={persist} onDone={() => setPhase("flow")} />
       </section>
@@ -476,7 +478,7 @@ function Today({ progress, persist, config, navigate }: {
   if (completedToday && !practiceMore && idx < steps.length)
     return (
       <section className="view">
-        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <TodayHeader progress={progress} />
         <h3 style={{ marginTop: 4 }}>Done for today 🎉</h3>
         <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
         <div className="row" style={{ marginTop: 4 }}>
@@ -489,7 +491,7 @@ function Today({ progress, persist, config, navigate }: {
   if (steps.length === 0)
     return (
       <section className="view">
-        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <TodayHeader progress={progress} />
         <p className="lead">You&apos;re all caught up for today. 🎉 Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
       </section>
@@ -499,7 +501,7 @@ function Today({ progress, persist, config, navigate }: {
     if (missed.length > 0 && recap === "offer")
       return (
         <section className="view">
-          <TodayHeader streak={progress.streak?.count ?? 0} />
+          <TodayHeader progress={progress} />
           <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
           <p className="lead">Nice work — you finished today&apos;s session.</p>
           <div className="fb" style={{ marginTop: 4 }}>
@@ -517,7 +519,7 @@ function Today({ progress, persist, config, navigate }: {
     if (missed.length > 0 && recap === "review")
       return (
         <section className="view">
-          <TodayHeader streak={progress.streak?.count ?? 0} />
+          <TodayHeader progress={progress} />
           <h3 style={{ marginTop: 4 }}>One more pass</h3>
           <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
           <SessionRecap items={missed} onDone={() => setRecap("done")} />
@@ -525,7 +527,7 @@ function Today({ progress, persist, config, navigate }: {
       );
     return (
       <section className="view">
-        <TodayHeader streak={progress.streak?.count ?? 0} />
+        <TodayHeader progress={progress} />
         <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
         <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
         <div className="row" style={{ marginTop: 4 }}>
@@ -539,7 +541,7 @@ function Today({ progress, persist, config, navigate }: {
   const step = steps[idx]!;
   return (
     <section className="view">
-      <TodayHeader streak={progress.streak?.count ?? 0} />
+      <TodayHeader progress={progress} />
       <div className="pbar"><div style={{ width: `${(idx / steps.length) * 100}%` }} /></div>
       <div className="muted small" style={{ marginBottom: 14 }}>Step {idx + 1} of {steps.length} · ~{est} min</div>
 
@@ -798,12 +800,24 @@ function Tag({ children }: { children: ReactNode }) {
   return <div className="muted small" style={{ marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{children}</div>;
 }
 
-function TodayHeader({ streak }: { streak: number }) {
+// The session header also LOCATES the session: which chapter today's material comes from, and which
+// day of it this is. The chapter is derived from the story the planner actually chose, so the header
+// can never disagree with what the session goes on to teach.
+function TodayHeader({ progress }: { progress: Progress }) {
+  const pack = usePack();
+  const streak = progress.streak?.count ?? 0;
+  const story = currentStory(pack, progress);
+  const chapter = story ? chapterSpine.chapterOf(pack, story.id) : undefined;
+  const dayIndex = story ? (progress.storyReads?.[story.id]?.length ?? 0) : 0;
   return (
     <div className="today-head">
       <div>
         <h2 style={{ marginBottom: 2 }}>Today</h2>
-        <span className="muted small">your guided session</span>
+        <span className="muted small">
+          {chapter
+            ? <>Chapter {chapter.order} · <b>{chapter.shortTitle}</b>{dayIndex > 0 ? ` · day ${dayIndex + 1}` : ""}</>
+            : "your guided session"}
+        </span>
       </div>
       <span className="streak-chip" title="Day streak">🔥 {streak} day{streak === 1 ? "" : "s"}</span>
     </div>
@@ -1049,6 +1063,50 @@ function coverageOf(text: string, fam: Progress["familiarity"]): { knownPct: num
   return { knownPct: known / words.length, familiarPct: familiar / words.length };
 }
 
+// ---------- Chapters: the course spine, rendered as orientation ----------
+// One answer to "where am I": the Library groups content by chapter, Today names the current one, and
+// Progress draws the whole map. All the judgement (which artifacts belong to a chapter, how far through
+// it you are) lives in @ll/core/chapters; this file only renders what it returns.
+function useChapterMap(progress: Progress): { statuses: ChapterStatus[]; byId: Map<string, ChapterStatus>; current?: ChapterStatus } {
+  const pack = usePack();
+  return useMemo(() => {
+    const statuses = chapterSpine.chapterMap(pack, progress);
+    return { statuses, byId: new Map(statuses.map((s) => [s.id, s])), current: statuses.find((s) => s.state === "current") };
+  }, [pack, progress]);
+}
+
+const CHAPTER_STATE_CHIP: Record<ChapterStatus["state"], { label: string; cls: string }> = {
+  done: { label: "done", cls: "just" },
+  current: { label: "you are here", cls: "easy" },
+  upcoming: { label: "coming up", cls: "hard" },
+};
+
+/** One chapter's headline: number, name, where you stand, and a bar over the four strands. */
+function ChapterHeading({ chapter, status, sub }: { chapter: Chapter; status?: ChapterStatus; sub?: ReactNode }) {
+  const chip = status ? CHAPTER_STATE_CHIP[status.state] : undefined;
+  return (
+    <>
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 18 }}>
+        <h3 style={{ margin: 0 }}>{chapter.order}. {chapter.shortTitle}</h3>
+        {chip && <span className={`diff ${chip.cls}`}>{chip.label}</span>}
+      </div>
+      <div className="muted small">{chapter.goal} · {chapter.cefr}</div>
+      {status && (
+        <>
+          <div className="pbar" style={{ marginTop: 6 }}><div style={{ width: `${Math.round(status.percent * 100)}%` }} /></div>
+          <div className="muted small" style={{ marginTop: -6 }}>
+            {status.wordsKnown}/{status.wordsTotal} words known
+            {status.grammarTotal ? ` · ${status.grammarSeen}/${status.grammarTotal} grammar` : ""}
+            {status.storyTotal ? (status.storyRead ? " · story read" : " · story not read yet") : ""}
+            {status.criteriaTotal ? ` · ${status.criteriaMet}/${status.criteriaTotal} goals met` : ""}
+          </div>
+        </>
+      )}
+      {sub}
+    </>
+  );
+}
+
 function LibrarySection({ progress, persist, config, lettersDone, mode, setMode }: {
   progress: Progress;
   persist: (p: Progress) => void;
@@ -1071,17 +1129,22 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
       .sort((a, b) => b.fit - a.fit || b.familiarPct - a.familiarPct || ["story", "reading", "scenario"].indexOf(a.kind) - ["story", "reading", "scenario"].indexOf(b.kind));
   }, [pack, progress.familiarity]);
 
-  // Situational collections (themeless content under "More practice"); collections ordered by their
-  // most-accessible item so the best-fit situation leads.
+  // Grouped by CHAPTER (course order), so the Library reads as a table of contents rather than a flat
+  // best-fit list — a chapter's scenario, story and reader sit together. Inside a chapter the i+1 sort
+  // above still decides the order. Anything the spine doesn't claim lands in a final catch-all.
+  const chapterInfo = useChapterMap(progress);
   const collections = useMemo(() => {
+    const ordered = [...(pack.chapters ?? [])].sort((a, b) => a.order - b.order);
     const groups = new Map<string, typeof items>();
     for (const it of items) {
-      const theme = it.theme || "More practice";
-      const arr = groups.get(theme);
-      if (arr) arr.push(it); else groups.set(theme, [it]);
+      const key = chapterSpine.chapterOf(pack, it.id)?.id ?? "";
+      const arr = groups.get(key);
+      if (arr) arr.push(it); else groups.set(key, [it]);
     }
-    return [...groups.entries()].sort((a, b) => Math.max(...b[1].map((x) => x.fit)) - Math.max(...a[1].map((x) => x.fit)) || a[0].localeCompare(b[0]));
-  }, [items]);
+    const out = ordered.filter((c) => groups.has(c.id)).map((c) => ({ chapter: c, list: groups.get(c.id)! }));
+    const rest = groups.get("");
+    return rest ? [...out, { chapter: undefined, list: rest }] : out;
+  }, [items, pack]);
 
   const open = (kind: LibView, id?: string) => {
     if (kind === "scenario" && id) persist({ ...progress, pick: id });
@@ -1156,10 +1219,12 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
         </>
       ) : (
         <>
-          <p className="lead">Practice by situation — each set is sorted to fit your level right now. Tap any to start.</p>
-          {collections.map(([theme, list]) => (
-            <div key={theme} style={{ marginBottom: 18 }}>
-              <h3 style={{ marginBottom: 8 }}>{theme}</h3>
+          <p className="lead">The course, chapter by chapter. Each chapter holds its own conversation, story and reading — work down the list, or jump to anything you fancy.</p>
+          {collections.map(({ chapter, list }) => (
+            <div key={chapter?.id ?? "more"} style={{ marginBottom: 18 }}>
+              {chapter
+                ? <ChapterHeading chapter={chapter} status={chapterInfo.byId.get(chapter.id)} />
+                : <h3 style={{ margin: "18px 0 0" }}>More practice</h3>}
               <div className="cards">
                 {list.map((it) => (
                   <button className="contentcard" key={it.kind + it.id} onClick={() => open(it.kind, it.id)}>
@@ -2440,25 +2505,79 @@ function ProgressDash({ progress, dueCount }: { progress: Progress; dueCount: nu
       <p className="muted small" style={{ marginTop: 10 }}>
         <b>To review</b> = items due in Flashcards (below, and in Library › Flashcards). <b>Level</b> is an estimate from letters learned, scenario goals met, and words tracked — roughly pre-A1 → A1 → A2.
       </p>
+      <ChapterProgressMap progress={progress} />
     </section>
   );
 }
 
-// ---------- Library → Words: browse the core vocabulary by theme and pick up words on demand ----------
+// The course at a glance: every chapter, what you've finished, the one you're on, and what's ahead.
+// This is the "where were we, where are we, where are we going" view — the stats above say how much,
+// this says where. Each row's bar is the same four-strand score the Library shows.
+function ChapterProgressMap({ progress }: { progress: Progress }) {
+  const pack = usePack();
+  const { statuses, current } = useChapterMap(progress);
+  const byId = useMemo(() => new Map((pack.chapters ?? []).map((c) => [c.id, c])), [pack]);
+  if (!statuses.length) return null;
+  const done = statuses.filter((s) => s.state === "done").length;
+  return (
+    <>
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 22 }}>
+        <h3 style={{ margin: 0 }}>The course</h3>
+        <span className="muted small">{done} of {statuses.length} chapters done</span>
+      </div>
+      <p className="muted small" style={{ marginTop: 4 }}>
+        A chapter is done once you know most of its words, have seen its grammar, read its story and met its conversation goals.
+      </p>
+      <div className="chapter-map">
+        {statuses.map((st) => {
+          const ch = byId.get(st.id);
+          if (!ch) return null;
+          const chip = CHAPTER_STATE_CHIP[st.state];
+          return (
+            <div key={st.id} className={`chapter-row ${st.state}`}>
+              <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+                <span><b>{ch.order}. {ch.shortTitle}</b> <span className="muted small">{ch.cefr}</span></span>
+                <span className={`diff ${chip.cls}`}>{chip.label}</span>
+              </div>
+              <div className="pbar" style={{ margin: "6px 0 4px" }}><div style={{ width: `${Math.round(st.percent * 100)}%` }} /></div>
+              <div className="muted small">
+                {st.wordsKnown}/{st.wordsTotal} words
+                {st.grammarTotal ? ` · ${st.grammarSeen}/${st.grammarTotal} grammar` : ""}
+                {st.storyTotal ? (st.storyRead ? " · story read" : " · story to read") : ""}
+                {st.criteriaTotal ? ` · ${st.criteriaMet}/${st.criteriaTotal} goals` : ""}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      {current && <p className="muted small">You&apos;re on <b>{byId.get(current.id)?.title}</b> — Today keeps bringing you back to it until it&apos;s solid.</p>}
+    </>
+  );
+}
+
+// ---------- Library → Words: browse the core vocabulary by chapter and pick up words on demand ----------
 // The flashcard deck only surfaces words you've MET, so this is where you meet single words directly:
 // tap ＋ to capture one (it becomes a studied, due card in the Words flashcard filter).
 function Words({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
   const play = usePlay();
+  // Grouped by chapter, in course order — the same spine as the Library and Progress, so a word is
+  // always findable by the chapter that teaches it (the old tag grouping put every generated word in a
+  // single "more words" heap). Words the spine doesn't claim keep a catch-all at the end.
   const groups = useMemo(() => {
-    // Some older vocab is tagged with pipeline labels ("generated"/"validated"/…) rather than a real
-    // theme — bucket those under "more words" so the section headers read cleanly.
-    const themeOf = (v: ReviewItem) => { const t = (v.tags[0] || "").trim(); return !t || /^(generated|validated|unreviewed|core|authored)$/i.test(t) ? "more words" : t; };
     const single = pack.vocab.filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()));
-    const m = new Map<string, ReviewItem[]>();
-    for (const v of single) { const t = themeOf(v); const arr = m.get(t); if (arr) arr.push(v); else m.set(t, [v]); }
-    // Themed groups first (alphabetical), the catch-all "more words" last.
-    return [...m.entries()].sort((a, b) => (a[0] === "more words" ? 1 : 0) - (b[0] === "more words" ? 1 : 0) || a[0].localeCompare(b[0]));
+    const byChapter = new Map<string, ReviewItem[]>();
+    for (const v of single) {
+      const key = chapterSpine.chapterOfVocab(pack, v)?.id ?? "";
+      const arr = byChapter.get(key);
+      if (arr) arr.push(v); else byChapter.set(key, [v]);
+    }
+    const ordered = [...(pack.chapters ?? [])].sort((a, b) => a.order - b.order);
+    const out: { chapter?: Chapter; label: string; items: ReviewItem[] }[] = ordered
+      .filter((c) => byChapter.get(c.id)?.length)
+      .map((c) => ({ chapter: c, label: `${c.order}. ${c.shortTitle}`, items: byChapter.get(c.id)! }));
+    const rest = byChapter.get("");
+    return rest?.length ? [...out, { chapter: undefined, label: "more words", items: rest }] : out;
   }, [pack]);
 
   const learn = (items: ReviewItem[]) => {
@@ -2471,18 +2590,18 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
     persist({ ...progress, familiarity: fam });
   };
 
-  const all = groups.flatMap(([, v]) => v);
+  const all = groups.flatMap((g) => g.items);
   const started = all.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) !== "new").length;
 
   return (
     <>
-      <p className="lead">Browse the vocabulary by theme — tap 🔊 to hear a word, <b>☆</b> to save it to your <b>★ Starred</b> flashcard deck, or <b>＋</b> to mark it started (so it&apos;s prioritised in review). You can drill any of these anytime in <b>Flashcards</b>, filtered by theme. <b>{started}/{all.length}</b> started.</p>
-      {groups.map(([theme, items]) => {
+      <p className="lead">Browse the vocabulary chapter by chapter — tap 🔊 to hear a word, <b>☆</b> to save it to your <b>★ Starred</b> flashcard deck, or <b>＋</b> to mark it started (so it&apos;s prioritised in review). You can drill any of these anytime in <b>Flashcards</b>. <b>{started}/{all.length}</b> started.</p>
+      {groups.map(({ chapter, label, items }) => {
         const unmet = items.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) === "new");
         return (
-          <div key={theme} className="word-group">
+          <div key={chapter?.id ?? label} className="word-group">
             <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-              <h3 style={{ margin: "14px 0 6px", textTransform: "capitalize" }}>{theme}</h3>
+              <h3 style={{ margin: "14px 0 6px" }} title={chapter?.title}>{label}</h3>
               {unmet.length > 0 && <button className="ghost small" onClick={() => learn(unmet)}>＋ Learn all {unmet.length}</button>}
             </div>
             <div className="word-list">
@@ -2511,16 +2630,6 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
   );
 }
 
-// Map a phrase's scenario tag → a readable situational theme for the flashcard theme filter (phrases are
-// tagged by the scenario they came from, e.g. "s1-cafe-order"). Words carry their own semantic tag.
-const SCENARIO_THEME: Record<string, string> = {
-  "s0-repair": "repair & clarify", "s0-greet": "greetings", "s0-survive": "survival basics",
-  "s1-cafe-order": "café & ordering", "s1-greet-intro": "introductions", "s1-market": "shopping",
-  "s1-directions": "directions", "s2-smalltalk": "small talk", "s2-pasttime": "past & future",
-  "s2-home-family": "home & family", "s2-arrange": "phone & plans", "s2-problems": "problems",
-  directions: "directions", shopping: "shopping", introductions: "introductions", phone: "phone & plans",
-  greeting: "greetings", ordering: "café & ordering", paying: "café & ordering", social: "social", "small-talk": "small talk",
-};
 
 // ---------- Progress section: Strengthen (unified SRS over phrases + grammar) ----------
 type ReviewUnit =
@@ -2576,17 +2685,15 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
     return !!e && familiarity.isStarred(e);
   };
 
-  // A readable theme per card: words carry a semantic tag ("pronouns", "food & drink"); phrases carry a
-  // situational one via their scenario tag; captured words + grammar get their own buckets.
-  const themeOf = (u: ReviewUnit): string => {
-    if (u.type === "captured") return "from your reading";
-    const it = u.item;
-    if (it.kind === "grammar") return "grammar";
-    const tags = it.tags ?? [];
-    for (const t of tags) { const m = SCENARIO_THEME[t]; if (m) return m; }
-    const clean = tags.find((t) => t && !/^(generated|validated|unreviewed|core|authored)$/i.test(t) && !/^s\d+-/.test(t));
-    return clean ?? "more";
-  };
+  // A card's bucket is the CHAPTER that teaches it, labelled exactly as the Library and Progress label
+  // it, so a word lives under the same heading everywhere. Captured words and grammar keep their own
+  // buckets, sorted after the chapters.
+  const bucketOf = useCallback((u: ReviewUnit): { key: string; label: string; order: number } => {
+    if (u.type === "captured") return { key: "captured", label: "from your reading", order: 1001 };
+    if (u.item.kind === "grammar") return { key: "grammar", label: "grammar", order: 1002 };
+    const ch = chapterSpine.chapterOfVocab(pack, u.item);
+    return ch ? { key: ch.id, label: `${ch.order}. ${ch.shortTitle}`, order: ch.order } : { key: "more", label: "more", order: 1000 };
+  }, [pack]);
 
   const [type, setType] = useState<"all" | "words" | "sentences">("all");
   const [themes, setThemes] = useState<Set<string>>(new Set()); // empty ⇒ all themes
@@ -2600,12 +2707,15 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   const words = scoped.filter(isWordUnit);
   const sentences = scoped.filter((u) => !isWordUnit(u));
   const byType = type === "words" ? words : type === "sentences" ? sentences : scoped;
-  // Themes available within the current type, with counts. "more"/"grammar"/"from your reading" sort last.
-  const themeCounts = new Map<string, number>();
-  for (const u of byType) themeCounts.set(themeOf(u), (themeCounts.get(themeOf(u)) ?? 0) + 1);
-  const LAST = new Set(["more", "grammar", "from your reading"]);
-  const themeList = [...themeCounts.entries()].sort((a, b) => (LAST.has(a[0]) ? 1 : 0) - (LAST.has(b[0]) ? 1 : 0) || a[0].localeCompare(b[0]));
-  const view = themes.size === 0 ? byType : byType.filter((u) => themes.has(themeOf(u)));
+  // Chapters present in the current type, with counts, in course order.
+  const buckets = new Map<string, { label: string; order: number; n: number }>();
+  for (const u of byType) {
+    const b = bucketOf(u);
+    const cur = buckets.get(b.key);
+    if (cur) cur.n++; else buckets.set(b.key, { label: b.label, order: b.order, n: 1 });
+  }
+  const themeList = [...buckets.entries()].sort((a, b) => a[1].order - b[1].order);
+  const view = themes.size === 0 ? byType : byType.filter((u) => themes.has(bucketOf(u).key));
 
   const toggleTheme = (t: string) => setThemes((prev) => { const next = new Set(prev); if (next.has(t)) next.delete(t); else next.add(t); return next; });
 
@@ -2625,24 +2735,24 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
       </div>
       <div className="theme-chips">
         <button className={`chip-toggle${starredOnly ? " active" : ""}`} onClick={() => setStarredOnly((v) => !v)} title="Your saved words">★ Starred{starred.length ? ` · ${starred.length}` : ""}</button>
-        <button className={`chip-toggle${themes.size === 0 ? " active" : ""}`} onClick={() => setThemes(new Set())}>All themes</button>
-        {themeList.map(([t, n]) => (
-          <button key={t} className={`chip-toggle${themes.has(t) ? " active" : ""}`} onClick={() => toggleTheme(t)} style={{ textTransform: "capitalize" }}>{t} · {n}</button>
+        <button className={`chip-toggle${themes.size === 0 ? " active" : ""}`} onClick={() => setThemes(new Set())}>All chapters</button>
+        {themeList.map(([key, b]) => (
+          <button key={key} className={`chip-toggle${themes.has(key) ? " active" : ""}`} onClick={() => toggleTheme(key)}>{b.label} · {b.n}</button>
         ))}
       </div>
     </>
   );
 
   if (view.length === 0)
-    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and theme.</p>{Filters}<p className="lead">{starredOnly && starred.length === 0 ? "No saved words yet. Tap ★ on a word while you learn — in a story, the Words list, or a lesson — to build your own deck here." : "Nothing in this filter. Pick another theme."}</p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and chapter.</p>{Filters}<p className="lead">{starredOnly && starred.length === 0 ? "No saved words yet. Tap ★ on a word while you learn — in a story, the Words list, or a lesson — to build your own deck here." : "Nothing in this filter. Pick another chapter."}</p></section>;
   if (idx >= view.length)
-    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and theme.</p>{Filters}<p className="lead">Done — {view.length} reviewed. 🎉 <button className="linklike" onClick={() => setIdx(0)}>Go again</button></p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and chapter.</p>{Filters}<p className="lead">Done — {view.length} reviewed. 🎉 <button className="linklike" onClick={() => setIdx(0)}>Go again</button></p></section>;
 
   const u = view[idx]!;
   return (
     <section className="view">
       <h2>Flashcards <span className="muted small">· {view.length - idx} left</span></h2>
-      <p className="lead" style={{ marginBottom: 12 }}>Every word &amp; phrase is here — filter by type and theme to drill what you want. Grading strengthens it in your reviews.</p>
+      <p className="lead" style={{ marginBottom: 12 }}>Every word &amp; phrase is here — filter by type and chapter to drill what you want. Grading strengthens it in your reviews.</p>
       {Filters}
       {u.type === "pool" ? (
         u.item.kind === "grammar"

@@ -119,3 +119,45 @@ export function lintDrills(concepts: GrammarConcept[]): DrillLintIssue[] {
   }
   return issues;
 }
+
+// --- Chapter coverage lint ----------------------------------------------------------------------
+// The chapter spine (pack.chapters + core/chapters) groups content by the `gen-<chapterId>` id
+// convention. Artifacts that match no chapter would vanish from a chapter-grouped Library, and an
+// artifact matching two chapters would appear twice — neither is visible from the app, so assert it
+// here. Vocab is allowed to be unchaptered (the core word list is broader than the 12 situations);
+// scenarios, stories and readers are not.
+export interface ChapterLintIssue {
+  kind: "unchaptered" | "double-chaptered" | "empty-chapter";
+  location: string;
+  detail: string;
+}
+
+export function lintChapters(pack: LanguagePack): ChapterLintIssue[] {
+  const chapters = pack.chapters ?? [];
+  if (!chapters.length) return [];
+  const issues: ChapterLintIssue[] = [];
+  const owners = (id: string) => chapters.filter((c) => id.startsWith(`gen-${c.id}`) || c.extraIds?.includes(id));
+
+  const groups: [string, { id: string }[]][] = [
+    ["scenario", pack.scenarios],
+    ["story", pack.stories ?? []],
+    ["reader", pack.readers],
+    ["writingTask", pack.writingTasks ?? []],
+    ["infoGapTask", pack.infoGapTasks ?? []],
+  ];
+  for (const [kind, items] of groups) {
+    for (const it of items) {
+      const owned = owners(it.id);
+      if (owned.length === 0) issues.push({ kind: "unchaptered", location: `${kind} ${it.id}`, detail: "belongs to no chapter — it would be invisible in a chapter-grouped Library" });
+      if (owned.length > 1) issues.push({ kind: "double-chaptered", location: `${kind} ${it.id}`, detail: `claimed by ${owned.map((c) => c.id).join(", ")}` });
+    }
+  }
+  for (const c of chapters) {
+    const hasScenario = pack.scenarios.some((s) => owners(s.id).some((o) => o.id === c.id));
+    const hasStory = (pack.stories ?? []).some((s) => owners(s.id).some((o) => o.id === c.id));
+    if (!hasScenario || !hasStory) {
+      issues.push({ kind: "empty-chapter", location: `chapter ${c.id}`, detail: `missing ${!hasScenario ? "a scenario" : ""}${!hasScenario && !hasStory ? " and " : ""}${!hasStory ? "a story" : ""}` });
+    }
+  }
+  return issues;
+}
