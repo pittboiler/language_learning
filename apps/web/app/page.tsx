@@ -1172,6 +1172,25 @@ function coverageOf(text: string, fam: Progress["familiarity"]): { knownPct: num
   return { knownPct: known / words.length, familiarPct: familiar / words.length };
 }
 
+// ---------- Hints: a way back in when a word won't come ----------
+// Pre-authored in the pipeline (pipeline/run-hints.ts → pack.hints), keyed by lexKey so a pack item, a
+// word captured from reading, and a partner's drill turn all resolve to the same hint. A hint points at
+// the word without containing it ("the opposite of лево"), so tapping it costs you the recall but not
+// the answer.
+function useHintFor(): (lexKey?: string) => string | undefined {
+  const pack = usePack();
+  return useCallback((lexKey?: string) => (lexKey ? pack.hints?.[lexKey] : undefined), [pack]);
+}
+
+/** The "Hint" affordance: a button that turns into the hint once tapped. Renders nothing without one. */
+function HintButton({ hint, label = "Hint" }: { hint?: string; label?: string }) {
+  const [shown, setShown] = useState(false);
+  if (!hint) return null;
+  return shown
+    ? <div className="hint">💡 {hint}</div>
+    : <button className="ghost small" onClick={() => setShown(true)}>💡 {label}</button>;
+}
+
 // ---------- Chapters: the course spine, rendered as orientation ----------
 // One answer to "where am I": the Library groups content by chapter, Today names the current one, and
 // Progress draws the whole map. All the judgement (which artifacts belong to a chapter, how far through
@@ -2923,6 +2942,7 @@ function TypedRecall({ onChecked, onReveal, placeholder }: { onChecked: (val: st
 function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: FamiliarityEntry; context?: string; contextGloss?: string; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
+  const hint = useHintFor();
   const [revealed, setRevealed] = useState(false);
   const [typedVal, setTypedVal] = useState<string | null>(null);
   const blanked = context ? context.replace(new RegExp(`(^|[^\\p{L}])(${escapeRe(entry.display)})(?=[^\\p{L}]|$)`, "iu"), (_m, pre) => `${pre}____`) : null;
@@ -2953,7 +2973,10 @@ function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Familiari
         </>
       )}
       {!revealed ? (
-        <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
+        <>
+          <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
+          <div style={{ marginTop: 8 }}><HintButton hint={hint(entry.lexKey)} /></div>
+        </>
       ) : (
         <div>
           {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, gap ? gap.missing : entry.display) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
@@ -3004,6 +3027,7 @@ function PhraseBreakdown({ item }: { item: ReviewItem }) {
 function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
+  const hint = useHintFor();
   const [revealed, setRevealed] = useState(false);
   const [typedVal, setTypedVal] = useState<string | null>(null);
   // Say the whole phrase aloud (the spoken task is unchanged); the WRITTEN check is one blank in it.
@@ -3019,7 +3043,10 @@ function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean
         </>
       )}
       {!revealed ? (
-        <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
+        <>
+          <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
+          <div style={{ marginTop: 8 }}><HintButton hint={hint(familiarity.deriveKeyForItem(item).lexKey)} /></div>
+        </>
       ) : (
         <div>
           {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, gap ? gap.missing : item.answer) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
@@ -3367,6 +3394,7 @@ function TogetherSession({ store, partnershipId, packId, myId, partnerId, progre
 }) {
   const pack = usePack();
   const play = usePlay();
+  const hint = useHintFor();
   const [session, setSession] = useState<together.TogetherSession | null>(null);
   const [sid, setSid] = useState<string | "new">(sessionId);
   const [online, setOnline] = useState<string[]>([]);
@@ -3497,11 +3525,15 @@ function TogetherSession({ store, partnershipId, packId, myId, partnerId, progre
       <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
       <div className="muted small">Turn {session.turnIndex + 1} of {total} · cleared {sc.got}</div>
       {err ? <div className="err">{err}</div> : null}
+      <LastTurnRecap session={session} />
       {iProduce ? (
         <div className="fb">
           <div className="muted small">Your turn — say this in {pack.name}, out loud:</div>
           <div className="target" style={{ fontSize: 24, margin: "8px 0" }}>{turn.prompt}</div>
-          <div className="muted small">🎙 {partnerOnline ? "Your partner is checking you…" : "waiting for your partner to check…"}</div>
+          {/* The producer's only way in when the English prompt isn't enough — the hint never contains
+              the word, so asking for it doesn't hand over the answer their partner is holding. */}
+          <HintButton hint={hint(turn.lexKey)} label="Hint — I'm stuck" />
+          <div className="muted small" style={{ marginTop: 8 }}>🎙 {partnerOnline ? "Your partner is checking you…" : "waiting for your partner to check…"}</div>
         </div>
       ) : (
         <div className="fb">
@@ -3517,6 +3549,23 @@ function TogetherSession({ store, partnershipId, packId, myId, partnerId, progre
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// After a turn is marked, show BOTH partners the word that was just drilled — written out, romanized and
+// speakable. The producer has until now only ever heard it from their partner (the answer lives on the
+// checker's screen), so the one card they most need to see in writing was the one they never saw.
+function LastTurnRecap({ session }: { session: together.TogetherSession }) {
+  const play = usePlay();
+  const prev = session.turns[session.turnIndex - 1];
+  if (!prev?.result) return null;
+  return (
+    <div className="last-turn">
+      <span className="muted small">{prev.result === "got" ? "✓" : "↻"} {prev.prompt} —</span>
+      <button className="spk" onClick={() => play(prev.answer, 0.9)}>🔊</button>
+      <b>{prev.answer}</b>
+      <span className="translit">{translitOr(prev.answer, prev.translit)}</span>
     </div>
   );
 }
@@ -3600,6 +3649,17 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
       <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
       <div className="muted small">Line {session.turnIndex + 1} of {total} · {sc.got} nailed</div>
       {err ? <div className="err">{err}</div> : null}
+      {/* The reader says what the line means but never sees the English — so once it's marked, show it.
+          Without this the one line you worked hardest on is the one you leave unconfirmed. */}
+      {(() => {
+        const prev = session.turns[session.turnIndex - 1];
+        return prev?.result ? (
+          <div className="last-turn">
+            <span className="muted small">{prev.result === "got" ? "✓" : "↻"} {prev.text} —</span>
+            <span>{prev.gloss}</span>
+          </div>
+        ) : null;
+      })()}
       {iRead ? (
         <div className="fb">
           <div className="muted small">Your line — read it aloud, then tell your partner what it means:</div>

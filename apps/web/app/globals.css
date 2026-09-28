@@ -197,3 +197,9 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 .chapter-row.current { border-color: var(--accent); }
 .chapter-row.upcoming { opacity: .65; }
 .chapter-row.done .pbar > div { background: var(--ok); }
+
+/* A revealed hint — deliberately quiet, it's a nudge and not the answer. */
+.hint { color: var(--mut); font-size: 13px; border-left: 2px solid var(--line); padding: 2px 0 2px 8px; margin: 8px 0 0; }
+
+/* The just-drilled word, shown to both partners after a turn is marked. */
+.last-turn { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border: 1px dashed var(--line); border-radius: 8px; padding: 6px 10px; }

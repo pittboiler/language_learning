@@ -5,7 +5,7 @@
 // Run:  pipeline/node_modules/.bin/tsx pipeline/src/run-lint.ts
 import { macedonian } from "@ll/pack-mk";
 import { bulgarian } from "@ll/pack-bg";
-import { lintDrills, lintTranslit, lintSynonyms, lintChapters, type SynonymGroup } from "./lint.js";
+import { lintDrills, lintTranslit, lintSynonyms, lintChapters, lintHints, type SynonymGroup } from "./lint.js";
 
 // One word per everyday concept, decided once and enforced here so a later generation wave can't quietly
 // reintroduce the other one. Add a group whenever a review turns up two words doing the same job.
@@ -37,5 +37,10 @@ for (const pack of [macedonian, bulgarian]) {
   total += chapterIssues.length;
   console.log(`${pack.name} (${pack.id}): ${chapterIssues.length} chapter-coverage issue(s)${pack.chapters?.length ? "" : " (no chapters declared)"}`);
   for (const i of chapterIssues) console.log(`  • [${i.kind}] ${i.location}: ${i.detail}`);
+
+  const hintIssues = lintHints(pack);
+  total += hintIssues.length;
+  console.log(`${pack.name} (${pack.id}): ${hintIssues.length} hint issue(s) over ${Object.keys(pack.hints ?? {}).length} hint(s)`);
+  for (const i of hintIssues) console.log(`  • [${i.kind}] ${i.lexKey}: ${i.detail}`);
 }
 console.log(`\n=== ${total} total issue(s) across packs ===`);

@@ -303,4 +303,9 @@ export interface LanguagePack {
   /** The course spine: named, ordered chapters over the content above. Optional/additive — a pack
    *  without chapters just has no chapter grouping in the UI. */
   chapters?: Chapter[];
+  /** Retrieval hints, keyed by lexKey (the normalized surface form core/familiarity derives). A hint
+   *  points at a word without containing it ("the opposite of лево") — shown when a learner is stuck,
+   *  and to the producing partner in a dyad drill. Keyed rather than inlined on items so captured
+   *  words and partner turns, which only carry a lexKey, resolve to the same hint. Optional/additive. */
+  hints?: Record<string, string>;
 }
