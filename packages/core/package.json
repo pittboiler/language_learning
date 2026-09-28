@@ -13,6 +13,7 @@
     "./scenario": "./src/scenario/index.ts",
     "./session": "./src/session/index.ts",
     "./leveling": "./src/leveling/index.ts",
+    "./chapters": "./src/chapters/index.ts",
     "./speaking": "./src/speaking/index.ts",
     "./tutor": "./src/tutor/index.ts",
     "./writing": "./src/writing/index.ts",

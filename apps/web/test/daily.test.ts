@@ -14,8 +14,8 @@ const story = (id: string, vocab: { lexKey: string }[] = []): MiniStory => ({ id
 const fam = (lexKey: string, status: string) => ({ [lexKey]: { lexKey, status } });
 
 // 0. Pacing knobs are the slowed-down values.
-assert.equal(NEW_WORDS_PER_SESSION, 4, "new words per session dialed down to 4");
-assert.equal(UNIT_MIN_DAYS, 2, "a unit repeats across 2 distinct days");
+assert.equal(NEW_WORDS_PER_SESSION, 3, "new words per session dialed down to 3");
+assert.equal(UNIT_MIN_DAYS, 3, "a unit repeats across 3 distinct days");
 
 // 1. markStorySeen records a distinct local day, idempotent within the same day.
 const p1 = markStorySeen(prog(), "s1", "2026-07-13");
@@ -25,10 +25,11 @@ assert.equal(p1again, p1, "same-day re-read is a no-op (identity returned)");
 const p2 = markStorySeen(p1, "s1", "2026-07-14");
 assert.deepEqual(p2.storyReads!["s1"], ["2026-07-13", "2026-07-14"], "a second day accumulates");
 
-// 2. storyDone follows the day count: not done after one day, done after UNIT_MIN_DAYS.
+// 2. storyDone follows the day count: not done until UNIT_MIN_DAYS distinct days have been read.
 const s = story("s1", [{ lexKey: "здраво" }]);
 assert.equal(storyDone(prog({ storyReads: { s1: ["2026-07-13"] } }), s), false, "one day read ⇒ still in rotation (repeats)");
-assert.equal(storyDone(prog({ storyReads: { s1: ["2026-07-13", "2026-07-14"] } }), s), true, "two distinct days ⇒ advance");
+assert.equal(storyDone(prog({ storyReads: { s1: ["2026-07-13", "2026-07-14"] } }), s), false, "two days ⇒ still repeating");
+assert.equal(storyDone(prog({ storyReads: { s1: ["2026-07-13", "2026-07-14", "2026-07-15"] } }), s), true, "three distinct days ⇒ advance");
 
 // 3. Mastery escape hatch: only truly "known" vocab retires a unit early — NOT freshly-seeded
 //    "learning" words (the bug the capture-status fix guards against).

@@ -26,6 +26,8 @@ export interface Progress {
   /** "<lemma>:<person>" pairs the learner has correctly BUILT in the sentence exercise — steers toward
    *  not-yet-produced persons so every conjugation gets practised. */
   builtConjugations?: string[];
+  /** End-of-chapter checkpoints passed (chapter id → when) — the consolidation gate, see core/chapters. */
+  chapters?: Record<string, { passedAt: string; score?: number }>;
   /** Local day (YYYY-MM-DD) the daily session was last finished. When it equals today, Today opens on the
    *  "done for today" screen instead of replaying step 1 after a reload/reopen. */
   lastSessionDay?: string;
