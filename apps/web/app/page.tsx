@@ -282,10 +282,16 @@ function scenarioVocab(pack: LanguagePack, scen: Scenario): { lexKey: string; gl
     .filter((v): v is ReviewItem => !!v)
     .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, gloss: v.gloss }));
 }
-// The current unit's story = the first not-yet-done story; once all are done, review the last one.
+// The current unit's story = the first not-yet-done story IN CHAPTER ORDER; once all are done, review the
+// last one. Course order, not array order: the hand-authored stories predate the generation pipeline and
+// sit at the front of the pack, so plain array order starts a brand-new learner on the café story — i.e.
+// chapter 4 — while the chapter map correctly says chapter 1. Sorting by the spine keeps Today, the
+// header and the map telling the same story.
 function currentStory(pack: LanguagePack, progress: Progress): MiniStory | undefined {
   const stories = pack.stories ?? [];
-  return stories.find((s) => !storyDone(progress, s)) ?? stories[stories.length - 1];
+  const order = (s: MiniStory) => chapterSpine.chapterOf(pack, s.id)?.order ?? Number.MAX_SAFE_INTEGER;
+  const ordered = [...stories].sort((a, b) => order(a) - order(b));
+  return ordered.find((s) => !storyDone(progress, s)) ?? ordered[ordered.length - 1];
 }
 // Free-writing is the GATED unit capstone: it opens only once the unit's vocab is mostly "known" AND its
 // grammar has been practised (introduced/drilled, or produced in Build-a-sentence). Until then, producing
