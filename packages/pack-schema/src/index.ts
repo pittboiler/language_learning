@@ -263,6 +263,9 @@ export interface SentenceItem {
   verbLemma?: string; // present ⇒ the item has person tabs (from pack.conjugations)
   supportWords: string[]; // the non-verb content words used — all must be "met" for the item to be in scope
   variants: SentenceVariant[]; // one per person for verb items; a single entry otherwise
+  /** Complexity rung: 1 = verb + one word (2-3 words), 2 = 3-4 words, 3 = 5-6 words (object + place/time),
+   *  4 = 7-9 words (two linked clauses). Absent ⇒ 1. The builder unlocks higher tiers as the learner builds. */
+  tier?: 1 | 2 | 3 | 4;
   confidence?: "authored" | "validated" | "unreviewed";
 }
 
