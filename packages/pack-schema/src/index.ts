@@ -221,6 +221,30 @@ export interface InfoGapTask {
   confidence: Confidence;
 }
 
+// ---- Chapters (the orienting spine) ----
+// A chapter NAMES a slice of the pack and fixes its order; it owns no content of its own. Artifacts
+// belong to it by the id convention the generation pipeline already uses (`gen-<chapterId>…`) or by
+// carrying the chapter id in `tags` — so a pack gains chapters without any content being rewritten.
+// Resolution + progress live in core/chapters; this is just the declaration.
+export interface Chapter {
+  /** Stable id — the curriculum unit id (e.g. "s1-cafe-order"), which artifact ids are prefixed with. */
+  id: string;
+  order: number; // 1-based position in the course
+  stage: number; // curriculum stage this chapter sits in (0, 1, 2 …)
+  stageTitle: string; // e.g. "Core situations"
+  title: string; // learner-facing, e.g. "Café & bar: order and pay"
+  /** Short label for tight spaces (chips, headings) — e.g. "Café & bar". */
+  shortTitle: string;
+  cefr: CefrBand;
+  goal: string; // one line: what the learner can do after it
+  /** Artifact ids belonging here that DON'T follow the `gen-<chapterId>` convention (hand-authored
+   *  scenarios/stories/readers predating the pipeline). */
+  extraIds?: string[];
+  /** `ReviewItem.tags` values whose words this chapter also teaches — how the semantically-tagged
+   *  core word list ("food & drink", "numbers") is distributed across chapters. */
+  wordTags?: string[];
+}
+
 /** The generalization layer: everything language-specific lives in one validated, cached object. */
 /** One rung of a Build-a-sentence item: an English prompt and its target sentence. Verb items carry a
  *  `person` so the exercise can offer I/you/we/they tabs; non-verb items have a single variant. */
@@ -279,4 +303,12 @@ export interface LanguagePack {
   conjugations?: ConjugationSet[];
   /** Tap-the-tiles "Build a sentence" items. Optional/additive. */
   sentences?: SentenceItem[];
+  /** The course spine: named, ordered chapters over the content above. Optional/additive — a pack
+   *  without chapters just has no chapter grouping in the UI. */
+  chapters?: Chapter[];
+  /** Retrieval hints, keyed by lexKey (the normalized surface form core/familiarity derives). A hint
+   *  points at a word without containing it ("the opposite of лево") — shown when a learner is stuck,
+   *  and to the producing partner in a dyad drill. Keyed rather than inlined on items so captured
+   *  words and partner turns, which only carry a lexKey, resolve to the same hint. Optional/additive. */
+  hints?: Record<string, string>;
 }

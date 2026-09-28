@@ -7,10 +7,10 @@ import type { Progress } from "./store";
 // ---- pacing knobs (deliberately slow, favouring repetition over new volume) ----
 /** How many brand-new words a single session introduces. Small so each day is light and the same
  *  words recur (via warm-up + the unit repeating) instead of a big one-time dump. */
-export const NEW_WORDS_PER_SESSION = 4;
+export const NEW_WORDS_PER_SESSION = 3;
 /** Distinct days a story/scenario unit stays in the daily flow before Today advances — so the same
  *  unit is revisited a few times (a fast learner still advances early once its words are "known"). */
-export const UNIT_MIN_DAYS = 2;
+export const UNIT_MIN_DAYS = 3;
 
 const pad2 = (n: number) => String(n).padStart(2, "0");
 /** Local calendar day as YYYY-MM-DD (not UTC) — so streaks/repetition follow the learner's own days. */

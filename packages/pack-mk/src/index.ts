@@ -1,5 +1,7 @@
 import type { GrammarConcept, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
+import { chapters } from "./chapters.js";
+import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
 import { conjugations } from "./conjugations.js";
 import { sentences } from "./sentences.js";
@@ -71,6 +73,8 @@ export const macedonian: LanguagePack = {
   infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],
   conjugations,
   sentences,
+  chapters,
+  hints,
 };
 
 export default macedonian;

@@ -190,3 +190,16 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 .matchchip.done { border-color: var(--ok); color: var(--ok); cursor: default; }
 .matchchip.bad { border-color: var(--bad); color: var(--bad); }
 .matchchip:disabled { cursor: default; }
+
+/* Chapter map (Progress › The course) — one row per chapter, the current one lifted out of the list. */
+.chapter-map { display: grid; gap: 8px; margin: 12px 0 10px; }
+.chapter-row { border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: var(--card); }
+.chapter-row.current { border-color: var(--accent); }
+.chapter-row.upcoming { opacity: .65; }
+.chapter-row.done .pbar > div { background: var(--ok); }
+
+/* A revealed hint — deliberately quiet, it's a nudge and not the answer. */
+.hint { color: var(--mut); font-size: 13px; border-left: 2px solid var(--line); padding: 2px 0 2px 8px; margin: 8px 0 0; }
+
+/* The just-drilled word, shown to both partners after a turn is marked. */
+.last-turn { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border: 1px dashed var(--line); border-radius: 8px; padding: 6px 10px; }
