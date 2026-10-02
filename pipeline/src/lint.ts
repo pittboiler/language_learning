@@ -1,4 +1,6 @@
 import type { GrammarConcept, LanguagePack } from "@ll/pack-schema";
+import { introducedBy, requiredChapter, tierCapForChapter } from "@ll/core/sentences";
+import { normalize as normalizeKey } from "@ll/core/familiarity";
 
 // Language-agnostic STRUCTURAL lint for grammar drills. The line-level Validator checks whether the
 // answer text is correct, natural Bulgarian/etc. — but it never sees the option SET, so it can't
@@ -189,6 +191,43 @@ export function lintHints(pack: LanguagePack): HintLintIssue[] {
         issues.push({ kind: "leaks-answer", lexKey, detail: `contains "${tok}" — the hint gives away the answer: “${hint}”` });
         break;
       }
+    }
+  }
+  return issues;
+}
+
+// --- Build-a-sentence serveability lint ----------------------------------------------------------
+// A sentence is only offered once the course has introduced its verb and every one of its support words
+// (core/sentences.requiredChapter). An item naming something no chapter ever introduces is dead content:
+// it ships, it's counted, and no learner can ever be shown it. Name those here rather than leaving them
+// to rot in the pack.
+export interface SentenceLintIssue {
+  kind: "never-serveable" | "late-tier";
+  id: string;
+  detail: string;
+}
+
+export function lintSentences(pack: LanguagePack): SentenceLintIssue[] {
+  if (!pack.sentences?.length || !pack.chapters?.length) return [];
+  const issues: SentenceLintIssue[] = [];
+  const intro = introducedBy(pack);
+  const lastChapter = Math.max(...pack.chapters.map((c) => c.order));
+  for (const item of pack.sentences) {
+    const need = requiredChapter(pack, item, intro);
+    if (need === undefined) {
+      const missing = item.supportWords.filter((w) => !intro.has(normalizeKey(w)));
+      issues.push({
+        kind: "never-serveable",
+        id: item.id,
+        detail: missing.length
+          ? `support word(s) ${missing.join(", ")} are never introduced by any chapter`
+          : `the verb "${item.verbLemma}" is never introduced by any chapter (no form appears in a word, scenario or story)`,
+      });
+      continue;
+    }
+    // A long sentence gated behind a chapter whose tier cap is lower than its own tier can never come up.
+    if ((item.tier ?? 1) > tierCapForChapter(lastChapter)) {
+      issues.push({ kind: "late-tier", id: item.id, detail: `tier ${item.tier} exceeds the cap at the final chapter` });
     }
   }
   return issues;
