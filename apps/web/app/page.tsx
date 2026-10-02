@@ -2396,7 +2396,15 @@ function personedEn(variant: SentenceVariant): string {
   return variant.en.replace(/\byou('re|'ll|'ve|'d)?\b/i, (m, c?: string) => (m[0] === "Y" ? label : label.toLowerCase()) + (c ? CONTR[c.toLowerCase()] : ""));
 }
 
-function TileBuilder({ variant, verb, onSolved }: { variant: SentenceVariant; verb?: ConjugationSet; onSolved: () => void }) {
+// How many wrong checks before the builder shows the answer. Three is enough to think it through;
+// beyond that the learner is just permuting tiles, which teaches nothing.
+const BUILD_TRIES = 3;
+
+function TileBuilder({ variant, verb, onFinish }: {
+  variant: SentenceVariant;
+  verb?: ConjugationSet;
+  onFinish: (outcome: "solved" | "revealed") => void;
+}) {
   const play = usePlay();
   const targetWords = useMemo(() => variant.mk.split(/\s+/).filter(Boolean), [variant.mk]);
   // Bank = the sentence's words, shuffled, plus up to 2 OTHER forms of the verb as distractors (so picking
@@ -2412,32 +2420,147 @@ function TileBuilder({ variant, verb, onSolved }: { variant: SentenceVariant; ve
   }, [variant.mk]);
   const [placed, setPlaced] = useState<number[]>([]);
   const [result, setResult] = useState<null | boolean>(null);
-  useEffect(() => { setPlaced([]); setResult(null); }, [variant.mk]);
+  const [tries, setTries] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  useEffect(() => { setPlaced([]); setResult(null); setTries(0); setRevealed(false); }, [variant.mk]);
   const placedSet = new Set(placed);
   const wordOf = (id: number) => bank.find((t) => t.id === id)!.w;
+  const done = result === true || revealed;
+
+  // ---- dragging -------------------------------------------------------------------------------
+  // Pointer events rather than HTML5 drag-and-drop: the same code then works with a mouse and with a
+  // finger (HTML5 DnD never fires on touch). A press that doesn't move is still a tap, so the original
+  // tap-to-place behaviour is untouched — dragging only adds placing at a position and reordering.
+  const slotRef = useRef<HTMLDivElement>(null);
+  const [drag, setDrag] = useState<null | { id: number; from: "bank" | "slot"; x: number; y: number }>(null);
+  const [dropIdx, setDropIdx] = useState<number | null>(null);
+  const movedRef = useRef(false);
+
+  /** Where a drop at (x,y) would insert, or null when the pointer isn't over the answer area. */
+  const indexAt = useCallback((x: number, y: number): number | null => {
+    const slot = slotRef.current;
+    if (!slot) return null;
+    const r = slot.getBoundingClientRect();
+    const pad = 28; // a near-miss still counts as a drop — fingers aren't precise
+    if (x < r.left - pad || x > r.right + pad || y < r.top - pad || y > r.bottom + pad) return null;
+    const tiles = [...slot.querySelectorAll<HTMLElement>("[data-tile]")];
+    for (let i = 0; i < tiles.length; i++) {
+      const t = tiles[i]!.getBoundingClientRect();
+      if (y < t.bottom && x < t.left + t.width / 2) return i;
+    }
+    return tiles.length;
+  }, []);
+
+  useEffect(() => {
+    if (!drag) return;
+    const move = (e: PointerEvent) => {
+      if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) movedRef.current = true;
+      setDrag((d) => (d ? { ...d, x: e.clientX, y: e.clientY } : d));
+      setDropIdx(movedRef.current ? indexAt(e.clientX, e.clientY) : null);
+    };
+    const up = (e: PointerEvent) => {
+      const at = indexAt(e.clientX, e.clientY);
+      const fromSlot = drag.from === "slot";
+      setPlaced((pl) => {
+        // A press with no movement is a tap: append from the bank, remove from the answer.
+        if (!movedRef.current) return fromSlot ? pl.filter((x) => x !== drag.id) : [...pl, drag.id];
+        if (at === null) return fromSlot ? pl.filter((x) => x !== drag.id) : pl; // dragged out = put it back
+        const without = pl.filter((x) => x !== drag.id);
+        const at2 = fromSlot && pl.indexOf(drag.id) < at ? at - 1 : at; // index shifts once it's lifted
+        return [...without.slice(0, at2), drag.id, ...without.slice(at2)];
+      });
+      setResult(null);
+      setDrag(null);
+      setDropIdx(null);
+    };
+    // A drag that never gets its pointerup — released outside the window, interrupted by a tab switch,
+    // cancelled by the browser — would otherwise leave a tile stuck half-lifted. Abort rather than drop.
+    const cancel = () => { setDrag(null); setDropIdx(null); };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", cancel);
+    window.addEventListener("blur", cancel);
+    document.addEventListener("visibilitychange", cancel);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", cancel);
+      window.removeEventListener("blur", cancel);
+      document.removeEventListener("visibilitychange", cancel);
+    };
+  }, [drag, indexAt]);
+
+  const grab = (id: number, from: "bank" | "slot") => (e: React.PointerEvent) => {
+    if (done || e.button !== 0) return;
+    movedRef.current = false;
+    setDrag({ id, from, x: e.clientX, y: e.clientY });
+  };
+
   const check = () => {
     const got = placed.map(wordOf);
     const ok = got.length === targetWords.length && got.every((w, i) => buildNorm(w) === buildNorm(targetWords[i]!));
     setResult(ok);
-    if (ok) onSolved();
+    if (ok) { play(variant.mk, 0.85); return; }
+    const used = tries + 1;
+    setTries(used);
+    // Out of tries: lay the sentence out correctly in the tray, say it, and let them move on. Seeing the
+    // right order built from the same tiles is the lesson; another blind permutation isn't.
+    if (used >= BUILD_TRIES) {
+      const byWord = new Map<string, number[]>();
+      for (const t of bank) { const k = buildNorm(t.w); byWord.set(k, [...(byWord.get(k) ?? []), t.id]); }
+      setPlaced(targetWords.map((w) => byWord.get(buildNorm(w))?.shift()).filter((x): x is number => x !== undefined));
+      setRevealed(true);
+      play(variant.mk, 0.85);
+    }
   };
+
+  const left = BUILD_TRIES - tries;
   return (
     <div>
       <div className="muted small" style={{ marginTop: 6 }}>Build: <b>“{personedEn(variant)}”</b></div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, minHeight: 42, margin: "8px 0", padding: 8, border: "1px dashed var(--border)", borderRadius: 8 }}>
-        {placed.length === 0 ? <span className="muted small">tap the tiles below…</span> :
-          placed.map((id) => <button key={id} className="opt" onClick={() => { setPlaced((pl) => pl.filter((x) => x !== id)); setResult(null); }}>{wordOf(id)}</button>)}
+      <div ref={slotRef} className={`tile-slot${drag && dropIdx !== null ? " over" : ""}`}>
+        {placed.length === 0 && !drag ? <span className="muted small">tap a tile, or drag one up here…</span> : null}
+        {placed.map((id, i) => (
+          <span key={id} className="tile-wrap">
+            {dropIdx === i && <span className="drop-marker" />}
+            <button
+              data-tile
+              className={`opt tile${drag?.id === id ? " dragging" : ""}${revealed ? " right" : ""}`}
+              onPointerDown={grab(id, "slot")}
+            >{wordOf(id)}</button>
+          </span>
+        ))}
+        {dropIdx === placed.length && <span className="drop-marker" />}
       </div>
       <div className="row" style={{ flexWrap: "wrap" }}>
-        {bank.filter((t) => !placedSet.has(t.id)).map((t) => <button key={t.id} className="opt" onClick={() => { setPlaced((pl) => [...pl, t.id]); setResult(null); }}>{t.w}</button>)}
+        {bank.filter((t) => !placedSet.has(t.id)).map((t) => (
+          <button key={t.id} className={`opt tile${drag?.id === t.id ? " dragging" : ""}`} disabled={done} onPointerDown={grab(t.id, "bank")}>{t.w}</button>
+        ))}
       </div>
-      <div className="row" style={{ marginTop: 10 }}>
+      {/* The tile under the cursor/finger while dragging — fixed to the viewport, never intercepting events. */}
+      {drag && movedRef.current && (
+        <div className="opt tile ghost" style={{ left: drag.x, top: drag.y }}>{wordOf(drag.id)}</div>
+      )}
+      <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
         {result === true ? (
-          <span className="target">✓ {variant.mk} <button className="spk" onClick={() => play(variant.mk, 0.85)}>🔊</button></span>
+          <>
+            <span className="target">✓ {variant.mk}</span>
+            <button className="spk" onClick={() => play(variant.mk, 0.85)}>🔊</button>
+            <button className="btn" onClick={() => onFinish("solved")}>Next →</button>
+          </>
+        ) : revealed ? (
+          <>
+            <span className="muted small" style={{ width: "100%" }}>Here&apos;s the order — read it aloud, then carry on. It&apos;ll come round again.</span>
+            <span className="target">{variant.mk}</span>
+            <button className="spk" onClick={() => play(variant.mk, 0.85)}>🔊</button>
+            <button className="btn" onClick={() => onFinish("revealed")}>Got it →</button>
+          </>
         ) : (
           <>
             <button className="btn" disabled={!placed.length} onClick={check}>Check</button>
-            {result === false && <span className="muted small">Not quite — tap a placed tile to remove it, then rearrange.</span>}
+            {result === false && (
+              <span className="muted small">Not quite — drag a tile to move it. {left} {left === 1 ? "try" : "tries"} left.</span>
+            )}
           </>
         )}
       </div>
@@ -2508,11 +2631,14 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
   const verb = item.verbLemma ? (pack.conjugations ?? []).find((v) => v.lemma === item.verbLemma) : undefined;
   const person = variant.person ? PRONOUNS.find((pr) => pr.key === variant.person) : undefined;
   const personEn = person ? `${person.en} (${person.mk})` : undefined;
-  const onSolved = () => {
+  // One way off a card: build it, or run out of tries and be shown it. A revealed card grades its grammar
+  // as missed (so it comes back sooner) and doesn't count as built, so it stays in the rotation.
+  const finish = (outcome: "solved" | "revealed") => {
     let p = progress;
-    for (const cid of item.conceptIds) p = gradeItem(p, { id: cid, kind: "grammar", prompt: "", answer: "", gloss: "", i1Level: 0, tags: [] }, true);
-    p = { ...p, builtConjugations: [...new Set([...(p.builtConjugations ?? []), builtKey(item, variant)])] };
+    for (const cid of item.conceptIds) p = gradeItem(p, { id: cid, kind: "grammar", prompt: "", answer: "", gloss: "", i1Level: 0, tags: [] }, outcome === "solved");
+    if (outcome === "solved") p = { ...p, builtConjugations: [...new Set([...(p.builtConjugations ?? []), builtKey(item, variant)])] };
     persist(p);
+    setIdx((i) => i + 1);
   };
 
   return (
@@ -2521,10 +2647,7 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
         <Tag>Build a sentence · {idx + 1} of {cards.length}</Tag>
         {verb && <span className="muted small">{personEn ? `${personEn} · ` : ""}{verb.gloss}</span>}
       </div>
-      <TileBuilder key={`${item.id}-${variant.person ?? ""}`} variant={variant} verb={verb} onSolved={onSolved} />
-      <div className="row" style={{ marginTop: 12 }}>
-        <button className="ghost small" onClick={() => setIdx((i) => i + 1)}>{idx + 1 >= cards.length ? "Finish →" : "Next →"}</button>
-      </div>
+      <TileBuilder key={`${item.id}-${variant.person ?? ""}`} variant={variant} verb={verb} onFinish={finish} />
     </div>
   );
 }
