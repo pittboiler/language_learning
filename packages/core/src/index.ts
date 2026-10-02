@@ -10,6 +10,7 @@ export * as tutor from "./tutor/index.js";
 export * as writing from "./writing/index.js";
 export * as leveling from "./leveling/index.js";
 export * as chapters from "./chapters/index.js";
+export * as sentences from "./sentences/index.js";
 // --- partnered learning (additive; see DESIGN-partnered-learning.md) ---
 export * as partner from "./partner/index.js";
 export * as partnerDiff from "./partner/familiarity-diff.js";

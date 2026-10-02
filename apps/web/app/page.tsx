@@ -15,6 +15,7 @@ import type { FamiliarityEntry } from "@ll/core/familiarity";
 import * as scoring from "@ll/core/familiarity/scoring";
 import * as leveling from "@ll/core/leveling";
 import * as chapterSpine from "@ll/core/chapters";
+import * as sentenceScope from "@ll/core/sentences";
 import type { ChapterStatus } from "@ll/core/chapters";
 import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
@@ -431,7 +432,15 @@ function Today({ progress, persist, config, navigate }: {
     if (story) out.push({ kind: "story", story, dayIndex });
 
     // Build-a-sentence (typed/tiled output) — only when the learner has met enough words to build one.
-    const canBuild = (pack.sentences ?? []).some((it) => it.supportWords.every((w) => !!progress.familiarity[familiarity.normalize(w)]));
+    // Same gate the builder itself uses — otherwise Today offers a Build step that opens on "learn a few
+    // more words first". Sentences stay within what the course has introduced, verb included.
+    const here = chapterSpine.currentChapter(pack, progress);
+    const buildChapter = here ? (pack.chapters ?? []).find((c) => c.id === here.id)?.order ?? 1 : (pack.chapters?.length ?? 1);
+    const canBuild = sentenceScope.inScope(pack, {
+      chapterOrder: buildChapter,
+      builtCount: (progress.builtConjugations ?? []).length,
+      hasMet: (k) => !!progress.familiarity[k],
+    }).length > 0;
     if (canBuild) out.push({ kind: "build" });
 
     // Speak: the story's paired scenario (so it uses what was just read); fall back to first-incomplete.
@@ -2568,22 +2577,27 @@ function TileBuilder({ variant, verb, onFinish }: {
   );
 }
 
-// Complexity ladder for Build-a-sentence. A tier unlocks once the learner has built this many distinct
-// (sentence × person) cards; a session then mixes tiers per SESSION_TIERS (a short one or two to warm up,
-// most at the new level). Tier-1 keys stay `lemma:person` (pre-ladder progress keeps counting).
-const SENTENCE_TIER_UNLOCK = [0, 6, 18, 36] as const; // built cards needed for tier 1, 2, 3, 4
+// A session mixes tiers per SESSION_TIERS — a short one or two to warm up, most at the learner's current
+// rung — ordered short → long. Which rung that is, and which sentences are even eligible, is decided by
+// @ll/core/sentences from course position + cards built (a sentence's VERB is never in its supportWords,
+// so scoping on those alone drills verbs the course hasn't introduced).
+// Tier-1 keys stay `lemma:person` (pre-ladder progress keeps counting).
 const SESSION_TIERS: Record<number, number[]> = { 1: [1, 1, 1, 1, 1, 1], 2: [1, 1, 2, 2, 2, 2], 3: [1, 2, 2, 3, 3, 3], 4: [1, 2, 3, 3, 4, 4] };
-const unlockedSentenceTier = (builtCount: number) => SENTENCE_TIER_UNLOCK.reduce((t, need, i) => (builtCount >= need ? i + 1 : t), 1);
 const builtKey = (item: SentenceItem, variant: SentenceVariant) =>
   (item.tier ?? 1) === 1 && item.verbLemma ? `${item.verbLemma}:${variant.person}` : `${item.id}:${variant.person ?? ""}`;
 
 function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone?: () => void }) {
   const pack = usePack();
-  // Scope to items whose complement words the learner has met (taught-up-to-now).
+  const { current } = useChapterMap(progress);
+  const chapterOrder = current ? (pack.chapters ?? []).find((c) => c.id === current.id)?.order ?? 1 : (pack.chapters?.length ?? 1);
+  const builtCount = (progress.builtConjugations ?? []).length;
+  // Eligible sentences: introduced by the course already (verb included), built from words the learner has
+  // met, and no longer than their rung allows.
   const scoped = useMemo(
-    () => (pack.sentences ?? []).filter((it) => it.supportWords.every((w) => !!progress.familiarity[familiarity.normalize(w)])),
-    [pack, progress.familiarity],
+    () => sentenceScope.inScope(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] }),
+    [pack, chapterOrder, builtCount, progress.familiarity],
   );
+  const top = sentenceScope.maxTier({ chapterOrder, builtCount });
   const [nonce, setNonce] = useState(0);
   // ONE sentence per card. Flatten each verb item into its six person-variants, then pick 6 cards along a
   // COMPLEXITY LADDER: items carry a tier (1 = two words … 4 = two clauses), higher tiers unlock as the
@@ -2591,9 +2605,7 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
   // short → long. Within a tier: not-yet-built (item:person) first, capped to 2 per verb for spread.
   const cards = useMemo(() => {
     const built = new Set(progress.builtConjugations ?? []);
-    const top = unlockedSentenceTier(built.size);
     const flat = scoped
-      .filter((it) => (it.tier ?? 1) <= top)
       .flatMap((it) => (it.verbLemma ? it.variants : it.variants.slice(0, 1)).map((v) => ({ item: it, variant: v })));
     const ordered = [...shuffle(flat.filter((c) => !built.has(builtKey(c.item, c.variant)))), ...shuffle(flat.filter((c) => built.has(builtKey(c.item, c.variant))))];
     const pick: { item: SentenceItem; variant: SentenceVariant }[] = [];
@@ -2614,7 +2626,7 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
     }
     return pick.sort((x, y) => (x.item.tier ?? 1) - (y.item.tier ?? 1));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [scoped.length, nonce]);
+  }, [scoped.length, top, nonce]);
   const [idx, setIdx] = useState(0);
 
   if (!scoped.length) return <p className="lead">Learn a few more words first — then come back to build sentences with the words you know.</p>;
