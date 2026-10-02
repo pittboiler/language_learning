@@ -203,3 +203,14 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 
 /* The just-drilled word, shown to both partners after a turn is marked. */
 .last-turn { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border: 1px dashed var(--line); border-radius: 8px; padding: 6px 10px; }
+
+/* Build-a-sentence tiles: tap to place, or drag to position/reorder. touch-action:none is what lets a
+   finger drag a tile instead of scrolling the page. */
+.tile { touch-action: none; user-select: none; }
+.tile-slot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-height: 48px; margin: 8px 0; padding: 8px; border: 1px dashed var(--line); border-radius: 8px; transition: border-color .15s, background .15s; }
+.tile-slot.over { border-color: var(--accent); background: rgba(76, 142, 255, .06); }
+.tile-slot .opt { margin: 0; }
+.tile-wrap { display: inline-flex; align-items: center; gap: 6px; }
+.tile.dragging { opacity: .35; }
+.tile.ghost { position: fixed; z-index: 50; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 6px 18px rgba(0, 0, 0, .45); border-color: var(--accent); margin: 0; }
+.drop-marker { display: inline-block; width: 2px; align-self: stretch; min-height: 28px; background: var(--accent); border-radius: 2px; }
