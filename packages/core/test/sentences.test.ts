@@ -3,7 +3,7 @@
 // supportWords never mention), and the tier is capped by course position as well as by cards built.
 import assert from "node:assert/strict";
 import type { Chapter, LanguagePack, SentenceItem } from "@ll/pack-schema";
-import { introducedBy, requiredChapter, tierCapForChapter, tierCapForBuilds, maxTier, inScope } from "../src/sentences/index.js";
+import { introducedBy, requiredChapter, tierCapForChapter, tierCapForBuilds, maxTier, inScope, unlockingWords, withFallback, phraseCards } from "../src/sentences/index.js";
 
 const chapter = (id: string, order: number): Chapter =>
   ({ id, order, stage: 0, stageTitle: "S", title: `Chapter ${order}`, shortTitle: `C${order}`, cefr: "A1", goal: "g" });
@@ -22,7 +22,11 @@ const pack: LanguagePack = {
   id: "t", languageCode: "t", name: "T", voiceId: "v",
   asr: { engines: ["scribe"], languageHints: ["t"], gate: "single" },
   alphabet: [], phonology: { rules: [] as never[] } as LanguagePack["phonology"], grammar: [],
-  vocab: [word("gen-c1-v1", "вода"), word("gen-c3-v1", "кафе")],
+  vocab: [
+    word("gen-c1-v1", "вода"),
+    word("gen-c3-v1", "кафе"),
+    { id: "gen-c1-v2", kind: "phrase" as const, prompt: "I don't understand", answer: "Не разбирам", gloss: "I don't understand", i1Level: 1, tags: [] },
+  ],
   scenarios: [scenario("gen-c2", ["Пијам вода секој ден"])],
   readers: [], stories: [], srsSeed: [],
   chapters: [chapter("c1", 1), chapter("c2", 2), chapter("c3", 3)],
@@ -97,4 +101,39 @@ assert.deepEqual(
   "a word the learner hasn't met still holds its sentence back",
 );
 
-console.log("✓ sentences: verb-aware gating, chapter + build tier caps, scope filter");
+// ---- aiming the trickle, and never silently dropping the step ----
+// "later" needs кафе, which the learner hasn't met: that's the word worth teaching next.
+assert.deepEqual(
+  unlockingWords(full, { chapterOrder: 3, builtCount: 99, hasMet: met(["вода"]) }),
+  ["кафе"],
+  "the word standing between the learner and a buildable sentence is the one to teach",
+);
+// Nothing is one or two words away ⇒ nothing to aim at (rather than arbitrary suggestions).
+assert.deepEqual(unlockingWords(full, { chapterOrder: 3, builtCount: 99, hasMet: met(["вода", "кафе"]) }), []);
+
+// With a word unmet the strict scope still has the other sentence, so no fallback is needed.
+const normal = withFallback(full, { chapterOrder: 3, builtCount: 99, hasMet: met(["вода"]) });
+assert.deepEqual(normal.items.map((s) => s.id), ["short"]);
+assert.equal(normal.usedFallback, false);
+
+// Learner has met NOTHING: rather than drop production from the day, fall back to the shortest rung of
+// what the course has already introduced.
+const fallback = withFallback(full, { chapterOrder: 3, builtCount: 99, hasMet: met([]) });
+assert.deepEqual(fallback.items.map((s) => s.id), ["short", "later"], "fallback offers tier-1 sentences the course has introduced");
+assert.equal(fallback.usedFallback, true);
+assert.ok(fallback.items.every((s) => (s.tier ?? 1) === 1), "the fallback never reaches past the shortest rung");
+
+// Before any verb exists, a learner who has met a taught PHRASE builds that instead — production still
+// happens on day one of the course, at the right difficulty.
+const early = withFallback(full, { chapterOrder: 1, builtCount: 99, hasMet: met(["вода", "не разбирам"]) });
+assert.equal(early.source, "phrases");
+assert.deepEqual(early.items.map((s) => s.variants[0]!.mk), ["Не разбирам"]);
+assert.deepEqual(phraseCards(full, { chapterOrder: 1, hasMet: met(["не разбирам"]) }).map((s) => s.id), ["phrase-gen-c1-v2"]);
+// A phrase the learner hasn't met isn't offered, and a single word is not a "build".
+assert.deepEqual(phraseCards(full, { chapterOrder: 1, hasMet: met(["вода"]) }), []);
+// Nothing met and no verb introduced ⇒ genuinely nothing, rather than a bogus card.
+const nothing = withFallback(full, { chapterOrder: 1, builtCount: 99, hasMet: met([]) });
+assert.deepEqual(nothing.items, []);
+assert.equal(nothing.source, "none");
+
+console.log("✓ sentences: verb-aware gating, chapter + build tier caps, scope filter, unlocking words, fallback");

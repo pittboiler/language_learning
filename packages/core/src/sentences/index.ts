@@ -97,3 +97,76 @@ export function inScope(pack: LanguagePack, opts: ScopeOptions): SentenceItem[] 
     return it.supportWords.every((w) => opts.hasMet(normalize(w)));
   });
 }
+
+/** Words that would unlock a sentence if taught next — the daily flow uses this to aim its trickle of
+ *  core vocabulary instead of rotating through the word list blindly. Nearly every sentence depends on at
+ *  least one word that only the trickle reaches, so without this, whether the builder has anything to
+ *  offer is luck. Ordered by how many sentences each word unlocks, counting a sentence that needs only
+ *  this one word for more than one still two words away. */
+export function unlockingWords(pack: LanguagePack, opts: ScopeOptions, limit = 8): string[] {
+  const intro = introducedBy(pack);
+  const cap = maxTier(opts);
+  const score = new Map<string, number>();
+  for (const it of pack.sentences ?? []) {
+    if ((it.tier ?? 1) > cap) continue;
+    const need = requiredChapter(pack, it, intro);
+    if (need === undefined || need > opts.chapterOrder) continue;
+    const missing = it.supportWords.map((w) => normalize(w)).filter((w) => !opts.hasMet(w));
+    if (!missing.length || missing.length > 2) continue; // already buildable, or too far off to aim at
+    for (const w of missing) score.set(w, (score.get(w) ?? 0) + (missing.length === 1 ? 3 : 1));
+  }
+  return [...score.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, limit)
+    .map(([w]) => w);
+}
+
+/** Early-course production. Before any verb paradigm has been introduced — chapters 1-2 — there is no
+ *  sentence to conjugate, but a beginner has plenty of taught multi-word phrases ("Не разбирам", "Можете
+ *  ли да повторите?"). Putting one back together from its own words is production at exactly the right
+ *  difficulty, and it means the builder earns its place in the day from the first chapter rather than
+ *  appearing out of nowhere in chapter 3. */
+export function phraseCards(pack: LanguagePack, opts: Pick<ScopeOptions, "chapterOrder" | "hasMet">, limit = 12): SentenceItem[] {
+  const out: SentenceItem[] = [];
+  for (const content of resolveChapters(pack)) {
+    if (content.chapter.order > opts.chapterOrder) break;
+    for (const it of content.vocab) {
+      const answer = it.answer.trim();
+      const words = answer.split(/\s+/).filter(Boolean);
+      if (words.length < 2 || words.length > 5) continue; // one word isn't a build; a long chunk is a slog
+      if (!opts.hasMet(normalize(answer))) continue;
+      out.push({
+        id: `phrase-${it.id}`,
+        conceptIds: [],
+        supportWords: [],
+        variants: [{ en: it.gloss, mk: answer }],
+        tier: 1,
+      });
+    }
+  }
+  return out.slice(0, limit);
+}
+
+/** What the builder should actually show, and what kind of deck it is:
+ *   • "scope"    — the real thing: sentences whose verb and words the learner has met.
+ *   • "phrases"  — early course: reassemble a taught phrase (no verb paradigm exists yet).
+ *   • "fallback" — the shortest sentence rung the course has introduced, when the learner's own
+ *                  vocabulary hasn't caught up. The tiles carry each word with its audio, so this is an
+ *                  introduction, not an ambush.
+ *  The point of the chain is that production never silently disappears from the day. */
+export function withFallback(
+  pack: LanguagePack,
+  opts: ScopeOptions,
+): { items: SentenceItem[]; usedFallback: boolean; source: "scope" | "phrases" | "fallback" | "none" } {
+  const strict = inScope(pack, opts);
+  if (strict.length) return { items: strict, usedFallback: false, source: "scope" };
+  const phrases = phraseCards(pack, opts);
+  if (phrases.length) return { items: phrases, usedFallback: false, source: "phrases" };
+  const intro = introducedBy(pack);
+  const items = (pack.sentences ?? []).filter((it) => {
+    if ((it.tier ?? 1) !== 1) return false; // the fallback never reaches past the shortest rung
+    const need = requiredChapter(pack, it, intro);
+    return need !== undefined && need <= opts.chapterOrder;
+  });
+  return { items, usedFallback: items.length > 0, source: items.length ? "fallback" : "none" };
+}
