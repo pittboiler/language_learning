@@ -21,7 +21,7 @@ import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
-import { NEW_WORDS_PER_SESSION, localDay, markStorySeen, storyDone } from "../lib/daily";
+import { REVIEW_DAY_ITEMS, WARMUP_ITEMS, isReviewDay, localDay, markStorySeen, planNewWords, storyDone } from "../lib/daily";
 import { captureWord, properNounLike, buildLineGlosses, toggleStar } from "../lib/capture";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
@@ -316,7 +316,7 @@ type TodayStep =
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
-  | { kind: "story"; story: MiniStory; dayIndex: number }
+  | { kind: "story"; story: MiniStory; dayIndex: number; revisit?: boolean }
   | { kind: "speak"; scenario: Scenario }
   | { kind: "build" }
   | { kind: "writing"; prompt: string };
@@ -356,6 +356,9 @@ function Today({ progress, persist, config, navigate }: {
     const now = new Date();
     // Due studied items, deduped by lexKey — the pool can hold two items for one word (e.g. an authored
     // vocab entry + a generated one both defining "пиво"), which would otherwise surface it twice.
+    // Every Nth session introduces nothing new — warm-up, production from words already met, and a
+    // revisit of something already read. The rest of this plan is skipped on those days.
+    const reviewDay = isReviewDay(progress.sessions ?? 0);
     const seenDue = new Set<string>();
     const due = reviewPool(pack).filter((it) => {
       if (!isDue(progress, it, now)) return false;
@@ -363,7 +366,7 @@ function Today({ progress, persist, config, navigate }: {
       if (seenDue.has(k)) return false;
       seenDue.add(k);
       return true;
-    }).slice(0, 6);
+    }).slice(0, reviewDay ? REVIEW_DAY_ITEMS : WARMUP_ITEMS);
     const conjVerb = pickConjVerb(pack, progress);
 
     // A finished chapter owes a CHECKPOINT before the flow moves on: a recap of that chapter's own words
@@ -383,34 +386,48 @@ function Today({ progress, persist, config, navigate }: {
       out.push({ kind: "warmup", items: due, conjVerb });
     }
 
+    if (reviewDay) {
+      // Production from what's already known, then re-read the most recent finished story. No new words,
+      // no new grammar, nothing that advances the chapter.
+      const buildChapterNow = chapterSpine.currentChapter(pack, progress);
+      const orderNow = buildChapterNow ? (pack.chapters ?? []).find((c) => c.id === buildChapterNow.id)?.order ?? 1 : (pack.chapters?.length ?? 1);
+      if (sentenceScope.inScope(pack, { chapterOrder: orderNow, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).length) {
+        out.push({ kind: "build" });
+      }
+      const readAlready = (pack.stories ?? []).filter((st) => (progress.storyReads?.[st.id]?.length ?? 0) > 0);
+      const revisit = readAlready[(progress.sessions ?? 0) % Math.max(1, readAlready.length)];
+      if (revisit) out.push({ kind: "story", story: revisit, dayIndex: progress.storyReads?.[revisit.id]?.length ?? 0, revisit: true });
+      // Nothing to review yet (nothing due, nothing read, nothing buildable) ⇒ fall through to a normal
+      // session rather than handing back an empty one.
+      if (out.length) return out;
+      out.length = 0;
+    }
+
     // One coherent unit per session: a story + the scenario that practises it. The unit stays for a few
     // days (UNIT_MIN_DAYS); dayIndex tracks which day we're on so the day-to-day content rotates.
     const story = currentStory(pack, progress);
     const scen = story ? partnerScenario(pack, story) : undefined;
     const dayIndex = story ? (progress.storyReads?.[story.id]?.length ?? 0) : 0;
     const isNewWord = (v: { lexKey: string }) => { const e = progress.familiarity[v.lexKey]; return !e || e.status === "new"; };
+    let taughtToday: { lexKey: string; gloss?: string }[] = [];
+    let requiredLeftToday = 0;
 
     // New words: teach the paired scenario's required vocab FIRST (so the speak step never needs a word
     // we skipped), then fill up to the cap with the story's own new words. The cap never drops a
     // scenario-required word — that promise matters more than the pacing target.
     if (story) {
       const required = (scen ? scenarioVocab(pack, scen) : []).filter(isNewWord);
-      const extra = story.registersVocab.filter(isNewWord);
-      // A gentle daily trickle of the core single-word vocabulary (Library → Words also lets you pull more
-      // on demand). Rotated by day so different words surface, and interleaved with the story's own words
-      // so both get represented within the same pacing cap.
-      const coreAll = pack.vocab
+      const storyWords = story.registersVocab.filter(isNewWord);
+      // A gentle daily trickle of the core single-word vocabulary (Library → Words also lets you pull
+      // more on demand), rotated by day so different words surface.
+      const coreWords = pack.vocab
         .filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()))
         .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, gloss: v.gloss }))
         .filter(isNewWord);
-      const rot = coreAll.length ? dayIndex % coreAll.length : 0;
-      const core = [...coreAll.slice(rot), ...coreAll.slice(0, rot)];
-      const fill: { lexKey: string; gloss?: string }[] = [];
-      for (let i = 0; i < Math.max(extra.length, core.length); i++) { if (extra[i]) fill.push(extra[i]!); if (core[i]) fill.push(core[i]!); }
-      const merged = new Map<string, { lexKey: string; gloss?: string }>();
-      for (const v of [...required, ...fill]) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
-      const words = [...merged.values()].slice(0, Math.max(NEW_WORDS_PER_SESSION, required.length));
-      if (words.length) out.push({ kind: "newwords", words });
+      const plan = planNewWords({ required, storyWords, coreWords, dayIndex });
+      taughtToday = plan.teach;
+      requiredLeftToday = plan.requiredLeft;
+      if (plan.teach.length) out.push({ kind: "newwords", words: plan.teach });
     }
 
     // Grammar stays tied to the unit: it comes from the paired scenario's requiredStructures. Introduce
@@ -444,11 +461,14 @@ function Today({ progress, persist, config, navigate }: {
     if (canBuild) out.push({ kind: "build" });
 
     // Speak: the story's paired scenario (so it uses what was just read); fall back to first-incomplete.
+    // It waits until the scenario's required vocabulary has actually been taught — with the new-words cap
+    // honoured, that's usually the second day of a chapter. Asking someone to produce a word they met
+    // five minutes ago in the same session was a big part of why a day felt like a lot.
     const speakScen = scen ?? pack.scenarios.find((s) => {
       const p = progress.scenarios[s.id];
       return !p || s.successCriteria.some((c) => !p.metCriteria.includes(c.id));
     }) ?? pack.scenarios[0];
-    if (speakScen) out.push({ kind: "speak", scenario: speakScen });
+    if (speakScen && requiredLeftToday === 0) out.push({ kind: "speak", scenario: speakScen });
 
     // Writing capstone (gated): the unit's culminating free-production step, once vocab is known + grammar
     // practised. Prompt = the paired scenario's goal, scoped to what the learner just consolidated.
@@ -460,6 +480,7 @@ function Today({ progress, persist, config, navigate }: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack]);
 
+  const reviewDay = isReviewDay(progress.sessions ?? 0);
   const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
   // Once today's session is finished we record the local day (below). On a later reload/reopen that flag
@@ -485,7 +506,7 @@ function Today({ progress, persist, config, navigate }: {
   // on the "done for today" screen. Guarded by the date check so this persists at most once per day.
   useEffect(() => {
     if (steps.length > 0 && idx >= steps.length && progress.lastSessionDay !== localDay()) {
-      persist({ ...progress, lastSessionDay: localDay() });
+      persist({ ...progress, lastSessionDay: localDay(), sessions: (progress.sessions ?? 0) + 1 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [idx, steps.length]);
@@ -575,7 +596,10 @@ function Today({ progress, persist, config, navigate }: {
     <section className="view">
       <TodayHeader progress={progress} />
       <div className="pbar"><div style={{ width: `${(idx / steps.length) * 100}%` }} /></div>
-      <div className="muted small" style={{ marginBottom: 14 }}>Step {idx + 1} of {steps.length} · ~{est} min</div>
+      <div className="muted small" style={{ marginBottom: 14 }}>
+        Step {idx + 1} of {steps.length} · ~{est} min
+        {reviewDay && <> · <b>review day</b> — nothing new today, just what you&apos;ve already met</>}
+      </div>
 
       <div key={idx}>
         {step.kind === "warmup" && (
@@ -644,14 +668,16 @@ function Today({ progress, persist, config, navigate }: {
 
         {step.kind === "story" && (
           <div>
-            <Tag>Read the story</Tag>
+            <Tag>{step.revisit ? "Read it again" : "Read the story"}</Tag>
             <TodayStoryStep
               story={step.story}
               dayIndex={step.dayIndex}
               progress={progress}
               persist={persist}
               config={config}
-              onDone={() => done(markStorySeen(seedStoryVocab(progress, step.story), step.story.id))}
+              /* A revisit is consolidation: it must not mark a day against the chapter's unit, or a
+                 review day would quietly push the chapter along. */
+              onDone={() => done(step.revisit ? progress : markStorySeen(seedStoryVocab(progress, step.story), step.story.id))}
             />
           </div>
         )}
