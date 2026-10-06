@@ -64,6 +64,9 @@ export function planNewWords(opts: {
   required: NewWordCandidate[];
   storyWords: NewWordCandidate[];
   coreWords: NewWordCandidate[];
+  /** Words that would unlock a sentence the learner could then build — taught ahead of the blind
+   *  trickle, so production keeps appearing in the daily flow instead of waiting on luck. */
+  priority?: NewWordCandidate[];
   dayIndex: number;
   cap?: number;
 }): { teach: NewWordCandidate[]; requiredLeft: number } {
@@ -77,7 +80,7 @@ export function planNewWords(opts: {
     if (core[i]) fill.push(core[i]!);
   }
   const merged = new Map<string, NewWordCandidate>();
-  for (const v of [...opts.required, ...fill]) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
+  for (const v of [...opts.required, ...(opts.priority ?? []), ...fill]) if (!merged.has(v.lexKey)) merged.set(v.lexKey, v);
   const teach = [...merged.values()].slice(0, cap);
   const taught = new Set(teach.map((w) => w.lexKey));
   return { teach, requiredLeft: opts.required.filter((v) => !taught.has(v.lexKey)).length };

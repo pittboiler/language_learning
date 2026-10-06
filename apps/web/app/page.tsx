@@ -391,7 +391,7 @@ function Today({ progress, persist, config, navigate }: {
       // no new grammar, nothing that advances the chapter.
       const buildChapterNow = chapterSpine.currentChapter(pack, progress);
       const orderNow = buildChapterNow ? (pack.chapters ?? []).find((c) => c.id === buildChapterNow.id)?.order ?? 1 : (pack.chapters?.length ?? 1);
-      if (sentenceScope.inScope(pack, { chapterOrder: orderNow, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).length) {
+      if (sentenceScope.withFallback(pack, { chapterOrder: orderNow, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).items.length) {
         out.push({ kind: "build" });
       }
       const readAlready = (pack.stories ?? []).filter((st) => (progress.storyReads?.[st.id]?.length ?? 0) > 0);
@@ -424,7 +424,15 @@ function Today({ progress, persist, config, navigate }: {
         .filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()))
         .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, gloss: v.gloss }))
         .filter(isNewWord);
-      const plan = planNewWords({ required, storyWords, coreWords, dayIndex });
+      // Aim the trickle at words that unlock something buildable, so the Build step keeps its place in
+      // the day rather than depending on the rotation happening to surface the right word.
+      const unlocking = sentenceScope.unlockingWords(pack, {
+        chapterOrder: chapterSpine.currentChapter(pack, progress) ? (pack.chapters ?? []).find((c) => c.id === chapterSpine.currentChapter(pack, progress)!.id)?.order ?? 1 : 1,
+        builtCount: (progress.builtConjugations ?? []).length,
+        hasMet: (k) => !!progress.familiarity[k],
+      });
+      const priority = coreWords.filter((v) => unlocking.includes(v.lexKey));
+      const plan = planNewWords({ required, storyWords, coreWords, priority, dayIndex });
       taughtToday = plan.teach;
       requiredLeftToday = plan.requiredLeft;
       if (plan.teach.length) out.push({ kind: "newwords", words: plan.teach });
@@ -453,11 +461,11 @@ function Today({ progress, persist, config, navigate }: {
     // more words first". Sentences stay within what the course has introduced, verb included.
     const here = chapterSpine.currentChapter(pack, progress);
     const buildChapter = here ? (pack.chapters ?? []).find((c) => c.id === here.id)?.order ?? 1 : (pack.chapters?.length ?? 1);
-    const canBuild = sentenceScope.inScope(pack, {
+    const canBuild = sentenceScope.withFallback(pack, {
       chapterOrder: buildChapter,
       builtCount: (progress.builtConjugations ?? []).length,
       hasMet: (k) => !!progress.familiarity[k],
-    }).length > 0;
+    }).items.length > 0;
     if (canBuild) out.push({ kind: "build" });
 
     // Speak: the story's paired scenario (so it uses what was just read); fall back to first-incomplete.
@@ -2619,8 +2627,8 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
   const builtCount = (progress.builtConjugations ?? []).length;
   // Eligible sentences: introduced by the course already (verb included), built from words the learner has
   // met, and no longer than their rung allows.
-  const scoped = useMemo(
-    () => sentenceScope.inScope(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] }),
+  const { items: scoped, usedFallback, source } = useMemo(
+    () => sentenceScope.withFallback(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] }),
     [pack, chapterOrder, builtCount, progress.familiarity],
   );
   const top = sentenceScope.maxTier({ chapterOrder, builtCount });
@@ -2655,7 +2663,7 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
   }, [scoped.length, top, nonce]);
   const [idx, setIdx] = useState(0);
 
-  if (!scoped.length) return <p className="lead">Learn a few more words first — then come back to build sentences with the words you know.</p>;
+  if (!scoped.length) return <p className="lead">Nothing to build yet — learn a few words or phrases first, and this fills up.</p>;
   if (idx >= cards.length || !cards[idx]) return (
     <div className="fb">
       <p className="lead" style={{ color: "var(--ok)" }}>🎉 Nice — you built {cards.length} sentence{cards.length === 1 ? "" : "s"}.</p>
@@ -2685,6 +2693,8 @@ function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; pe
         <Tag>Build a sentence · {idx + 1} of {cards.length}</Tag>
         {verb && <span className="muted small">{personEn ? `${personEn} · ` : ""}{verb.gloss}</span>}
       </div>
+      {source === "phrases" && <p className="muted small" style={{ margin: "0 0 6px" }}>Put a phrase you&apos;ve learned back together, piece by piece.</p>}
+      {usedFallback && <p className="muted small" style={{ margin: "0 0 6px" }}>A word or two here is new — tap 🔊 on the tiles, they&apos;ll come round in your reviews.</p>}
       <TileBuilder key={`${item.id}-${variant.person ?? ""}`} variant={variant} verb={verb} onFinish={finish} />
     </div>
   );

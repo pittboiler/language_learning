@@ -71,6 +71,13 @@ assert.ok(day3.teach.some((x) => x.lexKey.startsWith("s")) && day3.teach.some((x
 const rotA = planNewWords({ required: [], storyWords: [], coreWords: w(9, "c"), dayIndex: 0 }).teach.map((x) => x.lexKey);
 const rotB = planNewWords({ required: [], storyWords: [], coreWords: w(9, "c"), dayIndex: 3 }).teach.map((x) => x.lexKey);
 assert.notDeepEqual(rotA, rotB, "the core trickle rotates with the day");
+// Priority words (ones that unlock a buildable sentence) are taught ahead of the blind trickle, but
+// still behind the chapter's own required vocabulary and still under the cap.
+const aimed = planNewWords({ required: w(1), storyWords: w(4, "s"), coreWords: w(9, "c"), priority: [{ lexKey: "unlock" }], dayIndex: 0 });
+assert.deepEqual(aimed.teach.map((x) => x.lexKey), ["r0", "unlock", "s0"], "required first, then the word that unlocks production");
+const aimedFull = planNewWords({ required: w(3), storyWords: w(4, "s"), coreWords: w(9, "c"), priority: [{ lexKey: "unlock" }], dayIndex: 0 });
+assert.ok(!aimedFull.teach.some((x) => x.lexKey === "unlock"), "a full day of required words still isn't overflowed by the priority word");
+
 // Nothing new left anywhere ⇒ an empty teach list (the step is skipped), not a crash.
 assert.deepEqual(planNewWords({ required: [], storyWords: [], coreWords: [], dayIndex: 5 }), { teach: [], requiredLeft: 0 });
 
