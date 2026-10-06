@@ -35,6 +35,11 @@ const SEED: Record<string, string[]> = {
   "conjunctions": ["и", "или", "ама", "но", "затоа", "дека", "ако", "бидејќи", "кога", "додека"],
   "common adverbs": ["ќе", "сега", "веќе", "тука", "таму", "многу", "малку", "само", "исто", "повеќе", "можеби", "секогаш", "никогаш", "добро", "лошо", "брзо", "полека"],
   "numbers": ["нула", "еден", "два", "три", "четири", "пет", "шест", "седум", "осум", "девет", "десет", "сто", "илјада"],
+  // Taught in the 1st-person present, which is how the pack already teaches a verb — except треба, which
+  // is impersonal (Ми треба вода / Треба да одам) and so is taught in its invariant form.
+  // The builder drills a verb's paradigm, but it only offers a verb the course has actually introduced:
+  // давам/јадам/треба were missing, which left 12 Build-a-sentence items unreachable (lintSentences).
+  "common verbs": ["доаѓам", "имам", "одам", "пијам", "работам", "спијам", "видам", "зборувам", "знам", "давам", "јадам", "треба"],
 };
 
 const pack = macedonian;

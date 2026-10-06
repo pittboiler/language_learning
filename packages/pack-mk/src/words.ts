@@ -19,22 +19,6 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
-    "id": "word-glava",
-    "kind": "vocab",
-    "prompt": "head",
-    "answer": "глава",
-    "translit": "glava",
-    "gloss": "head",
-    "i1Level": 1,
-    "tags": [
-      "body & health"
-    ],
-    "meta": {
-      "gender": "feminine"
-    },
-    "confidence": "validated"
-  },
-  {
     "id": "word-doktor",
     "kind": "vocab",
     "prompt": "doctor",
@@ -47,6 +31,22 @@ export const coreWords: ReviewItem[] = [
     ],
     "meta": {
       "gender": "masculine"
+    },
+    "confidence": "validated"
+  },
+  {
+    "id": "word-glava",
+    "kind": "vocab",
+    "prompt": "head",
+    "answer": "глава",
+    "translit": "glava",
+    "gloss": "head",
+    "i1Level": 1,
+    "tags": [
+      "body & health"
+    ],
+    "meta": {
+      "gender": "feminine"
     },
     "confidence": "validated"
   },
@@ -427,6 +427,20 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
+    "id": "word-davam",
+    "kind": "vocab",
+    "prompt": "give",
+    "answer": "давам",
+    "translit": "davam",
+    "gloss": "give",
+    "note": "verb, 1st person singular present of 'to give'",
+    "i1Level": 1,
+    "tags": [
+      "common verbs"
+    ],
+    "confidence": "validated"
+  },
+  {
     "id": "word-doagjam",
     "kind": "vocab",
     "prompt": "come",
@@ -506,12 +520,40 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
+    "id": "word-treba",
+    "kind": "vocab",
+    "prompt": "need to, should",
+    "answer": "треба",
+    "translit": "treba",
+    "gloss": "need to, should",
+    "note": "impersonal verb expressing necessity/obligation",
+    "i1Level": 1,
+    "tags": [
+      "common verbs"
+    ],
+    "confidence": "validated"
+  },
+  {
     "id": "word-vidam",
     "kind": "vocab",
     "prompt": "see",
     "answer": "видам",
     "translit": "vidam",
     "gloss": "see",
+    "i1Level": 1,
+    "tags": [
+      "common verbs"
+    ],
+    "confidence": "validated"
+  },
+  {
+    "id": "word-yadam",
+    "kind": "vocab",
+    "prompt": "eat",
+    "answer": "јадам",
+    "translit": "yadam",
+    "gloss": "eat",
+    "note": "verb, 1st person singular present of 'to eat'",
     "i1Level": 1,
     "tags": [
       "common verbs"
@@ -767,22 +809,6 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
-    "id": "word-jajce",
-    "kind": "vocab",
-    "prompt": "egg",
-    "answer": "јајце",
-    "translit": "yayce",
-    "gloss": "egg",
-    "i1Level": 1,
-    "tags": [
-      "food & drink"
-    ],
-    "meta": {
-      "gender": "neuter"
-    },
-    "confidence": "validated"
-  },
-  {
     "id": "word-meso",
     "kind": "vocab",
     "prompt": "meat",
@@ -859,6 +885,22 @@ export const coreWords: ReviewItem[] = [
     ],
     "meta": {
       "gender": "feminine"
+    },
+    "confidence": "validated"
+  },
+  {
+    "id": "word-jajce",
+    "kind": "vocab",
+    "prompt": "egg",
+    "answer": "јајце",
+    "translit": "yayce",
+    "gloss": "egg",
+    "i1Level": 1,
+    "tags": [
+      "food & drink"
+    ],
+    "meta": {
+      "gender": "neuter"
     },
     "confidence": "validated"
   },
@@ -1755,20 +1797,6 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
-    "id": "word-jas",
-    "kind": "vocab",
-    "prompt": "I",
-    "answer": "јас",
-    "translit": "yas",
-    "gloss": "I",
-    "note": "1st person singular pronoun",
-    "i1Level": 1,
-    "tags": [
-      "pronouns"
-    ],
-    "confidence": "validated"
-  },
-  {
     "id": "word-nie",
     "kind": "vocab",
     "prompt": "we",
@@ -1867,6 +1895,20 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
+    "id": "word-jas",
+    "kind": "vocab",
+    "prompt": "I",
+    "answer": "јас",
+    "translit": "yas",
+    "gloss": "I",
+    "note": "1st person singular pronoun",
+    "i1Level": 1,
+    "tags": [
+      "pronouns"
+    ],
+    "confidence": "validated"
+  },
+  {
     "id": "word-chij",
     "kind": "vocab",
     "prompt": "whose",
@@ -1909,20 +1951,6 @@ export const coreWords: ReviewItem[] = [
     "confidence": "validated"
   },
   {
-    "id": "word-koj",
-    "kind": "vocab",
-    "prompt": "who, which",
-    "answer": "кој",
-    "translit": "koy",
-    "gloss": "who, which",
-    "note": "interrogative/relative pronoun",
-    "i1Level": 1,
-    "tags": [
-      "question words"
-    ],
-    "confidence": "validated"
-  },
-  {
     "id": "word-kolku",
     "kind": "vocab",
     "prompt": "how much/many",
@@ -1930,6 +1958,20 @@ export const coreWords: ReviewItem[] = [
     "translit": "kolku",
     "gloss": "how much/many",
     "note": "question word for quantity",
+    "i1Level": 1,
+    "tags": [
+      "question words"
+    ],
+    "confidence": "validated"
+  },
+  {
+    "id": "word-koj",
+    "kind": "vocab",
+    "prompt": "who, which",
+    "answer": "кој",
+    "translit": "koy",
+    "gloss": "who, which",
+    "note": "interrogative/relative pronoun",
     "i1Level": 1,
     "tags": [
       "question words"
