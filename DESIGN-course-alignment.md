@@ -1,6 +1,11 @@
 # Plan: every screen follows the course, and the story step teaches
 
-Status: **signed off with changes** (2026-10-08). See "Decisions (Jake, 2026-10-08)" at the end; where it differs from the phases below, the decisions win.
+Status: **built** (2026-10-08). PR #30 (phase 1), #31 (phase 2), #32 (phase 3, the story step), #33 (phase 4). See "Decisions (Jake, 2026-10-08)" at the end; where it differs from the phases below, the decisions win.
+
+Built differently from the phases below:
+- Phase 3: no story gate (D1). Highlighting is word by word from `course.lineFocus`; notes show with a line's English (D2).
+- Phase 2: the Library's chapter headings were moved to PR 4.
+- Phase 1: grammar tables show every example with its English; untaught examples are not hidden.
 
 Inputs:
 - the curriculum audit (2026-10-08): a session-by-session walk of all 87 lessons (chapters 1–12), plus a check of every other screen;

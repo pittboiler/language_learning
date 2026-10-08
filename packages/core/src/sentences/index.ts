@@ -72,6 +72,9 @@ export interface ScopeOptions {
   hasMet: (lexKey: string) => boolean;
   /** Distinct sentence cards already built, which gates the tier ladder alongside course position. */
   builtCount: number;
+  /** A course blueprint decides instead of the chapter spine: has the course taught this sentence's verb
+   *  and grammar by now? (Words are still checked against `hasMet`.) */
+  allow?: (item: SentenceItem) => boolean;
 }
 
 /** Hard cap on tier from both directions: where the learner is in the course, and how much building
@@ -92,10 +95,17 @@ export function inScope(pack: LanguagePack, opts: ScopeOptions): SentenceItem[] 
   const cap = maxTier(opts);
   return (pack.sentences ?? []).filter((it) => {
     if ((it.tier ?? 1) > cap) return false;
-    const need = requiredChapter(pack, it, intro);
-    if (need === undefined || need > opts.chapterOrder) return false;
+    if (!introduced(pack, it, opts, intro)) return false;
     return it.supportWords.every((w) => opts.hasMet(normalize(w)));
   });
+}
+
+/** Has the course reached this sentence: the blueprint's say (`allow`) when there is one, else the chapter
+ *  that introduces its verb and words. */
+function introduced(pack: LanguagePack, it: SentenceItem, opts: Pick<ScopeOptions, "chapterOrder" | "allow">, intro: Map<string, number>): boolean {
+  if (opts.allow) return opts.allow(it);
+  const need = requiredChapter(pack, it, intro);
+  return need !== undefined && need <= opts.chapterOrder;
 }
 
 /** Words that would unlock a sentence if taught next — the daily flow uses this to aim its trickle of
@@ -109,8 +119,7 @@ export function unlockingWords(pack: LanguagePack, opts: ScopeOptions, limit = 8
   const score = new Map<string, number>();
   for (const it of pack.sentences ?? []) {
     if ((it.tier ?? 1) > cap) continue;
-    const need = requiredChapter(pack, it, intro);
-    if (need === undefined || need > opts.chapterOrder) continue;
+    if (!introduced(pack, it, opts, intro)) continue;
     const missing = it.supportWords.map((w) => normalize(w)).filter((w) => !opts.hasMet(w));
     if (!missing.length || missing.length > 2) continue; // already buildable, or too far off to aim at
     for (const w of missing) score.set(w, (score.get(w) ?? 0) + (missing.length === 1 ? 3 : 1));
@@ -165,8 +174,7 @@ export function withFallback(
   const intro = introducedBy(pack);
   const items = (pack.sentences ?? []).filter((it) => {
     if ((it.tier ?? 1) !== 1) return false; // the fallback never reaches past the shortest rung
-    const need = requiredChapter(pack, it, intro);
-    return need !== undefined && need <= opts.chapterOrder;
+    return introduced(pack, it, opts, intro);
   });
   return { items, usedFallback: items.length > 0, source: items.length ? "fallback" : "none" };
 }

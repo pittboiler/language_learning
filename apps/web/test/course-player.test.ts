@@ -264,4 +264,33 @@ for (const c of course.chapters) {
   assert.ok(ctx.taught.length === 1 && ctx.later.some((l) => l.chapter === 8));
 }
 
+// 18. Practice tools follow the course: Build-a-sentence only reaches sentences whose verb and grammar the
+//     course has taught; the verb drill only taught verbs; words are filed under the chapter that teaches
+//     them (a bundle's words under the bundle's chapter); review days bring back your own picks.
+{
+  const at = (chapterOrder: number, session = 1) => prog({ course: { chapterId: course.chapters.find((c) => c.order === chapterOrder)!.chapterId, session, v: course.version } });
+  const allowEarly = cp.sentenceAllowed(macedonian, course, at(2));
+  const allowLate = cp.sentenceAllowed(macedonian, course, at(12));
+  const sentences = macedonian.sentences ?? [];
+  assert.ok(sentences.filter(allowEarly).every((x) => x.verbLemma === "е"), "before any verb endings are taught, only сум sentences (сум is chapter 1)");
+  assert.ok(sentences.filter(allowLate).length > sentences.filter(cp.sentenceAllowed(macedonian, course, at(5))).length, "more sentences come into reach as the course goes on");
+  const miTreba = sentences.find((x) => x.variants.some((v) => /^Ми треба/.test(v.mk)));
+  if (miTreba && course.lineTags[`sentence:${miTreba.id}`]) assert.ok(!cp.sentenceAllowed(macedonian, course, at(6))(miTreba), "ми-grammar (chapter 8) isn't offered in chapter 6");
+  const verbs3 = cp.taughtVerbs(macedonian, course, at(3));
+  const verbs5 = cp.taughtVerbs(macedonian, course, at(5, 7));
+  assert.ok(!verbs3.has("доаѓа") && !verbs5.has("спие"), "never-taught verbs never come up");
+  assert.ok(verbs5.size > verbs3.size);
+  const twoAt = cp.chapterOfWord(course, "два");
+  assert.equal(twoAt?.order, 3, "два is taught (in a bundle) in chapter 3");
+  assert.equal(cp.chapterOfWord(course, "јас")?.order, 1, "јас is a chapter 1 word");
+  const bundle = course.chapters.flatMap((c) => c.words).find((w) => w.lexKey.split(/[\s,/]+/).includes("два"))!;
+  assert.ok(cp.learnedInBundle(course, prog({ familiarity: { [bundle.lexKey]: familiarity.capture({ lexKey: bundle.lexKey, kind: "chunk", display: bundle.display }) } }), "два"));
+  const due = (e: ReturnType<typeof familiarity.capture>) => ({ ...e, srs: { ...e.srs!, due: new Date("2026-10-01T00:00:00Z") } });
+  const picked = due(familiarity.markPicked(familiarity.capture({ lexKey: "сега", kind: "word", display: "сега", gloss: "now" })));
+  const starred = due(familiarity.markStarred(familiarity.capture({ lexKey: "многу", kind: "word", display: "многу", gloss: "very" })));
+  const tapped = due(familiarity.capture({ lexKey: "навистина", kind: "word", display: "Навистина", gloss: "really" }));
+  const own = cp.ownWordsDue(macedonian, prog({ familiarity: { сега: picked, многу: starred, навистина: tapped } }), new Date("2026-10-10T00:00:00Z"), 4);
+  assert.deepEqual(own.map((x) => familiarity.deriveKeyForItem(x).lexKey).sort(), ["многу", "сега"], "★ and ＋Learn picks, not a word only tapped");
+}
+
 console.log("course-player.test.ts: all assertions passed ✓");

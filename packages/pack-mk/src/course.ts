@@ -11064,6 +11064,356 @@ export const course: Course = {
     "vocab:gen-s2-problems-v8": [
       "pt-ne",
       "pt-verbs-a"
+    ],
+    "sentence:sent-види-t3": [
+      "pt-the",
+      "pt-future",
+      "pt-go-ja-gi",
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-види-t4": [
+      "pt-future",
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-possessives",
+      "pt-prepositions",
+      "pt-the",
+      "pt-verbs-a"
+    ],
+    "sentence:sent-дава": [
+      "pt-verbs-a"
+    ],
+    "sentence:sent-дава-t2": [
+      "pt-mi-ti-mu",
+      "pt-verbs-a",
+      "pt-prepositions"
+    ],
+    "sentence:sent-дава-t3": [
+      "pt-mi-ti-mu",
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "sentence:sent-дава-t4": [
+      "pt-mi-ti-mu",
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the",
+      "pt-sum"
+    ],
+    "sentence:sent-доаѓа": [
+      "pt-verbs-a"
+    ],
+    "sentence:sent-доаѓа-t2": [
+      "pt-verbs-a",
+      "pt-prepositions"
+    ],
+    "sentence:sent-доаѓа-t3": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-доаѓа-t4": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the",
+      "pt-sum"
+    ],
+    "sentence:sent-е": [
+      "pt-sum"
+    ],
+    "sentence:sent-е-t2": [
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "sentence:sent-е-t3": [
+      "pt-sum",
+      "pt-prepositions",
+      "pt-adjectives"
+    ],
+    "sentence:sent-е-t4": [
+      "pt-sum",
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-живее": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-живее-t2": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-живее-t3": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-adjectives"
+    ],
+    "sentence:sent-живее-t4": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-зборува": [
+      "pt-verbs-a"
+    ],
+    "sentence:sent-зборува-t2": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-зборува-t3": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-зборува-t4": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the",
+      "pt-sum"
+    ],
+    "sentence:sent-зема": [
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "sentence:sent-зема-t2": [
+      "pt-verbs-e-i",
+      "pt-adjectives"
+    ],
+    "sentence:sent-зема-t3": [
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "sentence:sent-зема-t4": [
+      "pt-verbs-e-i",
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "sentence:sent-знае": [
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "sentence:sent-знае-t2": [
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "sentence:sent-знае-t3": [
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the",
+      "pt-prepositions",
+      "pt-adjectives"
+    ],
+    "sentence:sent-знае-t4": [
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "sentence:sent-има": [
+      "pt-verbs-a"
+    ],
+    "sentence:sent-има-t2": [
+      "pt-verbs-a",
+      "pt-adjectives"
+    ],
+    "sentence:sent-има-t3": [
+      "pt-verbs-a",
+      "pt-adjectives",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-има-t4": [
+      "pt-verbs-a",
+      "pt-adjectives"
+    ],
+    "sentence:sent-јаде": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-јаде-t2": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-јаде-t3": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-јаде-t4": [
+      "pt-verbs-e-i",
+      "pt-sum"
+    ],
+    "sentence:sent-купува": [
+      "pt-verbs-a"
+    ],
+    "sentence:sent-купува-t2": [
+      "pt-verbs-a",
+      "pt-adjectives"
+    ],
+    "sentence:sent-купува-t3": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-купува-t4": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "sentence:sent-може": [
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-може-t2": [
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-може-t3": [
+      "pt-da",
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "sentence:sent-може-t4": [
+      "pt-da",
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-the",
+      "pt-verbs-a"
+    ],
+    "sentence:sent-оди": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-оди-t2": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "sentence:sent-оди-t4": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-пие": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-пие-t2": [
+      "pt-verbs-e-i",
+      "pt-adjectives"
+    ],
+    "sentence:sent-пие-t4": [
+      "pt-the",
+      "pt-verbs-e-i",
+      "pt-adjectives",
+      "pt-prepositions",
+      "pt-possessives"
+    ],
+    "sentence:sent-плаќа": [
+      "pt-verbs-a"
+    ],
+    "sentence:sent-плаќа-t2": [
+      "pt-verbs-a",
+      "pt-prepositions"
+    ],
+    "sentence:sent-плаќа-t3": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "sentence:sent-плаќа-t4": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the",
+      "pt-verbs-a"
+    ],
+    "sentence:sent-прашува": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the"
+    ],
+    "sentence:sent-прашува-t3": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "sentence:sent-прашува-t4": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the",
+      "pt-sum"
+    ],
+    "sentence:sent-работи": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-работи-t2": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-работи-t3": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-adjectives"
+    ],
+    "sentence:sent-работи-t4": [
+      "pt-verbs-e-i",
+      "pt-mi-ti-mu"
+    ],
+    "sentence:sent-сака": [
+      "pt-verbs-a"
+    ],
+    "sentence:sent-сака-t2": [
+      "pt-verbs-a",
+      "pt-adjectives"
+    ],
+    "sentence:sent-сака-t3": [
+      "pt-verbs-a",
+      "pt-adjectives"
+    ],
+    "sentence:sent-сака-t4": [
+      "pt-verbs-a",
+      "pt-da",
+      "pt-verbs-e-i",
+      "pt-adjectives",
+      "pt-the",
+      "pt-sum"
+    ],
+    "sentence:sent-спие": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-спие-t2": [
+      "pt-verbs-e-i"
+    ],
+    "sentence:sent-спие-t3": [
+      "pt-verbs-e-i",
+      "pt-numbers",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-спие-t4": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "sentence:sent-треба": [
+      "pt-mi-ti-mu"
+    ],
+    "sentence:sent-треба-t2": [
+      "pt-mi-ti-mu",
+      "pt-adjectives"
+    ],
+    "sentence:sent-треба-t3": [
+      "pt-mi-ti-mu",
+      "pt-the"
+    ],
+    "sentence:sent-треба-t4": [
+      "pt-mi-ti-mu",
+      "pt-sum"
     ]
   },
   "chunkNotes": [

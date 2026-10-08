@@ -194,7 +194,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       const knownNow = knownInSet(pack, knownForms(pack, points, taughtUpTo, pointsSoFar), pointsSoFar.some((id) => spineOf.get(id)?.grammarIds.includes("definite-articles")), names);
       const build = slot.role === "checkpoint" ? [] : buildCandidates(pack, {
         order, taughtUpTo, pointsSoFar, current: slot.point?.id, conceptPoints, words: sessionWords[i]!,
-        chapterWords: taught, earlierWords: [...taughtBefore.values()], known: knownNow,
+        chapterWords: taught, earlierWords: [...taughtBefore.values()], known: knownNow, lineTags,
       });
 
       sessions.push({
@@ -384,6 +384,7 @@ function buildCandidates(pack: LanguagePack, o: {
   conceptPoints: (cid: string) => string[]; words: CourseWord[]; chapterWords: CourseWord[]; earlierWords: CourseWord[];
   /** Is this word form taught by now? Every word of every person's version must be. */
   known: (token: string) => boolean;
+  lineTags: Record<string, string[]>;
 }): string[] {
   const vocabId = (w: CourseWord) => pack.vocab.find((v) => deriveKeyForItem(v).lexKey === w.lexKey)?.id;
   const phrase = (w: CourseWord) => { const n = w.display.split(/\s+/).length; return n >= 2 && n <= 5 && !w.display.includes("…") ? vocabId(w) : undefined; };
@@ -396,7 +397,9 @@ function buildCandidates(pack: LanguagePack, o: {
     if ((it.tier ?? 1) > cap) return false;
     const need = requiredChapter(pack, it);
     if (need === undefined || need > o.order) return false;
-    if (!it.conceptIds.every((c) => o.conceptPoints(c).some((p) => o.pointsSoFar.includes(p)))) return false;
+    // Its grammar: the sentence's own tags when it has them (exact), else a point for each concept.
+    const tags = o.lineTags[`sentence:${it.id}`];
+    if (tags ? !tags.every((p) => o.pointsSoFar.includes(p)) : !it.conceptIds.every((c) => o.conceptPoints(c).some((p) => o.pointsSoFar.includes(p)))) return false;
     if (!it.supportWords.every((w) => o.taughtUpTo.has(normalize(w)))) return false;
     return it.variants.every((v) => wordTokens(v.mk).every(o.known));
   });

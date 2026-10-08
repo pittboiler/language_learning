@@ -239,6 +239,7 @@ export default function Home() {
           <button key={s} className={section === s ? "active" : ""} onClick={() => setSection(s)}>{label}</button>
         ))}
       </nav>
+      <CourseOrderContext.Provider value={cp.courseV2On(pack, progress) && pack.course ? cp.currentSlot(pack.course, progress).order : undefined}>
       <main>
         {/* Today stays MOUNTED (just hidden) across tab switches so your place in the session — the
             step index and the once-built plan — survives. Other sections are cheap to remount. */}
@@ -256,6 +257,7 @@ export default function Home() {
         )}
         {section === "partnered" && <PartnerPanel progress={progress} persist={persist} navigateToStory={goToStory} />}
       </main>
+      </CourseOrderContext.Provider>
       {acctOpen && <AccountPanel progress={progress} persist={persist} config={config} onClose={() => setAcctOpen(false)} />}
       </SlowContext.Provider>
     </PackContext.Provider>
@@ -314,7 +316,7 @@ function writingUnlocked(pack: LanguagePack, progress: Progress, story: MiniStor
 // dayIndex = how many distinct days this unit's story has already been read (0 on day 1, 1 on day 2…).
 // It rotates the day-to-day content (story Q&A, grammar drills) so a repeated unit isn't a copy.
 type TodayStep =
-  | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet }
+  | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet; own?: number }
   | { kind: "checkpoint"; chapter: Chapter; items: ReviewItem[]; scenario?: Scenario }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
@@ -346,8 +348,9 @@ const PRONOUNS: { key: keyof ConjugationSet["forms"]; en: string; mk: string }[]
 // Verbs never drilled as a six-person table: треба is taught as impersonal (треба да…, ми треба), and чини
 // only exists in the 3rd person — "требам" / "чинам" would contradict the lessons.
 const NOT_DRILLABLE = new Set(["треба", "чини"]);
-const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Set<string>): ConjugationSet | undefined => {
-  const all = (pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && (!groups || groups.has(v.group)));
+// On the course, only verbs it has taught by now (`allowed`), so the drill never springs доаѓа or спие on you.
+const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Set<string>, allowed?: Set<string>): ConjugationSet | undefined => {
+  const all = (pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && (!groups || groups.has(v.group)) && (!allowed || allowed.has(v.lemma)));
   if (!all.length) return undefined;
   const seen = new Set(progress.seenConjugations ?? []);
   return all.find((v) => !seen.has(v.lemma)) ?? all[(progress.seenConjugations?.length ?? 0) % all.length];
@@ -364,8 +367,11 @@ function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[] {
   // The warm-up comes first, so the agenda says so (a checkpoint retry's review is already in its bullets).
   const warm = steps.find((x): x is Extract<TodayStep, { kind: "warmup" }> => x.kind === "warmup");
   const retry = pos.kind === "session" && pos.retry;
-  const n = warm?.items.length ?? 0;
-  const warmLine = n ? `Warm-up: ${n} card${n > 1 ? "s" : ""} from earlier sessions` : "Warm-up: a quick verb drill";
+  const own = warm?.own ?? 0;
+  const n = (warm?.items.length ?? 0) - own;
+  const warmLine = n || own
+    ? `Warm-up: ${n ? `${n} card${n > 1 ? "s" : ""} from earlier sessions` : ""}${n && own ? " + " : ""}${own ? `${own} of your own picked words (★ / ＋ Learn)` : ""}`
+    : "Warm-up: a quick verb drill";
   // Build-a-sentence only runs when something is buildable right now; don't promise it otherwise.
   const items = steps.some((x) => x.kind === "build") ? agenda.items : agenda.items.filter((b) => !b.startsWith("Build"));
   return [{ kind: "agenda", agenda: { ...agenda, items: warm && !retry ? [warmLine, ...items] : items } }, ...steps];
@@ -400,7 +406,8 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   if (pos.kind === "finished") return out;
   if (pos.kind === "stage-review") {
     const c = cp.stageReviewContent(pack, course, pos.afterChapterId, progress);
-    out.push({ kind: "stage", afterChapterId: pos.afterChapterId, items: shuffle(c.items), scenario: pack.scenarios.find((s) => s.id === c.scenarioId) });
+    const own = cp.ownWordsDue(pack, progress, now, 4).filter((o) => !c.items.some((w) => familiarity.deriveKeyForItem(w).lexKey === familiarity.deriveKeyForItem(o).lexKey));
+    out.push({ kind: "stage", afterChapterId: pos.afterChapterId, items: shuffle([...c.items, ...own]), scenario: pack.scenarios.find((s) => s.id === c.scenarioId) });
     return out;
   }
   const { chapter: cc, session: s } = pos;
@@ -440,8 +447,11 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   if (progress.seenGrammar?.["pt-verbs-a"]) groups.add("a");
   if (progress.seenGrammar?.["pt-verbs-e-i"]) { groups.add("e"); groups.add("i"); }
   if (progress.seenGrammar?.["pt-sum"] && groups.size) groups.add("irregular");
-  const conjVerb = groups.size ? pickConjVerb(pack, progress, groups) : undefined;
-  if (warm.length || conjVerb) out.push({ kind: "warmup", items: warm, conjVerb });
+  const conjVerb = groups.size ? pickConjVerb(pack, progress, groups, cp.taughtVerbs(pack, course, progress)) : undefined;
+  // Review days also bring back the words you picked yourself (★ saved, ＋ Learn); other days stay on the course.
+  const keyOf = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
+  const own = review ? cp.ownWordsDue(pack, progress, now, 4).filter((o) => !warm.some((w) => keyOf(w) === keyOf(o))) : [];
+  if (warm.length || own.length || conjVerb) out.push({ kind: "warmup", items: [...warm, ...own], conjVerb, own: own.length });
 
   const words = s.words.filter((w) => cp.needsTeaching(progress, w.lexKey)).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }));
   if (words.length) out.push({ kind: "newwords", words });
@@ -464,7 +474,7 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
     const story = (pack.stories ?? []).find((x) => x.id === s.story!.id);
     if (story) out.push({ kind: "story", story, dayIndex: progress.storyReads?.[story.id]?.length ?? 0, revisit: !!s.story.reuse, lens: storyLens(course, s, story, points) });
   }
-  const canBuild = s.build.length > 0 && sentenceScope.withFallback(pack, { chapterOrder: order, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).items.length > 0;
+  const canBuild = s.build.length > 0 && sentenceScope.withFallback(pack, { chapterOrder: order, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k], allow: cp.sentenceAllowed(pack, course, progress) }).items.length > 0;
   if (canBuild) out.push({ kind: "build", ids: s.build, chapterOrder: order });
   const scen = s.speak ? pack.scenarios.find((x) => x.id === s.speak) : undefined;
   if (scen) out.push({ kind: "speak", scenario: scen, focus: cp.sessionFocus(cc, s) });
@@ -1951,8 +1961,10 @@ const chapterChip = (st: ChapterStatus): { label: string; cls: string } =>
   st.readyForCheckpoint ? { label: "checkpoint due", cls: "stretch" } : CHAPTER_STATE_CHIP[st.state];
 
 /** One chapter's headline: number, name, where you stand, and a bar over the four strands. */
-function ChapterHeading({ chapter, status, sub }: { chapter: Chapter; status?: ChapterStatus; sub?: ReactNode }) {
-  const chip = status ? chapterChip(status) : undefined;
+function ChapterHeading({ chapter, status, sub, course }: { chapter: Chapter; status?: ChapterStatus; sub?: ReactNode; course?: cp.ChapterOverview }) {
+  const chip = course ? courseChip(course) : status ? chapterChip(status) : undefined;
+  // On the course: its sessions, the words it teaches and its grammar points, as Progress counts them.
+  const done = course ? course.sessions.filter((x) => x.state === "done").length : 0;
   return (
     <>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 18 }}>
@@ -1960,7 +1972,17 @@ function ChapterHeading({ chapter, status, sub }: { chapter: Chapter; status?: C
         {chip && <span className={`diff ${chip.cls}`}>{chip.label}</span>}
       </div>
       <div className="muted small">{chapter.goal} · {chapter.cefr}</div>
-      {status && (
+      {course && (
+        <>
+          <div className="pbar" style={{ marginTop: 6 }}><div style={{ width: `${Math.round((done / Math.max(1, course.sessions.length)) * 100)}%` }} /></div>
+          <div className="muted small" style={{ marginTop: -6 }}>
+            {done}/{course.sessions.length} sessions
+            {course.words.length ? ` · ${course.words.filter((w) => w.learned).length}/${course.words.length} words learned` : ""}
+            {course.points.length ? ` · ${course.points.filter((x) => x.taught).length}/${course.points.length} grammar` : ""}
+          </div>
+        </>
+      )}
+      {!course && status && (
         <>
           <div className="pbar" style={{ marginTop: 6 }}><div style={{ width: `${Math.round(status.percent * 100)}%` }} /></div>
           <div className="muted small" style={{ marginTop: -6 }}>
@@ -2002,6 +2024,8 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
   // best-fit list — a chapter's scenario, story and reader sit together. Inside a chapter the i+1 sort
   // above still decides the order. Anything the spine doesn't claim lands in a final catch-all.
   const chapterInfo = useChapterMap(progress);
+  // On the course, the chapter headings count what the course teaches (sessions, words, grammar points).
+  const courseOv = useMemo(() => (cp.courseV2On(pack, progress) && pack.course ? cp.courseOverview(pack, pack.course, progress) : undefined), [pack, progress]);
   const collections = useMemo(() => {
     const ordered = [...(pack.chapters ?? [])].sort((a, b) => a.order - b.order);
     const groups = new Map<string, typeof items>();
@@ -2018,6 +2042,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
   const open = (kind: LibView, id?: string) => {
     if (kind === "scenario" && id) persist({ ...progress, pick: id });
     else if (kind === "story" && id) persist({ ...progress, storyPick: id });
+    else if (kind === "reading" && id) pendingReaderId = id;
     setMode(kind);
   };
 
@@ -2102,7 +2127,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
           {collections.map(({ chapter, list }) => (
             <div key={chapter?.id ?? "more"} style={{ marginBottom: 18 }}>
               {chapter
-                ? <ChapterHeading chapter={chapter} status={chapterInfo.byId.get(chapter.id)} />
+                ? <ChapterHeading chapter={chapter} status={chapterInfo.byId.get(chapter.id)} course={courseOv?.chapters.find((c) => c.chapterId === chapter.id)} />
                 : <h3 style={{ margin: "18px 0 0" }}>More practice</h3>}
               <div className="cards">
                 {list.map((it) => (
@@ -2123,6 +2148,22 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
       )}
     </section>
   );
+}
+
+// The learner's course chapter (order) for screens far from Today, e.g. the partner pickers. Undefined when
+// the new course is off.
+const CourseOrderContext = createContext<number | undefined>(undefined);
+
+/** Content in course order around your chapter: your chapter and earlier ones first (latest first), then
+ *  later chapters, flagged so a picker can mark them "later". Content the spine doesn't place comes last. */
+function byCourseOrder<T>(pack: LanguagePack, items: T[], idOf: (t: T) => string, myOrder: number | undefined): { item: T; later: boolean }[] {
+  if (myOrder === undefined) return items.map((item) => ({ item, later: false }));
+  const orderOf = (t: T) => chapterSpine.chapterOf(pack, idOf(t))?.order;
+  const ranked = items.map((item) => ({ item, o: orderOf(item) }));
+  const now = ranked.filter((x) => x.o !== undefined && x.o <= myOrder).sort((a, b) => b.o! - a.o!);
+  const later = ranked.filter((x) => x.o !== undefined && x.o > myOrder).sort((a, b) => a.o! - b.o!);
+  const loose = ranked.filter((x) => x.o === undefined);
+  return [...now.map((x) => ({ item: x.item, later: false })), ...loose.map((x) => ({ item: x.item, later: false })), ...later.map((x) => ({ item: x.item, later: true }))];
 }
 
 // Fisher–Yates shuffle (app runtime — Math.random is fine here, this is not a workflow script).
@@ -2909,10 +2950,12 @@ function Drill({ drill, onGrade }: { drill: ReviewItem; onGrade: (ok: boolean) =
 }
 
 // ---------- Library view 4: reading (tap-to-capture + import-anything) ----------
+let pendingReaderId: string | null = null;
 function Reading({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
   const pack = usePack();
   const play = usePlay();
-  const r = pack.readers[0];
+  const [readerId] = useState(() => { const id = pendingReaderId; pendingReaderId = null; return id; });
+  const r = pack.readers.find((x) => x.id === readerId) ?? pack.readers[0];
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   const [showImport, setShowImport] = useState(false);
   const [raw, setRaw] = useState("");
@@ -3611,12 +3654,17 @@ function SentenceBuilder({ progress, persist, onDone, preferIds, chapterOrderOve
 }) {
   const pack = usePack();
   const { current } = useChapterMap(progress);
-  const chapterOrder = chapterOrderOverride ?? (current ? (pack.chapters ?? []).find((c) => c.id === current.id)?.order ?? 1 : (pack.chapters?.length ?? 1));
+  // On the course, its chapter and its rule (verb + grammar taught) decide; the old chapter map only otherwise.
+  const onCourse = cp.courseV2On(pack, progress) && !!pack.course;
+  const allow = useMemo(() => (onCourse ? cp.sentenceAllowed(pack, pack.course!, progress) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [onCourse, pack, progress.course, progress.seenGrammar]);
+  const chapterOrder = chapterOrderOverride ?? (onCourse ? Math.min(cp.currentSlot(pack.course!, progress).order, Math.max(...pack.course!.chapters.map((c) => c.order))) : current ? (pack.chapters ?? []).find((c) => c.id === current.id)?.order ?? 1 : (pack.chapters?.length ?? 1));
   const builtCount = (progress.builtConjugations ?? []).length;
   // Eligible sentences: introduced by the course already (verb included), built from words the learner has
   // met, and no longer than their rung allows.
   const { items: scoped, usedFallback, source } = useMemo(() => {
-    const r = sentenceScope.withFallback(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] });
+    const r = sentenceScope.withFallback(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k], allow });
     if (!preferIds?.length) return r;
     // Phrase cards are built on demand by id; sentence items come from the pack. Keep the blueprint's order.
     const phrases = sentenceScope.phraseCards(pack, { chapterOrder, hasMet: (k) => !!progress.familiarity[k] }, 200);
@@ -3625,7 +3673,7 @@ function SentenceBuilder({ progress, persist, onDone, preferIds, chapterOrderOve
     const preferred = preferIds.filter((id) => inScope.has(id)).map((id) => pool.get(id)!).filter(Boolean);
     return preferred.length ? { ...r, items: preferred, usedFallback: false } : r;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pack, chapterOrder, builtCount, progress.familiarity, preferIds?.join()]);
+  }, [pack, chapterOrder, builtCount, progress.familiarity, preferIds?.join(), allow]);
   const top = sentenceScope.maxTier({ chapterOrder, builtCount });
   const [nonce, setNonce] = useState(0);
   // ONE sentence per card. Flatten each verb item into its six person-variants, then pick 6 cards along a
@@ -3932,6 +3980,15 @@ function ChapterGlance({ chapterId, progress, navigate, onBack, backLabel }: {
   );
 }
 
+/** A course chapter's status chip: ✓ done / session k of n / stage review next / upcoming. */
+function courseChip(ch: cp.ChapterOverview): { cls: string; label: string } {
+  const now = ch.sessions.find((x) => x.state === "current");
+  return ch.stageReview?.state === "current" ? { cls: "easy", label: "stage review next" }
+    : ch.state === "done" ? { cls: "just", label: "✓ done" }
+    : ch.state === "current" ? { cls: "easy", label: now ? `session ${now.n} of ${ch.sessions.length}` : "now" }
+    : { cls: "hard", label: `${ch.sessions.length} sessions` };
+}
+
 // Progress → The course (new course): every chapter opens into its full curriculum: its grammar, each
 // session (✓ done, ▶ today, upcoming), the stage review that follows it, and its words. A finished session
 // opens your notes from that lesson.
@@ -3955,11 +4012,7 @@ function CourseMap({ progress, persist, navigate }: { progress: Progress; persis
         {ov.chapters.map((ch) => {
           const isOpen = open === ch.chapterId;
           const done = ch.sessions.filter((x) => x.state === "done").length;
-          const now = ch.sessions.find((x) => x.state === "current");
-          const chip = ch.stageReview?.state === "current" ? { cls: "easy", label: "stage review next" }
-            : ch.state === "done" ? { cls: "just", label: "✓ done" }
-            : ch.state === "current" ? { cls: "easy", label: now ? `session ${now.n} of ${ch.sessions.length}` : "now" }
-            : { cls: "hard", label: `${ch.sessions.length} sessions` };
+          const chip = courseChip(ch);
           const learned = ch.words.filter((w) => w.learned).length;
           return (
             <div key={ch.chapterId} className={`chapter-row ${ch.state}${isOpen ? " open" : ""}`}>
@@ -4129,11 +4182,13 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
   // Grouped by chapter, in course order — the same spine as the Library and Progress, so a word is
   // always findable by the chapter that teaches it (the old tag grouping put every generated word in a
   // single "more words" heap). Words the spine doesn't claim keep a catch-all at the end.
+  const course = cp.courseV2On(pack, progress) ? pack.course : undefined;
   const groups = useMemo(() => {
     const single = pack.vocab.filter((v) => v.kind === "vocab" && !/\s/.test(v.answer.trim()));
     const byChapter = new Map<string, ReviewItem[]>();
     for (const v of single) {
-      const key = chapterSpine.chapterOfVocab(pack, v)?.id ?? "";
+      // On the course: the chapter that teaches the word (a bundle's words go with the bundle).
+      const key = course ? cp.chapterOfWord(course, familiarity.deriveKeyForItem(v).lexKey)?.chapterId ?? "" : chapterSpine.chapterOfVocab(pack, v)?.id ?? "";
       const arr = byChapter.get(key);
       if (arr) arr.push(v); else byChapter.set(key, [v]);
     }
@@ -4142,52 +4197,63 @@ function Words({ progress, persist }: { progress: Progress; persist: (p: Progres
       .filter((c) => byChapter.get(c.id)?.length)
       .map((c) => ({ chapter: c, label: `${c.order}. ${c.shortTitle}`, items: byChapter.get(c.id)! }));
     const rest = byChapter.get("");
-    return rest?.length ? [...out, { chapter: undefined, label: "more words", items: rest }] : out;
-  }, [pack]);
+    return rest?.length ? [...out, { chapter: undefined, label: course ? "more words (not in the lessons)" : "more words", items: rest }] : out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pack, !!course]);
+  const isExtra = (it: ReviewItem) => !!course && !!cp.chapterOfWord(course, familiarity.deriveKeyForItem(it).lexKey)?.extra;
+  // A word learned inside a taught bundle ("два, три, четири, пет") counts as learning, not new.
+  const statusOf = (key: string) => { const st = wordStatus(progress, key); return st === "new" && course && cp.learnedInBundle(course, progress, key) ? "learning" : st; };
 
   const learn = (items: ReviewItem[]) => {
     const fam = { ...progress.familiarity };
     for (const it of items) {
       const spec = familiarity.deriveKeyForItem(it);
       const existing = fam[spec.lexKey];
-      fam[spec.lexKey] = existing ? familiarity.markStudied(existing) : familiarity.capture(spec);
+      // Marked as your own pick, so the course's review days bring it back.
+      fam[spec.lexKey] = familiarity.markPicked(existing ? familiarity.markStudied(existing) : familiarity.capture(spec));
     }
     persist({ ...progress, familiarity: fam });
   };
 
   const all = groups.flatMap((g) => g.items);
-  const started = all.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) !== "new").length;
+  const started = all.filter((it) => statusOf(familiarity.deriveKeyForItem(it).lexKey) !== "new").length;
 
   return (
     <>
       <p className="lead">Browse the vocabulary chapter by chapter — tap 🔊 to hear a word, <b>☆</b> to save it to your <b>★ Starred</b> flashcard deck, or <b>＋</b> to mark it started (so it&apos;s prioritised in review). You can drill any of these anytime in <b>Flashcards</b>. <b>{started}/{all.length}</b> started.</p>
       {groups.map(({ chapter, label, items }) => {
-        const unmet = items.filter((it) => wordStatus(progress, familiarity.deriveKeyForItem(it).lexKey) === "new");
+        const unmet = items.filter((it) => statusOf(familiarity.deriveKeyForItem(it).lexKey) === "new");
         return (
           <div key={chapter?.id ?? label} className="word-group">
             <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
               <h3 style={{ margin: "14px 0 6px" }} title={chapter?.title}>{label}</h3>
               {unmet.length > 0 && <button className="ghost small" onClick={() => learn(unmet)}>＋ Learn all {unmet.length}</button>}
             </div>
-            <div className="word-list">
-              {items.map((it) => {
-                const key = familiarity.deriveKeyForItem(it).lexKey;
-                const status = wordStatus(progress, key);
-                const gender = it.meta?.gender ? ` · ${String(it.meta.gender)}` : "";
-                const on = !!progress.familiarity[key] && familiarity.isStarred(progress.familiarity[key]!);
-                return (
-                  <div className="word-row" key={it.id}>
-                    <button className="spk" onClick={() => play(it.answer, 0.9)}>🔊</button>
-                    <span className="word-mk"><b>{it.answer}</b> <span className="translit">{it.translit}</span></span>
-                    <span className="word-gloss muted small">{it.gloss}{gender}</span>
-                    <button className={`ghost small${on ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, it.answer, { gloss: it.gloss })}>{on ? "★" : "☆"}</button>
-                    {status === "new"
-                      ? <button className="ghost small" onClick={() => learn([it])}>＋ Learn</button>
-                      : <span className={`badge ${status === "known" ? "on" : ""}`}>{status === "known" ? "known ✓" : "learning"}</span>}
-                  </div>
-                );
-              })}
-            </div>
+            {/* On the course a chapter's own lesson words come first; its extra words (Library-only) after. */}
+            {[items.filter((it) => !isExtra(it)), items.filter(isExtra)].map((list, li) => list.length > 0 && (
+              <div key={li}>
+                {li === 1 && <div className="muted small" style={{ margin: "10px 0 4px" }}>More words for this chapter (not in the lessons): pick them up here if you like.</div>}
+                <div className="word-list">
+                  {list.map((it) => {
+                    const key = familiarity.deriveKeyForItem(it).lexKey;
+                    const status = statusOf(key);
+                    const gender = it.meta?.gender ? ` · ${String(it.meta.gender)}` : "";
+                    const on = !!progress.familiarity[key] && familiarity.isStarred(progress.familiarity[key]!);
+                    return (
+                      <div className="word-row" key={it.id}>
+                        <button className="spk" onClick={() => play(it.answer, 0.9)}>🔊</button>
+                        <span className="word-mk"><b>{it.answer}</b> <span className="translit">{it.translit}</span></span>
+                        <span className="word-gloss muted small">{it.gloss}{gender}</span>
+                        <button className={`ghost small${on ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, it.answer, { gloss: it.gloss })}>{on ? "★" : "☆"}</button>
+                        {status === "new"
+                          ? <button className="ghost small" onClick={() => learn([it])}>＋ Learn</button>
+                          : <span className={`badge ${status === "known" ? "on" : ""}`}>{status === "known" ? "known ✓" : "learning"}</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         );
       })}
@@ -4258,9 +4324,14 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   const bucketOf = useCallback((u: ReviewUnit): { key: string; label: string; order: number } => {
     if (u.type === "captured") return { key: "captured", label: "from your reading", order: 1001 };
     if (u.item.kind === "grammar") return { key: "grammar", label: "grammar", order: 1002 };
+    if (v2 && pack.course) {
+      const at = cp.chapterOfWord(pack.course, u.key);
+      const pc = at ? (pack.chapters ?? []).find((c) => c.id === at.chapterId) : undefined;
+      return pc ? { key: pc.id, label: `${pc.order}. ${pc.shortTitle}`, order: pc.order } : { key: "more", label: "not in the lessons", order: 1000 };
+    }
     const ch = chapterSpine.chapterOfVocab(pack, u.item);
     return ch ? { key: ch.id, label: `${ch.order}. ${ch.shortTitle}`, order: ch.order } : { key: "more", label: "more", order: 1000 };
-  }, [pack]);
+  }, [pack, v2]);
 
   const [type, setType] = useState<"all" | "words" | "sentences" | "grammar">("all");
   const [themes, setThemes] = useState<Set<string>>(new Set()); // empty ⇒ all themes
@@ -4654,6 +4725,7 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId, s
   scenarioId?: string;
 }) {
   const pack = usePack();
+  const myOrder = useContext(CourseOrderContext);
   const play = usePlay();
   const [session, setSession] = useState<LiveSession | null>(null);
   // Effective session id: tracks the prop, but flips to the real id once a "new" session is created,
@@ -4773,9 +4845,9 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId, s
         <span className="small">Pick a scenario to do live together</span>
         {err ? <div className="err">{err}</div> : null}
         <div className="cards">
-          {pack.scenarios.map((s) => (
-            <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
-              <div className="cc-title">{s.title}</div>
+          {byCourseOrder(pack, pack.scenarios, (x) => x.id, myOrder).map(({ item: s, later }) => (
+            <button key={s.id} className="contentcard" style={later ? { opacity: 0.6 } : undefined} onClick={() => start(s.id)}>
+              <div className="cc-title">{s.title}{later ? <span className="muted small"> · later chapter</span> : null}</div>
               <div className="muted small">{s.setting}</div>
             </button>
           ))}
@@ -5233,6 +5305,7 @@ function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
   sessionId: string | "new";
 }) {
   const pack = usePack();
+  const myOrder = useContext(CourseOrderContext);
   const play = usePlay();
   const [session, setSession] = useState<InfoGapSession | null>(null);
   const [err, setErr] = useState(""); // surface start failures instead of a dead click
@@ -5285,9 +5358,9 @@ function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
         <span className="small">Pick an info-gap challenge</span>
         {err ? <div className="err">{err}</div> : null}
         <div className="cards">
-          {(pack.infoGapTasks ?? []).map((t) => (
-            <button key={t.id} className="contentcard" onClick={() => start(t.id)}>
-              <div className="cc-title">{t.title}</div>
+          {byCourseOrder(pack, pack.infoGapTasks ?? [], (x) => x.id, myOrder).map(({ item: t, later }) => (
+            <button key={t.id} className="contentcard" style={later ? { opacity: 0.6 } : undefined} onClick={() => start(t.id)}>
+              <div className="cc-title">{t.title}{later ? <span className="muted small"> · later chapter</span> : null}</div>
               <div className="muted small">{t.goal}</div>
             </button>
           ))}
@@ -5505,6 +5578,7 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
   sessionId: string | "new";
 }) {
   const pack = usePack();
+  const myOrder = useContext(CourseOrderContext);
   const [session, setSession] = useState<RoleSwapSession | null>(null);
   const [recIdx, setRecIdx] = useState<number | null>(null);
   const [busyIdx, setBusyIdx] = useState<number | null>(null);
@@ -5582,9 +5656,9 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
         <span className="small">Pick a scenario to act out together</span>
         {err ? <div className="err">{err}</div> : null}
         <div className="cards">
-          {pack.scenarios.map((s) => (
-            <button key={s.id} className="contentcard" onClick={() => start(s.id)}>
-              <div className="cc-title">{s.title}</div>
+          {byCourseOrder(pack, pack.scenarios, (x) => x.id, myOrder).map(({ item: s, later }) => (
+            <button key={s.id} className="contentcard" style={later ? { opacity: 0.6 } : undefined} onClick={() => start(s.id)}>
+              <div className="cc-title">{s.title}{later ? <span className="muted small"> · later chapter</span> : null}</div>
               <div className="muted small">{s.setting}</div>
             </button>
           ))}
@@ -5656,7 +5730,9 @@ function SharedStory({ store, partnershipId, packId, progress, navigateToStory }
   }, [load]);
 
   if (!stories.length) return null;
-  const story = stories.find((s) => s.id === picked) ?? stories[0]!;
+  // Nothing shared yet: your current chapter's story rather than the pack's first one.
+  const myStory = progress.course ? stories.find((s) => s.id === `gen-${progress.course!.chapterId}-story`) : undefined;
+  const story = stories.find((s) => s.id === picked) ?? myStory ?? stories[0]!;
   const cov = coverageOf(story.body.map((b) => b.text).join(" "), progress.familiarity);
 
   const setShared = async (id: string) => {
