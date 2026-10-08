@@ -364,6 +364,9 @@ export interface CourseSession {
   /** Conversation to attempt today (Scenario id). */
   speak?: string;
   writing?: boolean;
+  /** Set-phrase notes (ChunkNote sources) surfaced for the first time today — capped per session so a
+   *  beginner meets them a few at a time. Notes not listed anywhere stay available on tap. */
+  notes?: string[];
   /** The agenda bullets shown at the start. */
   agenda: string[];
   /** One line for the recap's "next time". */

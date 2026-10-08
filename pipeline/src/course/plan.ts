@@ -3,7 +3,7 @@
 // highlighted, what to build, when to speak — plus checkpoints and stage reviews. No LLM here: the plan is
 // reproducible, so a review comment like "move this word a session later" is a spine tweak + re-run.
 // See DESIGN-course-spine.md §4 (cadence), §4a (recall from earlier chapters), §8 (story lenses).
-import type { CourseChapter, CourseSession, CourseWord, GrammarPoint, LanguagePack, MiniStory, ReviewItem, SessionRole, StageReview } from "@ll/pack-schema";
+import type { ChunkNote, CourseChapter, CourseSession, CourseWord, GrammarPoint, LanguagePack, MiniStory, ReviewItem, SessionRole, StageReview } from "@ll/pack-schema";
 import { resolveChapters, type ChapterContent } from "@ll/core/chapters";
 import { deriveKeyForItem, normalize } from "@ll/core/familiarity";
 import { requiredChapter, tierCapForChapter } from "@ll/core/sentences";
@@ -15,6 +15,8 @@ export const WORDS_PER_SESSION = 3;
 /** Most extra practice sessions a chapter gets automatically for word load (DESIGN §4: "a day or two"). */
 const MAX_AUTO_EXTRA = 2;
 const BUILD_CANDIDATES = 6;
+/** Most set-phrase notes a session surfaces for the first time (DESIGN §3: spread them out). */
+export const NOTES_PER_SESSION = 3;
 
 const toWord = (v: ReviewItem): CourseWord => ({ lexKey: deriveKeyForItem(v).lexKey, display: v.answer.trim(), gloss: v.gloss });
 
@@ -43,9 +45,10 @@ export interface PlanInput {
   pack: LanguagePack;
   points: GrammarPoint[];
   lineTags: Record<string, string[]>;
+  chunkNotes?: ChunkNote[];
 }
 
-export function planCourse({ pack, points, lineTags }: PlanInput): { chapters: CourseChapter[]; stageReviews: StageReview[] } {
+export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInput): { chapters: CourseChapter[]; stageReviews: StageReview[] } {
   const contents = resolveChapters(pack);
   const byId = new Map(contents.map((c) => [c.chapter.id, c]));
   const allSpine = spinePoints();
@@ -144,6 +147,10 @@ export function planCourse({ pack, points, lineTags }: PlanInput): { chapters: C
         if (s) story = { id: s.id, lens, highlight: hits(s, lens), ...(storyOrder(s) < order ? { reuse: true } : {}) };
       } else if (slot.role === "practice" || (slot.role === "use" && !sessions.some((x) => x.role === "use"))) {
         if (home) story = { id: home.id, lens: chapterSoFar, highlight: hits(home, chapterSoFar) };
+      } else if (slot.role === "use" && content.stories.some((x) => x.id !== home?.id && !sessions.some((y) => y.story?.id === x.id))) {
+        // A chapter's own second story (e.g. the hand-authored café one) gets read in the chapter itself.
+        const other = content.stories.find((x) => x.id !== home?.id && !sessions.some((y) => y.story?.id === x.id))!;
+        story = { id: other.id, lens: chapterSoFar, highlight: hits(other, chapterSoFar) };
       } else if (slot.role === "review" || slot.role === "use") {
         const r = pickReuse(chapterSoFar);
         if (r) story = { id: r.s.id, lens: r.lens, highlight: hits(r.s, r.lens), reuse: true };
@@ -186,6 +193,25 @@ export function planCourse({ pack, points, lineTags }: PlanInput): { chapters: C
     });
     taught.forEach((w) => taughtBefore.set(w.lexKey, w));
     pointsBefore.push(...chapterPointIds);
+  }
+
+  // ---- set-phrase notes: surfaced the first session their line is met, a few at a time ----
+  const noted = new Set(chunkNotes.map((n) => n.source));
+  const shown = new Set<string>();
+  for (const ch of chapters) {
+    for (const s of ch.sessions) {
+      const met: string[] = [];
+      const story = s.story && pack.stories?.find((x) => x.id === s.story!.id);
+      if (story) {
+        story.body.forEach((_, i) => met.push(`story:${story.id}#${i}`));
+        story.qa.forEach((q) => met.push(`qa:${story.id}#${q.id}:q`, `qa:${story.id}#${q.id}:a`));
+      }
+      const scen = s.speak && pack.scenarios.find((x) => x.id === s.speak);
+      if (scen) scen.script.forEach((_, i) => met.push(`scenario:${scen.id}#${i}`));
+      const fresh = met.filter((src) => noted.has(src) && !shown.has(src)).slice(0, NOTES_PER_SESSION);
+      fresh.forEach((src) => shown.add(src));
+      if (fresh.length) s.notes = fresh;
+    }
   }
 
   // ---- agenda + "next time" lines (needs the whole course laid out) ----

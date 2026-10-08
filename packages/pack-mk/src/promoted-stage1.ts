@@ -1159,8 +1159,8 @@ export const promotedScenarios: Scenario[] = [
       },
       {
         "speaker": "partner",
-        "text": "Здраво! Оди право, па лево.",
-        "gloss": "Hi! Go straight, then left."
+        "text": "Добар ден! Одете право, па лево.",
+        "gloss": "Good day! Go straight, then left."
       },
       {
         "speaker": "learner",
@@ -1238,8 +1238,8 @@ export const promotedStories: MiniStory[] = [
     "audioSource": "tts",
     "body": [
       {
-        "text": "Марко влегува во едно кафе во Скопје.",
-        "translit": "Marko vleguva vo edno kafe vo Skopye.",
+        "text": "Марко влегува во едно кафуле во Скопје.",
+        "translit": "Marko vleguva vo edno kafule vo Skopye.",
         "gloss": "Marko enters a café in Skopje."
       },
       {
@@ -1946,9 +1946,9 @@ export const promotedReaders: Reader[] = [
       },
       {
         "speaker": "partner",
-        "text": "Ана нема билет за такси.",
-        "translit": "Ana nema bilet za taksi.",
-        "gloss": "Ana has no ticket for a taxi."
+        "text": "Ана купува билет за автобус.",
+        "translit": "Ana kupuva bilet za avtobus.",
+        "gloss": "Ana buys a bus ticket."
       },
       {
         "speaker": "partner",

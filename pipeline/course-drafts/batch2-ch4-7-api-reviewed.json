@@ -1,0 +1,806 @@
+{
+  "points": {
+    "pt-verbs-a": {
+      "agenda": "Change the verb ending to say who wants, has, or pays.",
+      "rule": "Macedonian verbs change their ending to show who's acting, so you often drop the pronoun. \"сакам\" already means \"I want\"; \"сакаш\" means \"you want\". The ending -м is your \"I\" signal.",
+      "recap": "For the big -а group, the ending tells you who: -ам (I), -аш (you), -а (he/she), -аме (we), -ате (you all), -аат (they). You've been doing this since chapter one without noticing — \"Не разбирам\" already means \"I don't understand\", and \"Сакам јаболка\" means \"I want apples\". Notice the -м on the end: that's always \"I\". You can add јас or ти for emphasis, but the ending already carries the person, so most of the time you just say the verb.",
+      "library": {
+        "rule": "Macedonian marks the person on the verb itself, so a separate pronoun is usually optional. For the large group of verbs whose present tense runs on an -а (the а-verbs), you swap the ending by person: сакам (I want), сакаш (you want), сака (he/she wants), сакаме (we want), сакате (you all / polite you want), сакаат (they want). The same endings apply to other а-verbs you meet here, like имам (I have) and плаќам (I pay), and зборувам (I speak). The key signposts for a beginner: -м on the end means \"I\", and -ш means casual \"you\". Two other verb groups (the -е and -и types) follow the very same idea with their own vowel.",
+        "why": [
+          "You don't need јас, ти, тој and so on — the ending already says who. Add the pronoun only to stress it (\"I, on the other hand…\"). This is why \"сакам кафе\" is a full sentence with no word for \"I\".",
+          "\"сакаш\" (casual you) vs \"сакате\" (polite / plural you) is the same ти/вие choice you already learned — the verb ending just mirrors it. A friend is asked \"Што сакаш?\", while a customer gets the polite \"Што сакате?\".",
+          "\"сака\" (he/she) and \"сакаат\" (they) look similar but the extra -ат makes it plural: \"Сака едно кафе\" is one person, \"тие сакаат вода\" is several."
+        ],
+        "mistakes": [
+          "Not \"јас сакам\" every time, but just \"сакам\" — the -м already means \"I\", so the pronoun is extra.",
+          "Not \"сака\" for \"they want\", but \"сакаат\" — he/she is -а, they is -аат, and that final -ат is the difference.",
+          "Not mixing up \"сакаш\" and \"сакате\" — use -аш with a friend (ти) and -ате with someone polite or a group (вие)."
+        ]
+      },
+      "examples": [
+        "grammar:verb-conjugation#0",
+        "scenario:bar-order-a-drink#0",
+        "scenario:gen-s1-cafe-order#0",
+        "grammar:verb-conjugation#2"
+      ],
+      "callbacks": [
+        "qa:gen-s0-repair-story#q1:a",
+        "story:gen-s0-survive-story#1",
+        "scenario:gen-s0-greet#2"
+      ],
+      "ruleCards": [
+        {
+          "front": "How do you say \"I want\" with no separate word for \"I\"?",
+          "back": "The verb ending -ам does it: сакам = I want.",
+          "example": "grammar:verb-conjugation#0"
+        },
+        {
+          "front": "Which ending on an -а verb means \"I\"?",
+          "back": "-ам (the -м is the \"I\" signal): сакам, имам, плаќам.",
+          "example": "qa:gen-s0-repair-story#q1:a"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "grammar:verb-conjugation#0",
+          "blank": "сакам",
+          "options": [
+            "сакам",
+            "сакаш",
+            "сакаат"
+          ],
+          "why": "-ам ending = I want."
+        },
+        {
+          "line": "scenario:bar-order-a-drink#0",
+          "blank": "сакаш",
+          "options": [
+            "сакаш",
+            "сакам",
+            "сакате"
+          ],
+          "why": "-аш is casual \"you\", for a friend."
+        },
+        {
+          "line": "grammar:verb-conjugation#2",
+          "blank": "сакаат",
+          "options": [
+            "сакаат",
+            "сакаме",
+            "сака"
+          ],
+          "why": "-аат marks \"they\"; тие is plural."
+        }
+      ]
+    },
+    "pt-the": {
+      "agenda": "Say “the”: add -от, -та or -то to the end of the noun",
+      "rule": "Macedonian has no separate word for “the”. It's an ending on the noun, matched to its gender: -от for masculine (лебот), -та for feminine (сметката), -то for neuter (кафето, пивото).",
+      "recap": "Today “the” moved to the end of the word. A masculine noun takes -от (лебот, “the bread”; келнерот, “the waiter”), a feminine one -та (сметката, “the bill”), a neuter one -то (кафето, пивото). That's why gender mattered in chapter 3: the gender that picks еден, една or едно also picks “the”. You'll hear it in every café: Сметката, ве молам. And chapter 3's Каде е лебот? had “the” in it all along.",
+      "library": {
+        "rule": "Where English puts “the” in front of a noun, Macedonian adds it to the end, and the noun's gender decides the ending: masculine -от (леб → лебот; келнерот, “the waiter”), feminine -та (книга → книгата), neuter -то (пиво → пивото, кафе → кафето). The noun and its ending are written as one word. Without the ending, a noun means “a” or the thing in general: Ана сака кафе (“Ana wants coffee”), but Кафето е добро (“The coffee is good”). There's also a pair of pointing endings, -ва for something near you and -на for something further away (книгава, “this book”; книгана, “that book”). Just recognize those for now.",
+        "why": [
+          "Why on the end? It's a Balkan habit: Macedonian, Bulgarian, Albanian and Romanian all attach “the” to the noun instead of putting a word in front.",
+          "Why does gender matter again? The ending is chosen by gender, and the noun's own ending usually tells you the gender: -а nouns take -та (сметката), consonant nouns -от (лебот), -о and -е nouns -то (кафето).",
+          "“The” marks something specific or already mentioned: Ана пие кафе (some coffee), then Кафето е добро (the coffee she's drinking).",
+          "Plurals have their own “the” endings, which come along with plurals in chapter 6."
+        ],
+        "mistakes": [
+          "Not adding a separate word in front for “the”: the ending does the job, as in сметката.",
+          "Not picking the ending from the English meaning: go by the noun's gender, so a noun ending in -а takes -та.",
+          "Not adding “the” when you mean something in general: Ана сака кафе has no ending."
+        ]
+      },
+      "examples": [
+        "scenario:bar-order-a-drink#5",
+        "story:ana-coffee#4",
+        "qa:gen-s1-cafe-order-story#q2:q",
+        "story:gen-s1-cafe-order-story#2"
+      ],
+      "callbacks": [
+        "story:gen-s0-survive-story#3",
+        "scenario:gen-s0-survive#5"
+      ],
+      "ruleCards": [
+        {
+          "front": "Where does “the” go in Macedonian?",
+          "back": "On the end of the noun: сметката, кафето, лебот.",
+          "example": "scenario:bar-order-a-drink#5"
+        },
+        {
+          "front": "Which “the” ending goes with a noun ending in -а?",
+          "back": "-та: сметката, книгата.",
+          "example": "grammar:definite-articles#1"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "story:gen-s0-survive-story#3",
+          "blank": "лебот",
+          "options": [
+            "лебот",
+            "лебта",
+            "леб"
+          ],
+          "why": "леб is masculine, so “the bread” is лебот."
+        },
+        {
+          "line": "qa:gen-s1-cafe-order-story#q2:q",
+          "blank": "пивото",
+          "options": [
+            "пивото",
+            "пивата",
+            "пиво"
+          ],
+          "why": "пиво is neuter, so “the beer” is пивото."
+        },
+        {
+          "line": "story:ana-coffee#4",
+          "blank": "Кафето",
+          "options": [
+            "Кафето",
+            "Кафе",
+            "Кафиња"
+          ],
+          "why": "It's the coffee Ana is drinking, a specific one: Кафето."
+        }
+      ]
+    },
+    "pt-da": {
+      "agenda": "Say want to / can / must: stack да + verb (Сакам да платам).",
+      "rule": "Macedonian has no \"to eat\" word. Instead you say да plus a normal verb, after words like сакам (want), можам (can), морам (must), треба (need): „Сакам да учам македонски“ — I want to learn Macedonian.",
+      "recap": "To say you want, can, or have to do something, join the two verbs with да: „Можам да платам?“ You've been saying this since chapter one without knowing it: „Можете ли да повторите?“ Both verbs point at the same person — сакам да платам is I…I. Only треба stays frozen (треба да…). This little да pattern runs through almost every real sentence you'll say in a café.",
+      "library": {
+        "rule": "English uses an \"infinitive\" (to pay, to go) after want/can/must. Macedonian has none. Instead you take a helper word — сакам (want), можам/може (can), морам (must), треба (need) — add да, then a fully conjugated verb: Сакам да платам = I want (I) to pay. The helper and the second verb both match the same person: сакам да јадам (I…I), сакаш да јадеш (you…you). To ask politely, slot ли in: „Можете ли да повторите?“ The whole да + present pattern is the backbone of everyday conversation.",
+        "why": [
+          "There's no infinitive at all, so you can't say \"to pay\" as one word — да + a conjugated verb does that whole job.",
+          "Both verbs carry a person ending, and they must agree: Сакам да платам, never a mismatched pair. The да just links them.",
+          "треба is impersonal — it doesn't change for who: „Треба да јадам/учам.\" Compare сакам/морам, which do change.",
+          "Questions can drop ли in relaxed speech: Можам да платам? said with a rising voice means “Can I pay?”."
+        ],
+        "mistakes": [
+          "Not leaving out да: two verbs always need да between them, as in Сакам да платам.",
+          "Not freezing the second verb: it takes the same person as the first, so сакаш goes with да јадеш, сакам with да јадам.",
+          "Not dropping да in a question: it stays right before the action verb, as in Можете ли да повторите?"
+        ]
+      },
+      "examples": [
+        "grammar:da-modals#0",
+        "grammar:da-modals#1",
+        "story:gen-s0-repair-story#5",
+        "grammar:da-modals#2"
+      ],
+      "callbacks": [
+        "story:gen-s0-repair-story#5",
+        "scenario:gen-s0-repair#3"
+      ],
+      "ruleCards": [
+        {
+          "front": "How do you say \"want/can/must to do\" with no infinitive?",
+          "back": "Helper verb + да + a conjugated verb, both matching the same person.",
+          "example": "grammar:da-modals#0"
+        },
+        {
+          "front": "Where does да go in „Можете ли да повторите?“",
+          "back": "Right before the action verb (after ли in a question).",
+          "example": "story:gen-s0-repair-story#5"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "grammar:da-modals#0",
+          "blank": "да",
+          "options": [
+            "да",
+            "не",
+            "ли"
+          ],
+          "why": "да links the two verbs; without it the sentence falls apart."
+        },
+        {
+          "line": "grammar:da-modals#1",
+          "blank": "платам",
+          "options": [
+            "платам",
+            "одам",
+            "учам"
+          ],
+          "why": "The second verb matches \"I\", just like можам."
+        },
+        {
+          "line": "grammar:da-modals#2",
+          "blank": "Морам",
+          "options": [
+            "Морам",
+            "Сакам",
+            "Треба"
+          ],
+          "why": "Морам да одам = I have to go; the helper sets the meaning."
+        }
+      ]
+    },
+    "pt-verbs-e-i": {
+      "agenda": "Two more verb groups: just swap the middle vowel to -е or -и.",
+      "rule": "Macedonian has three verb families, told apart by the vowel in the middle: -а, -е or -и. The “I” form always ends in -ам: Учам македонски (“I'm learning Macedonian”). For “you” (ти), -е verbs end in -еш and -и verbs in -иш: Што работиш?",
+      "recap": "You already handle -а verbs; now -е and -и verbs work the same way, only with a different vowel in the middle. The “I” form ends in -ам in all three groups, so that part feels familiar. “They” ends in -ат for -е and -и verbs (јадат, учат), while -а verbs double the vowel (сакаат). For \"you\" (ти), -е verbs give -еш and -и verbs give -иш, as in \"Што работиш?\". You've been saying these since early chapters without naming them: \"сѐ уште учи\" (she's still learning), \"Ана оди по улицата\" (Ana walks), \"Ана пие кафе\" (Ana drinks coffee).",
+      "library": {
+        "rule": "Beyond the -а verbs you met earlier, there are two more present-tense patterns, told apart by the vowel in the middle of the word. The -е group (like јаде \"eats\") runs: јадам, јадеш, јаде, јадеме, јадете, јадат. The -и group (like учи \"learns\") runs: учам, учиш, учи, учиме, учите, учат. Notice how little actually changes: the “I” ending is -ам in every group. “They” is -ат here (јадат, учат), one vowel shorter than the -аат of -а verbs (сакаат). What shifts is the middle vowel and, with it, the \"you/he/we/you-all\" endings. So once you know which group a verb belongs to, you just plug the person onto the stem.",
+        "why": [
+          "The “I” form is -ам in every group, so Учам македонски feels just like an -а verb. For the other persons, follow the middle vowel: учиш, учи, учиме, учите, учат.",
+          "Macedonian drops the separate word for \"I/you/he\" most of the time — the ending already tells you who. \"Учам\" alone means \"I'm learning\"; you add јас only for emphasis.",
+          "One present-tense form covers both English \"I learn\" and \"I'm learning.\" \"Учам македонски\" is both \"I learn Macedonian\" and \"I'm learning Macedonian\" — context decides."
+        ],
+        "mistakes": [
+          "Not using an -а ending on every verb, but matching the verb's own vowel: it's \"работиш\" (you do), an -и verb, not a made-up -а form.",
+          "Not mixing up the \"you\" endings, but keeping -еш for -е verbs and -иш for -и verbs: \"Што работиш?\" takes -иш.",
+          "Not adding јас/ти before every verb, but letting the ending carry the person: \"Учам\" already means \"I'm learning.\""
+        ]
+      },
+      "examples": [
+        "story:gen-s1-greet-intro-story#5",
+        "story:gen-s1-greet-intro-story#6",
+        "story:ana-coffee#4",
+        "story:gen-s0-greet-story#0"
+      ],
+      "callbacks": [
+        "qa:gen-s0-repair-story#q3:a",
+        "story:gen-s0-greet-story#0",
+        "story:ana-coffee#4"
+      ],
+      "ruleCards": [
+        {
+          "front": "Across the three verb groups, what actually changes?",
+          "back": "Mostly the middle vowel (а, е or и). “I” is always -ам; “they” is -ат for -е and -и verbs but -аат for -а verbs (сакаат).",
+          "example": "qa:gen-s1-greet-intro-story#q3:a"
+        },
+        {
+          "front": "What ending does an -и verb take for \"you\" (ти)?",
+          "back": "-иш, as in \"работиш\" (you do/work).",
+          "example": "story:gen-s1-greet-intro-story#6"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "qa:gen-s1-greet-intro-story#q3:a",
+          "blank": "Учам",
+          "options": [
+            "Учам",
+            "Учи",
+            "Учат"
+          ],
+          "why": "The \"I\" form ends -ам in every verb group."
+        },
+        {
+          "line": "story:gen-s1-greet-intro-story#6",
+          "blank": "работиш",
+          "options": [
+            "работиш",
+            "работи",
+            "оди"
+          ],
+          "why": "An -и verb takes -иш for \"you\" (ти)."
+        },
+        {
+          "line": "story:ana-coffee#4",
+          "blank": "пие",
+          "options": [
+            "пие",
+            "пијам",
+            "пиеш"
+          ],
+          "why": "The he/she form of this -е verb is \"пие\"."
+        }
+      ]
+    },
+    "pt-se": {
+      "agenda": "Meet verbs that always travel with се, sitting right before the verb.",
+      "rule": "Some verbs never show up without the little word се parked right in front: „Јас се викам Марко.“ Think of се as part of the verb itself, not a separate word you can drop.",
+      "recap": "A handful of everyday verbs come with се glued on: се викам/се викаш (name), се вели (one says), се гледаме (see each other), се разбира (of course). The се sits right before the verb and never gets dropped. You've been saying „Се гледаме!“ as a goodbye since chapter 2, and „Се разбира“ for \"of course\" since chapter 1 — now you can see the same pattern. When another little word joins in, се still hugs the verb, as in „Ми се допаѓа.“",
+      "library": {
+        "rule": "Certain Macedonian verbs always carry the little word се directly in front of them (the reflexive marker). It is not optional and not translated word-for-word — it's simply part of how the verb works. You've met several: се викам/се викаш for giving or asking a name, се вели for \"how do you say / one says\", се гледаме for \"see you / we see each other\", се согласувам for \"I agree\", and the set phrase се разбира for \"of course\". The verb still changes its ending for who's doing it (се викам = my name, се викаш = your name), but се stays put right before it.",
+        "why": [
+          "The се comes before the verb, not after: „Како се викаш?\" never „викаш се\". When other little pronouns appear too, се still sits in that tight cluster in front of the verb, e.g. „Ми се допаѓа\" (to-me + self + pleases).",
+          "Don't look for an English word to match се — here it doesn't mean \"self\" in any obvious way. „Се вели\" just means \"one says / it is said\", and „се гледаме\" means \"see you\". The се is baggage the verb always carries.",
+          "The verb ending still does the real work of saying who: се викам (I), се викаш (you). Changing the ending is how you switch person; се never changes."
+        ],
+        "mistakes": [
+          "Not leaving out се: викам on its own doesn't mean “my name is”; it has to be се викам.",
+          "Not putting се after the verb: it always comes first, as in Како се викаш?",
+          "Not treating се as optional like English “self”: it's required even with no English match, as in Се разбира."
+        ]
+      },
+      "examples": [
+        "scenario:gen-introductions#1",
+        "story:gen-s1-greet-intro-story#2",
+        "scenario:gen-s0-greet#4"
+      ],
+      "callbacks": [
+        "scenario:gen-s0-greet#4",
+        "scenario:gen-s0-repair#4",
+        "scenario:gen-s0-repair#6"
+      ],
+      "ruleCards": [
+        {
+          "front": "Where does се go with these verbs?",
+          "back": "Right before the verb, and it never gets dropped.",
+          "example": "scenario:gen-introductions#1"
+        },
+        {
+          "front": "How do you say \"my name is Marko\"?",
+          "back": "Use the verb with се: „Јас се викам Марко.“",
+          "example": "scenario:gen-introductions#1"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "scenario:gen-introductions#1",
+          "blank": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "This verb always carries се to mean \"my name is\"."
+        },
+        {
+          "line": "scenario:gen-s0-greet#4",
+          "blank": "Се",
+          "options": [
+            "Се",
+            "Го",
+            "Ми"
+          ],
+          "why": "„Се гледаме\" (see you) keeps its се right before the verb."
+        },
+        {
+          "line": "story:gen-s1-greet-intro-story#2",
+          "blank": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "Asking a name uses се викаш, with се in front of the verb."
+        }
+      ]
+    },
+    "pt-plurals": {
+      "agenda": "Talk about more than one: plural endings",
+      "rule": "Most nouns make the plural by changing the ending: masculine adds -и (денар → денари), feminine swaps -а for -и (книга → книги), neuter swaps -о for -а (пиво → пива). Short masculine nouns often take -ови (град → градови).",
+      "recap": "Today you made plurals, and the rule follows gender like everything since chapter 3. Masculine nouns add -и (денари), feminine nouns change -а to -и (книги), neuter nouns change -о to -а (пива). You've been using plurals since you first counted: пет јаболка, десет денари. At the market you'll mostly hear јаболка in the plural, by the kilo: едно кило јаболка. Short masculine words often take -ови instead, as in градови (“cities”).",
+      "library": {
+        "rule": "Macedonian plurals are made with endings, and gender tells you which one. Masculine nouns usually add -и: маж → мажи, денар → денари. Many short masculine nouns add -ови instead: град → градови. Feminine nouns ending in -а change it to -и: книга → книги, жена → жени. Neuter nouns ending in -о change it to -а: пиво → пива, село → села; some neuter nouns in -е add -иња instead (кафе → кафиња). A few everyday nouns are irregular, such as дете → деца (“children”); those come in chapter 10. From two up, a counted noun is always plural, which is why you've said пет јаболка and десет денари since chapter 3.",
+        "why": [
+          "Why does gender matter again? The plural ending depends on it, just like еден/една/едно and “the” did. Knowing a noun's gender gets you most of the way to its plural.",
+          "Why градови and not just -и? Many short masculine nouns take the longer -ови ending. Learn those as you meet them.",
+          "Why кафиња? Some neuter nouns ending in -е add -иња in the plural: две кафиња (“two coffees”).",
+          "You'll mostly meet јаболка (“apples”) in the plural, because at the market apples come by the kilo."
+        ],
+        "mistakes": [
+          "Not keeping the singular after a number: from two up the noun is plural, as in три пива.",
+          "Not adding an ending to a feminine noun's -а: the -а is swapped for -и, as in книги.",
+          "Not forgetting the -ови of short masculine nouns: градови."
+        ]
+      },
+      "examples": [
+        "story:gen-s1-market-story#4",
+        "scenario:gen-s1-market#6",
+        "grammar:noun-plurals#1",
+        "grammar:noun-plurals#2"
+      ],
+      "callbacks": [
+        "story:gen-s0-survive-story#5",
+        "story:gen-s0-survive-story#7"
+      ],
+      "ruleCards": [
+        {
+          "front": "How does a feminine noun like книга become plural?",
+          "back": "Swap -а for -и: книги.",
+          "example": "grammar:noun-plurals#1"
+        },
+        {
+          "front": "How does a neuter noun like пиво become plural?",
+          "back": "Swap -о for -а: пива (три пива).",
+          "example": "grammar:numbers#2"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "grammar:numbers#2",
+          "blank": "пива",
+          "options": [
+            "пива",
+            "пиво",
+            "пивото"
+          ],
+          "why": "Neuter -о becomes -а in the plural: пива."
+        },
+        {
+          "line": "grammar:noun-plurals#1",
+          "blank": "книги",
+          "options": [
+            "книги",
+            "книга",
+            "книгата"
+          ],
+          "why": "Feminine -а becomes -и in the plural: книги."
+        },
+        {
+          "line": "scenario:gen-s1-market#6",
+          "blank": "денари",
+          "options": [
+            "денари",
+            "денар",
+            "леб"
+          ],
+          "why": "From two up the noun is plural: денар → денари."
+        }
+      ]
+    },
+    "pt-adjectives": {
+      "agenda": "Make the describing word match its noun: добар, добра, добро, добри.",
+      "rule": "A describing word copies its noun's gender and number. Learn the \"he\" form, then swap the ending: добар (m), добра (f), добро (n), добри (plural). It sits before the noun: \"добар ден\".",
+      "recap": "When you describe something, the word changes to fit the noun. Keep the masculine form in your head and change only the ending: no ending, -а, -о, -и. You've been doing this since chapter 4: \"Кафето е добро\" uses the -о form because кафе is a neuter word. You also already said Многу сте љубезни (“You're very kind”) to one person: polite вие always takes the plural form, so the adjective does too. So most describing words follow this one simple swap.",
+      "library": {
+        "rule": "A describing word (adjective) always agrees with its noun in gender and number. Take the masculine form and change the ending to match: no ending for masculine (добар човек), -а for feminine (добра книга), -о for neuter (добро кафе), and -и for the plural (добри луѓе). The describing word normally comes before the noun. The same swap works almost everywhere: студен → студено пиво, убав → убави места. When the describing word carries \"the\", the ending grows longer still (as in новиот), but you still start from the right gender form first.",
+        "why": [
+          "English never changes its describing words — \"good\" stays \"good\". In Macedonian the ending moves with the noun, so the one word добар becomes four shapes.",
+          "The ending to use depends on the noun's gender, which you already met with еден/една/едно. If you know the noun is neuter, you know the describing word ends in -о.",
+          "Both the describing word and \"is\" can point at gender: in \"Кафето е добро\", it's добро (not добар) because кафе is neuter — the ending agrees even when the word comes after \"is\"."
+        ],
+        "mistakes": [
+          "Not leaving the masculine form on a feminine noun: книга is feminine, so it's добра книга.",
+          "Not using a singular ending for more than one: plurals take -и, as in добри луѓе.",
+          "Not leaving the word unchanged like English: swap the ending every time to fit the noun."
+        ]
+      },
+      "examples": [
+        "grammar:adjective-agreement#0",
+        "grammar:adjective-agreement#1",
+        "grammar:adjective-agreement#2",
+        "grammar:adjective-agreement#3"
+      ],
+      "callbacks": [
+        "story:ana-coffee#4",
+        "reader:cafe#4",
+        "scenario:gen-s0-greet#3"
+      ],
+      "ruleCards": [
+        {
+          "front": "How do you make a describing word fit its noun?",
+          "back": "Keep the masculine form, swap the ending: no ending (m), -а (f), -о (n), -и (plural).",
+          "example": "grammar:adjective-agreement#1"
+        },
+        {
+          "front": "Which ending goes with a neuter noun like кафе?",
+          "back": "The -о ending, e.g. добро.",
+          "example": "story:ana-coffee#4"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "grammar:adjective-agreement#0",
+          "blank": "добар",
+          "options": [
+            "добар",
+            "добра",
+            "добро"
+          ],
+          "why": "ден is masculine, so no ending is added."
+        },
+        {
+          "line": "story:ana-coffee#4",
+          "blank": "добро",
+          "options": [
+            "добро",
+            "добар",
+            "добра"
+          ],
+          "why": "кафе is neuter, so the ending is -о."
+        },
+        {
+          "line": "grammar:adjective-agreement#1",
+          "blank": "добра",
+          "options": [
+            "добра",
+            "добар",
+            "добро"
+          ],
+          "why": "идеја is feminine, so the ending is -а."
+        }
+      ]
+    },
+    "pt-go-ja-gi": {
+      "agenda": "Say “it” and “them”: го, ја, ги go right before the verb",
+      "rule": "To say \"it\" or \"them,\" put a little word right before the verb: го (it/him), ја (it/her), ги (them). In „ќе ги земам\" the ги sits in front and means \"them.\"",
+      "recap": "When you don't want to repeat the thing, swap in a short word before the verb: го for him or an \"it,\" ја for her or another \"it,\" ги for \"them.\" They never come after the verb — they lead into it, as in „ќе ги земам\" (I'll take them). You've been saying this since chapter 4: „Кажи го гласно\" is literally \"say it aloud.\" Sometimes Macedonian names the thing AND adds the little word, like „го испи кафето\" — that doubling is normal and fine. Think of it as \"it/them\" clicking onto the front of the verb.",
+      "library": {
+        "rule": "Macedonian has short object pronouns (direct-object clitics) that mean \"it,\" \"him,\" \"her,\" \"them\": го (masculine or neuter \"it/him\"), ја (feminine \"it/her\"), ги (\"them\" for plurals of any gender). They sit immediately before the verb, not after it: „ќе ги земам\" = \"I'll take them,\" „го испи кафето\" = \"he drank it up.\" They pick their form from the gender and number of the thing they replace. Often you'll hear the noun named AND the little word used together — this doubling is standard, especially with a definite (\"the\") object.",
+        "why": [
+          "Word order feels backwards to English: the object word comes BEFORE the verb (ги земам = \"them I-take\"), never after. In a two-word verb like „ќе ги земам,\" it tucks in between ќе and the verb.",
+          "Choosing го, ја or ги depends on the thing you're replacing, not on \"you\": го for a he/masculine or neuter \"it,\" ја for a she/feminine \"it,\" ги for any plural \"them.\"",
+          "Doubling looks odd — „го испи кафето\" names the coffee and still adds го. That's normal Macedonian, not a mistake or repetition error.",
+          "These little words join the same cluster you met with ми and се: the order is fixed and they stay glued in front of the verb."
+        ],
+        "mistakes": [
+          "Not putting ги after the verb: it leads into the verb, as in ќе ги земам.",
+          "Not using го for everything — use ги for \"them\" (plural), as in „ќе ги земам.\"",
+          "Not splitting the pair in „ќе ги земам\" with another word — ќе, ги and the verb stay together."
+        ]
+      },
+      "examples": [
+        "scenario:gen-s1-market#7",
+        "qa:ana-coffee#q3:q",
+        "grammar:verb-aspect#1",
+        "grammar:clitics#1"
+      ],
+      "callbacks": [
+        "qa:ana-coffee#q3:q",
+        "qa:gen-s1-cafe-order-story#q3:q"
+      ],
+      "ruleCards": [
+        {
+          "front": "Where do го, ја, ги go?",
+          "back": "Right before the verb, never after it.",
+          "example": "scenario:gen-s1-market#7"
+        },
+        {
+          "front": "How do you say \"them\"?",
+          "back": "ги, placed before the verb.",
+          "example": "scenario:gen-s1-market#7"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "scenario:gen-s1-market#7",
+          "blank": "ги",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "\"Them\" (plural) is ги, sitting before the verb."
+        },
+        {
+          "line": "qa:ana-coffee#q3:q",
+          "blank": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "\"It\" (the coffee, masculine/neuter) is го, before the verb."
+        },
+        {
+          "line": "grammar:verb-aspect#1",
+          "blank": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "The coffee is named and still doubled with го before the verb."
+        }
+      ]
+    },
+    "pt-prepositions": {
+      "agenda": "Place little words во, на, со, од, до before a noun to say where.",
+      "rule": "Small words come before the noun and never change its form: во (in), на (on/at/to), со (with), од (from), до (to/next to). Macedonian leans hard on на — it also means \"to\" a place or person. Example: \"Ана е на улица во центарот.\"",
+      "recap": "Five little words do a lot of work: во (in), на (on/at/to), со (with), од (from), до (to/next to). They sit right before the noun and leave it unchanged — no case endings to worry about. Watch на: besides \"on,\" it covers \"to\" and \"at.\" You've been using these since chapter one: \"Ана е во Скопје,\" \"Од Германија сум,\" and \"Марко седи до неа.\"",
+      "library": {
+        "rule": "These are the everyday linking words that tell you where something is or where it's going. They go directly before the noun and the noun's shape does not change: unlike Russian or Serbian, Macedonian nouns keep the same ending after these words. The core set: во = in/into (\"во Скопје\"), на = on/onto, and also \"to\" or \"at\" a place or person (\"на улица,\" \"Ана оди на пазар\"), со = with, and also \"by\" a means of transport (\"со автобус\"), од = from/of (\"Од Германија сум\"), до = up to / next to (\"Марко седи до неа,\" \"до банката\"). Macedonian leans on на far more than English leans on any one word, so expect it where English might use several different words.",
+        "why": [
+          "на is the workhorse: it covers \"on,\" \"at,\" and \"to\" — \"Ана оди на пазар\" (goes to the market) and \"на улица\" (on a/the street) both use it, so don't reach for a different word each time.",
+          "со means \"with,\" but also \"by\" for transport: \"кафе со млеко\" (with milk) and \"со автобус\" (by bus) are the same little word.",
+          "во and на can both translate \"to\" when you're heading somewhere: \"во центарот\" (to the centre) versus \"на пазар\" (to the market) — the noun decides which one sounds natural, and you pick these up phrase by phrase.",
+          "до means both \"next to\" and \"up to/as far as,\" so \"до банката\" can be \"next to the bank\" or \"to the bank\" depending on context."
+        ],
+        "mistakes": [
+          "Not changing the noun after the preposition, but leaving it as-is: say \"во Скопје,\" not a reshaped form — Macedonian has no case endings here.",
+          "Not using a translated \"by\" word for transport, but using со: \"со автобус,\" because со already carries \"by.\"",
+          "Not forcing English habits onto на, but letting it cover \"on/at/to\": \"на улица\" is right even though English switches words."
+        ]
+      },
+      "examples": [
+        "reader:gen-s1-directions-reader#0",
+        "qa:gen-s1-directions-story#q1:a",
+        "qa:gen-s1-directions-story#q2:a",
+        "story:gen-s1-greet-intro-story#1"
+      ],
+      "callbacks": [
+        "story:gen-s0-repair-story#0",
+        "scenario:gen-s0-repair#7",
+        "story:gen-s1-greet-intro-story#1"
+      ],
+      "ruleCards": [
+        {
+          "front": "Besides \"on,\" what does на cover?",
+          "back": "\"at\" and \"to\" a place or person — the workhorse word.",
+          "example": "reader:gen-s1-directions-reader#0"
+        },
+        {
+          "front": "How do you say \"from\"?",
+          "back": "од — as in \"Од Германија сум.\"",
+          "example": "scenario:gen-s0-repair#7"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "reader:gen-s1-directions-reader#0",
+          "blank": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "\"in the centre\" needs во (in), while на already does \"on a street.\""
+        },
+        {
+          "line": "qa:gen-s1-directions-story#q2:a",
+          "blank": "Со",
+          "options": [
+            "Со",
+            "Од",
+            "До"
+          ],
+          "why": "\"by bus\" uses со, which also means \"with.\""
+        },
+        {
+          "line": "story:gen-s1-greet-intro-story#1",
+          "blank": "до",
+          "options": [
+            "до",
+            "од",
+            "во"
+          ],
+          "why": "до means \"next to\" — Marko sits next to her."
+        }
+      ]
+    },
+    "pt-commands": {
+      "agenda": "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
+      "rule": "To tell someone what to do, change the verb's ending. For one person add -ј or -и (слушај!, дојди!); for a group or to be polite, add -те: „Свртете лево.“ For \"don't\", lead with немој да.",
+      "recap": "Commands are just a tweak of the verb's ending. For a group — or to sound polite to one stranger — add -те: Свртете, Одете, Кажете. To one friend it's shorter: слушај!, дојди!. For \"don't\" you put немој да in front: Немој да одиш! And you've been giving polite commands since day one without noticing: Извинете (\"excuse me\") and Повелете (\"here you go\") are exactly this -ете form.",
+      "library": {
+        "rule": "A command (the imperative) is made from the verb by swapping its ending. Verbs in -а and -е add -ј for one person (гледај!, пиј!); verbs in -и and those ending in a consonant add -и (дојди!, земи!). To address a group, or to be polite to a single stranger, add -те to that form: гледајте!, дојдете!, and for these chapter verbs Свртете, Одете, Кажете, plus the everyday Извинете and Повелете. For a negative command — telling someone NOT to do something — you don't change the verb into a special \"don't\" shape; instead you put немој да in front of an ordinary verb: Немој да одиш!",
+        "why": [
+          "The -те on Свртете does two jobs at once: it marks a group AND it's the polite way to tell one person. If you're using вие with a stranger, use the -те command too.",
+          "\"Don't\" isn't built into the verb. You keep a normal verb and front it with немој да, just like you'd use да after сакам or може — the да stays and the verb follows.",
+          "Извинете and Повелете feel like fixed \"words\" but they're really -ете commands (\"excuse!\", \"help yourself!\") — that's why they end the same way as Свртете and Одете."
+        ],
+        "mistakes": [
+          "Not using plain не for “don't”: не negates a statement, but a command NOT to do something needs немој да, as in Немој да одиш!",
+          "Not „Сврти“ to a stranger asking directions, but „Свртете“ — the bare form is for a friend; add -те to be polite.",
+          "Not keeping the long verb in a command, but trimming it: the -а/-е verb drops to -ј (гледа → гледај!), so listen for the short ending."
+        ]
+      },
+      "examples": [
+        "story:gen-s1-directions-story#2",
+        "qa:gen-s1-directions-story#q3:a",
+        "story:gen-s1-directions-story#3",
+        "scenario:gen-s1-directions#1"
+      ],
+      "callbacks": [
+        "story:gen-s0-repair-story#2",
+        "scenario:gen-s0-survive#6",
+        "scenario:gen-s0-survive#0"
+      ],
+      "ruleCards": [
+        {
+          "front": "How do you tell a group — or one stranger politely — to do something?",
+          "back": "Add -те to the command: Свртете, Одете, Кажете.",
+          "example": "story:gen-s1-directions-story#2"
+        },
+        {
+          "front": "How do you say \"don't\" do something?",
+          "back": "Put немој да in front of a normal verb.",
+          "example": "grammar:imperatives#3"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "story:gen-s1-directions-story#2",
+          "blank": "Свртете",
+          "options": [
+            "Свртете",
+            "Одете",
+            "Кажете"
+          ],
+          "why": "The -ете ending makes it a polite/group command: \"turn.\""
+        },
+        {
+          "line": "scenario:gen-directions#0",
+          "blank": "Извинете",
+          "options": [
+            "Извинете",
+            "Свртете",
+            "Кажете"
+          ],
+          "why": "\"Excuse me\" is itself a polite -ете command."
+        },
+        {
+          "line": "grammar:imperatives#3",
+          "blank": "одиш",
+          "options": [
+            "одиш",
+            "одете",
+            "свртете"
+          ],
+          "why": "After немој да you use a normal verb for the single person: \"don't go.\""
+        }
+      ]
+    },
+    "pt-more-most": {
+      "agenda": "Build \"more\" and \"most\": stick по- or нај- on the front",
+      "rule": "For \"more\", glue по- onto the word; for \"most\", glue нај- onto it — one word, no space. \"Ова кафе е подобро\" (This coffee is better). For \"than\", use од.",
+      "recap": "You've actually been doing this since the very first chapter: „Побавно, ве молам.“ is just бавно (slow) with по- on front — \"more slowly\". So по- means \"more\" and нај- means \"most\", always written as one word: подобро, најдобар, побрзо, поголем, најголем. It works on almost any describing word. And when you want to say \"than\", reach for од: \"Таа е повисока од мене.\"",
+      "library": {
+        "rule": "To say \"more\", attach по- to the front of an adjective or adverb; to say \"most\", attach нај-. Both are written as a single word with no space and no change to the base: добро → подобро → најдобро, голем → поголем → најголем, брзо → побрзо → најбрзо, убав → поубав → најубав, добар → подобар → најдобар. The comparison word \"than\" is од, placed after the described word: \"Таа е повисока од мене\" (She's taller than me). This pattern (the comparative and superlative) covers almost everything, so there's very little to memorise beyond the two prefixes.",
+        "why": [
+          "It's one word, not two. English puts a separate word (\"more\", \"most\") in front, but Macedonian fuses по-/нај- onto the adjective, so побрзо is a single spelled-out word.",
+          "по- and нај- don't care about gender or number — they sit on the front, while the adjective's own ending still changes to match its noun (повисока for a woman, повисок for a man).",
+          "\"Than\" is од, the same little word you already use for \"from\". Same shape, two jobs: here it links the two things being compared."
+        ],
+        "mistakes": [
+          "Not writing по- or нај- as a separate word: подобро is one word.",
+          "Not mixing up the two: по- means “more” (подобро, “better”), нај- means “most” (најдобар, “the best”).",
+          "Not borrowing another word for “than”: it's од, the same word as “from”, as in повисока од мене."
+        ]
+      },
+      "examples": [
+        "grammar:comparatives#0",
+        "grammar:comparatives#1",
+        "grammar:comparatives#3",
+        "grammar:comparatives#2"
+      ],
+      "callbacks": [
+        "story:gen-s0-repair-story#3",
+        "qa:gen-s0-repair-story#q2:a"
+      ],
+      "ruleCards": [
+        {
+          "front": "How do you say \"more\" and \"most\"?",
+          "back": "Glue по- on front for \"more\", нај- for \"most\" — one word.",
+          "example": "grammar:comparatives#0"
+        },
+        {
+          "front": "Which word means \"than\" in a comparison?",
+          "back": "од, placed after the describing word.",
+          "example": "grammar:comparatives#3"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "grammar:comparatives#0",
+          "blank": "подобро",
+          "options": [
+            "подобро",
+            "најдобро",
+            "побрзо"
+          ],
+          "why": "по- means \"more\": better, not best."
+        },
+        {
+          "line": "grammar:comparatives#1",
+          "blank": "најдобар",
+          "options": [
+            "најдобар",
+            "подобар",
+            "најголем"
+          ],
+          "why": "нај- means \"most\": the best."
+        },
+        {
+          "line": "grammar:comparatives#3",
+          "blank": "од",
+          "options": [
+            "од",
+            "на",
+            "во"
+          ],
+          "why": "\"Than\" in a comparison is од."
+        }
+      ]
+    }
+  }
+}

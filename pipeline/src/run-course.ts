@@ -7,6 +7,7 @@
 //             target-language example is a REFERENCE to an existing line, never new text.
 //   assemble  No LLM: lay out sessions (course/plan.ts) and write course.ts.
 //   review    No LLM: render pipeline/output/course-review-mk.md for sign-off.
+//   signoff   Mark the points of --chapters as validated once a human has signed them off.
 //   lines     Print the lines of chapters/concepts with their sources (authoring aid): lines 4 5 clitics
 //   import    No LLM: merge drafts written outside the API (pipeline/course-drafts/*.json), held to the
 //             same validation as LLM output.
@@ -44,6 +45,17 @@ let cost = 0;
 // ---- existing blueprint (so re-runs only fill gaps) ----
 let course: Course = { points: [], chapters: [], stageReviews: [], lineTags: {}, chunkNotes: [] };
 if (pack.course) course = structuredClone(pack.course);
+
+// Notes read as one voice: no "Set phrase for now:" prefix (the UI labels them), curly quotes, capitalized.
+const tidyNote = (n: string): string => {
+  const t = n.trim().replace(/^set phrases? for now:\s*/i, "").replace(/'([^']+)'/g, "“$1”");
+  return t.charAt(0).toUpperCase() + t.slice(1);
+};
+// Keep stored note text in step with the live lines (content fixes change a line's text, not its source).
+const catalogBySource = new Map(catalog.map((l) => [l.source, l]));
+course.chunkNotes = course.chunkNotes
+  .filter((n) => catalogBySource.has(n.source))
+  .map((n) => ({ ...n, text: catalogBySource.get(n.source)!.text, note: tidyNote(n.note) }));
 
 // Sanity: the spine must cover the pack's chapters, in order.
 const packOrder = [...(pack.chapters ?? [])].sort((a, b) => a.order - b.order).map((c) => c.id);
@@ -97,7 +109,7 @@ async function tag() {
         course.lineTags[l.source] = pts;
         course.chunkNotes = course.chunkNotes.filter((n) => n.source !== l.source);
         const later = pts.filter((p) => l.chapterOrder > 0 && spine.find((s) => s.id === p)!.chapterOrder > l.chapterOrder);
-        if (later.length) course.chunkNotes.push({ source: l.source, text: l.text, pointIds: later, note: r.note.trim() || "Set phrase for now: a later chapter explains how it works." });
+        if (later.length) course.chunkNotes.push({ source: l.source, text: l.text, pointIds: later, note: tidyNote(r.note || "A later chapter explains how this works.") });
       }
       for (const l of batch) course.lineTags[l.source] ??= [];
       console.log(`  tagged chapter ${order || "grammar"} lines ${start + 1}-${start + batch.length}: $${costUsd.toFixed(3)}`);
@@ -149,7 +161,8 @@ const POINT_SYSTEM =
   `- recap: 3-5 sentences consolidating the rule. If callbacks exist, connect to them ("You've been saying … since the first chapter: …"). Written to be read after the lesson.\n` +
   `- library.rule: a thorough paragraph (still plain English).\n` +
   `- library.why: 2-4 "why is it like this?" notes — the nuances that genuinely confuse English speakers (e.g. where a little word goes and why, when two options both work, look-alike words with different jobs).\n` +
-  `- library.mistakes: 2-3 common mistakes, each "Not …, but …" with a reason.\n` +
+  `- library.mistakes: 2-3 common mistakes, each "Not …, but …" with a reason. DESCRIBE the wrong version in English ` +
+  `("not adding -то to a feminine noun"), never spell out a wrong ${pack.name} form: only correct forms from the candidates may be quoted.\n` +
   `- examples: 2-4 candidate ids, preferring lines from this point's own chapter, then earlier chapters, then grammar examples.\n` +
   `- callbacks: 0-3 candidate ids marked EARLIER (set phrases the learner already says) that this point now explains. Empty if none are marked earlier.\n` +
   `- ruleCards: 1-2 simple flashcards. front: a plain question ("Where does ли go in a yes/no question?"); back: a one-line answer; example: a candidate id or "".\n` +
@@ -199,6 +212,8 @@ function validateDraft(d: PointDraft, cands: Map<string, CatalogLine>, sp: (type
     for (const o of b.options) for (const w of tokens(o)) if (!corpus.has(w)) errs.push(`option "${o}" uses "${w}", which isn't in the pack`);
   }
   const prose = [d.agenda, d.rule, d.recap, d.library.rule, ...d.library.why, ...d.library.mistakes, ...d.ruleCards.flatMap((c) => [c.front, c.back]), ...d.blankCards.map((c) => c.why)];
+  if (prose.some((t) => /\bc\d+\b/.test(t))) errs.push(`prose mentions candidate ids (c12…): refer to lines by quoting them, never by id`);
+  if (prose.some((t) => /\b(go|ja|gi|se|mi|ti|mu|li|da|ne)\b,? (?:and |or )?\b(go|ja|gi|se|mi|ti|mu|li|da|ne)\b/.test(t))) errs.push(`prose romanizes target-language words: write them in the original script`);
   const allowed = referenceWords(sp);
   for (const c of cands.values()) tokens(c.text).forEach((w) => allowed.add(w));
   const bad = new Set(prose.flatMap(proseWords).filter((w) => !corpus.has(w) && !allowed.has(w)));
@@ -276,7 +291,7 @@ function importDrafts(file: string) {
     if (!note) { errors.push(`chunkNotes: ${source} uses ${later.join(", ")} from a later chapter but has no note`); continue; }
     const quoted = proseWords(note).filter((w) => !tokens(l.text).includes(w) && !corpus.has(w));
     if (quoted.length) errors.push(`chunkNotes ${source}: quotes words not in the pack: ${quoted.join(", ")}`);
-    course.chunkNotes.push({ source, text: l.text, pointIds: later, note });
+    course.chunkNotes.push({ source, text: l.text, pointIds: later, note: tidyNote(note) });
   }
   for (const [id, draft] of Object.entries(raw.points ?? {})) {
     const sp = spine.find((p) => p.id === id);
@@ -305,7 +320,7 @@ async function points() {
 // assemble + review
 // =====================================================================================================
 function assemble() {
-  const { chapters, stageReviews } = planCourse({ pack, points: course.points, lineTags: course.lineTags });
+  const { chapters, stageReviews } = planCourse({ pack, points: course.points, lineTags: course.lineTags, chunkNotes: course.chunkNotes });
   course.chapters = chapters;
   course.stageReviews = stageReviews;
 }
@@ -338,7 +353,10 @@ function review() {
         L.push(`| ${s.n} | ${s.role} | ${pt} | ${s.words.map((w) => w.display).join(" · ")} | ${story} | ${s.speak ? "✓" : ""} | ${s.build.length} |`);
       }
       L.push("", "**Agenda, session by session**", "");
-      for (const s of cc.sessions) L.push(`${s.n}. ${s.agenda.join(" · ")}  \n   _${s.next}_`);
+      for (const s of cc.sessions) {
+        L.push(`${s.n}. ${s.agenda.join(" · ")}  \n   _${s.next}_`);
+        for (const src of s.notes ?? []) { const n = course.chunkNotes.find((x) => x.source === src); if (n) L.push(`   - 💬 *${n.text}*: ${n.note}`); }
+      }
       if (cc.extraWords.length) L.push("", `**Moved to Library → Words:** ${cc.extraWords.map((w) => w.display).join(" · ")}`);
     }
     for (const sp of sc.points) {
@@ -354,7 +372,9 @@ function review() {
         : `- ▢ ${c.line.text.replace(c.blank, "___")} → **${c.blank}** of [${c.options.join(" / ")}]: ${c.why}`));
     }
     const notes = course.chunkNotes.filter((n) => catalog.find((l) => l.source === n.source)?.chapterOrder === ch.order);
-    if (notes.length) L.push("", `**Set-phrase notes in this chapter** (lines using grammar from a later chapter):`, ...notes.map((n) => `- ${n.text}: ${n.note}`));
+    const surfaced = new Set(course.chapters.flatMap((c) => c.sessions.flatMap((s) => s.notes ?? [])));
+    const tapOnly = notes.filter((n) => !surfaced.has(n.source));
+    if (tapOnly.length) L.push("", `**Set-phrase notes available on tap only** (not surfaced in a session):`, ...tapOnly.map((n) => `- ${n.text}: ${n.note}`));
     L.push("");
   }
   mkdirSync(dirname(REVIEW), { recursive: true });
@@ -371,6 +391,29 @@ if (cmd === "lines") {
     if (ok) console.log(`${l.source}\t${l.text}\t${l.gloss}`);
   }
   process.exit(0);
+}
+if (cmd === "export") {
+  // Write points back out in the draft format (sources instead of candidate ids) for hand-editing; the
+  // edited file goes back in through `import`, which re-runs the full validation.
+  const pts = course.points.filter((p) => !ONLY || ONLY.includes(p.chapterId));
+  const out: Record<string, PointDraft> = {};
+  for (const p of pts) out[p.id] = {
+    agenda: p.agenda, rule: p.rule, recap: p.recap, library: p.library,
+    examples: p.examples.map((e) => e.source), callbacks: p.callbacks.map((e) => e.source),
+    ruleCards: p.cards.flatMap((c) => (c.kind === "rule" ? [{ front: c.front, back: c.back, example: c.example?.source ?? "" }] : [])),
+    blankCards: p.cards.flatMap((c) => (c.kind === "blank" ? [{ line: c.line.source, blank: c.blank, options: c.options, why: c.why }] : [])),
+  };
+  writeFileSync(process.argv[3]!, JSON.stringify({ points: out }, null, 2));
+  console.log(`exported ${pts.length} point(s) to ${process.argv[3]}`);
+  process.exit(0);
+}
+if (cmd === "signoff") {
+  // A human signed off these chapters: their points become `validated` (served as authoritative).
+  if (!ONLY) throw new Error("signoff needs --chapters");
+  let n = 0;
+  course.points = course.points.map((p) => (ONLY.includes(p.chapterId) ? (n++, { ...p, confidence: "validated" as const }) : p));
+  console.log(`signed off ${n} point(s) in ${ONLY.join(", ")}`);
+  save();
 }
 if (cmd === "import") { importDrafts(process.argv[3]!); save(); }
 if (cmd === "tag" || cmd === "all") { await tag(); save(); }

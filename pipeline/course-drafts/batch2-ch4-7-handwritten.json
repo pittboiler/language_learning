@@ -1,0 +1,66 @@
+{
+  "_about": "Two chapter 4-7 points written in-session after the API drafts kept quoting wrong forms in their 'common mistakes' (сметкато, пивота, градои). The other nine chapter 4-7 points came from the API and were reviewed in-session.",
+  "points": {
+    "pt-the": {
+      "agenda": "Say “the”: add -от, -та or -то to the end of the noun",
+      "rule": "Macedonian has no separate word for “the”. It's an ending on the noun, matched to its gender: -от for masculine (лебот), -та for feminine (сметката), -то for neuter (кафето, пивото).",
+      "recap": "Today “the” moved to the end of the word. A masculine noun takes -от (лебот, “the bread”; келнерот, “the waiter”), a feminine one -та (сметката, “the bill”), a neuter one -то (кафето, пивото). That's why gender mattered in chapter 3: the gender that picks еден, една or едно also picks “the”. You'll hear it in every café: Сметката, ве молам. And chapter 3's Каде е лебот? had “the” in it all along.",
+      "library": {
+        "rule": "Where English puts “the” in front of a noun, Macedonian adds it to the end, and the noun's gender decides the ending: masculine -от (леб → лебот; келнерот, “the waiter”), feminine -та (книга → книгата), neuter -то (пиво → пивото, кафе → кафето). The noun and its ending are written as one word. Without the ending, a noun means “a” or the thing in general: Ана сака кафе (“Ana wants coffee”), but Кафето е добро (“The coffee is good”). There's also a pair of pointing endings, -ва for something near you and -на for something further away (книгава, “this book”; книгана, “that book”). Just recognize those for now.",
+        "why": [
+          "Why on the end? It's a Balkan habit: Macedonian, Bulgarian, Albanian and Romanian all attach “the” to the noun instead of putting a word in front.",
+          "Why does gender matter again? The ending is chosen by gender, and the noun's own ending usually tells you the gender: -а nouns take -та (сметката), consonant nouns -от (лебот), -о and -е nouns -то (кафето).",
+          "“The” marks something specific or already mentioned: Ана пие кафе (some coffee), then Кафето е добро (the coffee she's drinking).",
+          "Plurals have their own “the” endings, which come along with plurals in chapter 6."
+        ],
+        "mistakes": [
+          "Not adding a separate word in front for “the”: the ending does the job, as in сметката.",
+          "Not picking the ending from the English meaning: go by the noun's gender, so a noun ending in -а takes -та.",
+          "Not adding “the” when you mean something in general: Ана сака кафе has no ending."
+        ]
+      },
+      "examples": ["scenario:bar-order-a-drink#5", "story:ana-coffee#4", "qa:gen-s1-cafe-order-story#q2:q", "story:gen-s1-cafe-order-story#2"],
+      "callbacks": ["story:gen-s0-survive-story#3", "scenario:gen-s0-survive#5"],
+      "ruleCards": [
+        { "front": "Where does “the” go in Macedonian?", "back": "On the end of the noun: сметката, кафето, лебот.", "example": "scenario:bar-order-a-drink#5" },
+        { "front": "Which “the” ending goes with a noun ending in -а?", "back": "-та: сметката, книгата.", "example": "grammar:definite-articles#1" }
+      ],
+      "blankCards": [
+        { "line": "story:gen-s0-survive-story#3", "blank": "лебот", "options": ["лебот", "лебта", "леб"], "why": "леб is masculine, so “the bread” is лебот." },
+        { "line": "qa:gen-s1-cafe-order-story#q2:q", "blank": "пивото", "options": ["пивото", "пивата", "пиво"], "why": "пиво is neuter, so “the beer” is пивото." },
+        { "line": "story:ana-coffee#4", "blank": "Кафето", "options": ["Кафето", "Кафе", "Кафиња"], "why": "It's the coffee Ana is drinking, a specific one: Кафето." }
+      ]
+    },
+
+    "pt-plurals": {
+      "agenda": "Talk about more than one: plural endings",
+      "rule": "Most nouns make the plural by changing the ending: masculine adds -и (денар → денари), feminine swaps -а for -и (книга → книги), neuter swaps -о for -а (пиво → пива). Short masculine nouns often take -ови (град → градови).",
+      "recap": "Today you made plurals, and the rule follows gender like everything since chapter 3. Masculine nouns add -и (денари), feminine nouns change -а to -и (книги), neuter nouns change -о to -а (пива). You've been using plurals since you first counted: пет јаболка, десет денари. At the market you'll mostly hear јаболка in the plural, by the kilo: едно кило јаболка. Short masculine words often take -ови instead, as in градови (“cities”).",
+      "library": {
+        "rule": "Macedonian plurals are made with endings, and gender tells you which one. Masculine nouns usually add -и: маж → мажи, денар → денари. Many short masculine nouns add -ови instead: град → градови. Feminine nouns ending in -а change it to -и: книга → книги, жена → жени. Neuter nouns ending in -о change it to -а: пиво → пива, село → села; some neuter nouns in -е add -иња instead (кафе → кафиња). A few everyday nouns are irregular, such as дете → деца (“children”); those come in chapter 10. From two up, a counted noun is always plural, which is why you've said пет јаболка and десет денари since chapter 3.",
+        "why": [
+          "Why does gender matter again? The plural ending depends on it, just like еден/една/едно and “the” did. Knowing a noun's gender gets you most of the way to its plural.",
+          "Why градови and not just -и? Many short masculine nouns take the longer -ови ending. Learn those as you meet them.",
+          "Why кафиња? Some neuter nouns ending in -е add -иња in the plural: две кафиња (“two coffees”).",
+          "You'll mostly meet јаболка (“apples”) in the plural, because at the market apples come by the kilo."
+        ],
+        "mistakes": [
+          "Not keeping the singular after a number: from two up the noun is plural, as in три пива.",
+          "Not adding an ending to a feminine noun's -а: the -а is swapped for -и, as in книги.",
+          "Not forgetting the -ови of short masculine nouns: градови."
+        ]
+      },
+      "examples": ["story:gen-s1-market-story#4", "scenario:gen-s1-market#6", "grammar:noun-plurals#1", "grammar:noun-plurals#2"],
+      "callbacks": ["story:gen-s0-survive-story#5", "story:gen-s0-survive-story#7"],
+      "ruleCards": [
+        { "front": "How does a feminine noun like книга become plural?", "back": "Swap -а for -и: книги.", "example": "grammar:noun-plurals#1" },
+        { "front": "How does a neuter noun like пиво become plural?", "back": "Swap -о for -а: пива (три пива).", "example": "grammar:numbers#2" }
+      ],
+      "blankCards": [
+        { "line": "grammar:numbers#2", "blank": "пива", "options": ["пива", "пиво", "пивото"], "why": "Neuter -о becomes -а in the plural: пива." },
+        { "line": "grammar:noun-plurals#1", "blank": "книги", "options": ["книги", "книга", "книгата"], "why": "Feminine -а becomes -и in the plural: книги." },
+        { "line": "scenario:gen-s1-market#6", "blank": "денари", "options": ["денари", "денар", "леб"], "why": "From two up the noun is plural: денар → денари." }
+      ]
+    }
+  }
+}

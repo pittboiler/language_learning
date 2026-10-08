@@ -79,6 +79,7 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s1-greet-intro",
+    dropWords: ["сум / си / е"], // taught as a grammar point in chapter 2
     points: [
       { id: "pt-verbs-e-i", title: "The other verb groups: -е and -и verbs", grammarIds: ["verb-conjugation-e", "verb-conjugation-i"], depth: "produce", heavy: true,
         scope: "Present tense of е-verbs (јадам, јадеш, јаде; пијам, пиеш, пие) and и-verbs (учам, учиш, учи; одам, одиш, оди; работам, работиш, работи).",
@@ -92,10 +93,10 @@ export const SPINE: SpineChapter[] = [
     chapterId: "s1-market",
     points: [
       { id: "pt-plurals", title: "More than one: plurals", grammarIds: ["noun-plurals"], depth: "produce",
-        scope: "Regular noun plurals: masculine -и/-ови, feminine -а → -и, neuter -о/-е → -а (јаболко → јаболка, денар → денари, кило → кила).",
+        scope: "Regular noun plurals: masculine -и/-ови, feminine -а → -и, neuter -о/-е → -а (денар → денари, пиво → пива, кафе → кафиња; јаболка = apples).",
         words: ["јаболка"] },
       { id: "pt-adjectives", title: "Adjectives match their noun", grammarIds: ["adjective-agreement"], depth: "produce",
-        scope: "Adjective agreement in gender and number: добар/добра/добро/добри, евтин, скап, свеж, голем, мал — including with the article (свежиот леб).",
+        scope: "Adjective agreement in gender and number: добар/добра/добро/добри, евтин/евтина, голем/голема/големи, убав/убаво/убави, нов/ново — including with the article (новиот).",
         words: ["евтин", "скап", "добар"] },
       { id: "pt-go-ja-gi", title: "It, them: го, ја, ги", grammarIds: ["clitics"], depth: "produce",
         scope: "Direct-object pronouns го (him/it), ја (her/it), ги (them) placed before the verb, including doubling a definite object: ќе ги земам, Го сакам." },
@@ -111,7 +112,7 @@ export const SPINE: SpineChapter[] = [
         scope: "Imperatives: polite/plural -ете/-ајте (Свртете, Одете, Повелете, Извинете, Кажете) and informal -ај/-и, plus немој да for “don't”.",
         words: ["Свртете лево."] },
       { id: "pt-more-most", title: "More and most: по- and нај-", grammarIds: ["comparatives"], depth: "produce",
-        scope: "Comparatives and superlatives with по- and нај- written as one word: побавно, подобро, поблиску, најдобро." },
+        scope: "Comparatives and superlatives with по- and нај- written as one word: побавно, побрзо, подобро, поголем, поубав; најдобар, најубав, најголем." },
     ],
   },
   {

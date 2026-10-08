@@ -65,6 +65,8 @@ export function wordCorpus(pack: LanguagePack): Set<string> {
   for (const l of lineCatalog(pack)) add(l.text);
   for (const v of pack.vocab) add(v.answer);
   for (const g of pack.grammar) {
+    // The authored lessons' own prose quotes target-language forms too (e.g. imperatives: земи).
+    add(g.plain); add(g.explanation);
     for (const row of g.pattern?.rows ?? []) row.forEach(add);
     for (const d of g.drills) { add(d.answer); (d.options ?? []).forEach(add); }
   }

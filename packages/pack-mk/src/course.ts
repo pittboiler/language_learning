@@ -101,7 +101,7 @@ export const course: Course = {
           "why": "не goes right in front of е: “isn't”."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-yes-no",
@@ -199,7 +199,7 @@ export const course: Course = {
           "why": "Дали opens a yes/no question."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-question-words",
@@ -317,7 +317,7 @@ export const course: Course = {
           "why": "колку means “how much”."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-sum",
@@ -446,7 +446,7 @@ export const course: Course = {
           "why": "Marko is “he” → е."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-ti-vie",
@@ -557,7 +557,7 @@ export const course: Course = {
           "why": "A friend gets ти → си."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-gender",
@@ -680,7 +680,7 @@ export const course: Course = {
           "why": "кафе ends in -е: neuter → едно."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-numbers",
@@ -795,6 +795,1447 @@ export const course: Course = {
             "Што"
           ],
           "why": "Колку чини? means “How much is it?”"
+        }
+      ],
+      "confidence": "validated"
+    },
+    {
+      "id": "pt-verbs-a",
+      "chapterId": "s1-cafe-order",
+      "order": 8,
+      "grammarIds": [
+        "verb-conjugation"
+      ],
+      "depth": "produce",
+      "heavy": true,
+      "title": "Verb endings: the -а verbs",
+      "agenda": "Change the verb ending to say who wants, has, or pays.",
+      "rule": "Macedonian verbs change their ending to show who's acting, so you often drop the pronoun. \"сакам\" already means \"I want\"; \"сакаш\" means \"you want\". The ending -м is your \"I\" signal.",
+      "recap": "For the big -а group, the ending tells you who: -ам (I), -аш (you), -а (he/she), -аме (we), -ате (you all), -аат (they). You've been doing this since chapter one without noticing — \"Не разбирам\" already means \"I don't understand\", and \"Сакам јаболка\" means \"I want apples\". Notice the -м on the end: that's always \"I\". You can add јас or ти for emphasis, but the ending already carries the person, so most of the time you just say the verb.",
+      "library": {
+        "rule": "Macedonian marks the person on the verb itself, so a separate pronoun is usually optional. For the large group of verbs whose present tense runs on an -а (the а-verbs), you swap the ending by person: сакам (I want), сакаш (you want), сака (he/she wants), сакаме (we want), сакате (you all / polite you want), сакаат (they want). The same endings apply to other а-verbs you meet here, like имам (I have) and плаќам (I pay), and зборувам (I speak). The key signposts for a beginner: -м on the end means \"I\", and -ш means casual \"you\". Two other verb groups (the -е and -и types) follow the very same idea with their own vowel.",
+        "why": [
+          "You don't need јас, ти, тој and so on — the ending already says who. Add the pronoun only to stress it (\"I, on the other hand…\"). This is why \"сакам кафе\" is a full sentence with no word for \"I\".",
+          "\"сакаш\" (casual you) vs \"сакате\" (polite / plural you) is the same ти/вие choice you already learned — the verb ending just mirrors it. A friend is asked \"Што сакаш?\", while a customer gets the polite \"Што сакате?\".",
+          "\"сака\" (he/she) and \"сакаат\" (they) look similar but the extra -ат makes it plural: \"Сака едно кафе\" is one person, \"тие сакаат вода\" is several."
+        ],
+        "mistakes": [
+          "Not \"јас сакам\" every time, but just \"сакам\" — the -м already means \"I\", so the pronoun is extra.",
+          "Not \"сака\" for \"they want\", but \"сакаат\" — he/she is -а, they is -аат, and that final -ат is the difference.",
+          "Not mixing up \"сакаш\" and \"сакате\" — use -аш with a friend (ти) and -ате with someone polite or a group (вие)."
+        ]
+      },
+      "examples": [
+        {
+          "text": "сакам кафе",
+          "gloss": "I want a coffee",
+          "source": "grammar:verb-conjugation#0"
+        },
+        {
+          "text": "Здраво! Што сакаш?",
+          "gloss": "Hi! What would you like?",
+          "source": "scenario:bar-order-a-drink#0"
+        },
+        {
+          "text": "Добар ден! Што сакате?",
+          "gloss": "Good day! What would you like?",
+          "source": "scenario:gen-s1-cafe-order#0"
+        },
+        {
+          "text": "тие сакаат вода",
+          "gloss": "they want water",
+          "source": "grammar:verb-conjugation#2"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Не разбирам.",
+          "gloss": "I don't understand.",
+          "source": "qa:gen-s0-repair-story#q1:a"
+        },
+        {
+          "text": "„Добар ден! Сакам јаболка.“",
+          "gloss": "\"Good day! I want apples.\"",
+          "source": "story:gen-s0-survive-story#1"
+        },
+        {
+          "text": "И јас сум добро, фала. Сакате ли кафе?",
+          "gloss": "I'm fine too, thanks. Would you like coffee?",
+          "source": "scenario:gen-s0-greet#2"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"I want\" with no separate word for \"I\"?",
+          "back": "The verb ending -ам does it: сакам = I want.",
+          "example": {
+            "text": "сакам кафе",
+            "gloss": "I want a coffee",
+            "source": "grammar:verb-conjugation#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "Which ending on an -а verb means \"I\"?",
+          "back": "-ам (the -м is the \"I\" signal): сакам, имам, плаќам.",
+          "example": {
+            "text": "Не разбирам.",
+            "gloss": "I don't understand.",
+            "source": "qa:gen-s0-repair-story#q1:a"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "сакам кафе",
+            "gloss": "I want a coffee",
+            "source": "grammar:verb-conjugation#0"
+          },
+          "blank": "сакам",
+          "options": [
+            "сакам",
+            "сакаш",
+            "сакаат"
+          ],
+          "why": "-ам ending = I want."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Здраво! Што сакаш?",
+            "gloss": "Hi! What would you like?",
+            "source": "scenario:bar-order-a-drink#0"
+          },
+          "blank": "сакаш",
+          "options": [
+            "сакаш",
+            "сакам",
+            "сакате"
+          ],
+          "why": "-аш is casual \"you\", for a friend."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "тие сакаат вода",
+            "gloss": "they want water",
+            "source": "grammar:verb-conjugation#2"
+          },
+          "blank": "сакаат",
+          "options": [
+            "сакаат",
+            "сакаме",
+            "сака"
+          ],
+          "why": "-аат marks \"they\"; тие is plural."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-the",
+      "chapterId": "s1-cafe-order",
+      "order": 9,
+      "grammarIds": [
+        "definite-articles"
+      ],
+      "depth": "produce",
+      "title": "Saying “the”: it goes on the end",
+      "agenda": "Say “the”: add -от, -та or -то to the end of the noun",
+      "rule": "Macedonian has no separate word for “the”. It's an ending on the noun, matched to its gender: -от for masculine (лебот), -та for feminine (сметката), -то for neuter (кафето, пивото).",
+      "recap": "Today “the” moved to the end of the word. A masculine noun takes -от (лебот, “the bread”; келнерот, “the waiter”), a feminine one -та (сметката, “the bill”), a neuter one -то (кафето, пивото). That's why gender mattered in chapter 3: the gender that picks еден, една or едно also picks “the”. You'll hear it in every café: Сметката, ве молам. And chapter 3's Каде е лебот? had “the” in it all along.",
+      "library": {
+        "rule": "Where English puts “the” in front of a noun, Macedonian adds it to the end, and the noun's gender decides the ending: masculine -от (леб → лебот; келнерот, “the waiter”), feminine -та (книга → книгата), neuter -то (пиво → пивото, кафе → кафето). The noun and its ending are written as one word. Without the ending, a noun means “a” or the thing in general: Ана сака кафе (“Ana wants coffee”), but Кафето е добро (“The coffee is good”). There's also a pair of pointing endings, -ва for something near you and -на for something further away (книгава, “this book”; книгана, “that book”). Just recognize those for now.",
+        "why": [
+          "Why on the end? It's a Balkan habit: Macedonian, Bulgarian, Albanian and Romanian all attach “the” to the noun instead of putting a word in front.",
+          "Why does gender matter again? The ending is chosen by gender, and the noun's own ending usually tells you the gender: -а nouns take -та (сметката), consonant nouns -от (лебот), -о and -е nouns -то (кафето).",
+          "“The” marks something specific or already mentioned: Ана пие кафе (some coffee), then Кафето е добро (the coffee she's drinking).",
+          "Plurals have their own “the” endings, which come along with plurals in chapter 6."
+        ],
+        "mistakes": [
+          "Not adding a separate word in front for “the”: the ending does the job, as in сметката.",
+          "Not picking the ending from the English meaning: go by the noun's gender, so a noun ending in -а takes -та.",
+          "Not adding “the” when you mean something in general: Ана сака кафе has no ending."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Сметката, ве молам.",
+          "gloss": "The bill, please.",
+          "source": "scenario:bar-order-a-drink#5"
+        },
+        {
+          "text": "Ана пие кафе. Кафето е добро.",
+          "gloss": "Ana drinks coffee. The coffee is good.",
+          "source": "story:ana-coffee#4"
+        },
+        {
+          "text": "Колку чини пивото?",
+          "gloss": "How much does the beer cost?",
+          "source": "qa:gen-s1-cafe-order-story#q2:q"
+        },
+        {
+          "text": "„Што ќе сакате?“ прашува келнерот.",
+          "gloss": "\"What would you like?\" asks the waiter.",
+          "source": "story:gen-s1-cafe-order-story#2"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "„А каде е лебот?“ прашува Ана.",
+          "gloss": "\"And where is the bread?\" asks Ana.",
+          "source": "story:gen-s0-survive-story#3"
+        },
+        {
+          "text": "Извинете, може ли пак? Каде е касата?",
+          "gloss": "Sorry, can you repeat? Where is the cash register?",
+          "source": "scenario:gen-s0-survive#5"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "Where does “the” go in Macedonian?",
+          "back": "On the end of the noun: сметката, кафето, лебот.",
+          "example": {
+            "text": "Сметката, ве молам.",
+            "gloss": "The bill, please.",
+            "source": "scenario:bar-order-a-drink#5"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "Which “the” ending goes with a noun ending in -а?",
+          "back": "-та: сметката, книгата.",
+          "example": {
+            "text": "книгата",
+            "gloss": "the book",
+            "source": "grammar:definite-articles#1"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "„А каде е лебот?“ прашува Ана.",
+            "gloss": "\"And where is the bread?\" asks Ana.",
+            "source": "story:gen-s0-survive-story#3"
+          },
+          "blank": "лебот",
+          "options": [
+            "лебот",
+            "лебта",
+            "леб"
+          ],
+          "why": "леб is masculine, so “the bread” is лебот."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Колку чини пивото?",
+            "gloss": "How much does the beer cost?",
+            "source": "qa:gen-s1-cafe-order-story#q2:q"
+          },
+          "blank": "пивото",
+          "options": [
+            "пивото",
+            "пивата",
+            "пиво"
+          ],
+          "why": "пиво is neuter, so “the beer” is пивото."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Ана пие кафе. Кафето е добро.",
+            "gloss": "Ana drinks coffee. The coffee is good.",
+            "source": "story:ana-coffee#4"
+          },
+          "blank": "Кафето",
+          "options": [
+            "Кафето",
+            "Кафе",
+            "Кафиња"
+          ],
+          "why": "It's the coffee Ana is drinking, a specific one: Кафето."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-da",
+      "chapterId": "s1-cafe-order",
+      "order": 10,
+      "grammarIds": [
+        "da-modals"
+      ],
+      "depth": "produce",
+      "title": "Want to, can: да + verb",
+      "agenda": "Say want to / can / must: stack да + verb (Сакам да платам).",
+      "rule": "Macedonian has no \"to eat\" word. Instead you say да plus a normal verb, after words like сакам (want), можам (can), морам (must), треба (need): „Сакам да учам македонски“ — I want to learn Macedonian.",
+      "recap": "To say you want, can, or have to do something, join the two verbs with да: „Можам да платам?“ You've been saying this since chapter one without knowing it: „Можете ли да повторите?“ Both verbs point at the same person — сакам да платам is I…I. Only треба stays frozen (треба да…). This little да pattern runs through almost every real sentence you'll say in a café.",
+      "library": {
+        "rule": "English uses an \"infinitive\" (to pay, to go) after want/can/must. Macedonian has none. Instead you take a helper word — сакам (want), можам/може (can), морам (must), треба (need) — add да, then a fully conjugated verb: Сакам да платам = I want (I) to pay. The helper and the second verb both match the same person: сакам да јадам (I…I), сакаш да јадеш (you…you). To ask politely, slot ли in: „Можете ли да повторите?“ The whole да + present pattern is the backbone of everyday conversation.",
+        "why": [
+          "There's no infinitive at all, so you can't say \"to pay\" as one word — да + a conjugated verb does that whole job.",
+          "Both verbs carry a person ending, and they must agree: Сакам да платам, never a mismatched pair. The да just links them.",
+          "треба is impersonal — it doesn't change for who: „Треба да јадам/учам.\" Compare сакам/морам, which do change.",
+          "Questions can drop ли in relaxed speech: Можам да платам? said with a rising voice means “Can I pay?”."
+        ],
+        "mistakes": [
+          "Not leaving out да: two verbs always need да between them, as in Сакам да платам.",
+          "Not freezing the second verb: it takes the same person as the first, so сакаш goes with да јадеш, сакам with да јадам.",
+          "Not dropping да in a question: it stays right before the action verb, as in Можете ли да повторите?"
+        ]
+      },
+      "examples": [
+        {
+          "text": "Сакам да учам македонски",
+          "gloss": "I want to learn Macedonian",
+          "source": "grammar:da-modals#0"
+        },
+        {
+          "text": "Можам да платам?",
+          "gloss": "Can I pay?",
+          "source": "grammar:da-modals#1"
+        },
+        {
+          "text": "„Можете ли да повторите?“",
+          "gloss": "\"Can you repeat?\"",
+          "source": "story:gen-s0-repair-story#5"
+        },
+        {
+          "text": "Морам да одам",
+          "gloss": "I have to go",
+          "source": "grammar:da-modals#2"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "„Можете ли да повторите?“",
+          "gloss": "\"Can you repeat?\"",
+          "source": "story:gen-s0-repair-story#5"
+        },
+        {
+          "text": "Можете ли да повторите? Уште еднаш, ве молам.",
+          "gloss": "Can you repeat? Once more, please.",
+          "source": "scenario:gen-s0-repair#3"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"want/can/must to do\" with no infinitive?",
+          "back": "Helper verb + да + a conjugated verb, both matching the same person.",
+          "example": {
+            "text": "Сакам да учам македонски",
+            "gloss": "I want to learn Macedonian",
+            "source": "grammar:da-modals#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "Where does да go in „Можете ли да повторите?“",
+          "back": "Right before the action verb (after ли in a question).",
+          "example": {
+            "text": "„Можете ли да повторите?“",
+            "gloss": "\"Can you repeat?\"",
+            "source": "story:gen-s0-repair-story#5"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Сакам да учам македонски",
+            "gloss": "I want to learn Macedonian",
+            "source": "grammar:da-modals#0"
+          },
+          "blank": "да",
+          "options": [
+            "да",
+            "не",
+            "ли"
+          ],
+          "why": "да links the two verbs; without it the sentence falls apart."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Можам да платам?",
+            "gloss": "Can I pay?",
+            "source": "grammar:da-modals#1"
+          },
+          "blank": "платам",
+          "options": [
+            "платам",
+            "одам",
+            "учам"
+          ],
+          "why": "The second verb matches \"I\", just like можам."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Морам да одам",
+            "gloss": "I have to go",
+            "source": "grammar:da-modals#2"
+          },
+          "blank": "Морам",
+          "options": [
+            "Морам",
+            "Сакам",
+            "Треба"
+          ],
+          "why": "Морам да одам = I have to go; the helper sets the meaning."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-verbs-e-i",
+      "chapterId": "s1-greet-intro",
+      "order": 11,
+      "grammarIds": [
+        "verb-conjugation-e",
+        "verb-conjugation-i"
+      ],
+      "depth": "produce",
+      "heavy": true,
+      "title": "The other verb groups: -е and -и verbs",
+      "agenda": "Two more verb groups: just swap the middle vowel to -е or -и.",
+      "rule": "Macedonian has three verb families, told apart by the vowel in the middle: -а, -е or -и. The “I” form always ends in -ам: Учам македонски (“I'm learning Macedonian”). For “you” (ти), -е verbs end in -еш and -и verbs in -иш: Што работиш?",
+      "recap": "You already handle -а verbs; now -е and -и verbs work the same way, only with a different vowel in the middle. The “I” form ends in -ам in all three groups, so that part feels familiar. “They” ends in -ат for -е and -и verbs (јадат, учат), while -а verbs double the vowel (сакаат). For \"you\" (ти), -е verbs give -еш and -и verbs give -иш, as in \"Што работиш?\". You've been saying these since early chapters without naming them: \"сѐ уште учи\" (she's still learning), \"Ана оди по улицата\" (Ana walks), \"Ана пие кафе\" (Ana drinks coffee).",
+      "library": {
+        "rule": "Beyond the -а verbs you met earlier, there are two more present-tense patterns, told apart by the vowel in the middle of the word. The -е group (like јаде \"eats\") runs: јадам, јадеш, јаде, јадеме, јадете, јадат. The -и group (like учи \"learns\") runs: учам, учиш, учи, учиме, учите, учат. Notice how little actually changes: the “I” ending is -ам in every group. “They” is -ат here (јадат, учат), one vowel shorter than the -аат of -а verbs (сакаат). What shifts is the middle vowel and, with it, the \"you/he/we/you-all\" endings. So once you know which group a verb belongs to, you just plug the person onto the stem.",
+        "why": [
+          "The “I” form is -ам in every group, so Учам македонски feels just like an -а verb. For the other persons, follow the middle vowel: учиш, учи, учиме, учите, учат.",
+          "Macedonian drops the separate word for \"I/you/he\" most of the time — the ending already tells you who. \"Учам\" alone means \"I'm learning\"; you add јас only for emphasis.",
+          "One present-tense form covers both English \"I learn\" and \"I'm learning.\" \"Учам македонски\" is both \"I learn Macedonian\" and \"I'm learning Macedonian\" — context decides."
+        ],
+        "mistakes": [
+          "Not using an -а ending on every verb, but matching the verb's own vowel: it's \"работиш\" (you do), an -и verb, not a made-up -а form.",
+          "Not mixing up the \"you\" endings, but keeping -еш for -е verbs and -иш for -и verbs: \"Што работиш?\" takes -иш.",
+          "Not adding јас/ти before every verb, but letting the ending carry the person: \"Учам\" already means \"I'm learning.\""
+        ]
+      },
+      "examples": [
+        {
+          "text": "„Од Англија сум. Учам македонски.“",
+          "gloss": "\"I'm from England. I'm learning Macedonian.\"",
+          "source": "story:gen-s1-greet-intro-story#5"
+        },
+        {
+          "text": "„Што работиш?“ прашува Ана.",
+          "gloss": "\"What do you do?\" asks Ana.",
+          "source": "story:gen-s1-greet-intro-story#6"
+        },
+        {
+          "text": "Ана пие кафе. Кафето е добро.",
+          "gloss": "Ana drinks coffee. The coffee is good.",
+          "source": "story:ana-coffee#4"
+        },
+        {
+          "text": "Ана оди по улицата.",
+          "gloss": "Ana walks along the street.",
+          "source": "story:gen-s0-greet-story#0"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Не, сѐ уште учи.",
+          "gloss": "No, she is still learning.",
+          "source": "qa:gen-s0-repair-story#q3:a"
+        },
+        {
+          "text": "Ана оди по улицата.",
+          "gloss": "Ana walks along the street.",
+          "source": "story:gen-s0-greet-story#0"
+        },
+        {
+          "text": "Ана пие кафе. Кафето е добро.",
+          "gloss": "Ana drinks coffee. The coffee is good.",
+          "source": "story:ana-coffee#4"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "Across the three verb groups, what actually changes?",
+          "back": "Mostly the middle vowel (а, е or и). “I” is always -ам; “they” is -ат for -е and -и verbs but -аат for -а verbs (сакаат).",
+          "example": {
+            "text": "Учам македонски.",
+            "gloss": "I'm learning Macedonian.",
+            "source": "qa:gen-s1-greet-intro-story#q3:a"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "What ending does an -и verb take for \"you\" (ти)?",
+          "back": "-иш, as in \"работиш\" (you do/work).",
+          "example": {
+            "text": "„Што работиш?“ прашува Ана.",
+            "gloss": "\"What do you do?\" asks Ana.",
+            "source": "story:gen-s1-greet-intro-story#6"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Учам македонски.",
+            "gloss": "I'm learning Macedonian.",
+            "source": "qa:gen-s1-greet-intro-story#q3:a"
+          },
+          "blank": "Учам",
+          "options": [
+            "Учам",
+            "Учи",
+            "Учат"
+          ],
+          "why": "The \"I\" form ends -ам in every verb group."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "„Што работиш?“ прашува Ана.",
+            "gloss": "\"What do you do?\" asks Ana.",
+            "source": "story:gen-s1-greet-intro-story#6"
+          },
+          "blank": "работиш",
+          "options": [
+            "работиш",
+            "работи",
+            "оди"
+          ],
+          "why": "An -и verb takes -иш for \"you\" (ти)."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Ана пие кафе. Кафето е добро.",
+            "gloss": "Ana drinks coffee. The coffee is good.",
+            "source": "story:ana-coffee#4"
+          },
+          "blank": "пие",
+          "options": [
+            "пие",
+            "пијам",
+            "пиеш"
+          ],
+          "why": "The he/she form of this -е verb is \"пие\"."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-se",
+      "chapterId": "s1-greet-intro",
+      "order": 12,
+      "grammarIds": [
+        "clitics"
+      ],
+      "depth": "produce",
+      "title": "Verbs that come with се",
+      "agenda": "Meet verbs that always travel with се, sitting right before the verb.",
+      "rule": "Some verbs never show up without the little word се parked right in front: „Јас се викам Марко.“ Think of се as part of the verb itself, not a separate word you can drop.",
+      "recap": "A handful of everyday verbs come with се glued on: се викам/се викаш (name), се вели (one says), се гледаме (see each other), се разбира (of course). The се sits right before the verb and never gets dropped. You've been saying „Се гледаме!“ as a goodbye since chapter 2, and „Се разбира“ for \"of course\" since chapter 1 — now you can see the same pattern. When another little word joins in, се still hugs the verb, as in „Ми се допаѓа.“",
+      "library": {
+        "rule": "Certain Macedonian verbs always carry the little word се directly in front of them (the reflexive marker). It is not optional and not translated word-for-word — it's simply part of how the verb works. You've met several: се викам/се викаш for giving or asking a name, се вели for \"how do you say / one says\", се гледаме for \"see you / we see each other\", се согласувам for \"I agree\", and the set phrase се разбира for \"of course\". The verb still changes its ending for who's doing it (се викам = my name, се викаш = your name), but се stays put right before it.",
+        "why": [
+          "The се comes before the verb, not after: „Како се викаш?\" never „викаш се\". When other little pronouns appear too, се still sits in that tight cluster in front of the verb, e.g. „Ми се допаѓа\" (to-me + self + pleases).",
+          "Don't look for an English word to match се — here it doesn't mean \"self\" in any obvious way. „Се вели\" just means \"one says / it is said\", and „се гледаме\" means \"see you\". The се is baggage the verb always carries.",
+          "The verb ending still does the real work of saying who: се викам (I), се викаш (you). Changing the ending is how you switch person; се never changes."
+        ],
+        "mistakes": [
+          "Not leaving out се: викам on its own doesn't mean “my name is”; it has to be се викам.",
+          "Not putting се after the verb: it always comes first, as in Како се викаш?",
+          "Not treating се as optional like English “self”: it's required even with no English match, as in Се разбира."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Здраво! Јас се викам Марко.",
+          "gloss": "Hi! My name is Marko.",
+          "source": "scenario:gen-introductions#1"
+        },
+        {
+          "text": "„Здраво! Како се викаш?“ прашува Марко.",
+          "gloss": "\"Hi! What's your name?\" asks Marko.",
+          "source": "story:gen-s1-greet-intro-story#2"
+        },
+        {
+          "text": "Нема проблем. Се гледаме!",
+          "gloss": "No problem. See you!",
+          "source": "scenario:gen-s0-greet#4"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Нема проблем. Се гледаме!",
+          "gloss": "No problem. See you!",
+          "source": "scenario:gen-s0-greet#4"
+        },
+        {
+          "text": "Се разбира. Од каде доаѓате?",
+          "gloss": "Of course. Where do you come from?",
+          "source": "scenario:gen-s0-repair#4"
+        },
+        {
+          "text": "Се вели „Германија“. Значи, вие сте од Германија?",
+          "gloss": "You say 'Germanija'. So, you are from Germany?",
+          "source": "scenario:gen-s0-repair#6"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "Where does се go with these verbs?",
+          "back": "Right before the verb, and it never gets dropped.",
+          "example": {
+            "text": "Здраво! Јас се викам Марко.",
+            "gloss": "Hi! My name is Marko.",
+            "source": "scenario:gen-introductions#1"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How do you say \"my name is Marko\"?",
+          "back": "Use the verb with се: „Јас се викам Марко.“",
+          "example": {
+            "text": "Здраво! Јас се викам Марко.",
+            "gloss": "Hi! My name is Marko.",
+            "source": "scenario:gen-introductions#1"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Здраво! Јас се викам Марко.",
+            "gloss": "Hi! My name is Marko.",
+            "source": "scenario:gen-introductions#1"
+          },
+          "blank": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "This verb always carries се to mean \"my name is\"."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Нема проблем. Се гледаме!",
+            "gloss": "No problem. See you!",
+            "source": "scenario:gen-s0-greet#4"
+          },
+          "blank": "Се",
+          "options": [
+            "Се",
+            "Го",
+            "Ми"
+          ],
+          "why": "„Се гледаме\" (see you) keeps its се right before the verb."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "„Здраво! Како се викаш?“ прашува Марко.",
+            "gloss": "\"Hi! What's your name?\" asks Marko.",
+            "source": "story:gen-s1-greet-intro-story#2"
+          },
+          "blank": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "Asking a name uses се викаш, with се in front of the verb."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-plurals",
+      "chapterId": "s1-market",
+      "order": 13,
+      "grammarIds": [
+        "noun-plurals"
+      ],
+      "depth": "produce",
+      "title": "More than one: plurals",
+      "agenda": "Talk about more than one: plural endings",
+      "rule": "Most nouns make the plural by changing the ending: masculine adds -и (денар → денари), feminine swaps -а for -и (книга → книги), neuter swaps -о for -а (пиво → пива). Short masculine nouns often take -ови (град → градови).",
+      "recap": "Today you made plurals, and the rule follows gender like everything since chapter 3. Masculine nouns add -и (денари), feminine nouns change -а to -и (книги), neuter nouns change -о to -а (пива). You've been using plurals since you first counted: пет јаболка, десет денари. At the market you'll mostly hear јаболка in the plural, by the kilo: едно кило јаболка. Short masculine words often take -ови instead, as in градови (“cities”).",
+      "library": {
+        "rule": "Macedonian plurals are made with endings, and gender tells you which one. Masculine nouns usually add -и: маж → мажи, денар → денари. Many short masculine nouns add -ови instead: град → градови. Feminine nouns ending in -а change it to -и: книга → книги, жена → жени. Neuter nouns ending in -о change it to -а: пиво → пива, село → села; some neuter nouns in -е add -иња instead (кафе → кафиња). A few everyday nouns are irregular, such as дете → деца (“children”); those come in chapter 10. From two up, a counted noun is always plural, which is why you've said пет јаболка and десет денари since chapter 3.",
+        "why": [
+          "Why does gender matter again? The plural ending depends on it, just like еден/една/едно and “the” did. Knowing a noun's gender gets you most of the way to its plural.",
+          "Why градови and not just -и? Many short masculine nouns take the longer -ови ending. Learn those as you meet them.",
+          "Why кафиња? Some neuter nouns ending in -е add -иња in the plural: две кафиња (“two coffees”).",
+          "You'll mostly meet јаболка (“apples”) in the plural, because at the market apples come by the kilo."
+        ],
+        "mistakes": [
+          "Not keeping the singular after a number: from two up the noun is plural, as in три пива.",
+          "Not adding an ending to a feminine noun's -а: the -а is swapped for -и, as in книги.",
+          "Not forgetting the -ови of short masculine nouns: градови."
+        ]
+      },
+      "examples": [
+        {
+          "text": "„Сакам едно кило јаболка. Колку чини?“",
+          "gloss": "\"I'd like a kilo of apples. How much?\"",
+          "source": "story:gen-s1-market-story#4"
+        },
+        {
+          "text": "Шеесет денари килото.",
+          "gloss": "Sixty denars a kilo.",
+          "source": "scenario:gen-s1-market#6"
+        },
+        {
+          "text": "книга → книги",
+          "gloss": "book → books",
+          "source": "grammar:noun-plurals#1"
+        },
+        {
+          "text": "град → градови",
+          "gloss": "city → cities",
+          "source": "grammar:noun-plurals#2"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "„Сакам пет јаболка и еден леб.“",
+          "gloss": "\"I want five apples and one bread.\"",
+          "source": "story:gen-s0-survive-story#5"
+        },
+        {
+          "text": "„Десет денари“, вели продавачот.",
+          "gloss": "\"Ten denars,\" says the shopkeeper.",
+          "source": "story:gen-s0-survive-story#7"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How does a feminine noun like книга become plural?",
+          "back": "Swap -а for -и: книги.",
+          "example": {
+            "text": "книга → книги",
+            "gloss": "book → books",
+            "source": "grammar:noun-plurals#1"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How does a neuter noun like пиво become plural?",
+          "back": "Swap -о for -а: пива (три пива).",
+          "example": {
+            "text": "три пива",
+            "gloss": "three beers",
+            "source": "grammar:numbers#2"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "три пива",
+            "gloss": "three beers",
+            "source": "grammar:numbers#2"
+          },
+          "blank": "пива",
+          "options": [
+            "пива",
+            "пиво",
+            "пивото"
+          ],
+          "why": "Neuter -о becomes -а in the plural: пива."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "книга → книги",
+            "gloss": "book → books",
+            "source": "grammar:noun-plurals#1"
+          },
+          "blank": "книги",
+          "options": [
+            "книги",
+            "книга",
+            "книгата"
+          ],
+          "why": "Feminine -а becomes -и in the plural: книги."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Шеесет денари килото.",
+            "gloss": "Sixty denars a kilo.",
+            "source": "scenario:gen-s1-market#6"
+          },
+          "blank": "денари",
+          "options": [
+            "денари",
+            "денар",
+            "леб"
+          ],
+          "why": "From two up the noun is plural: денар → денари."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-adjectives",
+      "chapterId": "s1-market",
+      "order": 14,
+      "grammarIds": [
+        "adjective-agreement"
+      ],
+      "depth": "produce",
+      "title": "Adjectives match their noun",
+      "agenda": "Make the describing word match its noun: добар, добра, добро, добри.",
+      "rule": "A describing word copies its noun's gender and number. Learn the \"he\" form, then swap the ending: добар (m), добра (f), добро (n), добри (plural). It sits before the noun: \"добар ден\".",
+      "recap": "When you describe something, the word changes to fit the noun. Keep the masculine form in your head and change only the ending: no ending, -а, -о, -и. You've been doing this since chapter 4: \"Кафето е добро\" uses the -о form because кафе is a neuter word. You also already said Многу сте љубезни (“You're very kind”) to one person: polite вие always takes the plural form, so the adjective does too. So most describing words follow this one simple swap.",
+      "library": {
+        "rule": "A describing word (adjective) always agrees with its noun in gender and number. Take the masculine form and change the ending to match: no ending for masculine (добар човек), -а for feminine (добра книга), -о for neuter (добро кафе), and -и for the plural (добри луѓе). The describing word normally comes before the noun. The same swap works almost everywhere: студен → студено пиво, убав → убави места. When the describing word carries \"the\", the ending grows longer still (as in новиот), but you still start from the right gender form first.",
+        "why": [
+          "English never changes its describing words — \"good\" stays \"good\". In Macedonian the ending moves with the noun, so the one word добар becomes four shapes.",
+          "The ending to use depends on the noun's gender, which you already met with еден/една/едно. If you know the noun is neuter, you know the describing word ends in -о.",
+          "Both the describing word and \"is\" can point at gender: in \"Кафето е добро\", it's добро (not добар) because кафе is neuter — the ending agrees even when the word comes after \"is\"."
+        ],
+        "mistakes": [
+          "Not leaving the masculine form on a feminine noun: книга is feminine, so it's добра книга.",
+          "Not using a singular ending for more than one: plurals take -и, as in добри луѓе.",
+          "Not leaving the word unchanged like English: swap the ending every time to fit the noun."
+        ]
+      },
+      "examples": [
+        {
+          "text": "добар ден",
+          "gloss": "good day",
+          "source": "grammar:adjective-agreement#0"
+        },
+        {
+          "text": "добра идеја",
+          "gloss": "a good idea",
+          "source": "grammar:adjective-agreement#1"
+        },
+        {
+          "text": "студено пиво",
+          "gloss": "cold beer",
+          "source": "grammar:adjective-agreement#2"
+        },
+        {
+          "text": "убави места",
+          "gloss": "beautiful places",
+          "source": "grammar:adjective-agreement#3"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Ана пие кафе. Кафето е добро.",
+          "gloss": "Ana drinks coffee. The coffee is good.",
+          "source": "story:ana-coffee#4"
+        },
+        {
+          "text": "Кафето е добро.",
+          "gloss": "The coffee is good.",
+          "source": "reader:cafe#4"
+        },
+        {
+          "text": "Не, фала. Многу сте љубезни.",
+          "gloss": "No, thanks. You're very kind.",
+          "source": "scenario:gen-s0-greet#3"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you make a describing word fit its noun?",
+          "back": "Keep the masculine form, swap the ending: no ending (m), -а (f), -о (n), -и (plural).",
+          "example": {
+            "text": "добра идеја",
+            "gloss": "a good idea",
+            "source": "grammar:adjective-agreement#1"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "Which ending goes with a neuter noun like кафе?",
+          "back": "The -о ending, e.g. добро.",
+          "example": {
+            "text": "Ана пие кафе. Кафето е добро.",
+            "gloss": "Ana drinks coffee. The coffee is good.",
+            "source": "story:ana-coffee#4"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "добар ден",
+            "gloss": "good day",
+            "source": "grammar:adjective-agreement#0"
+          },
+          "blank": "добар",
+          "options": [
+            "добар",
+            "добра",
+            "добро"
+          ],
+          "why": "ден is masculine, so no ending is added."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Ана пие кафе. Кафето е добро.",
+            "gloss": "Ana drinks coffee. The coffee is good.",
+            "source": "story:ana-coffee#4"
+          },
+          "blank": "добро",
+          "options": [
+            "добро",
+            "добар",
+            "добра"
+          ],
+          "why": "кафе is neuter, so the ending is -о."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "добра идеја",
+            "gloss": "a good idea",
+            "source": "grammar:adjective-agreement#1"
+          },
+          "blank": "добра",
+          "options": [
+            "добра",
+            "добар",
+            "добро"
+          ],
+          "why": "идеја is feminine, so the ending is -а."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-go-ja-gi",
+      "chapterId": "s1-market",
+      "order": 15,
+      "grammarIds": [
+        "clitics"
+      ],
+      "depth": "produce",
+      "title": "It, them: го, ја, ги",
+      "agenda": "Say “it” and “them”: го, ја, ги go right before the verb",
+      "rule": "To say \"it\" or \"them,\" put a little word right before the verb: го (it/him), ја (it/her), ги (them). In „ќе ги земам\" the ги sits in front and means \"them.\"",
+      "recap": "When you don't want to repeat the thing, swap in a short word before the verb: го for him or an \"it,\" ја for her or another \"it,\" ги for \"them.\" They never come after the verb — they lead into it, as in „ќе ги земам\" (I'll take them). You've been saying this since chapter 4: „Кажи го гласно\" is literally \"say it aloud.\" Sometimes Macedonian names the thing AND adds the little word, like „го испи кафето\" — that doubling is normal and fine. Think of it as \"it/them\" clicking onto the front of the verb.",
+      "library": {
+        "rule": "Macedonian has short object pronouns (direct-object clitics) that mean \"it,\" \"him,\" \"her,\" \"them\": го (masculine or neuter \"it/him\"), ја (feminine \"it/her\"), ги (\"them\" for plurals of any gender). They sit immediately before the verb, not after it: „ќе ги земам\" = \"I'll take them,\" „го испи кафето\" = \"he drank it up.\" They pick their form from the gender and number of the thing they replace. Often you'll hear the noun named AND the little word used together — this doubling is standard, especially with a definite (\"the\") object.",
+        "why": [
+          "Word order feels backwards to English: the object word comes BEFORE the verb (ги земам = \"them I-take\"), never after. In a two-word verb like „ќе ги земам,\" it tucks in between ќе and the verb.",
+          "Choosing го, ја or ги depends on the thing you're replacing, not on \"you\": го for a he/masculine or neuter \"it,\" ја for a she/feminine \"it,\" ги for any plural \"them.\"",
+          "Doubling looks odd — „го испи кафето\" names the coffee and still adds го. That's normal Macedonian, not a mistake or repetition error.",
+          "These little words join the same cluster you met with ми and се: the order is fixed and they stay glued in front of the verb."
+        ],
+        "mistakes": [
+          "Not putting ги after the verb: it leads into the verb, as in ќе ги земам.",
+          "Not using го for everything — use ги for \"them\" (plural), as in „ќе ги земам.\"",
+          "Not splitting the pair in „ќе ги земам\" with another word — ќе, ги and the verb stay together."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Добро, ќе ги земам. Повелете.",
+          "gloss": "Good, I'll take them. Here you are.",
+          "source": "scenario:gen-s1-market#7"
+        },
+        {
+          "text": "Нарачај едно кафе — кажи го гласно!",
+          "gloss": "Order one coffee — say it aloud!",
+          "source": "qa:ana-coffee#q3:q"
+        },
+        {
+          "text": "го испи кафето",
+          "gloss": "drank up the coffee (finished)",
+          "source": "grammar:verb-aspect#1"
+        },
+        {
+          "text": "Ми го дава",
+          "gloss": "he gives it to me (to-me + it + gives)",
+          "source": "grammar:clitics#1"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Нарачај едно кафе — кажи го гласно!",
+          "gloss": "Order one coffee — say it aloud!",
+          "source": "qa:ana-coffee#q3:q"
+        },
+        {
+          "text": "Кажи го гласно: како нарачуваш едно пиво?",
+          "gloss": "Say it aloud: how do you order one beer?",
+          "source": "qa:gen-s1-cafe-order-story#q3:q"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "Where do го, ја, ги go?",
+          "back": "Right before the verb, never after it.",
+          "example": {
+            "text": "Добро, ќе ги земам. Повелете.",
+            "gloss": "Good, I'll take them. Here you are.",
+            "source": "scenario:gen-s1-market#7"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How do you say \"them\"?",
+          "back": "ги, placed before the verb.",
+          "example": {
+            "text": "Добро, ќе ги земам. Повелете.",
+            "gloss": "Good, I'll take them. Here you are.",
+            "source": "scenario:gen-s1-market#7"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Добро, ќе ги земам. Повелете.",
+            "gloss": "Good, I'll take them. Here you are.",
+            "source": "scenario:gen-s1-market#7"
+          },
+          "blank": "ги",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "\"Them\" (plural) is ги, sitting before the verb."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Нарачај едно кафе — кажи го гласно!",
+            "gloss": "Order one coffee — say it aloud!",
+            "source": "qa:ana-coffee#q3:q"
+          },
+          "blank": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "\"It\" (the coffee, masculine/neuter) is го, before the verb."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "го испи кафето",
+            "gloss": "drank up the coffee (finished)",
+            "source": "grammar:verb-aspect#1"
+          },
+          "blank": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "The coffee is named and still doubled with го before the verb."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-prepositions",
+      "chapterId": "s1-directions",
+      "order": 16,
+      "grammarIds": [
+        "prepositions"
+      ],
+      "depth": "produce",
+      "title": "Little linking words: во, на, до, од, со",
+      "agenda": "Place little words во, на, со, од, до before a noun to say where.",
+      "rule": "Small words come before the noun and never change its form: во (in), на (on/at/to), со (with), од (from), до (to/next to). Macedonian leans hard on на — it also means \"to\" a place or person. Example: \"Ана е на улица во центарот.\"",
+      "recap": "Five little words do a lot of work: во (in), на (on/at/to), со (with), од (from), до (to/next to). They sit right before the noun and leave it unchanged — no case endings to worry about. Watch на: besides \"on,\" it covers \"to\" and \"at.\" You've been using these since chapter one: \"Ана е во Скопје,\" \"Од Германија сум,\" and \"Марко седи до неа.\"",
+      "library": {
+        "rule": "These are the everyday linking words that tell you where something is or where it's going. They go directly before the noun and the noun's shape does not change: unlike Russian or Serbian, Macedonian nouns keep the same ending after these words. The core set: во = in/into (\"во Скопје\"), на = on/onto, and also \"to\" or \"at\" a place or person (\"на улица,\" \"Ана оди на пазар\"), со = with, and also \"by\" a means of transport (\"со автобус\"), од = from/of (\"Од Германија сум\"), до = up to / next to (\"Марко седи до неа,\" \"до банката\"). Macedonian leans on на far more than English leans on any one word, so expect it where English might use several different words.",
+        "why": [
+          "на is the workhorse: it covers \"on,\" \"at,\" and \"to\" — \"Ана оди на пазар\" (goes to the market) and \"на улица\" (on a/the street) both use it, so don't reach for a different word each time.",
+          "со means \"with,\" but also \"by\" for transport: \"кафе со млеко\" (with milk) and \"со автобус\" (by bus) are the same little word.",
+          "во and на can both translate \"to\" when you're heading somewhere: \"во центарот\" (to the centre) versus \"на пазар\" (to the market) — the noun decides which one sounds natural, and you pick these up phrase by phrase.",
+          "до means both \"next to\" and \"up to/as far as,\" so \"до банката\" can be \"next to the bank\" or \"to the bank\" depending on context."
+        ],
+        "mistakes": [
+          "Not changing the noun after the preposition, but leaving it as-is: say \"во Скопје,\" not a reshaped form — Macedonian has no case endings here.",
+          "Not using a translated \"by\" word for transport, but using со: \"со автобус,\" because со already carries \"by.\"",
+          "Not forcing English habits onto на, but letting it cover \"on/at/to\": \"на улица\" is right even though English switches words."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Ана е на улица во центарот.",
+          "gloss": "Ana is on a street in the center.",
+          "source": "reader:gen-s1-directions-reader#0"
+        },
+        {
+          "text": "Во центарот.",
+          "gloss": "To the centre.",
+          "source": "qa:gen-s1-directions-story#q1:a"
+        },
+        {
+          "text": "Со автобус.",
+          "gloss": "By bus.",
+          "source": "qa:gen-s1-directions-story#q2:a"
+        },
+        {
+          "text": "Марко седи до неа.",
+          "gloss": "Marko sits next to her.",
+          "source": "story:gen-s1-greet-intro-story#1"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Ана е во Скопје.",
+          "gloss": "Ana is in Skopje.",
+          "source": "story:gen-s0-repair-story#0"
+        },
+        {
+          "text": "Да, точно. Од Германија сум.",
+          "gloss": "Yes, exactly. I'm from Germany.",
+          "source": "scenario:gen-s0-repair#7"
+        },
+        {
+          "text": "Марко седи до неа.",
+          "gloss": "Marko sits next to her.",
+          "source": "story:gen-s1-greet-intro-story#1"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "Besides \"on,\" what does на cover?",
+          "back": "\"at\" and \"to\" a place or person — the workhorse word.",
+          "example": {
+            "text": "Ана е на улица во центарот.",
+            "gloss": "Ana is on a street in the center.",
+            "source": "reader:gen-s1-directions-reader#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How do you say \"from\"?",
+          "back": "од — as in \"Од Германија сум.\"",
+          "example": {
+            "text": "Да, точно. Од Германија сум.",
+            "gloss": "Yes, exactly. I'm from Germany.",
+            "source": "scenario:gen-s0-repair#7"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Ана е на улица во центарот.",
+            "gloss": "Ana is on a street in the center.",
+            "source": "reader:gen-s1-directions-reader#0"
+          },
+          "blank": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "\"in the centre\" needs во (in), while на already does \"on a street.\""
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Со автобус.",
+            "gloss": "By bus.",
+            "source": "qa:gen-s1-directions-story#q2:a"
+          },
+          "blank": "Со",
+          "options": [
+            "Со",
+            "Од",
+            "До"
+          ],
+          "why": "\"by bus\" uses со, which also means \"with.\""
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Марко седи до неа.",
+            "gloss": "Marko sits next to her.",
+            "source": "story:gen-s1-greet-intro-story#1"
+          },
+          "blank": "до",
+          "options": [
+            "до",
+            "од",
+            "во"
+          ],
+          "why": "до means \"next to\" — Marko sits next to her."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-commands",
+      "chapterId": "s1-directions",
+      "order": 17,
+      "grammarIds": [
+        "imperatives"
+      ],
+      "depth": "produce",
+      "title": "Telling someone what to do",
+      "agenda": "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
+      "rule": "To tell someone what to do, change the verb's ending. For one person add -ј or -и (слушај!, дојди!); for a group or to be polite, add -те: „Свртете лево.“ For \"don't\", lead with немој да.",
+      "recap": "Commands are just a tweak of the verb's ending. For a group — or to sound polite to one stranger — add -те: Свртете, Одете, Кажете. To one friend it's shorter: слушај!, дојди!. For \"don't\" you put немој да in front: Немој да одиш! And you've been giving polite commands since day one without noticing: Извинете (\"excuse me\") and Повелете (\"here you go\") are exactly this -ете form.",
+      "library": {
+        "rule": "A command (the imperative) is made from the verb by swapping its ending. Verbs in -а and -е add -ј for one person (гледај!, пиј!); verbs in -и and those ending in a consonant add -и (дојди!, земи!). To address a group, or to be polite to a single stranger, add -те to that form: гледајте!, дојдете!, and for these chapter verbs Свртете, Одете, Кажете, plus the everyday Извинете and Повелете. For a negative command — telling someone NOT to do something — you don't change the verb into a special \"don't\" shape; instead you put немој да in front of an ordinary verb: Немој да одиш!",
+        "why": [
+          "The -те on Свртете does two jobs at once: it marks a group AND it's the polite way to tell one person. If you're using вие with a stranger, use the -те command too.",
+          "\"Don't\" isn't built into the verb. You keep a normal verb and front it with немој да, just like you'd use да after сакам or може — the да stays and the verb follows.",
+          "Извинете and Повелете feel like fixed \"words\" but they're really -ете commands (\"excuse!\", \"help yourself!\") — that's why they end the same way as Свртете and Одете."
+        ],
+        "mistakes": [
+          "Not using plain не for “don't”: не negates a statement, but a command NOT to do something needs немој да, as in Немој да одиш!",
+          "Not „Сврти“ to a stranger asking directions, but „Свртете“ — the bare form is for a friend; add -те to be polite.",
+          "Not keeping the long verb in a command, but trimming it: the -а/-е verb drops to -ј (гледа → гледај!), so listen for the short ending."
+        ]
+      },
+      "examples": [
+        {
+          "text": "„Свртете лево,“ вели човекот.",
+          "gloss": "\"Turn left,\" says the man.",
+          "source": "story:gen-s1-directions-story#2"
+        },
+        {
+          "text": "Свртете лево.",
+          "gloss": "Turn left.",
+          "source": "qa:gen-s1-directions-story#q3:a"
+        },
+        {
+          "text": "„Потоа одете право. Тоа е близу.“",
+          "gloss": "\"Then go straight ahead. It is near.\"",
+          "source": "story:gen-s1-directions-story#3"
+        },
+        {
+          "text": "Добар ден! Одете право, па лево.",
+          "gloss": "Good day! Go straight, then left.",
+          "source": "scenario:gen-s1-directions#1"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "„Извинете, не разбирам.“",
+          "gloss": "\"Excuse me, I don't understand.\"",
+          "source": "story:gen-s0-repair-story#2"
+        },
+        {
+          "text": "Ете таму. Повелете.",
+          "gloss": "Right there. Here you go.",
+          "source": "scenario:gen-s0-survive#6"
+        },
+        {
+          "text": "Добар ден! Изволете?",
+          "gloss": "Good day! How can I help?",
+          "source": "scenario:gen-s0-survive#0"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you tell a group — or one stranger politely — to do something?",
+          "back": "Add -те to the command: Свртете, Одете, Кажете.",
+          "example": {
+            "text": "„Свртете лево,“ вели човекот.",
+            "gloss": "\"Turn left,\" says the man.",
+            "source": "story:gen-s1-directions-story#2"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How do you say \"don't\" do something?",
+          "back": "Put немој да in front of a normal verb.",
+          "example": {
+            "text": "Немој да одиш!",
+            "gloss": "Don't go!",
+            "source": "grammar:imperatives#3"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "„Свртете лево,“ вели човекот.",
+            "gloss": "\"Turn left,\" says the man.",
+            "source": "story:gen-s1-directions-story#2"
+          },
+          "blank": "Свртете",
+          "options": [
+            "Свртете",
+            "Одете",
+            "Кажете"
+          ],
+          "why": "The -ете ending makes it a polite/group command: \"turn.\""
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Извинете, каде е плоштадот?",
+            "gloss": "Excuse me, where is the square?",
+            "source": "scenario:gen-directions#0"
+          },
+          "blank": "Извинете",
+          "options": [
+            "Извинете",
+            "Свртете",
+            "Кажете"
+          ],
+          "why": "\"Excuse me\" is itself a polite -ете command."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Немој да одиш!",
+            "gloss": "Don't go!",
+            "source": "grammar:imperatives#3"
+          },
+          "blank": "одиш",
+          "options": [
+            "одиш",
+            "одете",
+            "свртете"
+          ],
+          "why": "After немој да you use a normal verb for the single person: \"don't go.\""
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-more-most",
+      "chapterId": "s1-directions",
+      "order": 18,
+      "grammarIds": [
+        "comparatives"
+      ],
+      "depth": "produce",
+      "title": "More and most: по- and нај-",
+      "agenda": "Build \"more\" and \"most\": stick по- or нај- on the front",
+      "rule": "For \"more\", glue по- onto the word; for \"most\", glue нај- onto it — one word, no space. \"Ова кафе е подобро\" (This coffee is better). For \"than\", use од.",
+      "recap": "You've actually been doing this since the very first chapter: „Побавно, ве молам.“ is just бавно (slow) with по- on front — \"more slowly\". So по- means \"more\" and нај- means \"most\", always written as one word: подобро, најдобар, побрзо, поголем, најголем. It works on almost any describing word. And when you want to say \"than\", reach for од: \"Таа е повисока од мене.\"",
+      "library": {
+        "rule": "To say \"more\", attach по- to the front of an adjective or adverb; to say \"most\", attach нај-. Both are written as a single word with no space and no change to the base: добро → подобро → најдобро, голем → поголем → најголем, брзо → побрзо → најбрзо, убав → поубав → најубав, добар → подобар → најдобар. The comparison word \"than\" is од, placed after the described word: \"Таа е повисока од мене\" (She's taller than me). This pattern (the comparative and superlative) covers almost everything, so there's very little to memorise beyond the two prefixes.",
+        "why": [
+          "It's one word, not two. English puts a separate word (\"more\", \"most\") in front, but Macedonian fuses по-/нај- onto the adjective, so побрзо is a single spelled-out word.",
+          "по- and нај- don't care about gender or number — they sit on the front, while the adjective's own ending still changes to match its noun (повисока for a woman, повисок for a man).",
+          "\"Than\" is од, the same little word you already use for \"from\". Same shape, two jobs: here it links the two things being compared."
+        ],
+        "mistakes": [
+          "Not writing по- or нај- as a separate word: подобро is one word.",
+          "Not mixing up the two: по- means “more” (подобро, “better”), нај- means “most” (најдобар, “the best”).",
+          "Not borrowing another word for “than”: it's од, the same word as “from”, as in повисока од мене."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Ова кафе е подобро",
+          "gloss": "This coffee is better",
+          "source": "grammar:comparatives#0"
+        },
+        {
+          "text": "Тој е најдобар",
+          "gloss": "He's the best",
+          "source": "grammar:comparatives#1"
+        },
+        {
+          "text": "Таа е повисока од мене",
+          "gloss": "She's taller than me",
+          "source": "grammar:comparatives#3"
+        },
+        {
+          "text": "Побрзо, ве молам!",
+          "gloss": "Faster, please!",
+          "source": "grammar:comparatives#2"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "„Побавно, ве молам.“",
+          "gloss": "\"Slower, please.\"",
+          "source": "story:gen-s0-repair-story#3"
+        },
+        {
+          "text": "Побавно, ве молам.",
+          "gloss": "Slower, please.",
+          "source": "qa:gen-s0-repair-story#q2:a"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"more\" and \"most\"?",
+          "back": "Glue по- on front for \"more\", нај- for \"most\" — one word.",
+          "example": {
+            "text": "Ова кафе е подобро",
+            "gloss": "This coffee is better",
+            "source": "grammar:comparatives#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "Which word means \"than\" in a comparison?",
+          "back": "од, placed after the describing word.",
+          "example": {
+            "text": "Таа е повисока од мене",
+            "gloss": "She's taller than me",
+            "source": "grammar:comparatives#3"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Ова кафе е подобро",
+            "gloss": "This coffee is better",
+            "source": "grammar:comparatives#0"
+          },
+          "blank": "подобро",
+          "options": [
+            "подобро",
+            "најдобро",
+            "побрзо"
+          ],
+          "why": "по- means \"more\": better, not best."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Тој е најдобар",
+            "gloss": "He's the best",
+            "source": "grammar:comparatives#1"
+          },
+          "blank": "најдобар",
+          "options": [
+            "најдобар",
+            "подобар",
+            "најголем"
+          ],
+          "why": "нај- means \"most\": the best."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Таа е повисока од мене",
+            "gloss": "She's taller than me",
+            "source": "grammar:comparatives#3"
+          },
+          "blank": "од",
+          "options": [
+            "од",
+            "на",
+            "во"
+          ],
+          "why": "\"Than\" in a comparison is од."
         }
       ],
       "confidence": "unreviewed"
@@ -942,7 +2383,12 @@ export const course: Course = {
             "3 new words: Не разбирам., Не знам., Извинете.",
             "Read “Ана учи македонски”: spot today's pattern"
           ],
-          "next": "Next: Ask yes/no questions: ли after the verb, or дали up front"
+          "next": "Next: Ask yes/no questions: ли after the verb, or дали up front",
+          "notes": [
+            "story:gen-s0-repair-story#0",
+            "story:gen-s0-repair-story#1",
+            "story:gen-s0-repair-story#2"
+          ]
         },
         {
           "n": 2,
@@ -986,7 +2432,12 @@ export const course: Course = {
             "3 new words: Можете ли да повторите?, Побавно, ве молам., Уште еднаш, ве молам.",
             "Read “Ана учи македонски”: spot today's pattern"
           ],
-          "next": "Next: Ask what, where, how, how much: question words go first"
+          "next": "Next: Ask what, where, how, how much: question words go first",
+          "notes": [
+            "story:gen-s0-repair-story#3",
+            "story:gen-s0-repair-story#4",
+            "story:gen-s0-repair-story#5"
+          ]
         },
         {
           "n": 3,
@@ -1030,7 +2481,12 @@ export const course: Course = {
             "3 new words: што, каде, Како се вели … на македонски?",
             "Read “Ана учи македонски”: spot today's pattern"
           ],
-          "next": "Next: Review day: nothing new"
+          "next": "Next: Review day: nothing new",
+          "notes": [
+            "story:gen-s0-repair-story#6",
+            "story:gen-s0-repair-story#7",
+            "story:gen-s0-repair-story#8"
+          ]
         },
         {
           "n": 4,
@@ -1062,7 +2518,12 @@ export const course: Course = {
             "Read “Ана учи македонски”: spot everything from this chapter",
             "First try at the conversation: Keeping the conversation alive (repair kit)"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "qa:gen-s0-repair-story#q1:q",
+            "qa:gen-s0-repair-story#q1:a",
+            "qa:gen-s0-repair-story#q2:q"
+          ]
         },
         {
           "n": 5,
@@ -1111,7 +2572,12 @@ export const course: Course = {
             "Read “Ана учи македонски”: spot everything from this chapter",
             "Conversation: Keeping the conversation alive (repair kit)"
           ],
-          "next": "Next: Put it together: use this chapter in your own words"
+          "next": "Next: Put it together: use this chapter in your own words",
+          "notes": [
+            "qa:gen-s0-repair-story#q2:a",
+            "qa:gen-s0-repair-story#q3:q",
+            "qa:gen-s0-repair-story#q3:a"
+          ]
         },
         {
           "n": 6,
@@ -1163,7 +2629,12 @@ export const course: Course = {
             "Conversation: Keeping the conversation alive (repair kit)",
             "Write a few lines of your own"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "notes": [
+            "scenario:gen-s0-repair#0",
+            "scenario:gen-s0-repair#1",
+            "scenario:gen-s0-repair#2"
+          ]
         },
         {
           "n": 7,
@@ -1369,7 +2840,12 @@ export const course: Course = {
             "3 new words: јас, ти, Здраво",
             "Read “Ана и Марко”: spot today's pattern"
           ],
-          "next": "Next: Choose ти for friends, вие for strangers and elders"
+          "next": "Next: Choose ти for friends, вие for strangers and elders",
+          "notes": [
+            "story:gen-s0-greet-story#0",
+            "story:gen-s0-greet-story#4",
+            "story:gen-s0-greet-story#5"
+          ]
         },
         {
           "n": 2,
@@ -1416,7 +2892,11 @@ export const course: Course = {
             "3 new words: вие, Како си?, Добар ден",
             "Read “Ана и Марко”: spot today's pattern"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns"
+          "next": "Next: Practice day: more of this chapter's patterns",
+          "notes": [
+            "qa:gen-s0-greet-story#q1:q",
+            "qa:gen-s0-greet-story#q3:q"
+          ]
         },
         {
           "n": 3,
@@ -1544,7 +3024,12 @@ export const course: Course = {
             "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Greetings, politeness, yes/no"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "scenario:gen-s0-greet#2",
+            "scenario:gen-s0-greet#3",
+            "scenario:gen-s0-greet#4"
+          ]
         },
         {
           "n": 6,
@@ -1594,7 +3079,10 @@ export const course: Course = {
             "Read “Ана и Марко”: spot everything from this chapter",
             "Conversation: Greetings, politeness, yes/no"
           ],
-          "next": "Next: Put it together: use this chapter in your own words"
+          "next": "Next: Put it together: use this chapter in your own words",
+          "notes": [
+            "scenario:gen-s0-greet#5"
+          ]
         },
         {
           "n": 7,
@@ -1895,7 +3383,12 @@ export const course: Course = {
             "3 new words: еден / една / едно, ова / тоа, Сакам …",
             "Read “Ана во продавница”: spot today's pattern"
           ],
-          "next": "Next: Count things and ask the price"
+          "next": "Next: Count things and ask the price",
+          "notes": [
+            "story:gen-s0-survive-story#0",
+            "story:gen-s0-survive-story#1",
+            "story:gen-s0-survive-story#2"
+          ]
         },
         {
           "n": 2,
@@ -1942,7 +3435,12 @@ export const course: Course = {
             "3 new words: два, три, четири, пет, шест, седум, осум, девет, десет, Може ли …?",
             "Read “Ана во продавница”: spot today's pattern"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns"
+          "next": "Next: Practice day: more of this chapter's patterns",
+          "notes": [
+            "story:gen-s0-survive-story#3",
+            "story:gen-s0-survive-story#4",
+            "story:gen-s0-survive-story#5"
+          ]
         },
         {
           "n": 3,
@@ -1989,7 +3487,12 @@ export const course: Course = {
             "3 new words: Каде е …?, Колку чини?, Имате ли …?",
             "Read “Ана во продавница”: spot everything from this chapter"
           ],
-          "next": "Next: Review day: nothing new"
+          "next": "Next: Review day: nothing new",
+          "notes": [
+            "story:gen-s0-survive-story#6",
+            "story:gen-s0-survive-story#7",
+            "story:gen-s0-survive-story#8"
+          ]
         },
         {
           "n": 4,
@@ -2020,7 +3523,12 @@ export const course: Course = {
             "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Survival operators + numbers 1–10"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "scenario:gen-s0-survive#0",
+            "scenario:gen-s0-survive#1",
+            "scenario:gen-s0-survive#3"
+          ]
         },
         {
           "n": 5,
@@ -2059,7 +3567,12 @@ export const course: Course = {
             "Read “Ана во продавница”: spot everything from this chapter",
             "Conversation: Survival operators + numbers 1–10"
           ],
-          "next": "Next: Put it together: use this chapter in your own words"
+          "next": "Next: Put it together: use this chapter in your own words",
+          "notes": [
+            "qa:gen-s0-survive-story#q1:q",
+            "qa:gen-s0-survive-story#q2:q",
+            "qa:gen-s0-survive-story#q3:q"
+          ]
         },
         {
           "n": 6,
@@ -2121,7 +3634,12 @@ export const course: Course = {
             "Conversation: Survival operators + numbers 1–10",
             "Write a few lines of your own"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "notes": [
+            "scenario:gen-s0-survive#5",
+            "scenario:gen-s0-survive#6",
+            "scenario:gen-s0-survive#7"
+          ]
         },
         {
           "n": 7,
@@ -2293,7 +3811,10 @@ export const course: Course = {
             "lens": [
               "pt-verbs-a"
             ],
-            "highlight": []
+            "highlight": [
+              0,
+              2
+            ]
           },
           "build": [
             "phrase-v-edno-pivo",
@@ -2304,11 +3825,16 @@ export const course: Course = {
             "phrase-gen-s0-repair-v4"
           ],
           "agenda": [
-            "New: Verb endings: the -а verbs",
+            "Change the verb ending to say who wants, has, or pays.",
             "3 new words: имам, давам, Едно пиво, ве молам.",
-            "Read “Марко во кафето”"
+            "Read “Марко во кафето”: spot today's pattern"
           ],
-          "next": "Next: Practice: Verb endings: the -а verbs"
+          "next": "Next: Practice: Verb endings: the -а verbs",
+          "notes": [
+            "story:gen-s1-cafe-order-story#0",
+            "story:gen-s1-cafe-order-story#1",
+            "story:gen-s1-cafe-order-story#2"
+          ]
         },
         {
           "n": 2,
@@ -2332,17 +3858,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s1-cafe-order-story",
             "lens": [
               "pt-verbs-a"
             ],
             "highlight": [
-              1,
-              2,
-              3,
-              5
-            ],
-            "reuse": true
+              0,
+              2
+            ]
           },
           "build": [
             "sent-пие",
@@ -2355,9 +3878,14 @@ export const course: Course = {
           "agenda": [
             "Practice: Verb endings: the -а verbs",
             "3 new words: кафе, пиво, вода",
-            "Reread “Ана во продавница” from an earlier chapter: find verb endings: the -а verbs"
+            "Read “Марко во кафето”: spot today's pattern"
           ],
-          "next": "Next: New: Saying “the”: it goes on the end"
+          "next": "Next: Say “the”: add -от, -та or -то to the end of the noun",
+          "notes": [
+            "story:gen-s1-cafe-order-story#3",
+            "story:gen-s1-cafe-order-story#4",
+            "story:gen-s1-cafe-order-story#5"
+          ]
         },
         {
           "n": 3,
@@ -2381,15 +3909,16 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s1-cafe-order-story",
             "lens": [
               "pt-the"
             ],
             "highlight": [
-              3,
+              2,
+              4,
+              6,
               7
-            ],
-            "reuse": true
+            ]
           },
           "build": [
             "phrase-gen-s1-cafe-order-v7",
@@ -2400,11 +3929,15 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "New: Saying “the”: it goes on the end",
+            "Say “the”: add -от, -та or -то to the end of the noun",
             "3 new words: чај, сок, Што ќе сакате?",
-            "Reread “Ана во продавница” from an earlier chapter: find saying “the”: it goes on the end"
+            "Read “Марко во кафето”: spot today's pattern"
           ],
-          "next": "Next: Review day: nothing new"
+          "next": "Next: Review day: nothing new",
+          "notes": [
+            "story:gen-s1-cafe-order-story#6",
+            "qa:gen-s1-cafe-order-story#q3:q"
+          ]
         },
         {
           "n": 4,
@@ -2439,7 +3972,11 @@ export const course: Course = {
             "Reread “Ана во продавница” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Café & bar: order and pay (the anchor)"
           ],
-          "next": "Next: New: Want to, can: да + verb"
+          "next": "Next: Say want to / can / must: stack да + verb (Сакам да платам).",
+          "notes": [
+            "qa:gen-s0-survive-story#q3:a",
+            "scenario:gen-s1-cafe-order#5"
+          ]
         },
         {
           "n": 5,
@@ -2482,7 +4019,7 @@ export const course: Course = {
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
-            "New: Want to, can: да + verb",
+            "Say want to / can / must: stack да + verb (Сакам да платам).",
             "3 new words: Повелете, Сметката, ве молам., Наздравје!",
             "Reread “Ана учи македонски” from an earlier chapter: find want to, can: да + verb",
             "Conversation: Café & bar: order and pay (the anchor)"
@@ -2506,7 +4043,13 @@ export const course: Course = {
               "pt-the",
               "pt-da"
             ],
-            "highlight": []
+            "highlight": [
+              0,
+              2,
+              4,
+              6,
+              7
+            ]
           },
           "build": [
             "phrase-gen-s0-repair-v5",
@@ -2520,7 +4063,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "1 new word: педесет / сто / сто и педесет",
-            "Read “Марко во кафето”",
+            "Read “Марко во кафето”: spot everything from this chapter",
             "Conversation: Café & bar: order and pay (the anchor)"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -2530,20 +4073,20 @@ export const course: Course = {
           "role": "use",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "ana-coffee",
             "lens": [
               "pt-verbs-a",
               "pt-the",
               "pt-da"
             ],
             "highlight": [
+              0,
               1,
-              2,
+              3,
               4,
               5,
-              8
-            ],
-            "reuse": true
+              7
+            ]
           },
           "build": [
             "phrase-gen-s0-repair-v5",
@@ -2557,11 +4100,16 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
+            "Read “Ана и кафето”: spot everything from this chapter",
             "Conversation: Café & bar: order and pay (the anchor)",
             "Write a few lines of your own"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "notes": [
+            "story:ana-coffee#1",
+            "story:ana-coffee#2",
+            "story:ana-coffee#3"
+          ]
         },
         {
           "n": 8,
@@ -2682,11 +4230,6 @@ export const course: Course = {
           "gloss": "I speak a little."
         },
         {
-          "lexKey": "сум / си / е",
-          "display": "сум / си / е",
-          "gloss": "am / are / is"
-        },
-        {
           "lexKey": "зборувам",
           "display": "зборувам",
           "gloss": "speak"
@@ -2695,19 +4238,14 @@ export const course: Course = {
           "lexKey": "јас сум од",
           "display": "Јас сум од...",
           "gloss": "I'm from..."
-        }
-      ],
-      "extraWords": [
+        },
         {
           "lexKey": "студент",
           "display": "студент",
           "gloss": "student"
-        },
-        {
-          "lexKey": "драго ми е",
-          "display": "Драго ми е",
-          "gloss": "Nice to meet you"
-        },
+        }
+      ],
+      "extraWords": [
         {
           "lexKey": "доаѓам",
           "display": "доаѓам",
@@ -2751,7 +4289,11 @@ export const course: Course = {
             "lens": [
               "pt-verbs-e-i"
             ],
-            "highlight": []
+            "highlight": [
+              1,
+              5,
+              6
+            ]
           },
           "build": [
             "phrase-gen-s0-repair-v8",
@@ -2762,11 +4304,16 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "New: The other verb groups: -е and -и verbs",
+            "Two more verb groups: just swap the middle vowel to -е or -и.",
             "3 new words: јадам, пијам, Јас сум …",
-            "Read “Во барот”"
+            "Read “Во барот”: spot today's pattern"
           ],
-          "next": "Next: Practice: The other verb groups: -е and -и verbs"
+          "next": "Next: Practice: The other verb groups: -е and -и verbs",
+          "notes": [
+            "story:gen-s1-greet-intro-story#0",
+            "story:gen-s1-greet-intro-story#1",
+            "story:gen-s1-greet-intro-story#3"
+          ]
         },
         {
           "n": 2,
@@ -2790,20 +4337,18 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s1-greet-intro-story",
             "lens": [
               "pt-verbs-e-i"
             ],
             "highlight": [
-              4,
-              6,
-              7,
-              8
-            ],
-            "reuse": true
+              1,
+              5,
+              6
+            ]
           },
           "build": [
-            "phrase-gen-s1-greet-intro-v3",
+            "phrase-gen-introductions-v6",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
             "sent-сака",
@@ -2813,9 +4358,14 @@ export const course: Course = {
           "agenda": [
             "Practice: The other verb groups: -е and -и verbs",
             "3 new words: знам, одам, Мило ми е.",
-            "Reread “Ана во продавница” from an earlier chapter: find the other verb groups: -е and -и verbs"
+            "Read “Во барот”: spot today's pattern"
           ],
-          "next": "Next: New: Verbs that come with се"
+          "next": "Next: Meet verbs that always travel with се, sitting right before the verb.",
+          "notes": [
+            "story:gen-s1-greet-intro-story#4",
+            "story:gen-s1-greet-intro-story#5",
+            "qa:gen-s1-greet-intro-story#q1:q"
+          ]
         },
         {
           "n": 3,
@@ -2839,14 +4389,13 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-greet-intro-story",
             "lens": [
               "pt-se"
             ],
             "highlight": [
-              8
-            ],
-            "reuse": true
+              2
+            ]
           },
           "build": [
             "phrase-gen-introductions-v1",
@@ -2854,14 +4403,18 @@ export const course: Course = {
             "phrase-gen-s0-repair-v8",
             "sent-пие",
             "sent-сака",
-            "phrase-gen-s1-greet-intro-v3"
+            "phrase-gen-introductions-v6"
           ],
           "agenda": [
-            "New: Verbs that come with се",
+            "Meet verbs that always travel with се, sitting right before the verb.",
             "3 new words: Како се викаш?, Јас се викам..., Од каде си?",
-            "Reread “Ана учи македонски” from an earlier chapter: find verbs that come with се"
+            "Read “Во барот”: spot today's pattern"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns"
+          "next": "Next: Practice day: more of this chapter's patterns",
+          "notes": [
+            "qa:gen-s1-greet-intro-story#q1:a",
+            "qa:gen-s1-greet-intro-story#q3:q"
+          ]
         },
         {
           "n": 4,
@@ -2889,20 +4442,25 @@ export const course: Course = {
               "pt-verbs-e-i",
               "pt-se"
             ],
-            "highlight": []
+            "highlight": [
+              1,
+              2,
+              5,
+              6
+            ]
           },
           "build": [
             "phrase-gen-s1-greet-intro-v6",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
             "sent-сака",
-            "phrase-gen-s1-greet-intro-v3",
+            "phrase-gen-introductions-v6",
             "phrase-gen-introductions-v1"
           ],
           "agenda": [
             "Practice day: more of this chapter's patterns",
             "3 new words: Од … сум., Што работиш?, работам",
-            "Read “Во барот”"
+            "Read “Во барот”: spot everything from this chapter"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -2911,16 +4469,17 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-cafe-order-story",
             "lens": [
               "pt-verbs-e-i",
               "pt-se"
             ],
             "highlight": [
+              1,
+              3,
               4,
-              6,
-              7,
-              8
+              5,
+              6
             ],
             "reuse": true
           },
@@ -2928,17 +4487,22 @@ export const course: Course = {
             "phrase-gen-s0-repair-v8",
             "sent-пие",
             "sent-сака",
-            "phrase-gen-s1-greet-intro-v3",
+            "phrase-gen-introductions-v6",
             "phrase-gen-introductions-v1",
             "phrase-gen-introductions-v2"
           ],
           "speak": "gen-s1-greet-intro",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
+            "Reread “Марко во кафето” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Greetings & introductions"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "scenario:gen-s1-greet-intro#2",
+            "scenario:gen-s1-greet-intro#3",
+            "scenario:gen-s1-greet-intro#4"
+          ]
         },
         {
           "n": 6,
@@ -2966,7 +4530,12 @@ export const course: Course = {
               "pt-verbs-e-i",
               "pt-se"
             ],
-            "highlight": []
+            "highlight": [
+              1,
+              2,
+              5,
+              6
+            ]
           },
           "build": [
             "phrase-v-ucam",
@@ -2974,26 +4543,24 @@ export const course: Course = {
             "phrase-gen-s0-repair-v8",
             "sent-пие",
             "sent-сака",
-            "phrase-gen-s1-greet-intro-v3"
+            "phrase-gen-introductions-v6"
           ],
           "speak": "gen-s1-greet-intro",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "3 new words: видам, Учам македонски., Зборувам малку.",
-            "Read “Во барот”",
+            "Read “Во барот”: spot everything from this chapter",
             "Conversation: Greetings & introductions"
           ],
-          "next": "Next: Put it together: use this chapter in your own words"
+          "next": "Next: Put it together: use this chapter in your own words",
+          "notes": [
+            "scenario:gen-s1-greet-intro#5"
+          ]
         },
         {
           "n": 7,
           "role": "use",
           "words": [
-            {
-              "lexKey": "сум / си / е",
-              "display": "сум / си / е",
-              "gloss": "am / are / is"
-            },
             {
               "lexKey": "зборувам",
               "display": "зборувам",
@@ -3003,10 +4570,15 @@ export const course: Course = {
               "lexKey": "јас сум од",
               "display": "Јас сум од...",
               "gloss": "I'm from..."
+            },
+            {
+              "lexKey": "студент",
+              "display": "студент",
+              "gloss": "student"
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s0-repair-story",
             "lens": [
               "pt-verbs-e-i",
               "pt-se"
@@ -3020,19 +4592,19 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s1-greet-intro-v9",
             "phrase-gen-introductions-v4",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
             "sent-сака",
-            "phrase-gen-s1-greet-intro-v3"
+            "phrase-gen-introductions-v6",
+            "phrase-gen-introductions-v1"
           ],
           "speak": "gen-s1-greet-intro",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "3 new words: сум / си / е, зборувам, Јас сум од...",
-            "Reread “Ана во продавница” from an earlier chapter: find this chapter's patterns",
+            "3 new words: зборувам, Јас сум од..., студент",
+            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
             "Conversation: Greetings & introductions",
             "Write a few lines of your own"
           ],
@@ -3067,9 +4639,9 @@ export const course: Course = {
           "видам",
           "учам македонски",
           "зборувам малку",
-          "сум / си / е",
           "зборувам",
-          "јас сум од"
+          "јас сум од",
+          "студент"
         ],
         "pointIds": [
           "pt-verbs-e-i",
@@ -3231,7 +4803,10 @@ export const course: Course = {
             "lens": [
               "pt-plurals"
             ],
-            "highlight": []
+            "highlight": [
+              4,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s1-market-v2",
@@ -3242,11 +4817,15 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "New: More than one: plurals",
+            "Talk about more than one: plural endings",
             "3 new words: јаболка, едно кило, половина кило",
-            "Read “Ана на пазар”"
+            "Read “Ана на пазар”: spot today's pattern"
           ],
-          "next": "Next: New: Adjectives match their noun"
+          "next": "Next: Make the describing word match its noun: добар, добра, добро, добри.",
+          "notes": [
+            "story:gen-s1-market-story#0",
+            "qa:gen-s1-market-story#q3:q"
+          ]
         },
         {
           "n": 2,
@@ -3270,11 +4849,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s1-market-story",
+            "id": "ana-coffee",
             "lens": [
               "pt-adjectives"
             ],
-            "highlight": []
+            "highlight": [
+              4
+            ],
+            "reuse": true
           },
           "build": [
             "phrase-gen-s1-market-v4",
@@ -3285,11 +4867,16 @@ export const course: Course = {
             "phrase-gen-s1-market-v3"
           ],
           "agenda": [
-            "New: Adjectives match their noun",
+            "Make the describing word match its noun: добар, добра, добро, добри.",
             "3 new words: евтин, скап, Колку чини килото?",
-            "Read “Ана на пазар”"
+            "Reread “Ана и кафето” from an earlier chapter: find adjectives match their noun"
           ],
-          "next": "Next: New: It, them: го, ја, ги"
+          "next": "Next: Say “it” and “them”: го, ја, ги go right before the verb",
+          "notes": [
+            "story:ana-coffee#4",
+            "story:ana-coffee#7",
+            "qa:ana-coffee#q2:a"
+          ]
         },
         {
           "n": 3,
@@ -3328,7 +4915,7 @@ export const course: Course = {
             "phrase-gen-s1-market-v4"
           ],
           "agenda": [
-            "New: It, them: го, ја, ги",
+            "Say “it” and “them”: го, ја, ги go right before the verb",
             "3 new words: леб, млеко, добар",
             "Read “Ана на пазар”"
           ],
@@ -3365,7 +4952,11 @@ export const course: Course = {
             "Reread “Ана во продавница” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Shopping at the market"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "scenario:gen-s1-market#4",
+            "scenario:gen-s1-market#7"
+          ]
         },
         {
           "n": 5,
@@ -3394,7 +4985,10 @@ export const course: Course = {
               "pt-adjectives",
               "pt-go-ja-gi"
             ],
-            "highlight": []
+            "highlight": [
+              4,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s1-market-v10",
@@ -3408,7 +5002,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "3 new words: сирење, Само тоа, фала., пазар",
-            "Read “Ана на пазар”",
+            "Read “Ана на пазар”: spot everything from this chapter",
             "Conversation: Shopping at the market"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -3424,46 +5018,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "ana-coffee",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
               "pt-plurals",
               "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-go-ja-gi"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              4,
-              5,
-              6,
-              7,
-              8
+              4
             ],
             "reuse": true
           },
@@ -3480,11 +5042,14 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "1 new word: благодарам",
-            "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Ана и кафето” from an earlier chapter: find this chapter's patterns",
             "Conversation: Shopping at the market",
             "Write a few lines of your own"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "notes": [
+            "qa:ana-coffee#q3:q"
+          ]
         },
         {
           "n": 7,
@@ -3720,7 +5285,10 @@ export const course: Course = {
             "lens": [
               "pt-prepositions"
             ],
-            "highlight": []
+            "highlight": [
+              0,
+              4
+            ]
           },
           "build": [
             "phrase-gen-s0-greet-v4",
@@ -3731,11 +5299,14 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "New: Little linking words: во, на, до, од, со",
+            "Place little words во, на, со, од, до before a noun to say where.",
             "3 new words: во, на, лево",
-            "Read “Ана бара центар”"
+            "Read “Ана бара центар”: spot today's pattern"
           ],
-          "next": "Next: New: Telling someone what to do"
+          "next": "Next: Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
+          "notes": [
+            "story:gen-s1-directions-story#5"
+          ]
         },
         {
           "n": 2,
@@ -3759,14 +5330,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-directions-story",
             "lens": [
               "pt-commands"
             ],
             "highlight": [
-              2
-            ],
-            "reuse": true
+              2,
+              3
+            ]
           },
           "build": [
             "phrase-gen-s1-directions-v11",
@@ -3777,11 +5348,11 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "New: Telling someone what to do",
+            "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
             "3 new words: Свртете лево., десно, право",
-            "Reread “Ана учи македонски” from an earlier chapter: find telling someone what to do"
+            "Read “Ана бара центар”: spot today's pattern"
           ],
-          "next": "Next: New: More and most: по- and нај-"
+          "next": "Next: Build \"more\" and \"most\": stick по- or нај- on the front"
         },
         {
           "n": 3,
@@ -3823,7 +5394,7 @@ export const course: Course = {
             "phrase-gen-s1-directions-v11"
           ],
           "agenda": [
-            "New: More and most: по- and нај-",
+            "Build \"more\" and \"most\": stick по- or нај- on the front",
             "3 new words: близу / далеку, тука / таму, од",
             "Reread “Ана учи македонски” from an earlier chapter: find more and most: по- and нај-"
           ],
@@ -3834,7 +5405,7 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-greet-intro-story",
             "lens": [
               "pt-prepositions",
               "pt-commands",
@@ -3842,8 +5413,9 @@ export const course: Course = {
             ],
             "highlight": [
               0,
-              2,
-              3
+              1,
+              4,
+              5
             ],
             "reuse": true
           },
@@ -3858,10 +5430,13 @@ export const course: Course = {
           "speak": "gen-s1-directions",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
+            "Reread “Во барот” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Directions & getting around"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "scenario:gen-s1-directions#6"
+          ]
         },
         {
           "n": 5,
@@ -3890,7 +5465,12 @@ export const course: Course = {
               "pt-commands",
               "pt-more-most"
             ],
-            "highlight": []
+            "highlight": [
+              0,
+              2,
+              3,
+              4
+            ]
           },
           "build": [
             "phrase-gen-s0-greet-v4",
@@ -3904,7 +5484,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "3 new words: автобус, такси, билет",
-            "Read “Ана бара центар”",
+            "Read “Ана бара центар”: spot everything from this chapter",
             "Conversation: Directions & getting around"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -3930,14 +5510,16 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-greet-story",
+            "id": "gen-s0-repair-story",
             "lens": [
               "pt-prepositions",
               "pt-commands",
               "pt-more-most"
             ],
             "highlight": [
-              0
+              0,
+              2,
+              3
             ],
             "reuse": true
           },
@@ -3954,7 +5536,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "3 new words: во центарот, улица, со",
-            "Reread “Ана и Марко” from an earlier chapter: find this chapter's patterns",
+            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
             "Conversation: Directions & getting around",
             "Write a few lines of your own"
           ],
@@ -4150,7 +5732,10 @@ export const course: Course = {
             "lens": [
               "pt-mi-ti-mu"
             ],
-            "highlight": []
+            "highlight": [
+              2,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s2-smalltalk-v1",
@@ -4163,9 +5748,12 @@ export const course: Course = {
           "agenda": [
             "New: To me, to you: ми, ти, му",
             "3 new words: Ми се допаѓа., Не ми се допаѓа., Сакам да …",
-            "Read “Времето денес”"
+            "Read “Времето денес”: spot today's pattern"
           ],
-          "next": "Next: Practice: To me, to you: ми, ти, му"
+          "next": "Next: Practice: To me, to you: ми, ти, му",
+          "notes": [
+            "story:gen-s2-smalltalk-story#7"
+          ]
         },
         {
           "n": 2,
@@ -4193,7 +5781,10 @@ export const course: Course = {
             "lens": [
               "pt-mi-ti-mu"
             ],
-            "highlight": []
+            "highlight": [
+              2,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s2-smalltalk-v5",
@@ -4206,7 +5797,7 @@ export const course: Course = {
           "agenda": [
             "Practice: To me, to you: ми, ти, му",
             "3 new words: Мислам дека …, Се согласувам., убаво / грозно",
-            "Read “Времето денес”"
+            "Read “Времето денес”: spot today's pattern"
           ],
           "next": "Next: New: The future: ќе and нема да"
         },
@@ -4232,11 +5823,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s2-smalltalk-story",
+            "id": "gen-s1-cafe-order-story",
             "lens": [
               "pt-future"
             ],
-            "highlight": []
+            "highlight": [
+              2
+            ],
+            "reuse": true
           },
           "build": [
             "phrase-gen-s2-pasttime-v7",
@@ -4249,7 +5843,7 @@ export const course: Course = {
           "agenda": [
             "New: The future: ќе and нема да",
             "3 new words: Ќе …, Ќе се видиме., времето",
-            "Read “Времето денес”"
+            "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
           ],
           "next": "Next: Practice: The future: ќе and нема да"
         },
@@ -4275,11 +5869,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s2-smalltalk-story",
+            "id": "gen-s1-cafe-order-story",
             "lens": [
               "pt-future"
             ],
-            "highlight": []
+            "highlight": [
+              2
+            ],
+            "reuse": true
           },
           "build": [
             "phrase-gen-s2-smalltalk-v9",
@@ -4292,7 +5889,7 @@ export const course: Course = {
           "agenda": [
             "Practice: The future: ќе and нема да",
             "3 new words: денес, и / ама / затоа, дека",
-            "Read “Времето денес”"
+            "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -4301,47 +5898,13 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-cafe-order-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
               "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-future"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8
+              2
             ],
             "reuse": true
           },
@@ -4356,10 +5919,13 @@ export const course: Course = {
           "speak": "gen-s2-smalltalk",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Марко во кафето” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Small talk, likes & opinions"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "scenario:gen-s2-smalltalk#6"
+          ]
         },
         {
           "n": 6,
@@ -4377,7 +5943,10 @@ export const course: Course = {
               "pt-mi-ti-mu",
               "pt-future"
             ],
-            "highlight": []
+            "highlight": [
+              2,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s0-greet-v2",
@@ -4391,7 +5960,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "1 new word: дожд",
-            "Read “Времето денес”",
+            "Read “Времето денес”: spot everything from this chapter",
             "Conversation: Small talk, likes & opinions"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -4401,47 +5970,13 @@ export const course: Course = {
           "role": "use",
           "words": [],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s1-greet-intro-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
               "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-future"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8
+              3
             ],
             "reuse": true
           },
@@ -4457,7 +5992,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "Reread “Ана во продавница” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Во барот” from an earlier chapter: find this chapter's patterns",
             "Conversation: Small talk, likes & opinions",
             "Write a few lines of your own"
           ],
@@ -4600,7 +6135,14 @@ export const course: Course = {
             "lens": [
               "pt-past"
             ],
-            "highlight": []
+            "highlight": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s2-pasttime-v1",
@@ -4613,7 +6155,7 @@ export const course: Course = {
           "agenda": [
             "New: What happened: the past tense",
             "3 new words: вчера / денес / утре, бев, имав",
-            "Read “Денот на Марко”"
+            "Read “Денот на Марко”: spot today's pattern"
           ],
           "next": "Next: Practice: What happened: the past tense"
         },
@@ -4643,7 +6185,14 @@ export const course: Course = {
             "lens": [
               "pt-past"
             ],
-            "highlight": []
+            "highlight": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s2-pasttime-v8",
@@ -4656,7 +6205,7 @@ export const course: Course = {
           "agenda": [
             "Practice: What happened: the past tense",
             "3 new words: отидов, јадев, Што правеше?",
-            "Read “Денот на Марко”"
+            "Read “Денот на Марко”: spot today's pattern"
           ],
           "next": "Next: New: Two versions of a verb"
         },
@@ -4761,7 +6310,14 @@ export const course: Course = {
               "pt-past",
               "pt-aspect"
             ],
-            "highlight": []
+            "highlight": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s0-greet-v6",
@@ -4774,7 +6330,7 @@ export const course: Course = {
           "speak": "gen-s2-pasttime",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "Read “Денот на Марко”",
+            "Read “Денот на Марко”: spot everything from this chapter",
             "Conversation: Your day: past & future"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -5061,7 +6617,11 @@ export const course: Course = {
             "lens": [
               "pt-possessives"
             ],
-            "highlight": []
+            "highlight": [
+              3,
+              4,
+              7
+            ]
           },
           "build": [
             "phrase-gen-s2-home-family-v9",
@@ -5074,7 +6634,7 @@ export const course: Course = {
           "agenda": [
             "New: My, your: мој and мајка ми",
             "3 new words: мојот / мојата, мој, мајка / татко",
-            "Read “Мојот живот”"
+            "Read “Мојот живот”: spot today's pattern"
           ],
           "next": "Next: New: Odd plurals: деца, браќа, луѓе"
         },
@@ -5147,7 +6707,11 @@ export const course: Course = {
               "pt-possessives",
               "pt-irregular-plurals"
             ],
-            "highlight": []
+            "highlight": [
+              3,
+              4,
+              7
+            ]
           },
           "build": [
             "phrase-gen-s0-greet-v5",
@@ -5160,7 +6724,7 @@ export const course: Course = {
           "agenda": [
             "Practice day: more of this chapter's patterns",
             "3 new words: Живеам во …, Работам како …, твој",
-            "Read “Мојот живот”"
+            "Read “Мојот живот”: spot everything from this chapter"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -5255,7 +6819,11 @@ export const course: Course = {
               "pt-possessives",
               "pt-irregular-plurals"
             ],
-            "highlight": []
+            "highlight": [
+              3,
+              4,
+              7
+            ]
           },
           "build": [
             "phrase-gen-s2-home-family-v7",
@@ -5269,7 +6837,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "3 new words: Имам брат и сестра., На колку години си?, човек",
-            "Read “Мојот живот”",
+            "Read “Мојот живот”: spot everything from this chapter",
             "Conversation: Home, family & work"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -5485,7 +7053,10 @@ export const course: Course = {
             "lens": [
               "pt-time"
             ],
-            "highlight": []
+            "highlight": [
+              4,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s0-greet-v8",
@@ -5498,7 +7069,7 @@ export const course: Course = {
           "agenda": [
             "New: Telling the time: во … часот",
             "3 new words: Ало?, Дома ли е …?, Кога?",
-            "Read “Телефонски повик”"
+            "Read “Телефонски повик”: spot today's pattern"
           ],
           "next": "Next: New: Let's…: ајде да"
         },
@@ -5528,7 +7099,10 @@ export const course: Course = {
             "lens": [
               "pt-ajde-da"
             ],
-            "highlight": []
+            "highlight": [
+              3,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s2-arrange-v4",
@@ -5541,7 +7115,7 @@ export const course: Course = {
           "agenda": [
             "New: Let's…: ајде да",
             "3 new words: Во колку часот?, Каде да се видиме?, Ајде да …",
-            "Read “Телефонски повик”"
+            "Read “Телефонски повик”: spot today's pattern"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -5608,7 +7182,10 @@ export const course: Course = {
             "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
             "First try at the conversation: Phone & arranging to meet"
           ],
-          "next": "Next: Put it together: use this chapter in a real exchange"
+          "next": "Next: Put it together: use this chapter in a real exchange",
+          "notes": [
+            "scenario:gen-s2-arrange#2"
+          ]
         },
         {
           "n": 4,
@@ -5636,7 +7213,11 @@ export const course: Course = {
               "pt-time",
               "pt-ajde-da"
             ],
-            "highlight": []
+            "highlight": [
+              3,
+              4,
+              5
+            ]
           },
           "build": [
             "phrase-gen-s2-arrange-v7",
@@ -5650,7 +7231,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "3 new words: Важи. / Договорено., Оставете порака., порака",
-            "Read “Телефонски повик”",
+            "Read “Телефонски повик”: spot everything from this chapter",
             "Conversation: Phone & arranging to meet"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -5880,7 +7461,9 @@ export const course: Course = {
             "lens": [
               "pt-ima-nema"
             ],
-            "highlight": []
+            "highlight": [
+              1
+            ]
           },
           "build": [
             "phrase-gen-s2-problems-v1",
@@ -5893,7 +7476,7 @@ export const course: Course = {
           "agenda": [
             "New: There is, there isn't: има and нема",
             "3 new words: Има проблем., Не работи., Ова не е …",
-            "Read “Проблем во кафулето”"
+            "Read “Проблем во кафулето”: spot today's pattern"
           ],
           "next": "Next: New: The “have done” past"
         },
@@ -5945,47 +7528,13 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-directions-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
               "pt-ima-nema",
               "pt-perfect"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8
+              5
             ],
             "reuse": true
           },
@@ -6000,7 +7549,7 @@ export const course: Course = {
           "speak": "gen-s2-problems",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Ана бара центар” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Problems & complaints (repair kit, leveled up)"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange"
@@ -6026,7 +7575,9 @@ export const course: Course = {
               "pt-ima-nema",
               "pt-perfect"
             ],
-            "highlight": []
+            "highlight": [
+              1
+            ]
           },
           "build": [
             "phrase-gen-s2-problems-v8",
@@ -6040,7 +7591,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "2 new words: Извинете, ама …, Не разбирам зошто.",
-            "Read “Проблем во кафулето”",
+            "Read “Проблем во кафулето”: spot everything from this chapter",
             "Conversation: Problems & complaints (repair kit, leveled up)"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -6050,47 +7601,13 @@ export const course: Course = {
           "role": "use",
           "words": [],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s2-smalltalk-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
               "pt-ima-nema",
               "pt-perfect"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8
+              7
             ],
             "reuse": true
           },
@@ -6106,7 +7623,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "Reread “Ана во продавница” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Времето денес” from an earlier chapter: find this chapter's patterns",
             "Conversation: Problems & complaints (repair kit, leveled up)",
             "Write a few lines of your own"
           ],
@@ -6246,9 +7763,9 @@ export const course: Course = {
         "видам",
         "учам македонски",
         "зборувам малку",
-        "сум / си / е",
         "зборувам",
         "јас сум од",
+        "студент",
         "јаболка",
         "едно кило",
         "половина кило",
@@ -6743,6 +8260,1378 @@ export const course: Course = {
     "grammar:numbers#3": [
       "pt-numbers",
       "pt-irregular-plurals"
+    ],
+    "grammar:definite-articles#0": [
+      "pt-the"
+    ],
+    "grammar:definite-articles#1": [
+      "pt-the"
+    ],
+    "grammar:definite-articles#2": [
+      "pt-the"
+    ],
+    "grammar:definite-articles#3": [
+      "pt-the"
+    ],
+    "grammar:definite-articles#4": [
+      "pt-the"
+    ],
+    "grammar:verb-conjugation#0": [
+      "pt-verbs-a"
+    ],
+    "grammar:verb-conjugation#1": [
+      "pt-verbs-a"
+    ],
+    "grammar:verb-conjugation#2": [
+      "pt-verbs-a"
+    ],
+    "grammar:verb-conjugation-e#0": [
+      "pt-verbs-e-i"
+    ],
+    "grammar:verb-conjugation-e#1": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "grammar:verb-conjugation-e#2": [
+      "pt-verbs-e-i"
+    ],
+    "grammar:verb-conjugation-i#0": [
+      "pt-verbs-e-i"
+    ],
+    "grammar:verb-conjugation-i#1": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "grammar:verb-conjugation-i#2": [
+      "pt-verbs-e-i"
+    ],
+    "grammar:verb-aspect#0": [
+      "pt-verbs-e-i",
+      "pt-aspect"
+    ],
+    "grammar:verb-aspect#1": [
+      "pt-go-ja-gi",
+      "pt-the",
+      "pt-aspect"
+    ],
+    "grammar:future-tense#0": [
+      "pt-future",
+      "pt-verbs-a"
+    ],
+    "grammar:future-tense#1": [
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "grammar:future-tense#2": [
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "grammar:past-tense#0": [
+      "pt-past"
+    ],
+    "grammar:past-tense#1": [
+      "pt-past"
+    ],
+    "grammar:past-tense#2": [
+      "pt-past"
+    ],
+    "grammar:clitics#0": [
+      "pt-mi-ti-mu",
+      "pt-se"
+    ],
+    "grammar:clitics#1": [
+      "pt-mi-ti-mu",
+      "pt-go-ja-gi",
+      "pt-verbs-a"
+    ],
+    "grammar:da-modals#0": [
+      "pt-verbs-a",
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "grammar:da-modals#1": [
+      "pt-da",
+      "pt-verbs-a"
+    ],
+    "grammar:da-modals#2": [
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "grammar:da-modals#3": [
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "grammar:adjective-agreement#0": [
+      "pt-adjectives"
+    ],
+    "grammar:adjective-agreement#1": [
+      "pt-adjectives"
+    ],
+    "grammar:adjective-agreement#2": [
+      "pt-adjectives"
+    ],
+    "grammar:adjective-agreement#3": [
+      "pt-adjectives",
+      "pt-plurals"
+    ],
+    "grammar:noun-plurals#0": [
+      "pt-plurals"
+    ],
+    "grammar:noun-plurals#1": [
+      "pt-plurals"
+    ],
+    "grammar:noun-plurals#2": [
+      "pt-plurals"
+    ],
+    "grammar:noun-plurals#3": [
+      "pt-plurals"
+    ],
+    "grammar:possessives#0": [
+      "pt-possessives",
+      "pt-the"
+    ],
+    "grammar:possessives#1": [
+      "pt-possessives",
+      "pt-the"
+    ],
+    "grammar:possessives#2": [
+      "pt-possessives",
+      "pt-the"
+    ],
+    "grammar:possessives#3": [
+      "pt-possessives"
+    ],
+    "grammar:prepositions#0": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "grammar:prepositions#1": [
+      "pt-prepositions"
+    ],
+    "grammar:prepositions#2": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "grammar:prepositions#3": [
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "grammar:imperatives#0": [
+      "pt-commands"
+    ],
+    "grammar:imperatives#1": [
+      "pt-commands"
+    ],
+    "grammar:imperatives#2": [
+      "pt-commands"
+    ],
+    "grammar:imperatives#3": [
+      "pt-commands",
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "grammar:comparatives#0": [
+      "pt-gender",
+      "pt-sum",
+      "pt-more-most"
+    ],
+    "grammar:comparatives#1": [
+      "pt-sum",
+      "pt-more-most"
+    ],
+    "grammar:comparatives#2": [
+      "pt-more-most"
+    ],
+    "grammar:comparatives#3": [
+      "pt-sum",
+      "pt-more-most",
+      "pt-prepositions"
+    ],
+    "grammar:perfect-tense#0": [
+      "pt-perfect",
+      "pt-prepositions"
+    ],
+    "grammar:perfect-tense#1": [
+      "pt-perfect",
+      "pt-prepositions"
+    ],
+    "grammar:perfect-tense#2": [
+      "pt-yes-no",
+      "pt-perfect"
+    ],
+    "grammar:perfect-tense#3": [
+      "pt-perfect"
+    ],
+    "story:ana-coffee#0": [
+      "pt-verbs-a"
+    ],
+    "story:ana-coffee#1": [
+      "pt-verbs-a",
+      "pt-prepositions"
+    ],
+    "story:ana-coffee#2": [
+      "pt-gender",
+      "pt-verbs-e-i"
+    ],
+    "story:ana-coffee#3": [
+      "pt-the",
+      "pt-verbs-e-i",
+      "pt-commands"
+    ],
+    "story:ana-coffee#4": [
+      "pt-verbs-e-i",
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:ana-coffee#5": [
+      "pt-question-words",
+      "pt-numbers",
+      "pt-verbs-a"
+    ],
+    "story:ana-coffee#6": [
+      "pt-numbers"
+    ],
+    "story:ana-coffee#7": [
+      "pt-verbs-a",
+      "pt-verbs-e-i"
+    ],
+    "qa:ana-coffee#q1:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:ana-coffee#q1:a": [],
+    "qa:ana-coffee#q2:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:ana-coffee#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:ana-coffee#q3:q": [
+      "pt-commands",
+      "pt-go-ja-gi",
+      "pt-gender"
+    ],
+    "qa:ana-coffee#q3:a": [
+      "pt-gender"
+    ],
+    "story:gen-s1-cafe-order-story#0": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-gender"
+    ],
+    "story:gen-s1-cafe-order-story#1": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-cafe-order-story#2": [
+      "pt-question-words",
+      "pt-future",
+      "pt-verbs-a",
+      "pt-the"
+    ],
+    "story:gen-s1-cafe-order-story#3": [
+      "pt-gender",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-cafe-order-story#4": [
+      "pt-commands",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "story:gen-s1-cafe-order-story#5": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-cafe-order-story#6": [
+      "pt-the",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-cafe-order-story#7": [
+      "pt-the",
+      "pt-numbers"
+    ],
+    "qa:gen-s1-cafe-order-story#q1:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-cafe-order-story#q1:a": [
+      "pt-gender"
+    ],
+    "qa:gen-s1-cafe-order-story#q2:q": [
+      "pt-question-words",
+      "pt-numbers",
+      "pt-the"
+    ],
+    "qa:gen-s1-cafe-order-story#q2:a": [
+      "pt-numbers"
+    ],
+    "qa:gen-s1-cafe-order-story#q3:q": [
+      "pt-commands",
+      "pt-go-ja-gi",
+      "pt-question-words",
+      "pt-verbs-a",
+      "pt-gender"
+    ],
+    "qa:gen-s1-cafe-order-story#q3:a": [
+      "pt-gender"
+    ],
+    "scenario:bar-order-a-drink#0": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "scenario:bar-order-a-drink#1": [
+      "pt-gender"
+    ],
+    "scenario:bar-order-a-drink#2": [],
+    "scenario:bar-order-a-drink#3": [
+      "pt-gender",
+      "pt-question-words",
+      "pt-numbers"
+    ],
+    "scenario:bar-order-a-drink#4": [
+      "pt-numbers"
+    ],
+    "scenario:bar-order-a-drink#5": [
+      "pt-the"
+    ],
+    "scenario:bar-order-a-drink#6": [
+      "pt-commands"
+    ],
+    "scenario:gen-s1-cafe-order#0": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "scenario:gen-s1-cafe-order#1": [
+      "pt-gender"
+    ],
+    "scenario:gen-s1-cafe-order#2": [
+      "pt-yes-no",
+      "pt-verbs-a"
+    ],
+    "scenario:gen-s1-cafe-order#3": [
+      "pt-gender",
+      "pt-question-words",
+      "pt-numbers"
+    ],
+    "scenario:gen-s1-cafe-order#4": [
+      "pt-numbers"
+    ],
+    "scenario:gen-s1-cafe-order#5": [
+      "pt-the",
+      "pt-commands"
+    ],
+    "scenario:gen-s1-cafe-order#6": [],
+    "scenario:gen-s1-cafe-order#7": [],
+    "reader:cafe#0": [
+      "pt-verbs-a",
+      "pt-prepositions"
+    ],
+    "reader:cafe#1": [
+      "pt-verbs-a",
+      "pt-gender"
+    ],
+    "reader:cafe#2": [
+      "pt-the",
+      "pt-verbs-e-i",
+      "pt-commands"
+    ],
+    "reader:cafe#3": [
+      "pt-verbs-e-i",
+      "pt-verbs-a"
+    ],
+    "reader:cafe#4": [
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "reader:gen-s1-cafe-order-reader#0": [
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "reader:gen-s1-cafe-order-reader#1": [
+      "pt-the",
+      "pt-verbs-e-i",
+      "pt-question-words",
+      "pt-future",
+      "pt-verbs-a"
+    ],
+    "reader:gen-s1-cafe-order-reader#2": [
+      "pt-gender"
+    ],
+    "reader:gen-s1-cafe-order-reader#3": [
+      "pt-commands",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "reader:gen-s1-cafe-order-reader#4": [
+      "pt-verbs-e-i"
+    ],
+    "reader:gen-s1-cafe-order-reader#5": [
+      "pt-the",
+      "pt-numbers"
+    ],
+    "story:gen-s1-greet-intro-story#0": [
+      "pt-sum",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story#1": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story#2": [
+      "pt-question-words",
+      "pt-se",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-greet-intro-story#3": [
+      "pt-sum",
+      "pt-mi-ti-mu"
+    ],
+    "story:gen-s1-greet-intro-story#4": [
+      "pt-prepositions",
+      "pt-question-words",
+      "pt-sum",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-greet-intro-story#5": [
+      "pt-prepositions",
+      "pt-sum",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-greet-intro-story#6": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-greet-intro-story#7": [
+      "pt-sum",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-greet-intro-story#q1:q": [
+      "pt-prepositions",
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s1-greet-intro-story#q1:a": [
+      "pt-prepositions",
+      "pt-sum"
+    ],
+    "qa:gen-s1-greet-intro-story#q2:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-greet-intro-story#q2:a": [
+      "pt-sum"
+    ],
+    "qa:gen-s1-greet-intro-story#q3:q": [
+      "pt-commands",
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-greet-intro-story#q3:a": [
+      "pt-verbs-e-i"
+    ],
+    "scenario:bar-small-talk#0": [
+      "pt-question-words",
+      "pt-se"
+    ],
+    "scenario:bar-small-talk#1": [
+      "pt-sum"
+    ],
+    "scenario:bar-small-talk#2": [
+      "pt-mi-ti-mu",
+      "pt-sum",
+      "pt-prepositions",
+      "pt-question-words"
+    ],
+    "scenario:bar-small-talk#3": [
+      "pt-prepositions",
+      "pt-sum"
+    ],
+    "scenario:bar-small-talk#4": [
+      "pt-verbs-a"
+    ],
+    "scenario:bar-small-talk#5": [
+      "pt-verbs-e-i"
+    ],
+    "scenario:bar-small-talk#6": [
+      "pt-mi-ti-mu",
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-introductions#0": [
+      "pt-sum",
+      "pt-question-words",
+      "pt-se"
+    ],
+    "scenario:gen-introductions#1": [
+      "pt-se"
+    ],
+    "scenario:gen-introductions#2": [
+      "pt-mi-ti-mu",
+      "pt-sum",
+      "pt-prepositions",
+      "pt-question-words"
+    ],
+    "scenario:gen-introductions#3": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "scenario:gen-introductions#4": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-introductions#5": [
+      "pt-sum"
+    ],
+    "scenario:gen-introductions#6": [
+      "pt-prepositions"
+    ],
+    "scenario:gen-introductions#7": [
+      "pt-mi-ti-mu",
+      "pt-sum"
+    ],
+    "scenario:gen-s1-greet-intro#0": [
+      "pt-question-words",
+      "pt-se"
+    ],
+    "scenario:gen-s1-greet-intro#1": [
+      "pt-sum"
+    ],
+    "scenario:gen-s1-greet-intro#2": [
+      "pt-sum",
+      "pt-mi-ti-mu"
+    ],
+    "scenario:gen-s1-greet-intro#3": [
+      "pt-mi-ti-mu",
+      "pt-sum",
+      "pt-prepositions",
+      "pt-question-words"
+    ],
+    "scenario:gen-s1-greet-intro#4": [
+      "pt-prepositions",
+      "pt-sum"
+    ],
+    "scenario:gen-s1-greet-intro#5": [
+      "pt-prepositions",
+      "pt-sum",
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-s1-greet-intro#6": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-s1-greet-intro#7": [
+      "pt-sum"
+    ],
+    "story:gen-s1-market-story#0": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-market-story#1": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-market-story#2": [
+      "pt-verbs-a",
+      "pt-yes-no"
+    ],
+    "story:gen-s1-market-story#3": [
+      "pt-verbs-a",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "story:gen-s1-market-story#4": [
+      "pt-verbs-a",
+      "pt-gender",
+      "pt-question-words",
+      "pt-numbers",
+      "pt-plurals"
+    ],
+    "story:gen-s1-market-story#5": [
+      "pt-numbers",
+      "pt-plurals"
+    ],
+    "story:gen-s1-market-story#6": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-market-story#7": [],
+    "qa:gen-s1-market-story#q1:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-market-story#q1:a": [
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-market-story#q2:q": [
+      "pt-question-words",
+      "pt-verbs-a",
+      "pt-plurals"
+    ],
+    "qa:gen-s1-market-story#q2:a": [
+      "pt-gender"
+    ],
+    "qa:gen-s1-market-story#q3:q": [
+      "pt-commands",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "qa:gen-s1-market-story#q3:a": [
+      "pt-verbs-a"
+    ],
+    "scenario:gen-shopping#0": [
+      "pt-commands"
+    ],
+    "scenario:gen-shopping#1": [
+      "pt-adjectives",
+      "pt-verbs-a"
+    ],
+    "scenario:gen-shopping#2": [],
+    "scenario:gen-shopping#3": [
+      "pt-gender",
+      "pt-question-words",
+      "pt-numbers"
+    ],
+    "scenario:gen-shopping#4": [
+      "pt-numbers",
+      "pt-plurals"
+    ],
+    "scenario:gen-shopping#5": [
+      "pt-commands"
+    ],
+    "scenario:gen-shopping#6": [
+      "pt-adjectives"
+    ],
+    "scenario:gen-s1-market#0": [
+      "pt-adjectives",
+      "pt-question-words",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "scenario:gen-s1-market#1": [
+      "pt-adjectives",
+      "pt-verbs-a",
+      "pt-plurals"
+    ],
+    "scenario:gen-s1-market#2": [
+      "pt-question-words",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "scenario:gen-s1-market#3": [
+      "pt-gender",
+      "pt-verbs-a"
+    ],
+    "scenario:gen-s1-market#4": [
+      "pt-commands"
+    ],
+    "scenario:gen-s1-market#5": [
+      "pt-question-words",
+      "pt-numbers",
+      "pt-the"
+    ],
+    "scenario:gen-s1-market#6": [
+      "pt-numbers",
+      "pt-plurals",
+      "pt-the"
+    ],
+    "scenario:gen-s1-market#7": [
+      "pt-future",
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-commands"
+    ],
+    "reader:gen-s1-market-reader#0": [
+      "pt-verbs-a",
+      "pt-gender",
+      "pt-plurals"
+    ],
+    "reader:gen-s1-market-reader#1": [
+      "pt-question-words",
+      "pt-numbers",
+      "pt-the"
+    ],
+    "reader:gen-s1-market-reader#2": [
+      "pt-verbs-a",
+      "pt-yes-no"
+    ],
+    "reader:gen-s1-market-reader#3": [
+      "pt-verbs-a"
+    ],
+    "reader:gen-s1-market-reader#4": [
+      "pt-verbs-a"
+    ],
+    "reader:gen-s1-market-reader#5": [],
+    "story:gen-s1-directions-story#0": [
+      "pt-sum",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s1-directions-story#1": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-the",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-directions-story#2": [
+      "pt-commands",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "story:gen-s1-directions-story#3": [
+      "pt-commands",
+      "pt-sum"
+    ],
+    "story:gen-s1-directions-story#4": [
+      "pt-verbs-a",
+      "pt-da",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-directions-story#5": [
+      "pt-ima-nema",
+      "pt-the"
+    ],
+    "story:gen-s1-directions-story#6": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-directions-story#7": [
+      "pt-the",
+      "pt-ne",
+      "pt-sum",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-directions-story#q1:q": [
+      "pt-question-words",
+      "pt-verbs-a",
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-directions-story#q1:a": [
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "qa:gen-s1-directions-story#q2:q": [
+      "pt-prepositions",
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-directions-story#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story#q3:q": [
+      "pt-commands",
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-da"
+    ],
+    "qa:gen-s1-directions-story#q3:a": [
+      "pt-commands"
+    ],
+    "scenario:gen-directions#0": [
+      "pt-commands",
+      "pt-question-words",
+      "pt-sum",
+      "pt-the"
+    ],
+    "scenario:gen-directions#1": [
+      "pt-the",
+      "pt-sum"
+    ],
+    "scenario:gen-directions#2": [
+      "pt-yes-no",
+      "pt-sum"
+    ],
+    "scenario:gen-directions#3": [
+      "pt-sum",
+      "pt-numbers"
+    ],
+    "scenario:gen-directions#4": [],
+    "scenario:gen-directions#5": [
+      "pt-ne",
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-directions#6": [],
+    "scenario:gen-directions#7": [],
+    "scenario:gen-s1-directions#0": [
+      "pt-commands",
+      "pt-question-words",
+      "pt-sum",
+      "pt-the",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s1-directions#1": [
+      "pt-commands",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s1-directions#2": [
+      "pt-yes-no",
+      "pt-sum"
+    ],
+    "scenario:gen-s1-directions#3": [
+      "pt-sum"
+    ],
+    "scenario:gen-s1-directions#4": [
+      "pt-prepositions"
+    ],
+    "scenario:gen-s1-directions#5": [
+      "pt-prepositions",
+      "pt-the",
+      "pt-numbers"
+    ],
+    "scenario:gen-s1-directions#6": [
+      "pt-mi-ti-mu"
+    ],
+    "scenario:gen-s1-directions#7": [],
+    "reader:gen-s1-directions-reader#0": [
+      "pt-sum",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "reader:gen-s1-directions-reader#1": [
+      "pt-verbs-a",
+      "pt-question-words",
+      "pt-sum",
+      "pt-the"
+    ],
+    "reader:gen-s1-directions-reader#2": [
+      "pt-gender",
+      "pt-verbs-e-i",
+      "pt-commands"
+    ],
+    "reader:gen-s1-directions-reader#3": [
+      "pt-the",
+      "pt-sum"
+    ],
+    "reader:gen-s1-directions-reader#4": [
+      "pt-verbs-a",
+      "pt-prepositions"
+    ],
+    "reader:gen-s1-directions-reader#5": [
+      "pt-verbs-e-i",
+      "pt-verbs-a",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s2-smalltalk-story#0": [
+      "pt-gender",
+      "pt-sum"
+    ],
+    "story:gen-s2-smalltalk-story#1": [
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:gen-s2-smalltalk-story#2": [
+      "pt-mi-ti-mu",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story#3": [
+      "pt-se",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story#4": [
+      "pt-verbs-a",
+      "pt-sum",
+      "pt-adjectives",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story#5": [
+      "pt-ne",
+      "pt-mi-ti-mu",
+      "pt-the",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story#6": [
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story#7": [
+      "pt-ima-nema",
+      "pt-verbs-a",
+      "pt-da",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story#8": [
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-smalltalk-story#q1:q": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-the"
+    ],
+    "qa:gen-s2-smalltalk-story#q1:a": [
+      "pt-adjectives",
+      "pt-sum"
+    ],
+    "qa:gen-s2-smalltalk-story#q2:q": [
+      "pt-yes-no",
+      "pt-mi-ti-mu",
+      "pt-the"
+    ],
+    "qa:gen-s2-smalltalk-story#q2:a": [
+      "pt-ne",
+      "pt-mi-ti-mu"
+    ],
+    "qa:gen-s2-smalltalk-story#q3:q": [
+      "pt-commands",
+      "pt-se",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-smalltalk-story#q3:a": [
+      "pt-se"
+    ],
+    "scenario:gen-s2-smalltalk#0": [
+      "pt-yes-no",
+      "pt-mi-ti-mu",
+      "pt-the"
+    ],
+    "scenario:gen-s2-smalltalk#1": [
+      "pt-mi-ti-mu",
+      "pt-adjectives",
+      "pt-sum"
+    ],
+    "scenario:gen-s2-smalltalk#2": [
+      "pt-the",
+      "pt-mi-ti-mu"
+    ],
+    "scenario:gen-s2-smalltalk#3": [
+      "pt-ne",
+      "pt-mi-ti-mu",
+      "pt-verbs-a",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s2-smalltalk#4": [
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s2-smalltalk#5": [
+      "pt-se",
+      "pt-verbs-a",
+      "pt-da",
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s2-smalltalk#6": [
+      "pt-adjectives",
+      "pt-ajde-da"
+    ],
+    "story:gen-s2-pasttime-story#0": [
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story#1": [
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story#2": [
+      "pt-past",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s2-pasttime-story#3": [
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story#4": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story#5": [
+      "pt-past",
+      "pt-prepositions",
+      "pt-the",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-pasttime-story#6": [
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-pasttime-story#7": [
+      "pt-future",
+      "pt-se",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-pasttime-story#q1:q": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-pasttime-story#q2:q": [
+      "pt-question-words",
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-pasttime-story#q2:a": [],
+    "qa:gen-s2-pasttime-story#q3:q": [
+      "pt-commands",
+      "pt-mi-ti-mu",
+      "pt-prepositions",
+      "pt-future",
+      "pt-se"
+    ],
+    "qa:gen-s2-pasttime-story#q3:a": [
+      "pt-future",
+      "pt-se"
+    ],
+    "scenario:gen-s2-pasttime#0": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-ti-vie"
+    ],
+    "scenario:gen-s2-pasttime#1": [
+      "pt-sum",
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s2-pasttime#2": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "scenario:gen-s2-pasttime#3": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s2-pasttime#4": [
+      "pt-question-words",
+      "pt-se",
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s2-pasttime#5": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "scenario:gen-s2-pasttime#6": [
+      "pt-past"
+    ],
+    "scenario:gen-s2-pasttime#7": [
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story#0": [
+      "pt-sum"
+    ],
+    "story:gen-s2-home-family-story#1": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story#2": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-home-family-story#3": [
+      "pt-possessives",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-home-family-story#4": [
+      "pt-possessives",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:gen-s2-home-family-story#5": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-home-family-story#6": [
+      "pt-verbs-a",
+      "pt-gender"
+    ],
+    "story:gen-s2-home-family-story#7": [
+      "pt-possessives",
+      "pt-verbs-a",
+      "pt-question-words",
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story#8": [
+      "pt-verbs-a",
+      "pt-numbers"
+    ],
+    "qa:gen-s2-home-family-story#q1:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-home-family-story#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story#q2:q": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story#q2:a": [],
+    "qa:gen-s2-home-family-story#q3:q": [
+      "pt-commands",
+      "pt-possessives",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story#q3:a": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s2-home-family#0": [
+      "pt-commands",
+      "pt-mi-ti-mu"
+    ],
+    "scenario:gen-s2-home-family#1": [
+      "pt-verbs-a",
+      "pt-numbers"
+    ],
+    "scenario:gen-s2-home-family#2": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-s2-home-family#3": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s2-home-family#4": [
+      "pt-verbs-a",
+      "pt-yes-no"
+    ],
+    "scenario:gen-s2-home-family#5": [
+      "pt-verbs-a",
+      "pt-gender"
+    ],
+    "scenario:gen-s2-home-family#6": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-s2-home-family#7": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-arrange-story#0": [
+      "pt-verbs-a",
+      "pt-mi-ti-mu",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-arrange-story#1": [
+      "pt-yes-no",
+      "pt-sum"
+    ],
+    "story:gen-s2-arrange-story#2": [
+      "pt-sum"
+    ],
+    "story:gen-s2-arrange-story#3": [
+      "pt-ajde-da",
+      "pt-se"
+    ],
+    "story:gen-s2-arrange-story#4": [
+      "pt-question-words",
+      "pt-time"
+    ],
+    "story:gen-s2-arrange-story#5": [
+      "pt-time",
+      "pt-numbers",
+      "pt-question-words",
+      "pt-ajde-da",
+      "pt-se"
+    ],
+    "story:gen-s2-arrange-story#6": [
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-arrange-story#7": [],
+    "qa:gen-s2-arrange-story#q1:q": [
+      "pt-time",
+      "pt-question-words",
+      "pt-se",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-arrange-story#q1:a": [
+      "pt-time",
+      "pt-numbers"
+    ],
+    "qa:gen-s2-arrange-story#q2:q": [
+      "pt-question-words",
+      "pt-se"
+    ],
+    "qa:gen-s2-arrange-story#q2:a": [
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-arrange-story#q3:q": [
+      "pt-commands",
+      "pt-go-ja-gi",
+      "pt-question-words",
+      "pt-future",
+      "pt-se",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "qa:gen-s2-arrange-story#q3:a": [],
+    "scenario:gen-phone#0": [],
+    "scenario:gen-phone#1": [
+      "pt-yes-no",
+      "pt-sum"
+    ],
+    "scenario:gen-phone#2": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "scenario:gen-phone#3": [
+      "pt-yes-no",
+      "pt-da",
+      "pt-verbs-a"
+    ],
+    "scenario:gen-phone#4": [
+      "pt-commands"
+    ],
+    "scenario:gen-phone#5": [
+      "pt-sum"
+    ],
+    "scenario:gen-phone#6": [
+      "pt-future",
+      "pt-mi-ti-mu"
+    ],
+    "scenario:gen-phone#7": [],
+    "scenario:gen-s2-arrange#0": [],
+    "scenario:gen-s2-arrange#1": [
+      "pt-yes-no",
+      "pt-sum"
+    ],
+    "scenario:gen-s2-arrange#2": [
+      "pt-sum",
+      "pt-question-words",
+      "pt-ima-nema"
+    ],
+    "scenario:gen-s2-arrange#3": [
+      "pt-ajde-da",
+      "pt-se",
+      "pt-time",
+      "pt-question-words"
+    ],
+    "scenario:gen-s2-arrange#4": [
+      "pt-numbers",
+      "pt-question-words",
+      "pt-ajde-da",
+      "pt-se"
+    ],
+    "scenario:gen-s2-arrange#5": [
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s2-arrange#6": [
+      "pt-se"
+    ],
+    "scenario:gen-s2-arrange#7": [
+      "pt-numbers"
+    ],
+    "story:gen-s2-problems-story#0": [
+      "pt-sum",
+      "pt-gender",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-problems-story#1": [
+      "pt-commands",
+      "pt-ima-nema"
+    ],
+    "story:gen-s2-problems-story#2": [
+      "pt-gender",
+      "pt-ne",
+      "pt-sum",
+      "pt-possessives",
+      "pt-the"
+    ],
+    "story:gen-s2-problems-story#3": [
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:gen-s2-problems-story#4": [
+      "pt-ne",
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-problems-story#5": [
+      "pt-yes-no",
+      "pt-da"
+    ],
+    "story:gen-s2-problems-story#6": [
+      "pt-verbs-a",
+      "pt-da",
+      "pt-gender"
+    ],
+    "story:gen-s2-problems-story#7": [
+      "pt-the",
+      "pt-verbs-e-i",
+      "pt-se"
+    ],
+    "qa:gen-s2-problems-story#q1:q": [
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s2-problems-story#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-problems-story#q2:q": [
+      "pt-sum",
+      "pt-the"
+    ],
+    "qa:gen-s2-problems-story#q2:a": [
+      "pt-adjectives"
+    ],
+    "qa:gen-s2-problems-story#q3:q": [
+      "pt-commands",
+      "pt-verbs-a",
+      "pt-da",
+      "pt-go-ja-gi",
+      "pt-the"
+    ],
+    "qa:gen-s2-problems-story#q3:a": [
+      "pt-verbs-a",
+      "pt-da"
+    ],
+    "scenario:gen-s2-problems#0": [
+      "pt-adjectives",
+      "pt-question-words",
+      "pt-da"
+    ],
+    "scenario:gen-s2-problems#1": [
+      "pt-adjectives",
+      "pt-ima-nema",
+      "pt-the",
+      "pt-ne",
+      "pt-sum"
+    ],
+    "scenario:gen-s2-problems#2": [
+      "pt-commands",
+      "pt-question-words",
+      "pt-ne",
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s2-problems#3": [
+      "pt-gender",
+      "pt-ne",
+      "pt-sum",
+      "pt-past",
+      "pt-the",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s2-problems#4": [
+      "pt-verbs-a",
+      "pt-se"
+    ],
+    "scenario:gen-s2-problems#5": [
+      "pt-yes-no",
+      "pt-da",
+      "pt-verbs-a",
+      "pt-the"
+    ],
+    "scenario:gen-s2-problems#6": [
+      "pt-verbs-e-i",
+      "pt-adjectives"
+    ],
+    "scenario:gen-s2-problems#7": [
+      "pt-sum",
+      "pt-prepositions"
     ]
   },
   "chunkNotes": [
@@ -6753,7 +9642,7 @@ export const course: Course = {
         "pt-sum",
         "pt-prepositions"
       ],
-      "note": "е means “is” (chapter 2) and во means “in” (chapter 7)."
+      "note": "Е means “is” (chapter 2) and во means “in” (chapter 7)."
     },
     {
       "source": "story:gen-s0-repair-story#1",
@@ -6762,7 +9651,7 @@ export const course: Course = {
         "pt-gender",
         "pt-verbs-a"
       ],
-      "note": "еден (“a”) matches the noun (chapter 3); зборува (“speaks”) gets its ending explained in chapter 4."
+      "note": "Еден (“a”) matches the noun (chapter 3); зборува (“speaks”) gets its ending explained in chapter 4."
     },
     {
       "source": "story:gen-s0-repair-story#2",
@@ -6797,7 +9686,7 @@ export const course: Course = {
         "pt-da",
         "pt-ti-vie"
       ],
-      "note": "да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
+      "note": "Да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
     },
     {
       "source": "story:gen-s0-repair-story#6",
@@ -6805,7 +9694,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "значи means “means”; verb endings are explained in chapter 5."
+      "note": "Значи means “means”; verb endings are explained in chapter 5."
     },
     {
       "source": "story:gen-s0-repair-story#7",
@@ -6813,7 +9702,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "учам (“I learn”) and вели (“says”): verb endings come in chapter 5."
+      "note": "Учам (“I learn”) and вели (“says”): verb endings come in chapter 5."
     },
     {
       "source": "story:gen-s0-repair-story#8",
@@ -6832,7 +9721,7 @@ export const course: Course = {
         "pt-verbs-a",
         "pt-verbs-e-i"
       ],
-      "note": "вели (“says”) and разбира (“understands”): verb endings come in chapters 4 and 5."
+      "note": "Вели (“says”) and разбира (“understands”): verb endings come in chapters 4 and 5."
     },
     {
       "source": "qa:gen-s0-repair-story#q1:a",
@@ -6868,7 +9757,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "знае means “knows”; verb endings come in chapter 5."
+      "note": "Знае means “knows”; verb endings come in chapter 5."
     },
     {
       "source": "qa:gen-s0-repair-story#q3:a",
@@ -6876,7 +9765,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "учи means “learns”; verb endings come in chapter 5."
+      "note": "Учи means “learns”; verb endings come in chapter 5."
     },
     {
       "source": "scenario:gen-s0-repair#0",
@@ -6888,7 +9777,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-prepositions"
       ],
-      "note": "сте is the polite “you are” (chapter 2); ве носи means “brings you” (chapters 5 and 6); во means “in” (chapter 7)."
+      "note": "Сте is the polite “you are” (chapter 2); ве носи means “brings you” (chapters 5 and 6); во means “in” (chapter 7)."
     },
     {
       "source": "scenario:gen-s0-repair#1",
@@ -6917,7 +9806,7 @@ export const course: Course = {
         "pt-da",
         "pt-ti-vie"
       ],
-      "note": "да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
+      "note": "Да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
     },
     {
       "source": "scenario:gen-s0-repair#4",
@@ -6938,7 +9827,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-prepositions"
       ],
-      "note": "разбирам means “I understand” (chapter 4); се вели means “one says” (chapter 5); на here means “in” a language (chapter 7)."
+      "note": "Разбирам means “I understand” (chapter 4); се вели means “one says” (chapter 5); на here means “in” a language (chapter 7)."
     },
     {
       "source": "scenario:gen-s0-repair#6",
@@ -6950,7 +9839,7 @@ export const course: Course = {
         "pt-ti-vie",
         "pt-prepositions"
       ],
-      "note": "се вели means “one says” (chapter 5); вие сте is the polite “you are” (chapter 2); од means “from” (chapter 7)."
+      "note": "Се вели means “one says” (chapter 5); вие сте is the polite “you are” (chapter 2); од means “from” (chapter 7)."
     },
     {
       "source": "scenario:gen-s0-repair#7",
@@ -6959,7 +9848,7 @@ export const course: Course = {
         "pt-sum",
         "pt-prepositions"
       ],
-      "note": "сум means “I am” and sits after the other words (chapter 2); од means “from” (chapter 7)."
+      "note": "Сум means “I am” and sits after the other words (chapter 2); од means “from” (chapter 7)."
     },
     {
       "source": "story:gen-s0-greet-story#0",
@@ -6969,7 +9858,7 @@ export const course: Course = {
         "pt-prepositions",
         "pt-the"
       ],
-      "note": "оди means “goes” (chapter 5); улицата is “the street”: “the” goes on the end (chapter 4)."
+      "note": "Оди means “goes” (chapter 5); улицата is “the street”: “the” goes on the end (chapter 4)."
     },
     {
       "source": "story:gen-s0-greet-story#4",
@@ -6977,7 +9866,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-a"
       ],
-      "note": "прашува (“asks”) and Сакаш (“you want”): verb endings come in chapter 4."
+      "note": "Прашува (“asks”) and Сакаш (“you want”): verb endings come in chapter 4."
     },
     {
       "source": "story:gen-s0-greet-story#5",
@@ -6985,7 +9874,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "вели means “says”; verb endings come in chapter 5."
+      "note": "Вели means “says”; verb endings come in chapter 5."
     },
     {
       "source": "qa:gen-s0-greet-story#q1:q",
@@ -6994,7 +9883,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-prepositions"
       ],
-      "note": "вели means “says” (chapter 5); за means “about” (chapter 7)."
+      "note": "Вели means “says” (chapter 5); за means “about” (chapter 7)."
     },
     {
       "source": "qa:gen-s0-greet-story#q3:q",
@@ -7021,7 +9910,7 @@ export const course: Course = {
       "pointIds": [
         "pt-adjectives"
       ],
-      "note": "љубезни (“kind”) is an adjective matching вие (chapter 6)."
+      "note": "Љубезни (“kind”) is an adjective matching вие (chapter 6)."
     },
     {
       "source": "scenario:gen-s0-greet#4",
@@ -7048,7 +9937,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "во means “in” (chapter 7)."
+      "note": "Во means “in” (chapter 7)."
     },
     {
       "source": "story:gen-s0-survive-story#1",
@@ -7075,7 +9964,7 @@ export const course: Course = {
         "pt-the",
         "pt-verbs-a"
       ],
-      "note": "лебот means “the bread”: “the” goes on the end (chapter 4)."
+      "note": "Лебот means “the bread”: “the” goes on the end (chapter 4)."
     },
     {
       "source": "story:gen-s0-survive-story#4",
@@ -7083,7 +9972,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "вели means “says” (chapter 5)."
+      "note": "Вели means “says” (chapter 5)."
     },
     {
       "source": "story:gen-s0-survive-story#5",
@@ -7099,7 +9988,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "чини means “costs”; verb endings come in chapter 5."
+      "note": "Чини means “costs”; verb endings come in chapter 5."
     },
     {
       "source": "story:gen-s0-survive-story#7",
@@ -7108,7 +9997,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-the"
       ],
-      "note": "продавачот means “the shopkeeper”: “the” goes on the end (chapter 4)."
+      "note": "Продавачот means “the shopkeeper”: “the” goes on the end (chapter 4)."
     },
     {
       "source": "story:gen-s0-survive-story#8",
@@ -7116,7 +10005,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "си оди means “heads off” (chapter 5)."
+      "note": "Си оди means “heads off” (chapter 5)."
     },
     {
       "source": "qa:gen-s0-survive-story#q1:q",
@@ -7124,7 +10013,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-a"
       ],
-      "note": "сака means “wants” (chapter 4)."
+      "note": "Сака means “wants” (chapter 4)."
     },
     {
       "source": "qa:gen-s0-survive-story#q2:q",
@@ -7132,7 +10021,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "чини means “costs”; verb endings come in chapter 5."
+      "note": "Чини means “costs”; verb endings come in chapter 5."
     },
     {
       "source": "qa:gen-s0-survive-story#q3:q",
@@ -7150,7 +10039,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "чини means “costs”; verb endings come in chapter 5."
+      "note": "Чини means “costs”; verb endings come in chapter 5."
     },
     {
       "source": "scenario:gen-s0-survive#0",
@@ -7202,6 +10091,458 @@ export const course: Course = {
         "pt-commands"
       ],
       "note": "Повелете means “here you are”, a polite command form (chapter 7)."
+    },
+    {
+      "source": "story:ana-coffee#1",
+      "text": "Таа влегува во кафуле.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Во means “into”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:ana-coffee#2",
+      "text": "Ана вели: „Здраво! Едно кафе, ве молам.“",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+    },
+    {
+      "source": "story:ana-coffee#3",
+      "text": "Конобарот вели: „Повелете.“",
+      "pointIds": [
+        "pt-verbs-e-i",
+        "pt-commands"
+      ],
+      "note": "Вели (“says”) from chapter 5 and Повелете (“here you go”) from chapter 7."
+    },
+    {
+      "source": "story:ana-coffee#4",
+      "text": "Ана пие кафе. Кафето е добро.",
+      "pointIds": [
+        "pt-verbs-e-i",
+        "pt-adjectives"
+      ],
+      "note": "Пие (“drinks”) from chapter 5 and добро (“good”) agreeing with its noun from chapter 6."
+    },
+    {
+      "source": "story:ana-coffee#7",
+      "text": "Ана плаќа и вели: „Фала!“",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+    },
+    {
+      "source": "qa:ana-coffee#q2:a",
+      "text": "Во кафуле.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Во means “into”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "qa:ana-coffee#q3:q",
+      "text": "Нарачај едно кафе — кажи го гласно!",
+      "pointIds": [
+        "pt-commands",
+        "pt-go-ja-gi"
+      ],
+      "note": "Нарачај/кажи are commands from chapter 7 and го (“it”) is an object pronoun from chapter 6."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story#0",
+      "text": "Марко влегува во едно кафуле во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Во means “in/into”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story#1",
+      "text": "„Добар ден!“ вели Марко.",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story#2",
+      "text": "„Што ќе сакате?“ прашува келнерот.",
+      "pointIds": [
+        "pt-future"
+      ],
+      "note": "Ќе marks the future; chapter 8 explains it."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story#3",
+      "text": "„Едно пиво, ве молам“, вели Марко.",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story#4",
+      "text": "„Повелете“, вели келнерот.",
+      "pointIds": [
+        "pt-commands",
+        "pt-verbs-e-i"
+      ],
+      "note": "Повелете (“here you go”) from chapter 7 and вели (“says”) from chapter 5."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story#5",
+      "text": "„Наздравје!“ вели Марко.",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story#6",
+      "text": "„Сметката, ве молам“, вели Марко.",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+    },
+    {
+      "source": "qa:gen-s1-cafe-order-story#q3:q",
+      "text": "Кажи го гласно: како нарачуваш едно пиво?",
+      "pointIds": [
+        "pt-commands",
+        "pt-go-ja-gi"
+      ],
+      "note": "Кажи is a command from chapter 7 and го (“it”) is an object pronoun from chapter 6."
+    },
+    {
+      "source": "scenario:bar-order-a-drink#6",
+      "text": "Повелете. Наздравје!",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Повелете (“here you go”) is a command from chapter 7."
+    },
+    {
+      "source": "scenario:gen-s1-cafe-order#5",
+      "text": "Повелете. Сметката, ве молам.",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Повелете is a command form; chapter 7 explains commands."
+    },
+    {
+      "source": "reader:cafe#0",
+      "text": "Марко влегува во кафуле.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Во means “in”; chapter 7 explains these little words."
+    },
+    {
+      "source": "reader:cafe#2",
+      "text": "Конобарот вели: Повелете!",
+      "pointIds": [
+        "pt-verbs-e-i",
+        "pt-commands"
+      ],
+      "note": "Вели is an и-verb (chapter 5) and Повелете is a command (chapter 7)."
+    },
+    {
+      "source": "reader:cafe#3",
+      "text": "Марко пие кафе и чита книга.",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Пие is an е-verb; chapter 5 explains these verbs."
+    },
+    {
+      "source": "reader:cafe#4",
+      "text": "Кафето е добро.",
+      "pointIds": [
+        "pt-adjectives"
+      ],
+      "note": "Добро matches its noun; chapter 6 explains adjective agreement."
+    },
+    {
+      "source": "reader:gen-s1-cafe-order-reader#0",
+      "text": "Марко влегува во кафулето во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Во means “in”; chapter 7 explains these little words."
+    },
+    {
+      "source": "reader:gen-s1-cafe-order-reader#1",
+      "text": "Келнерот вели: Што ќе сакате?",
+      "pointIds": [
+        "pt-verbs-e-i",
+        "pt-future"
+      ],
+      "note": "Вели is an и-verb (chapter 5) and ќе marks the future (chapter 8)."
+    },
+    {
+      "source": "reader:gen-s1-cafe-order-reader#3",
+      "text": "Повелете, вели келнерот.",
+      "pointIds": [
+        "pt-commands",
+        "pt-verbs-e-i"
+      ],
+      "note": "Повелете is a command (chapter 7) and вели is an и-verb (chapter 5)."
+    },
+    {
+      "source": "reader:gen-s1-cafe-order-reader#4",
+      "text": "Наздравје! вели Марко.",
+      "pointIds": [
+        "pt-verbs-e-i"
+      ],
+      "note": "Вели is an и-verb; chapter 5 explains these verbs."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story#0",
+      "text": "Ана е во барот.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Во means “in/at”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story#1",
+      "text": "Марко седи до неа.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "До means “next to”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story#3",
+      "text": "„Јас сум Ана. Мило ми е.“",
+      "pointIds": [
+        "pt-mi-ti-mu"
+      ],
+      "note": "Ми means “to me”; chapter 8 explains these pronouns."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story#4",
+      "text": "„Од каде си?“ прашува Марко.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story#5",
+      "text": "„Од Англија сум. Учам македонски.“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story#q1:q",
+      "text": "Од каде е Ана?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story#q1:a",
+      "text": "Од Англија е.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story#q3:q",
+      "text": "Кажи: што учи Ана?",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Кажи is a command “say”; chapter 7 explains imperatives."
+    },
+    {
+      "source": "scenario:bar-small-talk#2",
+      "text": "Мило ми е! Од каде си?",
+      "pointIds": [
+        "pt-mi-ti-mu",
+        "pt-prepositions"
+      ],
+      "note": "Ми (“to me”) is chapter 8, Од (“from”) is chapter 7."
+    },
+    {
+      "source": "scenario:bar-small-talk#3",
+      "text": "Од Америка сум.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "scenario:bar-small-talk#6",
+      "text": "Браво! Одлично ти оди.",
+      "pointIds": [
+        "pt-mi-ti-mu"
+      ],
+      "note": "Ти means “to you”; chapter 8 explains these pronouns."
+    },
+    {
+      "source": "scenario:gen-introductions#2",
+      "text": "Мило ми е! Од каде си?",
+      "pointIds": [
+        "pt-mi-ti-mu",
+        "pt-prepositions"
+      ],
+      "note": "Ми (“to me”) is chapter 8, Од (“from”) is chapter 7."
+    },
+    {
+      "source": "scenario:gen-introductions#3",
+      "text": "Јас сум од Англија.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "scenario:gen-introductions#6",
+      "text": "Одлично! Добредојде во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Во means “in/to”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "scenario:gen-introductions#7",
+      "text": "Благодарам! Мило ми е.",
+      "pointIds": [
+        "pt-mi-ti-mu"
+      ],
+      "note": "Ми means “to me”; chapter 8 explains these pronouns."
+    },
+    {
+      "source": "scenario:gen-s1-greet-intro#2",
+      "text": "Јас сум Марко. Мило ми е!",
+      "pointIds": [
+        "pt-mi-ti-mu"
+      ],
+      "note": "Ми means “to me”; chapter 8 explains these pronouns."
+    },
+    {
+      "source": "scenario:gen-s1-greet-intro#3",
+      "text": "Мило ми е! Од каде си?",
+      "pointIds": [
+        "pt-mi-ti-mu",
+        "pt-prepositions"
+      ],
+      "note": "Ми (“to me”) is chapter 8, Од (“from”) is chapter 7."
+    },
+    {
+      "source": "scenario:gen-s1-greet-intro#4",
+      "text": "Од Скопје сум. А ти?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "scenario:gen-s1-greet-intro#5",
+      "text": "Од Лондон сум. Учам македонски.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "Од means “from”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s1-market-story#0",
+      "text": "Ана оди на пазар.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "На means “to/at”; little linking words come in chapter 7."
+    },
+    {
+      "source": "qa:gen-s1-market-story#q3:q",
+      "text": "Кажи дека сакаш половина кило сирење.",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Кажи is a command (“say”); telling someone what to do is chapter 7."
+    },
+    {
+      "source": "scenario:gen-shopping#5",
+      "text": "Повелете. Благодарам!",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Повелете is a polite “here you are”; command forms come in chapter 7."
+    },
+    {
+      "source": "scenario:gen-s1-market#4",
+      "text": "Повелете. Уште нешто?",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Повелете is a polite “here you are”; command forms come in chapter 7."
+    },
+    {
+      "source": "scenario:gen-s1-market#7",
+      "text": "Добро, ќе ги земам. Повелете.",
+      "pointIds": [
+        "pt-future",
+        "pt-commands"
+      ],
+      "note": "Ќе marks the future (chapter 8) and Повелете is a polite command (chapter 7)."
+    },
+    {
+      "source": "story:gen-s1-directions-story#5",
+      "text": "Таму има автобус за центарот.",
+      "pointIds": [
+        "pt-ima-nema"
+      ],
+      "note": "Има means “there is”; chapter 12 explains it."
+    },
+    {
+      "source": "scenario:gen-s1-directions#6",
+      "text": "Ви благодарам! Пријатно!",
+      "pointIds": [
+        "pt-mi-ti-mu"
+      ],
+      "note": "Ви means “to you”; chapter 8 explains it."
+    },
+    {
+      "source": "story:gen-s2-smalltalk-story#7",
+      "text": "„Денес нема дожд. Сакам да одам надвор!“ вели Марко.",
+      "pointIds": [
+        "pt-ima-nema"
+      ],
+      "note": "Нема means there isn't; chapter 12 explains it."
+    },
+    {
+      "source": "scenario:gen-s2-smalltalk#6",
+      "text": "Добра идеја! Ајде.",
+      "pointIds": [
+        "pt-ajde-da"
+      ],
+      "note": "Ајде means let's go; chapter 11 explains it."
+    },
+    {
+      "source": "scenario:gen-s2-arrange#2",
+      "text": "Да, јас сум. Што има?",
+      "pointIds": [
+        "pt-ima-nema"
+      ],
+      "note": "‘има’ here means ‘what’s up’; chapter 12 explains ‘има’."
+    },
+    {
+      "source": "scenario:gen-shopping#0",
+      "text": "Добар ден! Изволете?",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Изволете means “how can I help?”, a polite command form (chapter 7)."
     }
   ]
 };

@@ -1,0 +1,22 @@
+{
+  "_about": "Tag corrections after the API tagging pass + for lines changed by the 2026-10-08 content fixes (кафе→кафуле, Драго→Мило ми е, Нема на→за што, taxi-ticket reader line, polite directions reply).",
+  "lineTags": {
+    "story:gen-s1-market-story#1": [
+      "pt-verbs-a"
+    ],
+    "scenario:gen-shopping#0": [
+      "pt-commands"
+    ],
+    "reader:gen-s1-directions-reader#4": [
+      "pt-verbs-a",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s1-directions#1": [
+      "pt-commands",
+      "pt-adjectives"
+    ]
+  },
+  "chunkNotes": {
+    "scenario:gen-shopping#0": "Изволете means “how can I help?”, a polite command form (chapter 7)."
+  }
+}

@@ -1164,9 +1164,9 @@ export const promotedStories: MiniStory[] = [
         "id": "q2",
         "question": "Како е Марко?",
         "questionGloss": "How is Marko?",
-        "answer": "Добро сум, фала.",
-        "answerGloss": "I'm well, thanks.",
-        "answerTranslit": "Dobro sum, fala."
+        "answer": "Добро е.",
+        "answerGloss": "He's well.",
+        "answerTranslit": "Dobro e."
       },
       {
         "id": "q3",

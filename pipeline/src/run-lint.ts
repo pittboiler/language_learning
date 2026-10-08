@@ -13,6 +13,8 @@ const SYNONYMS: Record<string, SynonymGroup[]> = {
   mk: [
     { concept: "teacher", preferred: "учител/учителка", avoid: ["наставник", "nastavnik"] },
     { concept: "doctor", preferred: "доктор", avoid: ["лекар", "lekar"] },
+    { concept: "nice to meet you", preferred: "Мило ми е", avoid: ["Драго ми е", "Drago mi e"] },
+    { concept: "you're welcome", preferred: "Нема за што", avoid: ["Нема на што", "Nema na što", "Nema na shto"] },
   ],
 };
 
