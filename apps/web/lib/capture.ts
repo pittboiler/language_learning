@@ -94,3 +94,15 @@ export const isWordStarred = (progress: Progress, surface: string): boolean => {
   const e = progress.familiarity[familiarity.normalize(surface)];
   return !!e && familiarity.isStarred(e);
 };
+
+/** Save several words/cards to the starred deck at once (the recap's "★ Save all"). Untracked ones are
+ *  captured first; every one is promoted to studied so it recurs in normal review. Pure. */
+export const starMany = (progress: Progress, items: { lexKey: string; display?: string; gloss?: string }[]): Progress => {
+  const fam = { ...progress.familiarity };
+  for (const it of items) {
+    const kind = it.lexKey.startsWith("grammar:") ? "grammar" : it.lexKey.includes(" ") ? "chunk" : "word";
+    const base = fam[it.lexKey] ?? familiarity.capture({ lexKey: it.lexKey, kind, display: it.display ?? it.lexKey, gloss: it.gloss });
+    fam[it.lexKey] = familiarity.markStarred(base);
+  }
+  return { ...progress, familiarity: fam };
+};

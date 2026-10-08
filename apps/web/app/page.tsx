@@ -22,7 +22,7 @@ import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 import { REVIEW_DAY_ITEMS, WARMUP_ITEMS, isReviewDay, localDay, markStorySeen, planNewWords, storyDone } from "../lib/daily";
-import { captureWord, properNounLike, buildLineGlosses, toggleStar } from "../lib/capture";
+import { captureWord, properNounLike, buildLineGlosses, toggleStar, starMany } from "../lib/capture";
 import * as cp from "../lib/course-player";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
@@ -319,6 +319,7 @@ type TodayStep =
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
   | { kind: "story"; story: MiniStory; dayIndex: number; revisit?: boolean; highlight?: number[] }
   | { kind: "point"; point: GrammarPoint; mode: "teach" | "practice"; dayIndex: number }
+  | { kind: "agenda"; agenda: cp.Agenda }
   | { kind: "stage"; afterChapterId: string; items: ReviewItem[]; scenario?: Scenario }
   | { kind: "speak"; scenario: Scenario }
   | { kind: "build" }
@@ -349,6 +350,12 @@ const pickConjVerb = (pack: LanguagePack, progress: Progress): ConjugationSet | 
 // The blueprint fixes the session's content; this only maps it onto Today's steps and fills the review
 // parts (warm-up with an earlier-chapter share, checkpoint and stage-review items) from the learner's state.
 function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[] {
+  const steps = courseBody(pack, progress);
+  const agenda = cp.sessionAgenda(pack, pack.course!, cp.position(pack.course!, progress.course));
+  return steps.length && agenda ? [{ kind: "agenda", agenda }, ...steps] : steps;
+}
+
+function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   const course = pack.course!;
   const pos = cp.position(course, progress.course);
   const out: TodayStep[] = [];
@@ -567,6 +574,13 @@ function Today({ progress, persist, config, navigate }: {
   const [practiceMore, setPracticeMore] = useState(false);
   // Items missed this session (auto-collected) → offered as an optional recap once the flow is done.
   const [missed, setMissed] = useState<ReviewItem[]>([]);
+  // When this session's plan started — the recap lists words captured since then.
+  const startedAt = useMemo(() => new Date(), [planVersion]);
+  // The position the session was planned from (the course advances as soon as it ends, so the recap must
+  // describe the session just finished, not the next one).
+  const playedPos = useMemo(() => (v2 ? cp.position(pack.course!, progress.course) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [planVersion, v2]);
   const [recap, setRecap] = useState<"offer" | "review" | "done">("offer");
   const flag = useCallback((item: ReviewItem) => setMissed((m) => (m.some((x) => x.id === item.id) ? m : [...m, item])), []);
   // Missed new words / spoken lines aren't pack ReviewItems — turn them into recall cards (reusing the
@@ -642,6 +656,31 @@ function Today({ progress, persist, config, navigate }: {
         <TodayHeader progress={progress} />
         <p className="lead">You&apos;re all caught up for today. 🎉 Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
+      </section>
+    );
+  if (idx >= steps.length && v2 && playedPos && recap !== "review")
+    return (
+      <section className="view">
+        <TodayHeader progress={progress} />
+        <CourseRecap
+          pos={playedPos}
+          since={startedAt}
+          progress={progress}
+          persist={persist}
+          missed={missed}
+          onReviewMissed={() => setRecap("review")}
+          onNext={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}
+          navigate={navigate}
+        />
+      </section>
+    );
+  if (idx >= steps.length && v2 && recap === "review" && missed.length)
+    return (
+      <section className="view">
+        <TodayHeader progress={progress} />
+        <h3 style={{ marginTop: 4 }}>One more pass</h3>
+        <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
+        <SessionRecap items={missed} onDone={() => { setMissed([]); setRecap("done"); }} />
       </section>
     );
   if (idx >= steps.length) {
@@ -727,6 +766,8 @@ function Today({ progress, persist, config, navigate }: {
             onDone={(p) => { if (p.chapters?.[step.chapter.id]?.passedAt && p.chapters[step.chapter.id]!.passedAt !== progress.chapters?.[step.chapter.id]?.passedAt) checkpointPassed.current = true; done(p); }}
           />
         )}
+
+        {step.kind === "agenda" && <AgendaCard agenda={step.agenda} onStart={() => done()} />}
 
         {step.kind === "stage" && (
           <StageReview
@@ -1144,6 +1185,138 @@ function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
       {matched && allAnswered && (
         <button className="btn" style={{ marginTop: 14 }} onClick={() => onDone(cards.map((c) => ({ item: c, ok: !!answers[c.id] })))}>Continue →</button>
       )}
+    </div>
+  );
+}
+
+// The agenda that opens a session (DESIGN §5): a few seconds to see what today is for. Deliberately brief —
+// the detail lives in the recap and the Library.
+function AgendaCard({ agenda, onStart }: { agenda: cp.Agenda; onStart: () => void }) {
+  return (
+    <div className="fb">
+      <div className="gram-kicker">Today's plan</div>
+      <div className="gram-title" style={{ fontSize: 17 }}>{agenda.title}</div>
+      <ol style={{ margin: "10px 0 4px", paddingLeft: 20 }}>
+        {agenda.items.map((it, i) => <li key={i} style={{ margin: "4px 0" }}>{it}</li>)}
+      </ol>
+      <button className="btn" style={{ marginTop: 10 }} onClick={onStart}>Let&apos;s go →</button>
+    </div>
+  );
+}
+
+// The end-of-session recap (DESIGN §5): what you learned (the point's recap, quoted from today's own lines),
+// every word from today and today's grammar cards — each savable to the ★ deck — what you slipped on, and
+// what's next. More detail than the agenda, still not a textbook: the Library holds the rest.
+function CourseRecap({ pos, since, progress, persist, missed, onReviewMissed, onNext, navigate }: {
+  pos: cp.CoursePosition;
+  since: Date;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  missed: ReviewItem[];
+  onReviewMissed: () => void;
+  onNext: () => void;
+  navigate: (sec: Section, lv?: LibView) => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const rc = useMemo(() => cp.sessionRecap(pack, pack.course!, pos, progress, since),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pos, since]);
+  const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
+  const cardKey = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
+  const allWordsSaved = rc.words.length > 0 && rc.words.every((w) => starred(w.lexKey));
+  const allCardsSaved = rc.cards.length > 0 && rc.cards.every((c) => starred(cardKey(c)));
+  return (
+    <div>
+      <h3 style={{ marginTop: 4 }}>Today&apos;s recap</h3>
+      {pos.kind === "stage-review" && <p className="lead">Stage review done — everything you missed is back in your reviews.</p>}
+
+      {rc.points.map(({ point, fresh, lines }) => (
+        <div className="fb" key={point.id} style={{ marginBottom: 12 }}>
+          <div className="gram-kicker">{fresh ? "What you learned" : "What you practised"}</div>
+          <div className="gram-title">{point.title}</div>
+          <p style={{ margin: "6px 0" }}>{point.recap}</p>
+          {lines.length > 0 && (
+            <>
+              <div className="muted small" style={{ marginTop: 8 }}>From today&apos;s story</div>
+              <div className="gram-ex-list">
+                {lines.map((l) => (
+                  <div className="gram-ex" key={l.source}>
+                    <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
+                    <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {fresh && point.callbacks.length > 0 && (
+            <>
+              <div className="muted small" style={{ marginTop: 8 }}>You&apos;ve already been saying</div>
+              <div className="gram-ex-list">
+                {point.callbacks.map((l) => (
+                  <div className="gram-ex" key={l.source}>
+                    <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
+                    <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+
+      {rc.words.length > 0 && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <div className="gram-kicker">Words from today · {rc.words.length}</div>
+            <button className="ghost small" disabled={allWordsSaved} onClick={() => persist(starMany(progress, rc.words))}>{allWordsSaved ? "★ All saved" : "★ Save all"}</button>
+          </div>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
+            {rc.words.map((w) => (
+              <li key={w.lexKey} className="row" style={{ gap: 8, margin: "4px 0" }}>
+                <button className={`ghost small${starred(w.lexKey) ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, w.lexKey, { gloss: w.gloss })}>{starred(w.lexKey) ? "★" : "☆"}</button>
+                <button className="gram-play" onClick={() => play(w.display)} aria-label={`Play ${w.display}`}>▶</button>
+                <b className="target">{w.display}</b>{w.gloss && <span className="muted small">— {w.gloss}</span>}
+              </li>
+            ))}
+          </ul>
+          <p className="muted small" style={{ margin: "8px 0 0" }}>They&apos;re already in your reviews; ★ also puts them in your own deck in Flashcards.</p>
+        </div>
+      )}
+
+      {rc.cards.length > 0 && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <div className="gram-kicker">Grammar cards from today · {rc.cards.length}</div>
+            <button className="ghost small" disabled={allCardsSaved} onClick={() => persist(starMany(progress, rc.cards.map((c) => ({ lexKey: cardKey(c), display: c.prompt, gloss: c.gloss }))))}>{allCardsSaved ? "★ All saved" : "★ Save all"}</button>
+          </div>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
+            {rc.cards.map((c) => (
+              <li key={c.id} className="row" style={{ gap: 8, margin: "4px 0" }}>
+                <button className={`ghost small${starred(cardKey(c)) ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => persist(starred(cardKey(c)) ? { ...progress, familiarity: { ...progress.familiarity, [cardKey(c)]: familiarity.unstar(progress.familiarity[cardKey(c)]!) } } : starMany(progress, [{ lexKey: cardKey(c), display: c.prompt, gloss: c.gloss }]))}>{starred(cardKey(c)) ? "★" : "☆"}</button>
+                <span>{c.prompt} → <b className="target">{c.answer}</b></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {missed.length > 0 && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="gram-kicker">You slipped on {missed.length}</div>
+          <ul style={{ margin: "6px 0 4px", paddingLeft: 18 }}>
+            {missed.map((m) => <li key={m.id}><b className="target">{m.answer}</b> <span className="muted small">— {m.gloss}</span></li>)}
+          </ul>
+          <button className="btn" onClick={onReviewMissed}>Review {missed.length} missed →</button>
+        </div>
+      )}
+
+      {rc.next && <p className="lead" style={{ margin: "8px 0" }}>{rc.next}</p>}
+      <div className="row" style={{ marginTop: 4 }}>
+        <button className="btn" onClick={onNext}>Start the next session now →</button>
+        <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
+        <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
+      </div>
     </div>
   );
 }

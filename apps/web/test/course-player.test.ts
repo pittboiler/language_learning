@@ -111,4 +111,24 @@ assert.equal(cp.patternConceptFor(course, pt("pt-ima-nema")), "negation", "the l
 assert.equal(cp.patternConceptFor(course, pt("pt-question-words")), "questions");
 assert.equal(cp.patternConceptFor(course, pt("pt-gender")), "gender");
 
+// 11. Agenda + recap for a teach session: the agenda names the point; the recap quotes today's story lines
+//     that use it, lists the session's words plus anything captured during it, and today's cards.
+const s1 = cp.position(course, cp.initialState(course));
+const ag = cp.sessionAgenda(macedonian, course, s1)!;
+assert.match(ag.title, /^Chapter 1 · .* · session 1$/);
+assert.equal(ag.items[0], course.points.find((p) => p.id === "pt-ne")!.agenda);
+const since = new Date("2026-10-10T09:00:00Z");
+const tapped = familiarity.capture({ lexKey: "мажот", kind: "word", display: "Мажот" }, new Date("2026-10-10T09:05:00Z"));
+const old = familiarity.capture({ lexKey: "фала", kind: "word", display: "фала" }, new Date("2026-10-01T09:00:00Z"));
+const rc = cp.sessionRecap(macedonian, course, s1, prog({ familiarity: { мажот: tapped, фала: old } }), since);
+assert.equal(rc.points.length, 1);
+assert.equal(rc.points[0]!.point.id, "pt-ne");
+assert.ok(rc.points[0]!.fresh);
+assert.ok(rc.points[0]!.lines.some((l) => l.text.includes("не разбирам")), "quotes today's story line with не");
+assert.ok(rc.words.some((w) => w.lexKey === "мажот"), "a word tapped during the session is in the recap");
+assert.ok(!rc.words.some((w) => w.lexKey === "фала"), "an older word isn't");
+assert.ok(course.chapters[0]!.sessions[0]!.words.every((w) => rc.words.some((x) => x.lexKey === w.lexKey)), "all the session's words");
+assert.ok(rc.cards.length >= 1);
+assert.ok(rc.next.startsWith("Next:"));
+
 console.log("course-player.test.ts: all assertions passed ✓");

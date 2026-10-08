@@ -239,7 +239,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     if (s.role === "review") a.push("Review day: nothing new");
     if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in your own words" : "Put it together: use this chapter in a real exchange");
     if (s.role === "checkpoint") a.push("Checkpoint: this chapter's words and grammar", "Then the conversation once more");
-    if (s.words.length) a.push(`${s.words.length} new word${s.words.length > 1 ? "s" : ""}: ${s.words.map((w) => w.display).join(", ")}`);
+    if (s.words.length) a.push(`${s.words.length} new word${s.words.length > 1 ? "s" : ""}: ${s.words.map((w) => w.display.replace(/\.+$/, "")).join(", ")}`);
     const lensHere = s.story ? s.story.lens.every((id) => ch.pointIds.includes(id)) : false;
     if (s.story) a.push(s.story.reuse
       ? `Reread “${storyTitle(s.story.id)}” from an earlier chapter: ${lensHere ? `find ${s.story.lens.length > 1 ? "this chapter's patterns" : pointName(s.story.lens[0]!).toLowerCase()}` : "a refresher on what you learned there"}`

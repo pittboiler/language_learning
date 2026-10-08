@@ -187,3 +187,74 @@ export const needsTeaching = (progress: Progress, lexKey: string): boolean => {
   const e = progress.familiarity[lexKey];
   return !e || !familiarity.isStudied(e) || e.status === "new";
 };
+
+// ---- agenda + recap (DESIGN §5) ---------------------------------------------------------------------
+export interface Agenda { title: string; items: string[] }
+
+/** The brief agenda that opens a session: where we are, then the blueprint's bullets for today. */
+export function sessionAgenda(pack: LanguagePack, course: Course, pos: CoursePosition): Agenda | undefined {
+  if (pos.kind === "finished") return undefined;
+  if (pos.kind === "stage-review") {
+    const r = course.stageReviews.find((x) => x.afterChapterId === pos.afterChapterId);
+    const titles = (r?.chapterIds ?? []).map((id) => pack.chapters?.find((c) => c.id === id)?.shortTitle).filter(Boolean);
+    return { title: "Stage review", items: [`A look back at ${titles.join(", ")}`, "Words and grammar from every chapter in the stage", "One conversation from the stage"] };
+  }
+  const ch = pack.chapters?.find((c) => c.id === pos.chapter.chapterId);
+  const role = pos.session.role === "teach" ? "" : pos.session.role === "review" ? " · review day" : pos.session.role === "use" ? " · put it together" : pos.session.role === "checkpoint" ? " · checkpoint" : " · practice";
+  const items = pos.retry ? ["A quick review of this chapter's trickiest words", ...pos.session.agenda] : pos.session.agenda;
+  return { title: `Chapter ${ch?.order ?? ""} · ${ch?.shortTitle ?? ""} · session ${pos.session.n}${role}`, items };
+}
+
+export interface RecapPoint {
+  point: GrammarPoint;
+  /** Taught today for the first time, or practised/revisited. */
+  fresh: boolean;
+  /** Today's own lines that use the point (from the story read today), so the recap quotes what you met. */
+  lines: { text: string; gloss: string; source: string }[];
+}
+
+export interface Recap {
+  points: RecapPoint[];
+  /** Every word from today: the session's taught words, plus anything tapped/captured during it. */
+  words: { lexKey: string; display: string; gloss?: string }[];
+  /** Today's grammar cards (the point's blank cards). */
+  cards: ReviewItem[];
+  next: string;
+}
+
+/** What the end-of-session recap shows (DESIGN §5). `since` = when the session started, to pick up words
+ *  tapped during it. */
+export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosition, progress: Progress, since: Date): Recap {
+  const points = pointsById(course);
+  const out: Recap = { points: [], words: [], cards: [], next: "" };
+  const fresh = (lexKey: string) => {
+    const e = progress.familiarity[lexKey];
+    return !!e && new Date(e.createdAt) >= since && familiarity.isStudied(e) && e.status !== "ignored" && !lexKey.startsWith("grammar:");
+  };
+  if (pos.kind === "stage-review") {
+    out.next = "Next: a new chapter";
+    return out;
+  }
+  if (pos.kind !== "session") return out;
+  const { chapter, session } = pos;
+  // Which points does today recap? The one taught/practised, else everything this chapter has taught so far.
+  const taughtSoFar = chapter.pointIds.filter((id) => chapter.sessions.some((s) => s.n <= session.n && s.pointId === id));
+  const ids = session.pointId ? [session.pointId] : taughtSoFar;
+  const story = session.story ? pack.stories?.find((s) => s.id === session.story!.id) : undefined;
+  for (const id of ids) {
+    const point = points.get(id);
+    if (!point) continue;
+    const lines = (story?.body ?? []).flatMap((b, i) => (course.lineTags[`story:${story!.id}#${i}`] ?? []).includes(id) ? [{ text: b.text, gloss: b.gloss, source: `story:${story!.id}#${i}` }] : []);
+    out.points.push({ point, fresh: session.role === "teach" && session.pointId === id, lines });
+  }
+  const seen = new Set<string>();
+  for (const w of session.words) if (!seen.has(w.lexKey)) { seen.add(w.lexKey); out.words.push({ lexKey: w.lexKey, display: w.display, gloss: w.gloss }); }
+  for (const [k, e] of Object.entries(progress.familiarity)) {
+    if (!e || seen.has(k) || !fresh(k)) continue;
+    seen.add(k);
+    out.words.push({ lexKey: k, display: e.display ?? k, gloss: e.gloss });
+  }
+  if (session.pointId) { const p = points.get(session.pointId); if (p) out.cards = blankCardItems(p); }
+  out.next = session.next;
+  return out;
+}

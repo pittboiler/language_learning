@@ -3497,7 +3497,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Say “not”: put не right before the verb",
-            "3 new words: Не разбирам., Не знам., Извинете.",
+            "3 new words: Не разбирам, Не знам, Извинете",
             "Read “Ана учи македонски”: spot today's pattern"
           ],
           "next": "Next: Ask yes/no questions: ли after the verb, or дали up front",
@@ -3546,7 +3546,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Ask yes/no questions: ли after the verb, or дали up front",
-            "3 new words: Можете ли да повторите?, Побавно, ве молам., Уште еднаш, ве молам.",
+            "3 new words: Можете ли да повторите?, Побавно, ве молам, Уште еднаш, ве молам",
             "Read “Ана учи македонски”: spot today's pattern"
           ],
           "next": "Next: Ask what, where, how, how much: question words go first",
@@ -3741,7 +3741,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "3 new words: Сѐ уште учам., Во ред., Аха.",
+            "3 new words: Сѐ уште учам, Во ред, Аха",
             "Read “Ана учи македонски”: spot everything from this chapter",
             "Conversation: Keeping the conversation alive (repair kit)",
             "Write a few lines of your own"
@@ -4058,7 +4058,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Practice day: more of this chapter's patterns",
-            "3 new words: Добро сум, фала., тој, таа",
+            "3 new words: Добро сум, фала, тој, таа",
             "Read “Ана и Марко”: spot everything from this chapter"
           ],
           "next": "Next: Practice day: more of this chapter's patterns"
@@ -4913,7 +4913,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Change the verb ending to say who wants, has, or pays.",
-            "3 new words: имам, давам, Едно пиво, ве молам.",
+            "3 new words: имам, давам, Едно пиво, ве молам",
             "Read “Марко во кафето”: spot today's pattern"
           ],
           "next": "Next: Practice: Verb endings: the -а verbs",
@@ -5107,7 +5107,7 @@ export const course: Course = {
           "speak": "gen-s1-cafe-order",
           "agenda": [
             "Say want to / can / must: stack да + verb (Сакам да платам).",
-            "3 new words: Повелете, Сметката, ве молам., Наздравје!",
+            "3 new words: Повелете, Сметката, ве молам, Наздравје!",
             "Reread “Ана учи македонски” from an earlier chapter: find want to, can: да + verb",
             "Conversation: Café & bar: order and pay (the anchor)"
           ],
@@ -5444,7 +5444,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Practice: The other verb groups: -е and -и verbs",
-            "3 new words: знам, одам, Мило ми е.",
+            "3 new words: знам, одам, Мило ми е",
             "Read “Во барот”: spot today's pattern"
           ],
           "next": "Next: Meet verbs that always travel with се, sitting right before the verb.",
@@ -5494,7 +5494,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Meet verbs that always travel with се, sitting right before the verb.",
-            "3 new words: Како се викаш?, Јас се викам..., Од каде си?",
+            "3 new words: Како се викаш?, Јас се викам, Од каде си?",
             "Read “Во барот”: spot today's pattern"
           ],
           "next": "Next: Practice day: more of this chapter's patterns",
@@ -5546,7 +5546,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Practice day: more of this chapter's patterns",
-            "3 new words: Од … сум., Што работиш?, работам",
+            "3 new words: Од … сум, Што работиш?, работам",
             "Read “Во барот”: spot everything from this chapter"
           ],
           "next": "Next: Review day: nothing new"
@@ -5635,7 +5635,7 @@ export const course: Course = {
           "speak": "gen-s1-greet-intro",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "3 new words: видам, Учам македонски., Зборувам малку.",
+            "3 new words: видам, Учам македонски, Зборувам малку",
             "Read “Во барот”: spot everything from this chapter",
             "Conversation: Greetings & introductions"
           ],
@@ -5690,7 +5690,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "3 new words: зборувам, Јас сум од..., студент",
+            "3 new words: зборувам, Јас сум од, студент",
             "Reread “Ана и кафето” from an earlier chapter: find this chapter's patterns",
             "Conversation: Greetings & introductions",
             "Write a few lines of your own"
@@ -6091,7 +6091,7 @@ export const course: Course = {
           "speak": "gen-s1-market",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "3 new words: сирење, Само тоа, фала., пазар",
+            "3 new words: сирење, Само тоа, фала, пазар",
             "Read “Ана на пазар”: spot everything from this chapter",
             "Conversation: Shopping at the market"
           ],
@@ -6434,7 +6434,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
-            "3 new words: Свртете лево., десно, право",
+            "3 new words: Свртете лево, десно, право",
             "Read “Ана бара центар”: spot today's pattern"
           ],
           "next": "Next: Build \"more\" and \"most\": stick по- or нај- on the front"
@@ -6831,7 +6831,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Say to me, to you, to her — and build \"I like it\".",
-            "3 new words: Ми се допаѓа., Не ми се допаѓа., Сакам да …",
+            "3 new words: Ми се допаѓа, Не ми се допаѓа, Сакам да …",
             "Read “Времето денес”: spot today's pattern"
           ],
           "next": "Next: Practice: To me, to you: ми, ти, му",
@@ -6880,7 +6880,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Practice: To me, to you: ми, ти, му",
-            "3 new words: Мислам дека …, Се согласувам., убаво / грозно",
+            "3 new words: Мислам дека …, Се согласувам, убаво / грозно",
             "Read “Времето денес”: spot today's pattern"
           ],
           "next": "Next: Talk about the future: ќе before the verb, нема да for won't"
@@ -6926,7 +6926,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Talk about the future: ќе before the verb, нема да for won't",
-            "3 new words: Ќе …, Ќе се видиме., времето",
+            "3 new words: Ќе …, Ќе се видиме, времето",
             "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
           ],
           "next": "Next: Practice: The future: ќе and нема да"
@@ -7819,7 +7819,7 @@ export const course: Course = {
           "speak": "gen-s2-home-family",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "3 new words: Имам брат и сестра., На колку години си?, човек",
+            "3 new words: Имам брат и сестра, На колку години си?, човек",
             "Read “Мојот живот”: spot everything from this chapter",
             "Conversation: Home, family & work"
           ],
@@ -8149,7 +8149,7 @@ export const course: Course = {
           "speak": "gen-s2-arrange",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "3 new words: Важи. / Договорено., Оставете порака., порака",
+            "3 new words: Важи. / Договорено, Оставете порака, порака",
             "Read “Телефонски повик”: spot everything from this chapter",
             "Conversation: Phone & arranging to meet"
           ],
@@ -8362,7 +8362,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Say there is / there isn't with има and нема (and double negatives).",
-            "3 new words: Има проблем., Не работи., Ова не е …",
+            "3 new words: Има проблем, Не работи, Ова не е …",
             "Read “Проблем во кафулето”: spot today's pattern"
           ],
           "next": "Next: Recognize the \"have done\" past: сум plus an -л word for experiences."
@@ -8405,7 +8405,7 @@ export const course: Course = {
           ],
           "agenda": [
             "Recognize the \"have done\" past: сум plus an -л word for experiences.",
-            "3 new words: Можете ли да помогнете?, погрешно, Сакам да вратам.",
+            "3 new words: Можете ли да помогнете?, погрешно, Сакам да вратам",
             "Read “Проблем во кафулето”"
           ],
           "next": "Next: Review day: nothing new"
@@ -8477,7 +8477,7 @@ export const course: Course = {
           "speak": "gen-s2-problems",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "2 new words: Извинете, ама …, Не разбирам зошто.",
+            "2 new words: Извинете, ама …, Не разбирам зошто",
             "Read “Проблем во кафулето”: spot everything from this chapter",
             "Conversation: Problems & complaints (repair kit, leveled up)"
           ],
