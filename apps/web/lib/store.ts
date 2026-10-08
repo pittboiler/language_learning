@@ -20,7 +20,10 @@ export interface Progress {
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
   settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean; courseV2?: boolean };
   /** Position in the course blueprint (lib/course-player.ts) — only used when the new course is on. */
-  course?: { chapterId: string; session: number; retry?: boolean; stageReviewAfter?: string; finished?: boolean };
+  course?: { chapterId: string; session: number; retry?: boolean; stageReviewAfter?: string; finished?: boolean; v?: string };
+  /** Finished course sessions, oldest first. Lesson notes (Progress, Library → My notes) rebuild each recap
+   *  from the blueprint plus this small record, so it stays tiny: about 100 entries over the whole course. */
+  courseLog?: CourseLogEntry[];
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
   streak?: { count: number; lastDay: string };
   /** Verb lemmas already drilled in the warm-up conjugation match game — so each day picks a new one. */
@@ -51,6 +54,17 @@ export interface Progress {
    *  with the synchronous localStorage mirror on load, so a last-write-before-exit that didn't reach the
    *  network (e.g. finishing a session then immediately closing the app) isn't lost to a stale remote row. */
   savedAt?: number;
+}
+
+/** One finished course session: which one, when, and what the learner slipped on. A stage review is logged
+ *  with the chapter it follows and n = 0. */
+export interface CourseLogEntry {
+  chapterId: string;
+  n: number;
+  stage?: boolean;
+  startedAt: string;
+  at: string;
+  missed?: { answer: string; gloss: string }[];
 }
 
 export interface Store {

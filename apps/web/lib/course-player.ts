@@ -8,7 +8,7 @@
 import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
-import type { Progress } from "./store";
+import type { CourseLogEntry, Progress } from "./store";
 
 /** The switch (DESIGN §11): on since the 2026-10-08 cutover. A learner can still switch back to the old
  *  runtime planner from Settings (`progress.settings.courseV2 = false`). */
@@ -338,14 +338,16 @@ export interface Recap {
   next: string;
 }
 
-/** What the end-of-session recap shows (DESIGN §5). `since` = when the session started, to pick up words
- *  tapped during it. */
-export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosition, progress: Progress, since: Date): Recap {
+/** What the end-of-session recap shows (DESIGN §5). `since` (and, for saved lesson notes, `until`) bound
+ *  the session, to pick up words tapped during it. */
+export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosition, progress: Progress, since: Date, until?: Date): Recap {
   const points = pointsById(course);
   const out: Recap = { points: [], words: [], cards: [], letters: [], next: "" };
   const fresh = (lexKey: string) => {
     const e = progress.familiarity[lexKey];
-    return !!e && new Date(e.createdAt) >= since && familiarity.isStudied(e) && e.status !== "ignored" && !lexKey.startsWith("grammar:");
+    if (!e) return false;
+    const at = new Date(e.createdAt);
+    return at >= since && (!until || at <= until) && familiarity.isStudied(e) && e.status !== "ignored" && !lexKey.startsWith("grammar:");
   };
   if (pos.kind === "stage-review") {
     out.next = "Next: a new chapter";
@@ -379,6 +381,109 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
   if (session.pointId) { const p = points.get(session.pointId); if (p) out.cards = pointItems(p); }
   out.next = session.next;
   return out;
+}
+
+// ---- lesson notes: a small record per finished session, rebuilt into its recap later --------------------
+/** The record kept when a session ends (see Progress.courseLog). */
+export function logEntry(pos: CoursePosition, startedAt: Date, at: Date, missed: { answer: string; gloss: string }[]): CourseLogEntry | undefined {
+  if (pos.kind === "finished") return undefined;
+  const base = { startedAt: startedAt.toISOString(), at: at.toISOString(), ...(missed.length ? { missed: missed.slice(0, 20) } : {}) };
+  return pos.kind === "stage-review"
+    ? { chapterId: pos.afterChapterId, n: 0, stage: true, ...base }
+    : { chapterId: pos.chapter.chapterId, n: pos.session.n, ...base };
+}
+
+/** The session a record (or a chapter/session pair) points at, for rebuilding its recap. */
+export function positionOf(course: Course, at: { chapterId: string; n: number; stage?: boolean }): CoursePosition | undefined {
+  if (at.stage) return course.stageReviews.some((r) => r.afterChapterId === at.chapterId) ? { kind: "stage-review", afterChapterId: at.chapterId } : undefined;
+  const chapter = course.chapters.find((c) => c.chapterId === at.chapterId);
+  const session = chapter?.sessions.find((x) => x.n === at.n);
+  return chapter && session ? { kind: "session", chapter, session, retry: false } : undefined;
+}
+
+/** The point a practice session practises: its own, else the chapter's latest one taught before it. */
+export const practisedPoint = (chapter: CourseChapter, s: CourseSession): string | undefined =>
+  s.pointId ?? chapter.pointIds.filter((id) => chapter.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1);
+
+/** One line naming a session in the course map: what it teaches and its new words. */
+export function sessionHeadline(course: Course, chapter: CourseChapter, s: CourseSession): string {
+  if (s.letters) return s.role === "checkpoint" ? "Checkpoint: the tricky letters" : `${s.letters.title}: ${s.letters.glyphs.join(" ")}`;
+  const title = (id?: string) => (id ? course.points.find((p) => p.id === id)?.title : undefined);
+  const words = s.words.map((w) => w.display.replace(/\.+$/, "")).join(", ");
+  const withWords = (head: string) => (words ? `${head} · ${words}` : head);
+  switch (s.role) {
+    case "teach": return withWords(`New: ${title(s.pointId) ?? "grammar"}`);
+    case "practice": return withWords(`Practice: ${title(practisedPoint(chapter, s)) ?? "this chapter's grammar"}`);
+    case "review": return s.speak ? "Review day · the conversation" : "Review day";
+    case "use": return withWords(s.writing ? "Put it together · write your own lines" : "Put it together");
+    default: return "Checkpoint: this chapter's words and grammar";
+  }
+}
+
+export type MapState = "done" | "current" | "upcoming";
+export interface ChapterOverview {
+  chapterId: string;
+  order: number;
+  title: string;
+  shortTitle: string;
+  state: MapState;
+  sessions: { n: number; role: CourseSession["role"]; headline: string; state: MapState; log?: CourseLogEntry }[];
+  points: { id: string; title: string; taught: boolean }[];
+  words: { lexKey: string; display: string; gloss: string; learned: boolean }[];
+  /** A stage review follows this chapter. */
+  stageReview?: { state: MapState; log?: CourseLogEntry };
+}
+export interface CourseOverview {
+  chapters: ChapterOverview[];
+  /** Curriculum sessions (chapters 1+) finished and in total. */
+  done: number;
+  total: number;
+  current?: { chapterId: string; n: number; stage?: boolean };
+}
+
+/** The whole course as the learner's map: every chapter and session marked done / today / upcoming from
+ *  their place in the course, with the grammar and words each chapter teaches. */
+export function courseOverview(pack: LanguagePack, course: Course, p: Progress): CourseOverview {
+  const pos = position(course, p.course);
+  const cur = current(course, p.course);
+  const idx = course.chapters.findIndex((c) => c.chapterId === cur.chapterId);
+  const log = p.courseLog ?? [];
+  const logOf = (chapterId: string, n: number, stage = false) => [...log].reverse().find((e) => e.chapterId === chapterId && e.n === n && !!e.stage === stage);
+  const learned = (k: string) => { const e = p.familiarity[k]; return !!e && familiarity.isStudied(e) && e.status !== "ignored"; };
+  const chapters = course.chapters.map((c, ci): ChapterOverview => {
+    const ch = pack.chapters?.find((x) => x.id === c.chapterId);
+    const state: MapState = pos.kind === "finished" || ci < idx ? "done" : ci > idx ? "upcoming" : pos.kind === "stage-review" ? "done" : "current";
+    const sessionState = (n: number): MapState => (state !== "current" ? state : n < cur.session ? "done" : n === cur.session ? "current" : "upcoming");
+    const hasStage = course.stageReviews.some((r) => r.afterChapterId === c.chapterId);
+    const stageState: MapState = pos.kind === "stage-review" && pos.afterChapterId === c.chapterId ? "current" : pos.kind === "finished" || ci < idx ? "done" : "upcoming";
+    return {
+      chapterId: c.chapterId,
+      order: c.order,
+      title: ch?.title ?? c.chapterId,
+      shortTitle: ch?.shortTitle ?? c.chapterId,
+      state,
+      sessions: c.sessions.map((s) => ({ n: s.n, role: s.role, headline: sessionHeadline(course, c, s), state: sessionState(s.n), log: logOf(c.chapterId, s.n) })),
+      points: c.pointIds.map((id) => ({ id, title: course.points.find((x) => x.id === id)?.title ?? id, taught: !!p.seenGrammar?.[id] })),
+      words: c.words.map((w) => ({ lexKey: w.lexKey, display: w.display, gloss: w.gloss, learned: learned(w.lexKey) })),
+      ...(hasStage ? { stageReview: { state: stageState, log: logOf(c.chapterId, 0, true) } } : {}),
+    };
+  });
+  const curriculum = chapters.filter((c) => c.order > 0).flatMap((c) => c.sessions);
+  return {
+    chapters,
+    done: curriculum.filter((s) => s.state === "done").length,
+    total: curriculum.length,
+    current: pos.kind === "session" ? { chapterId: pos.chapter.chapterId, n: pos.session.n } : pos.kind === "stage-review" ? { chapterId: pos.afterChapterId, n: 0, stage: true } : undefined,
+  };
+}
+
+/** What a passed checkpoint leads to, for its message: the next chapter, a stage review, or the end. */
+export function afterCheckpoint(pack: LanguagePack, course: Course, state: CourseState | undefined): string {
+  const next = position(course, advance(course, state, { checkpointPassed: true }));
+  if (next.kind === "stage-review") return "a stage review of everything so far";
+  if (next.kind === "finished") return "the end of the course";
+  const ch = pack.chapters?.find((c) => c.id === next.chapter.chapterId);
+  return `chapter ${ch?.order ?? next.chapter.order}${ch ? `, ${ch.shortTitle}` : ""}`;
 }
 
 // ---- partnered: what I publish about my place in the course (core/partner/joint) ----------------------

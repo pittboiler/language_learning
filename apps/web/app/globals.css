@@ -197,6 +197,19 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 .chapter-row.current { border-color: var(--accent); }
 .chapter-row.upcoming { opacity: .65; }
 .chapter-row.done .pbar > div { background: var(--ok); }
+/* Progress → The course: each chapter opens into its full curriculum */
+.chapter-row.open { opacity: 1; }
+.chapter-body { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 10px; }
+.chapter-points { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; margin-bottom: 8px; }
+.session-list { list-style: none; margin: 4px 0 8px; padding: 0; display: grid; gap: 2px; }
+.session-row { display: flex; align-items: baseline; gap: 10px; padding: 5px 6px; border-radius: 6px; }
+.session-row .sess-n { min-width: 22px; text-align: center; color: var(--mut); font-size: 13px; flex-shrink: 0; }
+.session-row .sess-text { flex: 1; min-width: 0; font-size: 14px; }
+.session-row.done .sess-n { color: var(--ok); }
+.session-row.current { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.session-row.current .sess-n { color: var(--accent); }
+.session-row.upcoming .sess-text { color: var(--mut); }
+.word-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 4px 12px; margin-top: 6px; }
 
 /* A revealed hint — deliberately quiet, it's a nudge and not the answer. */
 .hint { color: var(--mut); font-size: 13px; border-left: 2px solid var(--line); padding: 2px 0 2px 8px; margin: 8px 0 0; }

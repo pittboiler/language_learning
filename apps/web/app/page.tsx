@@ -45,7 +45,7 @@ import * as storyTog from "@ll/core/story-together";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../lib/supabase";
 
 type Section = "today" | "library" | "progress" | "partnered";
-type LibView = "browse" | "flashcards" | "words" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write" | "build";
+type LibView = "browse" | "flashcards" | "words" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write" | "build" | "notes";
 
 // The active pack flows through context so every view reads the same selected language.
 const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
@@ -207,7 +207,8 @@ export default function Home() {
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   const dueCount = useMemo(() => {
     const now = new Date();
-    const pool = reviewPool(pack);
+    // The same pool the Flashcards deck reviews (new course: words + the grammar cards of taught points).
+    const pool = cp.courseV2On(pack, progress) && pack.course ? [...pack.vocab, ...cp.taughtPointItems(pack.course, progress)] : reviewPool(pack);
     const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
     const poolDue = pool.filter((it) => isDue(progress, it, now)).length;
     const capturedDue = Object.values(progress.familiarity).filter((e) => familiarity.isStudied(e) && e.srs && new Date(e.srs.due) <= now && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !properNounLike(e.display, pack)).length;
@@ -249,7 +250,7 @@ export default function Home() {
         )}
         {section === "progress" && (
           <>
-            <ProgressDash progress={progress} dueCount={dueCount} />
+            <ProgressDash progress={progress} persist={persist} navigate={navigate} dueCount={dueCount} />
             <Review progress={progress} persist={persist} />
           </>
         )}
@@ -666,7 +667,9 @@ function Today({ progress, persist, config, navigate }: {
       if (advancedFor.current === planVersion) return;
       advancedFor.current = planVersion;
       const course = cp.advance(pack.course!, progress.course, { checkpointPassed: checkpointPassed.current });
-      persist({ ...progress, lastSessionDay: localDay(), sessions: (progress.sessions ?? 0) + 1, course });
+      // Keep a small record of the session so its recap can be reopened later as lesson notes.
+      const entry = playedPos ? cp.logEntry(playedPos, startedAt, new Date(), missed.map((m) => ({ answer: m.answer, gloss: m.gloss }))) : undefined;
+      persist({ ...progress, lastSessionDay: localDay(), sessions: (progress.sessions ?? 0) + 1, course, ...(entry ? { courseLog: [...(progress.courseLog ?? []), entry] } : {}) });
       return;
     }
     if (progress.lastSessionDay !== localDay()) {
@@ -823,6 +826,7 @@ function Today({ progress, persist, config, navigate }: {
             persist={persist}
             config={config}
             onMiss={flag}
+            nextLabel={v2 && pack.course ? cp.afterCheckpoint(pack, pack.course, progress.course) : undefined}
             onDone={(p) => { if (p.chapters?.[step.chapter.id]?.passedAt && p.chapters[step.chapter.id]!.passedAt !== progress.chapters?.[step.chapter.id]?.passedAt) checkpointPassed.current = true; done(p); }}
           />
         )}
@@ -983,7 +987,9 @@ function Today({ progress, persist, config, navigate }: {
 // course doesn't quietly move on from a chapter the learner can't yet use.
 const CHECKPOINT_PASS = 0.7;
 
-function ChapterCheckpoint({ chapter, items, scenario, progress, persist, config, onMiss, onDone }: {
+function ChapterCheckpoint({ chapter, items, scenario, progress, persist, config, onMiss, onDone, nextLabel }: {
+  /** New course: what a pass leads to (the next chapter, a stage review, or the end). */
+  nextLabel?: string;
   chapter: Chapter;
   items: ReviewItem[];
   scenario?: Scenario;
@@ -1036,7 +1042,7 @@ function ChapterCheckpoint({ chapter, items, scenario, progress, persist, config
       {passed ? (
         <>
           <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>✓ <b>{chapter.shortTitle}</b> is checked off — {score.got}/{score.total} recalled{scenario ? ", conversation done" : ""}.</p>
-          <p className="muted small">It stays in your reviews, but Today will move on to chapter {chapter.order + 1}.</p>
+          <p className="muted small">It stays in your reviews, but Today will move on to {nextLabel ?? `chapter ${chapter.order + 1}`}.</p>
         </>
       ) : (
         <>
@@ -1420,35 +1426,45 @@ function AgendaCard({ agenda, onStart, pointId, onOpenPoint, onSkipChapter }: { 
 // The end-of-session recap (DESIGN §5): what you learned (the point's recap, quoted from today's own lines),
 // every word from today and today's grammar cards — each savable to the ★ deck — what you slipped on, and
 // what's next. More detail than the agenda, still not a textbook: the Library holds the rest.
-function CourseRecap({ pos, since, progress, persist, missed, onReviewMissed, onNext, navigate }: {
+function CourseRecap({ pos, since, until, progress, persist, missed, onReviewMissed, onNext, navigate, notes }: {
   pos: cp.CoursePosition;
   since: Date;
+  /** Saved lesson notes: the session's end, so words tapped later don't creep in. */
+  until?: Date;
   progress: Progress;
   persist: (p: Progress) => void;
-  missed: ReviewItem[];
-  onReviewMissed: () => void;
-  onNext: () => void;
+  missed: { answer: string; gloss: string }[];
+  onReviewMissed?: () => void;
+  onNext?: () => void;
   navigate: (sec: Section, lv?: LibView) => void;
+  /** Reopened later as lesson notes (Progress / Library → My notes): a heading and date, no "next" buttons. */
+  notes?: { title: string; when?: string };
 }) {
   const pack = usePack();
   const play = usePlay();
-  const rc = useMemo(() => cp.sessionRecap(pack, pack.course!, pos, progress, since),
+  const rc = useMemo(() => cp.sessionRecap(pack, pack.course!, pos, progress, since, until),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pos, since]);
+    [pos, since, until]);
   const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
   const cardKey = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
   const allWordsSaved = rc.words.length > 0 && rc.words.every((w) => starred(w.lexKey));
   const allCardsSaved = rc.cards.length > 0 && rc.cards.every((c) => starred(cardKey(c)));
   return (
     <div>
-      <h3 style={{ marginTop: 4 }}>Today&apos;s recap</h3>
-      {pos.kind === "stage-review" && <p className="lead">Stage review done — everything you missed is back in your reviews.</p>}
+      {notes ? (
+        <>
+          <h3 style={{ marginTop: 4, marginBottom: 2 }}>Lesson notes · {notes.title}</h3>
+          {notes.when && <p className="muted small" style={{ marginTop: 0 }}>{notes.when}</p>}
+        </>
+      ) : <h3 style={{ marginTop: 4 }}>Today&apos;s recap</h3>}
+      {pos.kind === "stage-review" && <p className="lead">{notes ? "A stage review: a sample of every chapter in the stage." : "Stage review done — everything you missed is back in your reviews."}</p>}
 
       {rc.points.map(({ point, fresh, lines }) => (
         <div className="fb" key={point.id} style={{ marginBottom: 12 }}>
           <div className="gram-kicker">{fresh ? "What you learned" : "What you practised"}</div>
           <div className="gram-title">{point.title}</div>
           <p style={{ margin: "6px 0" }}>{point.recap}</p>
+          <button className="linklike small" onClick={() => { pendingPointFocus = point.id; navigate("library", "grammar"); }}>The full rule in the Library</button>
           {lines.length > 0 && (
             <>
               <div className="muted small" style={{ marginTop: 8 }}>From today&apos;s story</div>
@@ -1533,18 +1549,20 @@ function CourseRecap({ pos, since, progress, persist, missed, onReviewMissed, on
         <div className="fb" style={{ marginBottom: 12 }}>
           <div className="gram-kicker">You slipped on {missed.length}</div>
           <ul style={{ margin: "6px 0 4px", paddingLeft: 18 }}>
-            {missed.map((m) => <li key={m.id}><b className="target">{m.answer}</b> <span className="muted small">— {m.gloss}</span></li>)}
+            {missed.map((m, i) => <li key={i}><b className="target">{m.answer}</b> <span className="muted small">— {m.gloss}</span></li>)}
           </ul>
-          <button className="btn" onClick={onReviewMissed}>Review {missed.length} missed →</button>
+          {onReviewMissed && <button className="btn" onClick={onReviewMissed}>Review {missed.length} missed →</button>}
         </div>
       )}
 
-      {rc.next && <p className="lead" style={{ margin: "8px 0" }}>{rc.next}</p>}
-      <div className="row" style={{ marginTop: 4 }}>
-        <button className="btn" onClick={onNext}>Start the next session now →</button>
-        <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
-        <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
-      </div>
+      {!notes && rc.next && <p className="lead" style={{ margin: "8px 0" }}>{rc.next}</p>}
+      {!notes && (
+        <div className="row" style={{ marginTop: 4 }}>
+          {onNext && <button className="btn" onClick={onNext}>Start the next session now →</button>}
+          <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
+          <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
+        </div>
+      )}
     </div>
   );
 }
@@ -2008,12 +2026,15 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
 
   // An opened content item or reference tool → show it with a back link to where it came from.
   if (mode !== "browse" && mode !== "reference" && mode !== "flashcards" && mode !== "words") {
-    const isTool = mode === "grammar" || mode === "write" || mode === "build";
+    const isTool = mode === "grammar" || mode === "write" || mode === "build" || mode === "notes";
+    // Inside the Library, a link elsewhere in it just switches the view.
+    const libNavigate = (_sec: Section, lv?: LibView) => { if (lv) setMode(lv); };
     const view =
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
       mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
       mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
-      mode === "grammar" ? (cp.courseV2On(pack, progress) ? <PointLibrary progress={progress} persist={persist} /> : <Grammar progress={progress} persist={persist} />) :
+      mode === "grammar" ? (cp.courseV2On(pack, progress) ? <PointLibrary progress={progress} persist={persist} openNotes={(at) => { pendingNotesFocus = at; setMode("notes"); }} /> : <Grammar progress={progress} persist={persist} />) :
+      mode === "notes" ? <MyNotes progress={progress} persist={persist} navigate={libNavigate} /> :
       mode === "build" ? <SentenceBuilder progress={progress} persist={persist} /> :
       <Writing config={config} />;
     return (
@@ -2044,6 +2065,13 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
         <>
           <p className="lead">Tools to look things up and practise — kept separate from your situational content.</p>
           <div className="cards">
+            {cp.courseV2On(pack, progress) && (
+              <button className="contentcard" onClick={() => setMode("notes")}>
+                <div className="cc-top"><span className="cc-type">📒 My notes</span></div>
+                <div className="cc-title">What I&apos;ve learned</div>
+                <div className="muted small">Each chapter on one page, and your notes from every lesson</div>
+              </button>
+            )}
             <button className="contentcard" onClick={() => setMode("letters")}>
               <div className="cc-top"><span className="cc-type">🔤 Alphabet</span>{lettersDone && <span className="diff just">done</span>}</div>
               <div className="cc-title">The alphabet</div>
@@ -2654,7 +2682,7 @@ let pendingPointFocus: string | null = null;
 // taught are marked; upcoming ones are greyed but readable. Each page holds the full rule, the "why is it
 // like this" notes, common mistakes, the examples (plus every line from stories you've read that uses it),
 // the set phrases it explains, and its flashcards to save or try.
-function PointLibrary({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+function PointLibrary({ progress, persist, openNotes }: { progress: Progress; persist: (p: Progress) => void; openNotes?: (at: NoteAt) => void }) {
   const pack = usePack();
   const play = usePlay();
   const course = pack.course!;
@@ -2665,6 +2693,8 @@ function PointLibrary({ progress, persist }: { progress: Progress; persist: (p: 
   const matches = (p: GrammarPoint) => !needle || `${p.title} ${p.rule} ${p.library.rule} ${p.library.why.join(" ")}`.toLowerCase().includes(needle);
   const readStories = new Set(Object.entries(progress.storyReads ?? {}).filter(([, d]) => d.length).map(([id]) => id));
   const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
+  // The session that taught each point, for "your notes from that lesson".
+  const taughtIn = useMemo(() => new Map([...cp.pointSlots(course)].map(([id, at]) => [id, { ...at, chapterId: course.chapters.find((c) => c.order === at.order)?.chapterId ?? "" }])), [course]);
   const LineRow = ({ l }: { l: { text: string; gloss: string; source: string } }) => (
     <div className="gram-ex">
       <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
@@ -2698,6 +2728,12 @@ function PointLibrary({ progress, persist }: { progress: Progress; persist: (p: 
                   </button>
                   {isOpen && (
                     <div style={{ marginTop: 10 }}>
+                      {learned && openNotes && taughtIn.get(p.id) && (
+                        <p className="muted small" style={{ marginTop: 0 }}>
+                          Taught in chapter {taughtIn.get(p.id)!.order}, session {taughtIn.get(p.id)!.n} ·{" "}
+                          <button className="linklike small" onClick={() => openNotes({ chapterId: taughtIn.get(p.id)!.chapterId, n: taughtIn.get(p.id)!.n })}>your notes from that lesson</button>
+                        </p>
+                      )}
                       <p style={{ marginTop: 0 }}>{p.library.rule}</p>
                       <div className="gram-kicker" style={{ marginTop: 10 }}>Why it&apos;s like this</div>
                       <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.why.map((w, i) => <li key={i} style={{ margin: "4px 0" }}>{w}</li>)}</ul>
@@ -3604,7 +3640,7 @@ function Writing({ config }: { config: api.Config | null }) {
 }
 
 // ---------- Progress section: functional stats + Strengthen ----------
-function ProgressDash({ progress, dueCount }: { progress: Progress; dueCount: number }) {
+function ProgressDash({ progress, persist, navigate, dueCount }: { progress: Progress; persist: (p: Progress) => void; navigate: (sec: Section, lv?: LibView) => void; dueCount: number }) {
   const pack = usePack();
   const vocab = scoring.computeMetrics(progress.familiarity);
   const level = computeLevel(pack, progress);
@@ -3627,7 +3663,238 @@ function ProgressDash({ progress, dueCount }: { progress: Progress; dueCount: nu
       <p className="muted small" style={{ marginTop: 10 }}>
         <b>To review</b> = items due in Flashcards (below, and in Library › Flashcards). <b>Level</b> is an estimate from letters learned, scenario goals met, and words tracked — roughly pre-A1 → A1 → A2.
       </p>
-      <ChapterProgressMap progress={progress} />
+      {cp.courseV2On(pack, progress) ? <CourseMap progress={progress} persist={persist} navigate={navigate} /> : <ChapterProgressMap progress={progress} />}
+    </section>
+  );
+}
+
+// ---------- Lesson notes: a finished session's recap, reopened later (Progress → The course, Library → My notes) ----------
+// Rebuilt from the blueprint plus the small record kept when the session ended (Progress.courseLog). Sessions
+// finished before records were kept still open, just without a date or the items missed.
+type NoteAt = { chapterId: string; n: number; stage?: boolean };
+let pendingNotesFocus: NoteAt | null = null;
+const noteDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : undefined);
+function noteTitle(pack: LanguagePack, at: NoteAt): string {
+  const ch = pack.chapters?.find((c) => c.id === at.chapterId);
+  return at.stage ? `Stage review after ${ch?.shortTitle ?? at.chapterId}` : `Chapter ${ch?.order ?? ""} · ${ch?.shortTitle ?? ""} · session ${at.n}`;
+}
+
+function LessonNotes({ at, progress, persist, navigate, onBack, backLabel }: {
+  at: NoteAt;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  navigate: (sec: Section, lv?: LibView) => void;
+  onBack: () => void;
+  backLabel: string;
+}) {
+  const pack = usePack();
+  const pos = useMemo(() => cp.positionOf(pack.course!, at), [pack, at]);
+  const log = [...(progress.courseLog ?? [])].reverse().find((e) => e.chapterId === at.chapterId && e.n === at.n && !!e.stage === !!at.stage);
+  // No record ⇒ no time window: the notes show the session's own words, not words tapped some other day.
+  const since = useMemo(() => new Date(log ? log.startedAt : 8.64e15), [log]);
+  const until = useMemo(() => (log ? new Date(log.at) : undefined), [log]);
+  return (
+    <div>
+      <button className="ghost small" onClick={onBack} style={{ marginBottom: 8 }}>← {backLabel}</button>
+      {pos
+        ? <CourseRecap pos={pos} since={since} until={until} progress={progress} persist={persist} missed={log?.missed ?? []} navigate={navigate} notes={{ title: noteTitle(pack, at), when: log ? `Finished ${noteDate(log.at)}` : undefined }} />
+        : <p className="muted">This lesson isn&apos;t in the course any more.</p>}
+    </div>
+  );
+}
+
+// One chapter on a page: each point's rule with two examples, then every word, so a quick read brings the
+// chapter back. Points not taught yet are only named (no preview of the rule).
+function ChapterGlance({ chapterId, progress, navigate, onBack, backLabel }: {
+  chapterId: string;
+  progress: Progress;
+  navigate: (sec: Section, lv?: LibView) => void;
+  onBack: () => void;
+  backLabel: string;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const course = pack.course!;
+  const cc = course.chapters.find((c) => c.chapterId === chapterId);
+  const ch = pack.chapters?.find((c) => c.id === chapterId);
+  if (!cc) return null;
+  const pts = cc.pointIds.map((id) => course.points.find((x) => x.id === id)).filter((x): x is GrammarPoint => !!x);
+  const learned = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStudied(e) && e.status !== "ignored"; };
+  return (
+    <div>
+      <button className="ghost small" onClick={onBack} style={{ marginBottom: 8 }}>← {backLabel}</button>
+      <h3 style={{ marginTop: 4, marginBottom: 2 }}>Chapter {ch?.order} · {ch?.shortTitle}: at a glance</h3>
+      <p className="muted small" style={{ marginTop: 0 }}>{ch?.title}</p>
+      {pts.map((p) => progress.seenGrammar?.[p.id] ? (
+        <div className="fb" key={p.id} style={{ marginBottom: 10 }}>
+          <div className="gram-title">{p.title}</div>
+          <p style={{ margin: "6px 0" }}>{p.rule}</p>
+          <div className="gram-ex-list">
+            {p.examples.slice(0, 2).map((ex) => (
+              <div className="gram-ex" key={ex.source}>
+                <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
+                <span className="mk">{ex.text}</span><span className="en">{ex.gloss}</span>
+              </div>
+            ))}
+          </div>
+          <button className="linklike small" onClick={() => { pendingPointFocus = p.id; navigate("library", "grammar"); }}>The full rule in the Library</button>
+        </div>
+      ) : (
+        <p className="muted small" key={p.id}>Coming up in this chapter: <b>{p.title}</b></p>
+      ))}
+      {cc.words.length > 0 && (
+        <div className="fb">
+          <div className="gram-kicker">Words · {cc.words.filter((w) => learned(w.lexKey)).length} of {cc.words.length} learned</div>
+          <div className="word-grid">
+            {cc.words.map((w) => (
+              <span key={w.lexKey} className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
+                <button className="gram-play" onClick={() => play(w.display)} aria-label={`Play ${w.display}`}>▶</button>
+                <span><b className="target">{w.display}</b> <span className="muted small">{w.gloss}{learned(w.lexKey) ? " ✓" : ""}</span></span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Progress → The course (new course): every chapter opens into its full curriculum: its grammar, each
+// session (✓ done, ▶ today, upcoming), the stage review that follows it, and its words. A finished session
+// opens your notes from that lesson.
+function CourseMap({ progress, persist, navigate }: { progress: Progress; persist: (p: Progress) => void; navigate: (sec: Section, lv?: LibView) => void }) {
+  const pack = usePack();
+  const play = usePlay();
+  const ov = useMemo(() => cp.courseOverview(pack, pack.course!, progress), [pack, progress]);
+  const [open, setOpen] = useState<string | null>(() => ov.current?.chapterId ?? null);
+  const [view, setView] = useState<{ kind: "notes"; at: NoteAt } | { kind: "glance"; chapterId: string } | null>(null);
+  if (view?.kind === "notes") return <LessonNotes at={view.at} progress={progress} persist={persist} navigate={navigate} onBack={() => setView(null)} backLabel="The course" />;
+  if (view?.kind === "glance") return <ChapterGlance chapterId={view.chapterId} progress={progress} navigate={navigate} onBack={() => setView(null)} backLabel="The course" />;
+  const here = ov.chapters.find((c) => c.state === "current" || c.stageReview?.state === "current");
+  return (
+    <>
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 22 }}>
+        <h3 style={{ margin: 0 }}>The course</h3>
+        <span className="muted small">{ov.done} of {ov.total} sessions done</span>
+      </div>
+      <p className="muted small" style={{ marginTop: 4 }}>Every chapter, session by session. Open a chapter to see its plan; a finished session opens your notes from that lesson.</p>
+      <div className="chapter-map">
+        {ov.chapters.map((ch) => {
+          const isOpen = open === ch.chapterId;
+          const done = ch.sessions.filter((x) => x.state === "done").length;
+          const now = ch.sessions.find((x) => x.state === "current");
+          const chip = ch.stageReview?.state === "current" ? { cls: "easy", label: "stage review next" }
+            : ch.state === "done" ? { cls: "just", label: "✓ done" }
+            : ch.state === "current" ? { cls: "easy", label: now ? `session ${now.n} of ${ch.sessions.length}` : "now" }
+            : { cls: "hard", label: `${ch.sessions.length} sessions` };
+          const learned = ch.words.filter((w) => w.learned).length;
+          return (
+            <div key={ch.chapterId} className={`chapter-row ${ch.state}${isOpen ? " open" : ""}`}>
+              <button className="concept-head" onClick={() => setOpen(isOpen ? null : ch.chapterId)} aria-expanded={isOpen}>
+                <span>{ch.order}. {ch.shortTitle}</span>
+                <span className="row" style={{ gap: 8, flexWrap: "nowrap" }}><span className={`diff ${chip.cls}`}>{chip.label}</span><span className="muted">{isOpen ? "−" : "+"}</span></span>
+              </button>
+              <div className="pbar" style={{ margin: "6px 0 2px" }}><div style={{ width: `${Math.round((done / Math.max(1, ch.sessions.length)) * 100)}%` }} /></div>
+              {isOpen && (
+                <div className="chapter-body">
+                  {ch.points.length > 0 && (
+                    <div className="chapter-points">
+                      <span className="muted small">Grammar:</span>
+                      {ch.points.map((pt) => (
+                        <button key={pt.id} className="linklike small" onClick={() => { pendingPointFocus = pt.id; navigate("library", "grammar"); }}>{pt.taught ? "✓ " : ""}{pt.title}</button>
+                      ))}
+                    </div>
+                  )}
+                  <ol className="session-list">
+                    {ch.sessions.map((x) => (
+                      <li key={x.n} className={`session-row ${x.state}`}>
+                        <span className="sess-n" aria-label={x.state}>{x.state === "done" ? "✓" : x.state === "current" ? "▶" : x.n}</span>
+                        <span className="sess-text">{x.headline}{x.state === "current" ? <span className="muted small"> · next up in Today</span> : null}</span>
+                        {x.state === "done" && <button className="ghost small" onClick={() => setView({ kind: "notes", at: { chapterId: ch.chapterId, n: x.n } })}>Notes</button>}
+                      </li>
+                    ))}
+                    {ch.stageReview && (
+                      <li className={`session-row ${ch.stageReview.state}`}>
+                        <span className="sess-n">{ch.stageReview.state === "done" ? "✓" : ch.stageReview.state === "current" ? "▶" : "★"}</span>
+                        <span className="sess-text">Stage review: a look back at everything so far</span>
+                        {ch.stageReview.state === "done" && <button className="ghost small" onClick={() => setView({ kind: "notes", at: { chapterId: ch.chapterId, n: 0, stage: true } })}>Notes</button>}
+                      </li>
+                    )}
+                  </ol>
+                  {ch.words.length > 0 && (
+                    <details>
+                      <summary className="muted small" style={{ cursor: "pointer" }}>Words · {learned} of {ch.words.length} learned</summary>
+                      <div className="word-grid">
+                        {ch.words.map((w) => (
+                          <span key={w.lexKey} className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
+                            <button className="gram-play" onClick={() => play(w.display)} aria-label={`Play ${w.display}`}>▶</button>
+                            <span><b className="target">{w.display}</b> <span className="muted small">{w.gloss}{w.learned ? " ✓" : ""}</span></span>
+                          </span>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                  {ch.order > 0 && ch.state !== "upcoming" && (
+                    <button className="ghost small" style={{ marginTop: 8 }} onClick={() => setView({ kind: "glance", chapterId: ch.chapterId })}>Chapter at a glance →</button>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      {here && <p className="muted small">You&apos;re on <b>{here.title}</b>. Today picks up at the ▶ session.</p>}
+    </>
+  );
+}
+
+// Library → Reference → My notes: what you've learned so far, two ways: each chapter on one page, and your
+// notes from every finished lesson (newest first).
+function MyNotes({ progress, persist, navigate }: { progress: Progress; persist: (p: Progress) => void; navigate: (sec: Section, lv?: LibView) => void }) {
+  const pack = usePack();
+  const ov = useMemo(() => cp.courseOverview(pack, pack.course!, progress), [pack, progress]);
+  const [view, setView] = useState<{ kind: "notes"; at: NoteAt } | { kind: "glance"; chapterId: string } | null>(() => {
+    const f = pendingNotesFocus;
+    pendingNotesFocus = null;
+    return f ? { kind: "notes", at: f } : null;
+  });
+  if (view?.kind === "notes") return <LessonNotes at={view.at} progress={progress} persist={persist} navigate={navigate} onBack={() => setView(null)} backLabel="My notes" />;
+  if (view?.kind === "glance") return <ChapterGlance chapterId={view.chapterId} progress={progress} navigate={navigate} onBack={() => setView(null)} backLabel="My notes" />;
+  const reached = ov.chapters.filter((c) => c.order > 0 && (c.state !== "upcoming"));
+  // A skipped letters chapter has no lessons to show: only sessions you actually finished (or, before records
+  // were kept, curriculum sessions behind your place in the course).
+  const lessons = ov.chapters.flatMap((c) => [
+    ...c.sessions.filter((x) => x.state === "done" && (c.order > 0 || !!x.log)).map((x) => ({ at: { chapterId: c.chapterId, n: x.n } as NoteAt, headline: x.headline, log: x.log, order: c.order })),
+    ...(c.stageReview?.state === "done" ? [{ at: { chapterId: c.chapterId, n: 0, stage: true } as NoteAt, headline: "Stage review: a look back at everything so far", log: c.stageReview.log, order: c.order }] : []),
+  ]).reverse();
+  return (
+    <section className="view">
+      <h2>My notes</h2>
+      <p className="lead">What you&apos;ve learned so far: each chapter on one page, and your notes from every lesson you&apos;ve finished.</p>
+      <h3>Chapters at a glance</h3>
+      {reached.length ? (
+        <div className="cards">
+          {reached.map((c) => (
+            <button className="contentcard" key={c.chapterId} onClick={() => setView({ kind: "glance", chapterId: c.chapterId })}>
+              <div className="cc-top"><span className="cc-type">Chapter {c.order}</span>{c.state === "done" && <span className="diff just">done</span>}</div>
+              <div className="cc-title">{c.shortTitle}</div>
+              <div className="muted small">{c.points.filter((x) => x.taught).map((x) => x.title).join(" · ") || "Nothing taught yet"}</div>
+            </button>
+          ))}
+        </div>
+      ) : <p className="muted">Your first chapter shows up here once you start it.</p>}
+      <h3>Lesson by lesson</h3>
+      {lessons.length ? (
+        <ol className="session-list">
+          {lessons.map((l) => (
+            <li key={`${l.at.chapterId}-${l.at.n}-${l.at.stage ? "s" : ""}`} className="session-row done">
+              <span className="sess-n">✓</span>
+              <span className="sess-text"><span className="muted small">{l.at.stage ? `After chapter ${l.order}` : `Chapter ${l.order} · session ${l.at.n}`}{l.log ? ` · ${noteDate(l.log.at)}` : ""}</span><br />{l.headline}</span>
+              <button className="ghost small" onClick={() => setView({ kind: "notes", at: l.at })}>Notes</button>
+            </li>
+          ))}
+        </ol>
+      ) : <p className="muted">Finish a session and its notes appear here.</p>}
     </section>
   );
 }
