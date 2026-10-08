@@ -1,10 +1,13 @@
 // Dev helper: redeem an invite code as a FRESH anonymous "partner" and publish some activity, so the
 // active partner experience (activity visibility, shared streak, phrasebook) can be exercised in the
 // browser with a real second user. Prints the created ids for cleanup.
-//   npx tsx apps/web/scripts/partner-dev-join.ts <CODE>
+//   npx tsx apps/web/scripts/partner-dev-join.ts <CODE> [--course <chapterOrder>:<session>]
+//     --course publishes a place in the course blueprint (and the words + grammar points taught before it),
+//     so the new-course joint session can be exercised against a partner who is ahead/behind/level.
 //   npx tsx apps/web/scripts/partner-dev-join.ts --cleanup <partnershipId> <userId>
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
+import { macedonian } from "@ll/pack-mk";
 
 function envFrom(path: string): Record<string, string> {
   const out: Record<string, string> = {};
@@ -44,6 +47,19 @@ async function main() {
   if (error) throw new Error("redeem failed: " + error.message);
   const row = (Array.isArray(data) ? data[0] : data) as { id: string; pack_id: string };
 
+  // Optional course position: everything taught before <chapter>:<session> counts as studied/taught.
+  const courseArg = argv[argv.indexOf("--course") + 1];
+  let course: { chapterId: string; chapterOrder: number; session: number; points: string[] } | undefined;
+  const courseEntries: Record<string, { status: string; strength: number }> = {};
+  if (argv.includes("--course") && courseArg) {
+    const [co, sn] = courseArg.split(":").map(Number);
+    const bp = macedonian.course!;
+    const ch = bp.chapters[co! - 1]!;
+    const sessions = [...bp.chapters.slice(0, co! - 1).flatMap((c) => c.sessions), ...ch.sessions.filter((s) => s.n < sn!)];
+    course = { chapterId: ch.chapterId, chapterOrder: co!, session: sn!, points: sessions.filter((s) => s.role === "teach" && s.pointId).map((s) => s.pointId!) };
+    for (const s of sessions) for (const w of s.words) courseEntries[w.lexKey] = { status: "learning", strength: 0.35 };
+  }
+
   // Publish activity + a familiarity projection so the inviter sees a live partner (and a diff).
   await c.from("partner_published_state").upsert({
     partnership_id: row.id,
@@ -58,12 +74,14 @@ async function main() {
           кафе: { status: "known", strength: 0.85 },
           пиво: { status: "known", strength: 0.8 },
           сметка: { status: "known", strength: 0.95 },
+          ...courseEntries,
         },
       },
+      ...(course ? { course } : {}),
     },
   });
 
-  console.log(`✓ joined partnership ${row.id} as ${userId}`);
+  console.log(`✓ joined partnership ${row.id} as ${userId}${course ? ` at chapter ${course.chapterOrder}, session ${course.session} (${course.points.length} points)` : ""}`);
   console.log(`  cleanup: npx tsx apps/web/scripts/partner-dev-join.ts --cleanup ${row.id} ${userId}`);
 }
 

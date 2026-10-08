@@ -7,6 +7,7 @@
 // re-drills, and what a stage review samples.
 import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
+import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { Progress } from "./store";
 
 /** The switch (DESIGN §11): on since the 2026-10-08 cutover. A learner can still switch back to the old
@@ -278,4 +279,20 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
   if (session.pointId) { const p = points.get(session.pointId); if (p) out.cards = pointItems(p); }
   out.next = session.next;
   return out;
+}
+
+// ---- partnered: what I publish about my place in the course (core/partner/joint) ----------------------
+/** My course position for the partner (undefined when the new course is off). Points taught are the
+ *  course points marked seen. */
+export function positionShare(pack: LanguagePack, p: Progress): CoursePositionShare | undefined {
+  const course = pack.course;
+  if (!course || !courseV2On(pack, p)) return undefined;
+  const state = p.course ?? initialState(course);
+  const idx = Math.max(0, course.chapters.findIndex((c) => c.chapterId === state.chapterId));
+  return {
+    chapterId: course.chapters[idx]!.chapterId,
+    chapterOrder: idx + 1,
+    session: state.stageReviewAfter ? course.chapters[idx]!.sessions.length + 1 : state.session,
+    points: course.points.filter((pt) => p.seenGrammar?.[pt.id]).map((pt) => pt.id),
+  };
 }

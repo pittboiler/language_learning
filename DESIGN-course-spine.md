@@ -246,6 +246,21 @@ Phases 1–6 land behind one switch, so the live app stays on the current course
 - daily-plan logic is unit-tested headlessly (localhost uses the Supabase store, so seeded local profiles are ignored)
 - the agenda, recap and Library pages are checked in the browser preview with a test account
 
-## 12. On the docket, not planned yet
+## 12. Partnered sessions (built 2026-10-08)
 
-**Partnered sessions** get the same agenda → lesson → recap shape, customized to where both partners are in the spine.
+The joint session takes the same agenda → lesson → recap shape, planned over where **both** partners are:
+
+- **Published position:** each partner publishes their chapter, session and taught points alongside their familiarity. It's gated by "share activity".
+- **Planner:** `@ll/core/partner/joint` (pure, tested). It finds the overlap: the latest grammar point both have been taught, the furthest chapter both have reached, the story (in reached chapters) with the most lines using that point, and the latest conversation both have unlocked.
+  - Being ahead never pushes your material onto your partner. The drill stays both-studied-only, as before.
+  - The **framing** says who's ahead and by how many points, and what that means for roles: the further-along partner mostly checks. A partner who didn't practise this window gets a lighter plan.
+  - **"Next together"** names the next point you'll share and who it's waiting on ("after Madison has done chapter 3, session 2").
+- **Agenda:**
+  1. Warm up together (the live drill)
+  2. Grammar together (an inline card: rule, examples, blank cards taken in turns)
+  3. Read together (with the story lens: the lines that use the point are flagged as you reach them)
+  4. Speak together (goes straight into the planned conversation)
+
+  Coming back from an activity ticks it off in a shared per-day record, so both devices show the same ✓s.
+- **Recap:** what you practised (the point's recap + today's story lines), every word from today's drill with who said it and how it went (☆ / ★ Save all), and next together.
+- The old cadence plan (`buildPartnerSession`) remains for anyone on the old course.

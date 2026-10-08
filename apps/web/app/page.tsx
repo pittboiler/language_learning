@@ -29,6 +29,7 @@ import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/p
 import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
 import { translitOr, romanize } from "../lib/romanize";
 import * as roleswap from "@ll/core/roleswap";
+import * as joint from "@ll/core/partner/joint";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
 import * as partnerDiff from "@ll/core/partner/familiarity-diff";
@@ -4016,13 +4017,16 @@ function LiveConvoSection({ store, partnershipId, onOpen }: { store: PartnerStor
   );
 }
 
-function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }: {
+function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId, scenarioId }: {
   store: PartnerStore;
   partnershipId: string;
   packId: string;
   myId: string;
   partnerId: string;
   sessionId: string | "new";
+  /** Start (or join) this scenario straight away instead of showing the picker — the joint session's
+   *  "Speak together" step. */
+  scenarioId?: string;
 }) {
   const pack = usePack();
   const play = usePlay();
@@ -4088,6 +4092,13 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
     }
   };
 
+  // The joint session hands over a scenario: start (or join) it without the picker.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (scenarioId && sessionId === "new" && !session && !autoStarted.current) { autoStarted.current = true; void start(scenarioId); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scenarioId, sessionId]);
+
   const startRec = async () => {
     setRecording(true);
     await rec.current.start();
@@ -4128,6 +4139,9 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId }:
     }
   };
 
+  if (sessionId === "new" && !session && scenarioId) {
+    return <div className="muted small">Starting {pack.scenarios.find((s) => s.id === scenarioId)?.title ?? "the conversation"}…{err ? <div className="err">{err}</div> : null}</div>;
+  }
   if (sessionId === "new" && !session) {
     return (
       <div style={colStack}>
@@ -4224,6 +4238,11 @@ function TogetherLauncher({ store, partnershipId, onOpen }: { store: PartnerStor
 // The session itself. One partner PRODUCES (says the target from the English prompt); the other CHECKS
 // (holds the answer, taps ✓/↻). Roles flip per item. Synced over the same Realtime channel LiveConvo uses.
 // Each partner grades their OWN produced turns into their private SRS (familiarity is per-user).
+// Drillable pool for the Together drill: single words + phrases with a gloss and a target form.
+const togetherCandidates = (pack: LanguagePack): together.TogetherCandidate[] => pack.vocab
+  .filter((v) => (v.kind === "vocab" || v.kind === "phrase") && !!v.answer && !!v.gloss)
+  .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, prompt: v.gloss, answer: v.answer, translit: v.translit }));
+
 function TogetherSession({ store, partnershipId, packId, myId, partnerId, progress, persist, partnerProjection, sessionId, onExit }: {
   store: PartnerStore;
   partnershipId: string;
@@ -4246,13 +4265,7 @@ function TogetherSession({ store, partnershipId, packId, myId, partnerId, progre
   const gradedRef = useRef<Set<string>>(new Set()); // "<queue-sig>#<index>" of my produced turns already graded
   useEffect(() => { setSid(sessionId); }, [sessionId]);
 
-  // Drillable pool: single words + phrases with a gloss and a target form.
-  const candidates = useMemo<together.TogetherCandidate[]>(
-    () => pack.vocab
-      .filter((v) => (v.kind === "vocab" || v.kind === "phrase") && !!v.answer && !!v.gloss)
-      .map((v) => ({ lexKey: familiarity.deriveKeyForItem(v).lexKey, prompt: v.gloss, answer: v.answer, translit: v.translit })),
-    [pack],
-  );
+  const candidates = useMemo(() => togetherCandidates(pack), [pack]);
 
   const refresh = useCallback(async () => {
     if (sid === "new") return;
@@ -4289,7 +4302,8 @@ function TogetherSession({ store, partnershipId, packId, myId, partnerId, progre
       const projections = (members[0] === myId ? [myProj, pProj] : [pProj, myProj]) as [FamiliarityProjection, FamiliarityProjection];
       const turns = together.buildQueue(members, projections, candidates, { limit: 12 });
       const sess = together.startTogether(id, packId, members[0], members[1], turns);
-      await store.putArtifact(partnershipId, packId, "together", sess, id);
+      // Stamp the day it was started, so the joint recap only shows TODAY's drill (the row id is reused).
+      await store.putArtifact(partnershipId, packId, "together", { ...sess, day: localDay() }, id);
       setSession(sess);
       setSid(id);
     } catch (e) {
@@ -4322,7 +4336,7 @@ function TogetherSession({ store, partnershipId, packId, myId, partnerId, progre
     try {
       const latest = ((await store.listArtifacts(partnershipId, "together")).find((x) => x.id === session.id)?.payload as together.TogetherSession) ?? session;
       const next = together.checkTurn(latest, myId, got);
-      await store.putArtifact(partnershipId, packId, "together", next, next.id);
+      await store.putArtifact(partnershipId, packId, "together", { ...next, day: (session as { day?: string } | null)?.day ?? localDay() }, next.id);
       setSession(next);
     } catch (e) {
       setErr((e as { message?: string }).message ?? "Sync hiccup — tap ↻.");
@@ -4417,8 +4431,10 @@ function LastTurnRecap({ session }: { session: together.TogetherSession }) {
 // "Read it together": the dyad walks a story LINE BY LINE, taking turns. On your line you read it aloud
 // and say what it means; your partner holds the English gloss and taps got/not-quite. Realtime-synced over
 // partner_artifact 'story-together', exactly like the live conversation. Turns come from @ll/core/story-together.
-function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId, onExit }: {
-  store: PartnerStore; partnershipId: string; packId: string; myId: string; partnerId: string; storyId: string; onExit: () => void;
+function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId, onExit, lens }: {
+  store: PartnerStore; partnerId: string; partnershipId: string; packId: string; myId: string; storyId: string; onExit: () => void;
+  /** Joint session: what to spot, and which lines use it (they're flagged as you reach them). */
+  lens?: { label: string; highlight: number[] };
 }) {
   const pack = usePack();
   const play = usePlay();
@@ -4490,6 +4506,8 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
   return (
     <div style={colStack}>{HeaderRow}
       <span className="small">📖 Read together · <b>{story.title}</b></span>
+      {lens && <div className="lens-banner">{lens.label}</div>}
+      {lens && lens.highlight.some((i) => story.body[i]?.text === turn.text) && <div className="small" style={{ color: "var(--accent)" }}>ⓖ This line uses today&apos;s grammar: say which bit, and why.</div>}
       <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
       <div className="muted small">Line {session.turnIndex + 1} of {total} · {sc.got} nailed</div>
       {err ? <div className="err">{err}</div> : null}
@@ -5154,6 +5172,176 @@ function sharedReadySession(pack: LanguagePack, progress: Progress, partnerEntri
   return { speakScenarioId: scen.id, storyId: story?.id, grammarConceptId: scen.requiredStructures?.[0] };
 }
 
+// The joint session, new course (DESIGN-course-spine.md §12): the same agenda → lesson → recap shape as a
+// solo day, planned over where BOTH partners are (core/partner/joint). The agenda frames who's ahead and
+// what that means for the roles; each step opens the live activity for it, and coming back ticks it off on
+// both devices; the grammar step runs inline; the recap closes it with what you practised together.
+function JointSession({ plan, done, progress, persist, store, partnershipId, onDrill, onPointDone, onStory, onSpeak }: {
+  plan: joint.JointPlan;
+  done: string[];
+  progress: Progress;
+  persist: (p: Progress) => void;
+  store: PartnerStore;
+  partnershipId: string;
+  onDrill: () => void;
+  onPointDone: () => void;
+  onStory: (storyId: string, lens: { label: string; highlight: number[] }) => void;
+  onSpeak: (scenarioId: string) => void;
+}) {
+  const pack = usePack();
+  const [view, setView] = useState<"agenda" | "point" | "recap">("agenda");
+  const point = plan.focusPointId ? pack.course?.points.find((p) => p.id === plan.focusPointId) : undefined;
+  const allDone = plan.items.length > 0 && plan.items.every((it) => done.includes(it.kind));
+  const lensFor = (): { label: string; highlight: number[] } => ({
+    label: point && plan.storyLines.length
+      ? `Spot it together: ${plan.storyLines.length} line${plan.storyLines.length > 1 ? "s use" : " uses"} ${point.title.toLowerCase()}. When you reach one, the reader says which bit and why.`
+      : "Take turns, line by line: read it aloud and say what it means.",
+    highlight: plan.storyLines,
+  });
+
+  if (view === "point" && point)
+    return <JointPointCard point={point} progress={progress} persist={persist} onDone={() => { onPointDone(); setView("agenda"); }} onBack={() => setView("agenda")} />;
+  if (view === "recap")
+    return <JointRecap plan={plan} store={store} partnershipId={partnershipId} progress={progress} persist={persist} onBack={() => setView("agenda")} />;
+
+  return (
+    <div className="fb">
+      <div className="gram-kicker">Together · today&apos;s plan</div>
+      <p className="small" style={{ margin: "4px 0 8px" }}>{plan.framing}</p>
+      {plan.items.length === 0 ? (
+        <p className="muted small">Nothing you can share yet: each do a session or two on your own first, and this fills in with what you&apos;ve both learned.</p>
+      ) : (
+        <>
+          <ol style={{ margin: "4px 0", paddingLeft: 20 }}>
+            {plan.items.map((it, i) => {
+              const ok = done.includes(it.kind);
+              const cta = it.kind === "drill" ? <button className="btn small" onClick={onDrill}>{ok ? "Again" : "Start"} →</button>
+                : it.kind === "point" ? <button className="btn small" onClick={() => setView("point")}>{ok ? "Again" : "Open"} →</button>
+                  : it.kind === "story" ? <button className="btn small" onClick={() => onStory(it.ref!, lensFor())}>{ok ? "Again" : "Read"} →</button>
+                    : <button className="btn small" onClick={() => onSpeak(it.ref!)}>{ok ? "Again" : "Start live"} →</button>;
+              return (
+                <li key={it.kind} style={{ margin: "6px 0" }}>
+                  <div className="row" style={{ justifyContent: "space-between", gap: 8 }}>
+                    <span className="small" style={{ flex: 1 }}>{ok ? "✓ " : ""}{plan.agenda[i]}</span>
+                    {cta}
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="muted small" style={{ margin: "6px 0 0" }}>~{plan.estMinutes} min{plan.next ? ` · ${plan.next.label}` : ""}</p>
+          <div className="row" style={{ marginTop: 10 }}>
+            <button className={allDone ? "btn" : "ghost small"} onClick={() => setView("recap")}>{allDone ? "Today's recap →" : "Recap so far"}</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// The joint grammar step: the shared point's rule and examples, then its fill-in-the-blank cards — taken in
+// turns out loud (one reads the sentence, the other picks), each partner grading their own answers.
+function JointPointCard({ point, progress, persist, onDone, onBack }: { point: GrammarPoint; progress: Progress; persist: (p: Progress) => void; onDone: () => void; onBack: () => void }) {
+  const play = usePlay();
+  const cards = useMemo(() => cp.blankCardItems(point), [point]);
+  const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  const allAnswered = cards.every((c) => c.id in answers);
+  return (
+    <div className="fb">
+      <button className="ghost small" onClick={onBack}>← Plan</button>
+      <div className="gram-kicker" style={{ marginTop: 8 }}>Grammar together</div>
+      <div className="gram-title">{point.title}</div>
+      <div className="gram-plain"><span className="lab">The rule</span><p>{point.rule}</p></div>
+      <div className="gram-ex-list">
+        {point.examples.map((ex) => (
+          <div className="gram-ex" key={ex.source}>
+            <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
+            <span className="mk">{ex.text}</span><span className="en">{ex.gloss}</span>
+          </div>
+        ))}
+      </div>
+      <p className="small" style={{ margin: "10px 0 4px" }}>Take turns: one of you reads a card&apos;s sentence aloud with the gap, the other says the missing word — then tap it, and swap.</p>
+      <div className="gram-checks">
+        {cards.map((c) => <Drill key={c.id} drill={c} onGrade={(ok) => setAnswers((a) => ({ ...a, [c.id]: ok }))} />)}
+      </div>
+      {allAnswered && (
+        <button className="btn" style={{ marginTop: 12 }} onClick={() => {
+          let p = progress;
+          for (const c of cards) p = gradeItem(p, c, !!answers[c.id]);
+          persist(p);
+          onDone();
+        }}>Done together →</button>
+      )}
+    </div>
+  );
+}
+
+// The joint recap: what you practised together (the shared point, quoted from today's story), every word
+// from today's drill with who said it and how it went — each savable to your ★ deck — and what's next.
+function JointRecap({ plan, store, partnershipId, progress, persist, onBack }: {
+  plan: joint.JointPlan; store: PartnerStore; partnershipId: string; progress: Progress; persist: (p: Progress) => void; onBack: () => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const [drill, setDrill] = useState<together.TogetherSession | null>(null);
+  const [me, setMe] = useState("");
+  useEffect(() => {
+    void (async () => {
+      setMe(await store.me());
+      const id = await sharedArtifactId("together", partnershipId, "recall");
+      const a = (await store.listArtifacts(partnershipId, "together")).find((x) => x.id === id);
+      if (a && (a.payload as { day?: string }).day === localDay()) setDrill(a.payload as together.TogetherSession);
+    })();
+  }, [store, partnershipId]);
+  const point = plan.focusPointId ? pack.course?.points.find((p) => p.id === plan.focusPointId) : undefined;
+  const story = plan.storyId ? pack.stories?.find((s) => s.id === plan.storyId) : undefined;
+  const words = (drill?.turns ?? []).filter((t) => t.result);
+  const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
+  const allSaved = words.length > 0 && words.every((w) => starred(w.lexKey));
+  return (
+    <div className="fb">
+      <button className="ghost small" onClick={onBack}>← Plan</button>
+      <h3 style={{ margin: "8px 0 4px" }}>Today together</h3>
+      <p className="muted small" style={{ margin: 0 }}>{plan.framing}</p>
+      {point && (
+        <div style={{ marginTop: 12 }}>
+          <div className="gram-kicker">What you practised</div>
+          <div className="gram-title">{point.title}</div>
+          <p style={{ margin: "6px 0" }}>{point.recap}</p>
+          {story && plan.storyLines.length > 0 && (
+            <div className="gram-ex-list">
+              {plan.storyLines.map((i) => story.body[i]).filter(Boolean).map((b) => (
+                <div className="gram-ex" key={b!.text}>
+                  <button className="gram-play" onClick={() => play(b!.text)} aria-label={`Play ${b!.text}`}>▶</button>
+                  <span className="mk">{b!.text}</span><span className="en">{b!.gloss}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {words.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <div className="gram-kicker">Words you drilled together · {words.filter((w) => w.result === "got").length}/{words.length}</div>
+            <button className="ghost small" disabled={allSaved} onClick={() => persist(starMany(progress, words.map((w) => ({ lexKey: w.lexKey, display: w.answer, gloss: w.prompt }))))}>{allSaved ? "★ All saved" : "★ Save all"}</button>
+          </div>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
+            {words.map((w) => (
+              <li key={w.index} className="row" style={{ gap: 8, margin: "4px 0" }}>
+                <button className={`ghost small${starred(w.lexKey) ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, w.lexKey, { gloss: w.prompt })}>{starred(w.lexKey) ? "★" : "☆"}</button>
+                <b className="target">{w.answer}</b>
+                <span className="muted small">— {w.prompt} · {w.producer === me ? "you said it" : "your partner said it"} {w.result === "got" ? "✓" : "↻"}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {plan.next && <p className="lead" style={{ margin: "12px 0 0" }}>{plan.next.label}</p>}
+    </div>
+  );
+}
+
 function PartnerSession({ plan, cadence, onCadence, onSpeak, onStory, onScrollTo }: {
   plan: partner.PartnerSessionPlan;
   cadence: partner.PartnerCadence;
@@ -5240,6 +5428,10 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
   const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
   const [tg, setTg] = useState<string | "new" | null>(null); // open v2 Together session id, "new", or none
   const [stg, setStg] = useState<string | null>(null); // open "Read together" for a storyId, or none
+  const [stgLens, setStgLens] = useState<{ label: string; highlight: number[] } | undefined>(undefined);
+  const [lcScenario, setLcScenario] = useState<string | undefined>(undefined); // joint session's speak step
+  const [jointFrom, setJointFrom] = useState<joint.JointItemKind | null>(null); // which joint step opened the current activity
+  const [jointDone, setJointDone] = useState<string[]>([]); // joint steps done today (shared by both partners)
   const [cadence, setCadence] = useState<partner.PartnerCadence>("daily"); // shared joint-session rhythm
   const [showMore, setShowMore] = useState(false); // the "More ways to practise" details (also opened by session-plan CTAs)
 
@@ -5266,7 +5458,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
       if (active && active.status !== "pending") {
         setMyId(await store.me());
         setVis(await store.getVisibility(active.id));
-        await store.publish(active.id, packId, { activity: myActivity(), familiarity: partnerDiff.projectFamiliarity(progressRef.current.familiarity, packId) }); // gated at publish time
+        await store.publish(active.id, packId, { activity: myActivity(), familiarity: partnerDiff.projectFamiliarity(progressRef.current.familiarity, packId), course: cp.positionShare(pack, progressRef.current) }); // gated at publish time
         const ps = await store.readPartnerPublished(active.id);
         setPartnerState(ps);
         setDiff(ps?.familiarity ? partnerDiff.complementaryDiff(partnerDiff.projectFamiliarity(progressRef.current.familiarity, packId), ps.familiarity) : null);
@@ -5282,6 +5474,9 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         setNudges((await store.listArtifacts(active.id, "nudge")).slice(-6).reverse());
         const cadenceArt = (await store.listArtifacts(active.id, "cadence"))[0]?.payload as { mode?: partner.PartnerCadence } | undefined;
         setCadence(cadenceArt?.mode === "weekly" ? "weekly" : "daily");
+        const jid = await sharedArtifactId("joint", active.id, localDay());
+        const jart = (await store.listArtifacts(active.id, "joint")).find((x) => x.id === jid);
+        setJointDone(((jart?.payload as { done?: string[] } | undefined)?.done) ?? []);
       } else {
         setPartnerState(null);
         setDiff(null);
@@ -5395,6 +5590,19 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
       );
     // active
     const partnerId = l.members.find((m) => m && m !== myId) ?? "";
+    // A joint-session step is done once you come back from the activity it opened. Recorded in a shared
+    // per-day artifact so both partners see the same ✓s.
+    const markJointDone = (kind: joint.JointItemKind | null) => {
+      if (!kind) return;
+      setJointFrom(null);
+      setJointDone((d) => (d.includes(kind) ? d : [...d, kind]));
+      void (async () => {
+        const id = await sharedArtifactId("joint", l.id, localDay());
+        const prev = (await store.listArtifacts(l.id, "joint")).find((x) => x.id === id)?.payload as { done?: string[] } | undefined;
+        const done = [...new Set([...(prev?.done ?? []), kind])];
+        await store.putArtifact(l.id, packId, "joint", { day: localDay(), done }, id);
+      })();
+    };
     if (tg) {
       return (
         <TogetherSession
@@ -5407,7 +5615,7 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
           persist={persist}
           partnerProjection={partnerState?.familiarity ?? null}
           sessionId={tg}
-          onExit={() => { setTg(null); void refresh(); }}
+          onExit={() => { setTg(null); markJointDone(jointFrom); void refresh(); }}
         />
       );
     }
@@ -5430,13 +5638,13 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
     if (lc) {
       return (
         <div style={colStack}>
-          <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setLc(null)}>← Partner</button>
-          <LiveConvo store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} sessionId={lc} />
+          <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => { setLc(null); setLcScenario(undefined); markJointDone(jointFrom); }}>← Partner</button>
+          <LiveConvo store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} sessionId={lc} scenarioId={lcScenario} />
         </div>
       );
     }
     if (stg) {
-      return <StoryTogether store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} storyId={stg} onExit={() => setStg(null)} />;
+      return <StoryTogether store={store} partnershipId={l.id} packId={packId} myId={myId} partnerId={partnerId} storyId={stg} lens={stgLens} onExit={() => { setStg(null); setStgLens(undefined); markJointDone(jointFrom); }} />;
     }
     const pm = partnerState?.activity?.metrics;
     const pDay = partnerState?.activity?.lastActiveDay;
@@ -5457,6 +5665,29 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
       partnerRecent: pm?.movedToKnownThisWeek ?? 0,
       partnerActive,
     });
+    // New course: the joint plan reads BOTH course positions (published) + the both-studied drill queue.
+    const myPos = cp.positionShare(pack, progress);
+    const jointPlan = myPos && pack.course ? (() => {
+      const myProj = partnerDiff.projectFamiliarity(progress.familiarity, packId);
+      const pProj = partnerState?.familiarity ?? { packId, entries: {} };
+      const members = [myId || "me", partnerId || "partner"].sort() as [string, string];
+      const projections = (members[0] === (myId || "me") ? [myProj, pProj] : [pProj, myProj]) as [FamiliarityProjection, FamiliarityProjection];
+      const drillCount = together.buildQueue(members, projections, togetherCandidates(pack), { limit: 12 }).length;
+      const pt = (id: string) => pack.course!.points.find((x) => x.id === id)?.title ?? id;
+      return joint.planJointSession({
+        course: pack.course!,
+        me: myPos,
+        partner: partnerState?.course,
+        drillCount,
+        partnerActive,
+        titles: {
+          point: pt,
+          story: (id) => pack.stories?.find((x) => x.id === id)?.title ?? id,
+          scenario: (id) => pack.scenarios.find((x) => x.id === id)?.title ?? id,
+          chapter: (o) => { const c = (pack.chapters ?? []).find((x) => x.order === o); return c ? `chapter ${o} (${c.shortTitle})` : `chapter ${o}`; },
+        },
+      });
+    })() : undefined;
     const changeCadence = (mode: partner.PartnerCadence) => { setCadence(mode); void (async () => { const arts = await store.listArtifacts(l.id, "cadence"); await store.putArtifact(l.id, packId, "cadence", { mode }, arts[0]?.id); })(); };
     const scrollTo = (anchor: string) => { setShowMore(true); setTimeout(() => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" }), 60); };
     return (
@@ -5474,8 +5705,22 @@ function PartnerPanel({ progress, persist, navigateToStory }: { progress: Progre
         {/* Hero: the one thing to do together — a short live session in real time (DESIGN-partnered-v2.md §2). */}
         <TogetherLauncher store={store} partnershipId={l.id} onOpen={setTg} />
 
-        {/* The structured joint session — a guided plan over what you've both been studying. */}
-        <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onStory={setStg} onScrollTo={scrollTo} />
+        {/* The structured joint session — a guided plan over what you've both been studying. New course: it
+            meets both partners where they are in the course (agenda → together → recap). */}
+        {jointPlan
+          ? <JointSession
+              plan={jointPlan}
+              done={jointDone}
+              progress={progress}
+              persist={persist}
+              store={store}
+              partnershipId={l.id}
+              onDrill={() => { setJointFrom("drill"); setTg("new"); }}
+              onPointDone={() => markJointDone("point")}
+              onStory={(storyId, lens) => { setJointFrom("story"); setStgLens(lens); setStg(storyId); }}
+              onSpeak={(scenarioId) => { setJointFrom("speak"); setLcScenario(scenarioId); setLc("new"); }}
+            />
+          : <PartnerSession plan={plan} cadence={cadence} onCadence={changeCadence} onSpeak={() => setLc("new")} onStory={setStg} onScrollTo={scrollTo} />}
 
         <div className="row">
           <span className="small">Shared streak</span>
