@@ -9,9 +9,9 @@ import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, L
 import * as familiarity from "@ll/core/familiarity";
 import type { Progress } from "./store";
 
-/** The switch (DESIGN §11): the live app stays on the runtime planner until cutover flips this. A
- *  learner can opt in early from Settings (`progress.settings.courseV2`). */
-export const COURSE_V2_DEFAULT = false;
+/** The switch (DESIGN §11): on since the 2026-10-08 cutover. A learner can still switch back to the old
+ *  runtime planner from Settings (`progress.settings.courseV2 = false`). */
+export const COURSE_V2_DEFAULT = true;
 export const courseV2On = (pack: LanguagePack, p: Progress): boolean =>
   !!pack.course?.chapters.length && (p.settings?.courseV2 ?? COURSE_V2_DEFAULT);
 

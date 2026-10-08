@@ -1,6 +1,6 @@
 # Course overhaul: one spine, agenda → lesson → recap
 
-Status: **APPROVED IN PRINCIPLE** (2026-10-08). Phases 0–6 built on branch `course-spine` (all 28 points signed off; the app plays the blueprint behind the `courseV2` switch, off by default). Phase 7 (cutover: backup, reset, flip the default, merge) awaits go-ahead.
+Status: **APPROVED IN PRINCIPLE** (2026-10-08). Phases 0–6 built on branch `course-spine` (all 28 points signed off; the app plays the blueprint behind the `courseV2` switch, off by default). Phase 7 (cutover) done 2026-10-08: the new course is on by default, and both learners' progress was backed up and reset (Jake: fully fresh; Madison: 49 ★ saved items kept).
 
 ## 1. Why
 
