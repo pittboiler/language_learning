@@ -70,8 +70,22 @@ course.chunkNotes = course.chunkNotes
 // Sanity: the spine must cover the pack's chapters, in order.
 const packOrder = [...(pack.chapters ?? [])].sort((a, b) => a.order - b.order).map((c) => c.id);
 if (packOrder.join() !== SPINE.map((c) => c.chapterId).join()) throw new Error(`spine chapters ${SPINE.map((c) => c.chapterId)} ≠ pack chapters ${packOrder}`);
+if ((pack.chapters ?? []).some((c) => packOrder.indexOf(c.id) !== c.order)) throw new Error("pack chapter orders must equal their spine index (chapter 0 first)");
 
 const pointList = spine.map((p) => `- ${p.id} (chapter ${p.chapterOrder}): ${p.title}. ${p.scope}`).join("\n");
+
+// Which points a line uses that are taught in a LATER chapter than its own (per the CURRENT spine).
+const laterFor = (source: string): string[] => {
+  const l = catalogBySource.get(source);
+  if (!l || !l.chapterOrder) return [];
+  return (course.lineTags[source] ?? []).filter((p) => (spine.find((s) => s.id === p)?.chapterOrder ?? 0) > l.chapterOrder);
+};
+// A note written for a different "taught later" set (the spine moved a point) is stale: drop it, so lint
+// flags the line and `notes` rewrites it with the right chapters.
+const sameSet = (a: string[], b: string[]) => a.length === b.length && a.every((x) => b.includes(x));
+const before = course.chunkNotes.length;
+course.chunkNotes = course.chunkNotes.filter((n) => { const later = laterFor(n.source); return later.length > 0 && sameSet(later, n.pointIds); });
+if (course.chunkNotes.length !== before) console.log(`dropped ${before - course.chunkNotes.length} set-phrase note(s) the spine change made stale or unnecessary`);
 
 // =====================================================================================================
 // tag
@@ -124,6 +138,33 @@ async function tag() {
       for (const l of batch) course.lineTags[l.source] ??= [];
       console.log(`  tagged chapter ${order || "grammar"} lines ${start + 1}-${start + batch.length}: $${costUsd.toFixed(3)}`);
     }
+  }
+}
+
+// =====================================================================================================
+// notes — (re)write set-phrase notes for lines that need one and don't have it (tags unchanged)
+// =====================================================================================================
+async function writeNotes() {
+  const todo = catalog.filter((l) => laterFor(l.source).length && !course.chunkNotes.some((n) => n.source === l.source));
+  console.log(`${todo.length} line(s) need a set-phrase note`);
+  const SCHEMA = { type: "object", additionalProperties: false, required: ["notes"], properties: { notes: { type: "array", items: {
+    type: "object", additionalProperties: false, required: ["i", "note"], properties: { i: { type: "integer" }, note: { type: "string" } } } } } };
+  const SYSTEM =
+    `You write one-line "set phrase for now" notes for a ${pack.name} course for English-speaking beginners. A line uses grammar the ` +
+    `course only explains in a LATER chapter; the note tells the learner what that bit does and which chapter explains it, so they can ` +
+    `treat it as a set phrase until then. One plain sentence, max ~20 words, no "Set phrase for now:" prefix (the app adds it). ` +
+    `Quote only words that appear in the line. Name each later point's chapter exactly as given. Example: "е means “is” (chapter 1) and во means “in” (chapter 7)."`;
+  for (let i = 0; i < todo.length; i += 30) {
+    const batch = todo.slice(i, i + 30);
+    const user = batch.map((l, j) => `${j}. [chapter ${l.chapterOrder}] ${l.text} (${l.gloss}) — later points: ${laterFor(l.source).map((p) => { const sp = spine.find((x) => x.id === p)!; return `${sp.title} (chapter ${sp.chapterOrder}: ${sp.scope})`; }).join("; ")}`).join("\n");
+    const { data, costUsd } = await structuredCall<{ notes: { i: number; note: string }[] }>({ model: MODELS.offline, system: SYSTEM, user: `Write a note for each:\n${user}`, schema: SCHEMA, maxTokens: 12000, thinking: true });
+    cost += costUsd;
+    for (const r of data.notes) {
+      const l = batch[r.i];
+      if (!l || !r.note.trim()) continue;
+      course.chunkNotes.push({ source: l.source, text: l.text, pointIds: laterFor(l.source), note: restoreCase(tidyNote(r.note), l.text) });
+    }
+    console.log(`  notes ${i + 1}-${i + batch.length}: $${costUsd.toFixed(3)}`);
   }
 }
 
@@ -330,7 +371,8 @@ async function points() {
 // assemble + review
 // =====================================================================================================
 function assemble() {
-  const { chapters, stageReviews } = planCourse({ pack, points: course.points, lineTags: course.lineTags, chunkNotes: course.chunkNotes });
+  const { chapters, stageReviews, version } = planCourse({ pack, points: course.points, lineTags: course.lineTags, chunkNotes: course.chunkNotes });
+  course.version = version;
   course.chapters = chapters;
   course.stageReviews = stageReviews;
 }
@@ -425,10 +467,11 @@ if (cmd === "signoff") {
   console.log(`signed off ${n} point(s) in ${ONLY.join(", ")}`);
   save();
 }
+if (cmd === "notes") { await writeNotes(); save(); }
 if (cmd === "import") { importDrafts(process.argv[3]!); save(); }
 if (cmd === "tag" || cmd === "all") { await tag(); save(); }
 if (cmd === "points" || cmd === "all") { await points(); save(); }
-if (["assemble", "all", "points", "tag", "import"].includes(cmd)) { assemble(); save(); }
+if (["assemble", "all", "points", "tag", "import", "notes"].includes(cmd)) { assemble(); save(); }
 if (cmd === "review" || cmd === "all") review();
 console.log(`\n${course.points.length}/${spine.length} points written · ${Object.keys(course.lineTags).length} lines tagged · ${course.chunkNotes.length} set-phrase notes · cost this run $${cost.toFixed(2)}`);
 const issues = lintCourse({ ...pack, course });

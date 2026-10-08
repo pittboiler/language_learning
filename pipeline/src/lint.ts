@@ -156,6 +156,7 @@ export function lintChapters(pack: LanguagePack): ChapterLintIssue[] {
     }
   }
   for (const c of chapters) {
+    if (c.kind === "script") continue; // letters & sounds: no scenario or story by design
     const hasScenario = pack.scenarios.some((s) => owners(s.id).some((o) => o.id === c.id));
     const hasStory = (pack.stories ?? []).some((s) => owners(s.id).some((o) => o.id === c.id));
     if (!hasScenario || !hasStory) {
@@ -262,7 +263,8 @@ export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
 
   // spine shape
   for (const c of course.chapters) {
-    if (c.pointIds.length < 2 || c.pointIds.length > 3) add("points-per-chapter", c.chapterId, `${c.pointIds.length} points (want 2-3)`);
+    const script = c.sessions.some((s) => s.letters);
+    if (!script && (c.pointIds.length < 2 || c.pointIds.length > 3)) add("points-per-chapter", c.chapterId, `${c.pointIds.length} points (want 2-3)`);
     for (const id of c.pointIds) if (!course.points.some((p) => p.id === id)) add("missing-point", c.chapterId, `point ${id} has no text yet`);
   }
   const orders = course.points.map((p) => p.order);

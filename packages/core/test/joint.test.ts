@@ -12,9 +12,9 @@ const point = (id: string, chapterId: string, order: number) =>
 const course: Course = {
   points: [point("p1", "c1", 1), point("p2", "c1", 2), point("p3", "c2", 3), point("p4", "c2", 4)],
   chapters: [
-    { chapterId: "c1", pointIds: ["p1", "p2"], words: [], extraWords: [], checkpoint: { wordKeys: [], pointIds: ["p1", "p2"], scenarioId: "scen1" },
+    { chapterId: "c1", order: 1, pointIds: ["p1", "p2"], words: [], extraWords: [], checkpoint: { wordKeys: [], pointIds: ["p1", "p2"], scenarioId: "scen1" },
       sessions: [sess(1, "teach", { pointId: "p1", story: { id: "st1", lens: ["p1"], highlight: [0] } }), sess(2, "teach", { pointId: "p2", story: { id: "st1", lens: ["p2"], highlight: [] } }), sess(3, "review", { speak: "scen1" }), sess(4, "use", { speak: "scen1" }), sess(5, "checkpoint")] },
-    { chapterId: "c2", pointIds: ["p3", "p4"], words: [], extraWords: [], checkpoint: { wordKeys: [], pointIds: ["p3", "p4"], scenarioId: "scen2" },
+    { chapterId: "c2", order: 2, pointIds: ["p3", "p4"], words: [], extraWords: [], checkpoint: { wordKeys: [], pointIds: ["p3", "p4"], scenarioId: "scen2" },
       sessions: [sess(1, "teach", { pointId: "p3", story: { id: "st2", lens: ["p3"], highlight: [1] } }), sess(2, "teach", { pointId: "p4" }), sess(3, "review", { speak: "scen2" }), sess(4, "checkpoint")] },
   ],
   stageReviews: [],

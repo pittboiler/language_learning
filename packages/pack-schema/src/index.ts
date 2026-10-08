@@ -237,6 +237,9 @@ export interface Chapter {
   shortTitle: string;
   cefr: CefrBand;
   goal: string; // one line: what the learner can do after it
+  /** "script": a chapter about the writing system itself (letters + sounds), with no words, stories or
+   *  scenarios of its own. Its progress is the alphabet; it never owes a content checkpoint. */
+  kind?: "script";
   /** Artifact ids belonging here that DON'T follow the `gen-<chapterId>` convention (hand-authored
    *  scenarios/stories/readers predating the pipeline). */
   extraIds?: string[];
@@ -351,6 +354,8 @@ export interface CourseWord {
 export interface CourseSession {
   /** 1-based within the chapter. */
   n: number;
+  /** A script chapter's session: the letters taught (or, on its checkpoint, quizzed). */
+  letters?: { title: string; glyphs: string[]; note?: string };
   role: SessionRole;
   /** The point introduced (teach) or practised (practice) in this session. */
   pointId?: string;
@@ -375,6 +380,8 @@ export interface CourseSession {
 
 export interface CourseChapter {
   chapterId: string;
+  /** The pack chapter's order (0 for a script chapter that precedes the curriculum). */
+  order: number;
   pointIds: string[];
   /** The trimmed word list the chapter teaches, in teaching order. */
   words: CourseWord[];
@@ -403,6 +410,9 @@ export interface ChunkNote {
 }
 
 export interface Course {
+  /** Changes only when the chapter/session STRUCTURE changes (not wording) — a learner whose saved
+   *  position was made on another structure is re-placed. */
+  version?: string;
   points: GrammarPoint[];
   chapters: CourseChapter[];
   stageReviews: StageReview[];

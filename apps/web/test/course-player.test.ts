@@ -16,14 +16,20 @@ const prog = (over: Partial<Progress> = {}): Progress => ({ familiarity: {}, sce
 assert.equal(cp.courseV2On(macedonian, prog()), cp.COURSE_V2_DEFAULT);
 assert.equal(cp.courseV2On(macedonian, prog({ settings: { courseV2: true } })), true);
 
-// 1. A new learner starts at chapter 1, session 1, on a teach session.
+// 1. A new learner starts at chapter 0 (letters & sounds), session 1: a letters lesson.
 const start = cp.position(course, undefined);
 assert.equal(start.kind, "session");
 if (start.kind === "session") {
-  assert.equal(start.chapter.chapterId, "s0-repair");
+  assert.equal(start.chapter.chapterId, "s0-letters");
+  assert.equal(start.chapter.order, 0);
   assert.equal(start.session.n, 1);
-  assert.equal(start.session.role, "teach");
+  assert.ok(start.session.letters?.glyphs.length, "a letters session");
 }
+// 1b. A position saved on another course structure is re-placed at the start; the current one is kept.
+assert.equal(cp.position(course, { chapterId: "s0-repair", session: 2 }).kind === "session" && (cp.position(course, { chapterId: "s0-repair", session: 2 }) as { chapter: { chapterId: string } }).chapter.chapterId, "s0-letters", "an unversioned (pre-chapter-0) position restarts");
+const kept = cp.position(course, { chapterId: "s0-repair", session: 2, v: course.version });
+assert.ok(kept.kind === "session" && kept.chapter.chapterId === "s0-repair" && kept.session.n === 2);
+assert.equal(cp.advance(course, undefined, {}).v, course.version, "advancing stamps the structure version");
 
 // 2. Walking a chapter: sessions advance one at a time up to the checkpoint.
 const ch1 = course.chapters[0]!;
@@ -34,27 +40,27 @@ assert.equal(ch1.sessions.at(-1)!.role, "checkpoint");
 
 // 3. A failed checkpoint stays put and flags a retry; passing moves to the next chapter.
 const failed = cp.advance(course, st, { checkpointPassed: false });
-assert.equal(failed.chapterId, "s0-repair");
+assert.equal(failed.chapterId, ch1.chapterId);
 assert.equal(failed.retry, true);
 const pos = cp.position(course, failed);
 assert.ok(pos.kind === "session" && pos.retry, "the retry is visible on the position");
 const passed = cp.advance(course, failed, { checkpointPassed: true });
-assert.deepEqual(passed, { chapterId: course.chapters[1]!.chapterId, session: 1 });
+assert.deepEqual(passed, { chapterId: course.chapters[1]!.chapterId, session: 1, v: course.version });
 
 // 4. Passing a stage-ending chapter's checkpoint owes a stage review, then the next chapter.
 const stageEnd = course.stageReviews[0]!.afterChapterId;
 const endCh = course.chapters.find((c) => c.chapterId === stageEnd)!;
-const atCheckpoint = { chapterId: stageEnd, session: endCh.sessions.length };
+const atCheckpoint = { chapterId: stageEnd, session: endCh.sessions.length, v: course.version };
 const owed = cp.advance(course, atCheckpoint, { checkpointPassed: true });
 assert.equal(owed.stageReviewAfter, stageEnd);
 assert.equal(cp.position(course, owed).kind, "stage-review");
 const after = cp.advance(course, owed, {});
 const nextId = course.chapters[course.chapters.indexOf(endCh) + 1]!.chapterId;
-assert.deepEqual(after, { chapterId: nextId, session: 1 });
+assert.deepEqual(after, { chapterId: nextId, session: 1, v: course.version });
 
 // 5. The last chapter's checkpoint (also a stage end) → stage review → finished.
 const last = course.chapters.at(-1)!;
-const fin = cp.advance(course, cp.advance(course, { chapterId: last.chapterId, session: last.sessions.length }, { checkpointPassed: true }), {});
+const fin = cp.advance(course, cp.advance(course, { chapterId: last.chapterId, session: last.sessions.length, v: course.version }, { checkpointPassed: true }), {});
 assert.equal(fin.finished, true);
 assert.equal(cp.position(course, fin).kind, "finished");
 
@@ -72,8 +78,8 @@ for (const it of items) {
 const now = new Date("2026-10-10T12:00:00Z");
 const chapterOf = cp.chapterOfKey(course);
 const vocabFor = (lexKey: string) => macedonian.vocab.find((v) => familiarity.deriveKeyForItem(v).lexKey === lexKey)!;
-const earlyWords = course.chapters[0]!.words.slice(0, 3).map((w) => vocabFor(w.lexKey)).filter(Boolean);
-const currentWords = course.chapters[3]!.words.slice(0, 8).map((w) => vocabFor(w.lexKey)).filter(Boolean);
+const earlyWords = course.chapters[1]!.words.slice(0, 3).map((w) => vocabFor(w.lexKey)).filter(Boolean);
+const currentWords = course.chapters.find((c) => c.order === 4)!.words.slice(0, 8).map((w) => vocabFor(w.lexKey)).filter(Boolean);
 const entry = (it: ReviewItem, dueAt: string, strength: number) => {
   const spec = familiarity.deriveKeyForItem(it);
   const e = familiarity.capture(spec, new Date("2026-10-01T00:00:00Z"));
@@ -108,15 +114,19 @@ for (const p of course.points) for (const it of cp.blankCardItems(p)) assert.equ
 const pt = (id: string) => course.points.find((p) => p.id === id)!;
 assert.equal(cp.patternConceptFor(course, pt("pt-ne")), undefined, "не (ch 1) mustn't show the нема да / нема table");
 assert.equal(cp.patternConceptFor(course, pt("pt-ima-nema")), "negation", "the last negation point shows it");
-assert.equal(cp.patternConceptFor(course, pt("pt-question-words")), "questions");
+assert.equal(cp.patternConceptFor(course, pt("pt-yes-no")), "questions", "ли/дали now closes chapter 2's questions, so it shows the table");
 assert.equal(cp.patternConceptFor(course, pt("pt-gender")), "gender");
 
 // 11. Agenda + recap for a teach session: the agenda names the point; the recap quotes today's story lines
 //     that use it, lists the session's words plus anything captured during it, and today's cards.
-const s1 = cp.position(course, cp.initialState(course));
+const s1 = cp.position(course, { chapterId: "s0-repair", session: 2, v: course.version }); // не is taught in chapter 1, session 2
 const ag = cp.sessionAgenda(macedonian, course, s1)!;
-assert.match(ag.title, /^Chapter 1 · .* · session 1$/);
+assert.match(ag.title, /^Chapter 1 · .* · session 2$/);
 assert.equal(ag.items[0], course.points.find((p) => p.id === "pt-ne")!.agenda);
+const l0 = cp.sessionAgenda(macedonian, course, start)!;
+assert.match(l0.title, /^Chapter 0 · Letters & sounds · session 1$/);
+const lr = cp.sessionRecap(macedonian, course, start, prog(), new Date());
+assert.equal(lr.letters.length, (start as { session: { letters: { glyphs: string[] } } }).session.letters.glyphs.length, "the letters recap lists today's letters");
 const since = new Date("2026-10-10T09:00:00Z");
 const tapped = familiarity.capture({ lexKey: "мажот", kind: "word", display: "Мажот" }, new Date("2026-10-10T09:05:00Z"));
 const old = familiarity.capture({ lexKey: "фала", kind: "word", display: "фала" }, new Date("2026-10-01T09:00:00Z"));
@@ -127,7 +137,7 @@ assert.ok(rc.points[0]!.fresh);
 assert.ok(rc.points[0]!.lines.some((l) => l.text.includes("не разбирам")), "quotes today's story line with не");
 assert.ok(rc.words.some((w) => w.lexKey === "мажот"), "a word tapped during the session is in the recap");
 assert.ok(!rc.words.some((w) => w.lexKey === "фала"), "an older word isn't");
-assert.ok(course.chapters[0]!.sessions[0]!.words.every((w) => rc.words.some((x) => x.lexKey === w.lexKey)), "all the session's words");
+assert.ok(course.chapters[1]!.sessions[1]!.words.every((w) => rc.words.some((x) => x.lexKey === w.lexKey)), "all the session's words");
 assert.ok(rc.cards.length >= 1);
 assert.ok(rc.next.startsWith("Next:"));
 

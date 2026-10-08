@@ -1,0 +1,22 @@
+{
+  "lineTags": {
+    "qa:gen-s0-repair-story#q1:q": [
+      "pt-question-words",
+      "pt-ne",
+      "pt-verbs-a",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s0-repair-story#q2:q": [
+      "pt-question-words",
+      "pt-se",
+      "pt-verbs-a",
+      "pt-da",
+      "pt-the",
+      "pt-more-most"
+    ]
+  },
+  "chunkNotes": {
+    "qa:gen-s0-repair-story#q1:q": "што means “what” (chapter 2); вели (“says”) and разбира (“understands”): verb endings come in chapters 4 and 5.",
+    "qa:gen-s0-repair-story#q2:q": "како means “how” (chapter 2), се вели “one says” (chapter 5), да зборува “to speak” (chapter 4), пополека “more slowly” (chapter 7)."
+  }
+}

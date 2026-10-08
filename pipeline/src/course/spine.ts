@@ -19,6 +19,8 @@ export interface SpinePoint {
 export interface SpineChapter {
   chapterId: string;
   points: SpinePoint[];
+  /** Script chapter (letters & sounds): its teaching sessions, one group of letters each. */
+  letterSessions?: { title: string; glyphs: string[]; note?: string }[];
   /** Hand-tuned extra practice sessions for a cumbersome chapter (beyond what the formula gives). */
   extraSessions?: number;
   /** Words the chapter currently carries that should NOT be taught in it (moved to the Library). */
@@ -27,30 +29,49 @@ export interface SpineChapter {
 
 export const SPINE: SpineChapter[] = [
   {
+    // Chapter 0 (2026-10-08, Jake): the writing system first, grouped so each step builds on the last —
+    // what you can already read, then the look-alikes that fool you, then new shapes, then the letters
+    // special to Macedonian. The checkpoint quizzes the tricky ones (unique + look-alikes).
+    chapterId: "s0-letters",
+    points: [],
+    letterSessions: [
+      { title: "Letters that work like English", glyphs: ["А", "Е", "К", "М", "О", "Т"],
+        note: "Macedonian spelling is phonetic: one letter, one sound, every time. These six look and sound the way you'd expect." },
+      { title: "Look-alikes that fool you", glyphs: ["В", "Н", "Р", "С", "У", "Х"],
+        note: "These look like English letters but make different sounds: В is v, Н is n, Р is a rolled r, С is s, У is oo, Х is h." },
+      { title: "New shapes, familiar sounds", glyphs: ["Б", "Г", "Д", "З", "И", "Л", "П"],
+        note: "New shapes for sounds you already make." },
+      { title: "More new shapes", glyphs: ["Ф", "Ж", "Ц", "Ч", "Ш"],
+        note: "Ж, Ц, Ч and Ш each write in one letter a sound English spells with two (zh, ts, ch, sh). Where's the stress? On the third syllable from the end, in words of three or more syllables." },
+      { title: "Letters special to Macedonian", glyphs: ["Ѓ", "Ѕ", "Ј", "Љ", "Њ", "Ќ", "Џ"],
+        note: "Seven letters you won't find in Russian. Ј is the y in yes; Љ and Њ are soft l and n; Ѓ and Ќ are soft dj and tj." },
+    ],
+  },
+  {
     chapterId: "s0-repair",
-    dropWords: ["Навистина?"],
+    dropWords: ["Навистина?", "што", "каде", "како"], // question words are taught with their point in chapter 2
     points: [
+      { id: "pt-sum", title: "Am / is / are: сум", grammarIds: ["to-be"], depth: "produce",
+        scope: "Present tense of сум (сум, си, е, сме, сте, се) with the subject pronouns јас, ти, тој, таа, тоа, ние, вие, тие; сум can't start a sentence (Добро сум, Јас сум…).",
+        words: ["јас", "ти", "тој", "таа", "ние"] },
       { id: "pt-ne", title: "Saying “not”: не", grammarIds: ["negation"], depth: "produce",
         scope: "не placed directly before the verb (or before a form of сум) to negate it: Не разбирам, Не знам, не е, не сакам.",
         words: ["Не разбирам.", "Не знам."] },
-      { id: "pt-yes-no", title: "Yes/no questions: ли or дали", grammarIds: ["questions"], depth: "produce",
-        scope: "Yes/no questions made with ли placed right after the verb (Можете ли…, Имате ли…, Може ли…, Сакате ли…) or with дали at the start (Дали…). Includes: a form of сум (си, е, сте) takes дали, not ли.",
-        words: ["Можете ли да повторите?"] },
-      { id: "pt-question-words", title: "Question words", grammarIds: ["questions"], depth: "produce",
-        scope: "Wh-question words that open a question: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much), чиј (whose).",
-        words: ["што", "каде", "како", "колку"] },
     ],
   },
   {
     chapterId: "s0-greet",
     dropWords: ["Добро утро", "Пријатно", "тие"],
     points: [
-      { id: "pt-sum", title: "Am / is / are: сум", grammarIds: ["to-be"], depth: "produce",
-        scope: "Present tense of сум (сум, си, е, сме, сте, се) with the subject pronouns јас, ти, тој, таа, тоа, ние, вие, тие; сум can't start a sentence (Добро сум, Јас сум…).",
-        words: ["јас", "ти", "тој", "таа", "ние"] },
+      { id: "pt-question-words", title: "Question words", grammarIds: ["questions"], depth: "produce",
+        scope: "Wh-question words that open a question: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much), чиј (whose).",
+        words: ["што", "каде", "како", "колку"] },
       { id: "pt-ti-vie", title: "Casual ти or polite вие", grammarIds: [], depth: "produce",
         scope: "Choosing informal ти forms (Како си?, verbs ending -ш) with friends and family vs polite/plural вие forms (Како сте?, verbs ending -те, Извинете) with strangers and elders.",
         words: ["вие", "Како си?", "Како сте?"] },
+      { id: "pt-yes-no", title: "Yes/no questions: ли or дали", grammarIds: ["questions"], depth: "produce",
+        scope: "Yes/no questions made with ли placed right after the verb (Можете ли…, Имате ли…, Може ли…, Сакате ли…) or with дали at the start (Дали…). Includes: a form of сум (си, е, сте) takes дали, not ли.",
+        words: ["Можете ли да повторите?"] },
     ],
   },
   {
@@ -171,4 +192,5 @@ export const STAGE_REVIEW_AFTER = ["s0-survive", "s1-directions", "s2-problems"]
 
 /** Flattened, in spine order, with each point's chapter. */
 export const spinePoints = (): (SpinePoint & { chapterId: string; order: number; chapterOrder: number })[] =>
-  SPINE.flatMap((c, ci) => c.points.map((p) => ({ ...p, chapterId: c.chapterId, chapterOrder: ci + 1 }))).map((p, i) => ({ ...p, order: i + 1 }));
+  // SPINE[0] is chapter 0 (letters & sounds), so a chapter's index IS its pack order (run-course asserts it).
+  SPINE.flatMap((c, ci) => c.points.map((p) => ({ ...p, chapterId: c.chapterId, chapterOrder: ci }))).map((p, i) => ({ ...p, order: i + 1 }));

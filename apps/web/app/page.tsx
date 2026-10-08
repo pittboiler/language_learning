@@ -321,6 +321,8 @@ type TodayStep =
   | { kind: "story"; story: MiniStory; dayIndex: number; revisit?: boolean; lens?: StoryLens }
   | { kind: "point"; point: GrammarPoint; mode: "teach" | "practice"; dayIndex: number }
   | { kind: "agenda"; agenda: cp.Agenda }
+  | { kind: "letters"; lesson: { title: string; glyphs: string[]; note?: string }; checkpoint: boolean }
+  | { kind: "sayit"; lines: { text: string; gloss: string; translit?: string }[] }
   | { kind: "stage"; afterChapterId: string; items: ReviewItem[]; scenario?: Scenario }
   | { kind: "speak"; scenario: Scenario }
   | { kind: "build"; ids?: string[]; chapterOrder?: number }
@@ -395,9 +397,20 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
     return out;
   }
   const { chapter: cc, session: s } = pos;
-  const order = course.chapters.indexOf(cc) + 1;
+  const order = cc.order;
   const chapter = (pack.chapters ?? []).find((c) => c.id === cc.chapterId)!;
   const studied = (lexKey: string) => { const e = progress.familiarity[lexKey]; return !!e && familiarity.isStudied(e); };
+
+  // Chapter 0 — letters & sounds: learn a group (or, at the checkpoint, the tricky ones) and say example words.
+  if (s.letters) {
+    out.push({ kind: "letters", lesson: s.letters, checkpoint: s.role === "checkpoint" });
+    if (s.role !== "checkpoint") {
+      const lines = s.letters.glyphs.map((g) => pack.alphabet.find((a) => a.glyph === g)?.examples[0]).filter((e): e is NonNullable<typeof e> => !!e)
+        .slice(0, 4).map((e) => ({ text: e.text, gloss: e.gloss ?? "", translit: e.translit }));
+      if (lines.length) out.push({ kind: "sayit", lines });
+    }
+    return out;
+  }
 
   if (s.role === "checkpoint") {
     const words = cc.words.filter((w) => studied(w.lexKey)).map((w) => vocabByKey.get(w.lexKey)).filter((v): v is ReviewItem => !!v);
@@ -429,6 +442,16 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   const pointId = s.pointId ?? (s.role === "practice" ? cc.pointIds.filter((id) => cc.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1) : undefined);
   const point = pointId ? points.get(pointId) : undefined;
   if (point) out.push({ kind: "point", point, mode: s.role === "teach" ? "teach" : "practice", dayIndex: s.n });
+
+  // "Say it" (teach + practice sessions): today's new phrases and the point's example lines, out loud, with
+  // speech feedback — so no teaching session goes by without speaking, before the conversation unlocks.
+  if (s.role === "teach" || s.role === "practice") {
+    const vocabLine = (w: CourseSession["words"][number]) => { const v = vocabByKey.get(w.lexKey); return { text: w.display, gloss: w.gloss, translit: v?.translit }; };
+    const fromWords = s.words.map(vocabLine).sort((a, b) => b.text.split(/\s+/).length - a.text.split(/\s+/).length).slice(0, 2);
+    const fromPoint = (point?.examples ?? []).filter((e) => !e.source.startsWith("grammar:")).slice(0, 2).map((e) => ({ text: e.text.replace(/^[„“"]+|[“”"]+$/g, ""), gloss: e.gloss }));
+    const lines = [...fromWords, ...fromPoint].filter((l, i, all) => all.findIndex((x) => x.text === l.text) === i).slice(0, 4);
+    if (lines.length) out.push({ kind: "sayit", lines });
+  }
 
   if (s.story) {
     const story = (pack.stories ?? []).find((x) => x.id === s.story!.id);
@@ -593,7 +616,7 @@ function Today({ progress, persist, config, navigate }: {
   }, [pack, planVersion, v2]);
 
   const reviewDay = !v2 && isReviewDay(progress.sessions ?? 0);
-  const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
+  const [phase, setPhase] = useState<"gate" | "flow">(lettersDone || v2 ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
   // Once today's session is finished we record the local day (below). On a later reload/reopen that flag
   // survives even though `idx` resets to 0 — so we open on the "done for today" screen instead of
@@ -794,6 +817,19 @@ function Today({ progress, persist, config, navigate }: {
             onDone={(p) => { if (p.chapters?.[step.chapter.id]?.passedAt && p.chapters[step.chapter.id]!.passedAt !== progress.chapters?.[step.chapter.id]?.passedAt) checkpointPassed.current = true; done(p); }}
           />
         )}
+
+        {step.kind === "letters" && (
+          <LetterLesson
+            key={idx}
+            lesson={step.lesson}
+            checkpoint={step.checkpoint}
+            progress={progress}
+            persist={persist}
+            onDone={(p) => { if (step.checkpoint) checkpointPassed.current = true; done(p); }}
+          />
+        )}
+
+        {step.kind === "sayit" && <SayIt key={idx} lines={step.lines} config={config} onMiss={flagTurn} onDone={() => done()} />}
 
         {step.kind === "agenda" && (
           <AgendaCard
@@ -1227,6 +1263,106 @@ function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
   );
 }
 
+// Chapter 0 (letters & sounds): learn a group of letters — each with its sound and an example word to
+// hear — then a quick quiz (letter → sound, sound → letter) until every one is right. The checkpoint
+// quizzes the tricky letters straight away. Letters answered right are recorded in progress.letters.
+function LetterLesson({ lesson, checkpoint, progress, persist, onDone }: {
+  lesson: { title: string; glyphs: string[]; note?: string };
+  checkpoint: boolean;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  onDone: (p: Progress) => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const group = useMemo(() => lesson.glyphs.map((g) => pack.alphabet.find((a) => a.glyph === g)).filter((a): a is GlyphLesson => !!a), [lesson, pack]);
+  const [phase, setPhase] = useState<"learn" | "quiz" | "done">(checkpoint ? "quiz" : "learn");
+  const [queue, setQueue] = useState<string[]>(() => shuffle(lesson.glyphs));
+  const [step, setStep] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
+  const [known, setKnown] = useState<Record<string, boolean>>({});
+  const a = group.find((x) => x.glyph === queue[0]);
+  const qType = step % 2; // 0: see the letter, pick its sound · 1: see the sound, pick the letter
+  const options = useMemo(() => {
+    if (!a) return [] as string[];
+    const pool = [...group, ...pack.alphabet].filter((x, i, all) => x.glyph !== a.glyph && all.findIndex((y) => y.glyph === x.glyph) === i);
+    const distract = shuffle(pool.slice(0, Math.max(group.length - 1, 3))).slice(0, 3);
+    return shuffle(qType === 0 ? [a.sound, ...distract.map((x) => x.sound)] : [a.glyph, ...distract.map((x) => x.glyph)]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [queue[0], step]);
+  const answer = a ? (qType === 0 ? a.sound : a.glyph) : "";
+  const right = picked !== null && picked === answer;
+  const next = () => {
+    if (!a) return;
+    if (right) { setKnown((k) => ({ ...k, [a.glyph]: true })); const rest = queue.slice(1); setQueue(rest); if (!rest.length) setPhase("done"); }
+    else setQueue((q) => [...q.slice(1), q[0]!]);
+    setPicked(null);
+    setStep((x) => x + 1);
+  };
+  const finish = () => onDone({ ...progress, letters: { ...progress.letters, ...known } });
+
+  if (phase === "learn")
+    return (
+      <div className="fb">
+        <div className="gram-kicker">Letters · {lesson.title}</div>
+        {lesson.note && <p style={{ margin: "6px 0 10px" }}>{lesson.note}</p>}
+        <div className="letters">{group.map((x) => <LetterCard key={x.glyph} a={x} play={play} done={!!progress.letters[x.glyph]} />)}</div>
+        <button className="btn" style={{ marginTop: 10 }} onClick={() => setPhase("quiz")}>Quiz me on these {group.length} →</button>
+      </div>
+    );
+  if (phase === "done" || !a)
+    return (
+      <div className="fb">
+        <div className="gram-kicker">Letters · {lesson.title}</div>
+        <p className="lead" style={{ margin: "6px 0", color: "var(--ok)" }}>✓ All {group.length} right: {lesson.glyphs.join(" ")}</p>
+        <button className="btn" onClick={finish}>Continue →</button>
+      </div>
+    );
+  return (
+    <div className="fb">
+      <div className="gram-kicker">{checkpoint ? "Checkpoint · the tricky letters" : `Quiz · ${lesson.title}`}</div>
+      <div className="muted small">{lesson.glyphs.length - queue.length} of {lesson.glyphs.length} · {qType === 0 ? "What sound does this letter make?" : "Which letter makes this sound?"}</div>
+      <div className="row" style={{ alignItems: "center", margin: "10px 0" }}>
+        {qType === 0 ? <div className="target" style={{ fontSize: 46 }}>{a.glyph}</div> : <div style={{ fontSize: 22, fontWeight: 600 }}>{a.sound}</div>}
+        <button className="ghost" onClick={() => a.examples[0] && play(a.examples[0].text, 0.7)}>🔊 {qType === 0 ? "example" : "hear it"}</button>
+      </div>
+      <div>
+        {options.map((o) => {
+          const cls = picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
+          return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)} style={qType === 1 ? { fontSize: 24 } : undefined}>{o}</button>;
+        })}
+      </div>
+      {picked && (
+        <div className="why">
+          {right ? "✓ Correct!" : `✗ ${a.glyph} sounds like “${a.sound}” (${a.name}) — it comes back at the end`}
+          {a.examples[0] && <span className="muted small"> · {a.examples[0].text} = {a.examples[0].gloss}</span>}
+          <button className="btn" style={{ marginLeft: 8 }} onClick={next}>Next →</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// "Say it" (teach + practice sessions, and chapter 0): a few lines from today — the new phrases, the
+// grammar point's examples, or the letters' example words — said out loud with the usual speech feedback.
+function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string; gloss: string; translit?: string }[]; config: api.Config | null; onMiss: (t: DialogueTurn) => void; onDone: () => void }) {
+  const [i, setI] = useState(0);
+  const line = lines[i];
+  if (!line) return null;
+  return (
+    <div className="fb">
+      <div className="gram-kicker">Say it · {i + 1} of {lines.length}</div>
+      <LearnerTurn
+        key={i}
+        turn={{ speaker: "learner", text: line.text, gloss: line.gloss, translit: line.translit ?? romanize(line.text) }}
+        config={config}
+        onMiss={onMiss}
+        onDone={() => (i + 1 < lines.length ? setI(i + 1) : onDone())}
+      />
+    </div>
+  );
+}
+
 // The agenda that opens a session (DESIGN §5): a few seconds to see what today is for. Deliberately brief —
 // the detail lives in the recap and the Library.
 function AgendaCard({ agenda, onStart, pointId, onOpenPoint }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void }) {
@@ -1307,6 +1443,21 @@ function CourseRecap({ pos, since, progress, persist, missed, onReviewMissed, on
           )}
         </div>
       ))}
+
+      {rc.letters.length > 0 && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="gram-kicker">Letters from today · {rc.letters.length}</div>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
+            {rc.letters.map((l) => (
+              <li key={l.glyph} className="row" style={{ gap: 8, margin: "4px 0" }}>
+                <b className="target" style={{ fontSize: 22, minWidth: 28 }}>{l.glyph}</b>
+                <span>{l.sound}</span>
+                {l.example && <><button className="gram-play" onClick={() => play(l.example!)} aria-label={`Play ${l.example}`}>▶</button><span className="muted small">{l.example} — {l.gloss}</span></>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {rc.words.length > 0 && (
         <div className="fb" style={{ marginBottom: 12 }}>
