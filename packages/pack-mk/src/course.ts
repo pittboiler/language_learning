@@ -2367,7 +2367,7 @@ export const course: Course = {
           "why": "ми marks that it pleases me."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-future",
@@ -2497,7 +2497,7 @@ export const course: Course = {
           "why": "„Што ќе сакате?\" uses ќе for \"what will/would you like.\""
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-past",
@@ -2610,7 +2610,7 @@ export const course: Course = {
           "why": "\"He had\" uses the bare form shared by you/he/she."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-aspect",
@@ -2692,7 +2692,7 @@ export const course: Course = {
           "why": "A single finished action uses the completed form, not the ongoing \"пие\"."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-possessives",
@@ -2809,7 +2809,7 @@ export const course: Course = {
           "why": "The family shortcut for \"my\" is the little word \"ми\" after the noun."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-irregular-plurals",
@@ -2911,7 +2911,7 @@ export const course: Course = {
           "why": "Singular \"a good man/person\" is \"човек\"; its plural is the separate word \"луѓе\"."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-time",
@@ -3026,7 +3026,7 @@ export const course: Course = {
           "why": "во is the little word for \"at\" with clock times."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-ajde-da",
@@ -3149,7 +3149,7 @@ export const course: Course = {
           "why": "Каде asks \"where\" shall we meet."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-ima-nema",
@@ -3267,7 +3267,7 @@ export const course: Course = {
           "why": "Negative verb pairs with ништо for the required double negative."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-perfect",
@@ -3355,7 +3355,7 @@ export const course: Course = {
           "why": "After си, the -л word carries the meaning — here \"eaten\"."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     }
   ],
   "chapters": [

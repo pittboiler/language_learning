@@ -287,6 +287,7 @@ export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
       checkRef(c.line, at);
       checkProse(c.why, at);
       if (!c.line.text.includes(c.blank)) add("bad-blank", at, `"${c.blank}" isn't in "${c.line.text}"`);
+      else if (!new RegExp(`(^|[^\\p{L}])${c.blank.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u").test(c.line.text)) add("bad-blank", at, `"${c.blank}" is only part of a word in "${c.line.text}"`);
       if (new Set(c.options).size !== 3 || !c.options.includes(c.blank)) add("bad-blank", at, `options [${c.options.join(", ")}] must be 3 distinct incl. "${c.blank}"`);
       for (const o of c.options) for (const w of tokens(o)) if (!corpus.has(w)) add("new-language", at, `option "${o}" isn't in the pack`);
     }

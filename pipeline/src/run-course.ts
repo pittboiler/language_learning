@@ -27,6 +27,7 @@ import { SPINE, spinePoints } from "./course/spine.js";
 import { lineCatalog, proseWords, tokens, wordCorpus, type CatalogLine } from "./course/lines.js";
 import { planCourse } from "./course/plan.js";
 import { lintCourse } from "./lint.js";
+import { blankOut } from "../../apps/web/lib/course-player.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = join(ROOT, "packages", "pack-mk", "src", "course.ts");
@@ -369,7 +370,7 @@ function review() {
       L.push(`<details><summary>Library page</summary>`, "", p.library.rule, "", `**Why it's like this**`, ...p.library.why.map((w) => `- ${w}`), "", `**Common mistakes**`, ...p.library.mistakes.map((w) => `- ${w}`), "", `</details>`, "");
       L.push(`**Grammar cards**`, ...p.cards.map((c) => c.kind === "rule"
         ? `- 🃏 *${c.front}* → ${c.back}${c.example ? ` (e.g. ${c.example.text})` : ""}`
-        : `- ▢ ${c.line.text.replace(c.blank, "___")} → **${c.blank}** of [${c.options.join(" / ")}]: ${c.why}`));
+        : `- ▢ ${blankOut(c.line.text, c.blank)} → **${c.blank}** of [${c.options.join(" / ")}]: ${c.why}`));
     }
     const notes = course.chunkNotes.filter((n) => catalog.find((l) => l.source === n.source)?.chapterOrder === ch.order);
     const surfaced = new Set(course.chapters.flatMap((c) => c.sessions.flatMap((s) => s.notes ?? [])));
