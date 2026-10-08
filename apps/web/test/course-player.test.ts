@@ -149,4 +149,9 @@ assert.equal(cp.pointItems(yesNo).length, rules.length + cp.blankCardItems(yesNo
 assert.deepEqual(cp.taughtPointItems(course, prog()), []);
 assert.ok(cp.taughtPointItems(course, prog({ seenGrammar: { "pt-yes-no": true } })).every((it) => it.tags.includes("pt-yes-no")));
 
+// 13. Chapter 0 can be skipped (straight to chapter 1, session 1); a curriculum chapter can't.
+assert.ok(cp.canSkipChapter(start), "chapter 0 is skippable");
+assert.deepEqual(cp.skipChapter(course, { chapterId: "s0-letters", session: 3, v: course.version }), { chapterId: "s0-repair", session: 1, v: course.version });
+assert.ok(!cp.canSkipChapter(cp.position(course, { chapterId: "s0-repair", session: 1, v: course.version })), "chapter 1 isn't");
+
 console.log("course-player.test.ts: all assertions passed ✓");

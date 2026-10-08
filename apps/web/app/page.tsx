@@ -834,6 +834,12 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "agenda" && (
           <AgendaCard
             agenda={step.agenda}
+            onSkipChapter={playedPos && cp.canSkipChapter(playedPos) ? () => {
+              // Skip chapter 0: the letters count as known, and today's plan restarts on chapter 1.
+              const letters = Object.fromEntries(pack.alphabet.map((a) => [a.glyph, true]));
+              persist({ ...progress, letters: { ...progress.letters, ...letters }, course: cp.skipChapter(pack.course!, progress.course) });
+              setPlanVersion((v) => v + 1); checkpointPassed.current = false; setIdx(0);
+            } : undefined}
             pointId={steps.find((x): x is Extract<TodayStep, { kind: "point" }> => x.kind === "point")?.point.id}
             onOpenPoint={(id) => { pendingPointFocus = id; navigate("library", "grammar"); }}
             onStart={() => done()}
@@ -1365,7 +1371,8 @@ function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string; gloss
 
 // The agenda that opens a session (DESIGN §5): a few seconds to see what today is for. Deliberately brief —
 // the detail lives in the recap and the Library.
-function AgendaCard({ agenda, onStart, pointId, onOpenPoint }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void }) {
+function AgendaCard({ agenda, onStart, pointId, onOpenPoint, onSkipChapter }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void; onSkipChapter?: () => void }) {
+  const [confirmSkip, setConfirmSkip] = useState(false);
   return (
     <div className="fb">
       <div className="gram-kicker">Today's plan</div>
@@ -1379,6 +1386,19 @@ function AgendaCard({ agenda, onStart, pointId, onOpenPoint }: { agenda: cp.Agen
         ))}
       </ol>
       <button className="btn" style={{ marginTop: 10 }} onClick={onStart}>Let&apos;s go →</button>
+      {onSkipChapter && (
+        <div className="muted small" style={{ marginTop: 12 }}>
+          {!confirmSkip ? (
+            <>Already read Cyrillic? <button className="linklike small" onClick={() => setConfirmSkip(true)}>Skip chapter 0</button></>
+          ) : (
+            <span>
+              Skip to chapter 1? The letters count as learned; the full alphabet stays in Library → Reference.{" "}
+              <button className="btn small" onClick={onSkipChapter}>Yes, skip</button>{" "}
+              <button className="ghost small" onClick={() => setConfirmSkip(false)}>Cancel</button>
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
