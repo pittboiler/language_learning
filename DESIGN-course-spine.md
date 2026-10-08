@@ -1,6 +1,6 @@
 # Course overhaul: one spine, agenda → lesson → recap
 
-Status: **APPROVED IN PRINCIPLE** (2026-10-08). Phase 0 (the course blueprint) drafted in full on branch `course-spine`: all 28 points written; chapters 1–7 signed off, chapters 8–12 awaiting sign-off (`pipeline/output/course-review-mk.md`). Phase 1 (the app plays the blueprint) is next.
+Status: **APPROVED IN PRINCIPLE** (2026-10-08). Phases 0–6 built on branch `course-spine` (all 28 points signed off; the app plays the blueprint behind the `courseV2` switch, off by default). Phase 7 (cutover: backup, reset, flip the default, merge) awaits go-ahead.
 
 ## 1. Why
 

@@ -322,7 +322,7 @@ type TodayStep =
   | { kind: "agenda"; agenda: cp.Agenda }
   | { kind: "stage"; afterChapterId: string; items: ReviewItem[]; scenario?: Scenario }
   | { kind: "speak"; scenario: Scenario }
-  | { kind: "build" }
+  | { kind: "build"; ids?: string[]; chapterOrder?: number }
   | { kind: "writing"; prompt: string };
 
 // Rotate an array left by n (n=0 → unchanged). Used to vary which questions/drills lead each day.
@@ -339,8 +339,11 @@ const PRONOUNS: { key: keyof ConjugationSet["forms"]; en: string; mk: string }[]
 ];
 // The daily conjugation drill picks the first verb not yet drilled (marked seen on completion), so a new
 // verb comes up each day; once every verb has been seen it cycles.
-const pickConjVerb = (pack: LanguagePack, progress: Progress): ConjugationSet | undefined => {
-  const all = pack.conjugations ?? [];
+// Verbs never drilled as a six-person table: треба is taught as impersonal (треба да…, ми треба), and чини
+// only exists in the 3rd person — "требам" / "чинам" would contradict the lessons.
+const NOT_DRILLABLE = new Set(["треба", "чини"]);
+const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Set<string>): ConjugationSet | undefined => {
+  const all = (pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && (!groups || groups.has(v.group)));
   if (!all.length) return undefined;
   const seen = new Set(progress.seenConjugations ?? []);
   return all.find((v) => !seen.has(v.lemma)) ?? all[(progress.seenConjugations?.length ?? 0) % all.length];
@@ -410,9 +413,13 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
 
   const review = s.role === "review";
   const warm = cp.pickWarmup({ pool, progress, now, currentOrder: order, chapterOf, size: review ? cp.REVIEW_ITEMS : cp.WARMUP_ITEMS, share: review ? cp.EARLIER_SHARE.review : cp.EARLIER_SHARE.normal });
-  // The conjugation drill only once verb endings have been taught (chapter 4's -а verbs).
-  const verbsTaught = course.chapters.slice(0, order).some((c) => c.pointIds.includes("pt-verbs-a") && (c !== cc || (s.pointId !== "pt-verbs-a" && s.n > 1)));
-  const conjVerb = verbsTaught ? pickConjVerb(pack, progress) : undefined;
+  // The conjugation drill only drills verb groups whose point has been TAUGHT (in an earlier session):
+  // -а verbs from chapter 4, -е/-и verbs from chapter 5, сум once its point is done.
+  const groups = new Set<string>();
+  if (progress.seenGrammar?.["pt-verbs-a"]) groups.add("a");
+  if (progress.seenGrammar?.["pt-verbs-e-i"]) { groups.add("e"); groups.add("i"); }
+  if (progress.seenGrammar?.["pt-sum"] && groups.size) groups.add("irregular");
+  const conjVerb = groups.size ? pickConjVerb(pack, progress, groups) : undefined;
   if (warm.length || conjVerb) out.push({ kind: "warmup", items: warm, conjVerb });
 
   const words = s.words.filter((w) => cp.needsTeaching(progress, w.lexKey)).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }));
@@ -427,7 +434,7 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
     if (story) out.push({ kind: "story", story, dayIndex: progress.storyReads?.[story.id]?.length ?? 0, revisit: !!s.story.reuse, lens: storyLens(course, s, story, points) });
   }
   const canBuild = s.build.length > 0 && sentenceScope.withFallback(pack, { chapterOrder: order, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).items.length > 0;
-  if (canBuild) out.push({ kind: "build" });
+  if (canBuild) out.push({ kind: "build", ids: s.build, chapterOrder: order });
   const scen = s.speak ? pack.scenarios.find((x) => x.id === s.speak) : undefined;
   if (scen) out.push({ kind: "speak", scenario: scen });
   if (s.writing) out.push({ kind: "writing", prompt: scen?.goal ?? "Write a few lines using this chapter\u2019s words." });
@@ -886,7 +893,7 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "build" && (
           <div>
             <Tag>Build a sentence</Tag>
-            <SentenceBuilder progress={progress} persist={persist} onDone={() => done()} />
+            <SentenceBuilder progress={progress} persist={persist} onDone={() => done()} preferIds={step.ids} chapterOrderOverride={step.chapterOrder} />
           </div>
         )}
 
@@ -3197,17 +3204,33 @@ const SESSION_TIERS: Record<number, number[]> = { 1: [1, 1, 1, 1, 1, 1], 2: [1, 
 const builtKey = (item: SentenceItem, variant: SentenceVariant) =>
   (item.tier ?? 1) === 1 && item.verbLemma ? `${item.verbLemma}:${variant.person}` : `${item.id}:${variant.person ?? ""}`;
 
-function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone?: () => void }) {
+function SentenceBuilder({ progress, persist, onDone, preferIds, chapterOrderOverride }: {
+  progress: Progress;
+  persist: (p: Progress) => void;
+  onDone?: () => void;
+  /** New course: the blueprint's candidates for this session (today's point and words first, then at least
+   *  one from an earlier chapter). Used when any of them are buildable right now; else the usual scope. */
+  preferIds?: string[];
+  /** New course: the chapter the learner is on, from the blueprint rather than the old chapter map. */
+  chapterOrderOverride?: number;
+}) {
   const pack = usePack();
   const { current } = useChapterMap(progress);
-  const chapterOrder = current ? (pack.chapters ?? []).find((c) => c.id === current.id)?.order ?? 1 : (pack.chapters?.length ?? 1);
+  const chapterOrder = chapterOrderOverride ?? (current ? (pack.chapters ?? []).find((c) => c.id === current.id)?.order ?? 1 : (pack.chapters?.length ?? 1));
   const builtCount = (progress.builtConjugations ?? []).length;
   // Eligible sentences: introduced by the course already (verb included), built from words the learner has
   // met, and no longer than their rung allows.
-  const { items: scoped, usedFallback, source } = useMemo(
-    () => sentenceScope.withFallback(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] }),
-    [pack, chapterOrder, builtCount, progress.familiarity],
-  );
+  const { items: scoped, usedFallback, source } = useMemo(() => {
+    const r = sentenceScope.withFallback(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] });
+    if (!preferIds?.length) return r;
+    // Phrase cards are built on demand by id; sentence items come from the pack. Keep the blueprint's order.
+    const phrases = sentenceScope.phraseCards(pack, { chapterOrder, hasMet: (k) => !!progress.familiarity[k] }, 200);
+    const pool = new Map([...r.items, ...phrases, ...(pack.sentences ?? [])].map((it) => [it.id, it]));
+    const inScope = new Set([...r.items.map((it) => it.id), ...phrases.map((it) => it.id)]);
+    const preferred = preferIds.filter((id) => inScope.has(id)).map((id) => pool.get(id)!).filter(Boolean);
+    return preferred.length ? { ...r, items: preferred, usedFallback: false } : r;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pack, chapterOrder, builtCount, progress.familiarity, preferIds?.join()]);
   const top = sentenceScope.maxTier({ chapterOrder, builtCount });
   const [nonce, setNonce] = useState(0);
   // ONE sentence per card. Flatten each verb item into its six person-variants, then pick 6 cards along a
