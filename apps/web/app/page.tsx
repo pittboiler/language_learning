@@ -8,7 +8,7 @@
 // Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import type { Chapter, ConjugationSet, DialogueTurn, GlyphLesson, GrammarConcept, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, CourseSession, DialogueTurn, GlyphLesson, GrammarConcept, GrammarPoint, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -22,7 +22,8 @@ import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
 import { REVIEW_DAY_ITEMS, WARMUP_ITEMS, isReviewDay, localDay, markStorySeen, planNewWords, storyDone } from "../lib/daily";
-import { captureWord, properNounLike, buildLineGlosses, toggleStar } from "../lib/capture";
+import { captureWord, properNounLike, buildLineGlosses, toggleStar, starMany } from "../lib/capture";
+import * as cp from "../lib/course-player";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
@@ -316,9 +317,12 @@ type TodayStep =
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
-  | { kind: "story"; story: MiniStory; dayIndex: number; revisit?: boolean }
+  | { kind: "story"; story: MiniStory; dayIndex: number; revisit?: boolean; lens?: StoryLens }
+  | { kind: "point"; point: GrammarPoint; mode: "teach" | "practice"; dayIndex: number }
+  | { kind: "agenda"; agenda: cp.Agenda }
+  | { kind: "stage"; afterChapterId: string; items: ReviewItem[]; scenario?: Scenario }
   | { kind: "speak"; scenario: Scenario }
-  | { kind: "build" }
+  | { kind: "build"; ids?: string[]; chapterOrder?: number }
   | { kind: "writing"; prompt: string };
 
 // Rotate an array left by n (n=0 → unchanged). Used to vary which questions/drills lead each day.
@@ -335,12 +339,107 @@ const PRONOUNS: { key: keyof ConjugationSet["forms"]; en: string; mk: string }[]
 ];
 // The daily conjugation drill picks the first verb not yet drilled (marked seen on completion), so a new
 // verb comes up each day; once every verb has been seen it cycles.
-const pickConjVerb = (pack: LanguagePack, progress: Progress): ConjugationSet | undefined => {
-  const all = pack.conjugations ?? [];
+// Verbs never drilled as a six-person table: треба is taught as impersonal (треба да…, ми треба), and чини
+// only exists in the 3rd person — "требам" / "чинам" would contradict the lessons.
+const NOT_DRILLABLE = new Set(["треба", "чини"]);
+const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Set<string>): ConjugationSet | undefined => {
+  const all = (pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && (!groups || groups.has(v.group)));
   if (!all.length) return undefined;
   const seen = new Set(progress.seenConjugations ?? []);
   return all.find((v) => !seen.has(v.lemma)) ?? all[(progress.seenConjugations?.length ?? 0) % all.length];
 };
+
+// ---------- Today, new course: play the blueprint (lib/course-player.ts) ----------
+// The blueprint fixes the session's content; this only maps it onto Today's steps and fills the review
+// parts (warm-up with an earlier-chapter share, checkpoint and stage-review items) from the learner's state.
+function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[] {
+  const steps = courseBody(pack, progress);
+  const agenda = cp.sessionAgenda(pack, pack.course!, cp.position(pack.course!, progress.course));
+  return steps.length && agenda ? [{ kind: "agenda", agenda }, ...steps] : steps;
+}
+
+// The lens for a session's story: a banner naming what to spot, the highlighted lines, and today's
+// set-phrase notes (the blueprint surfaces a few per session) under the lines they belong to.
+function storyLens(course: NonNullable<LanguagePack["course"]>, s: CourseSession, story: MiniStory, points: Map<string, GrammarPoint>): StoryLens {
+  const names = (s.story?.lens ?? []).map((id) => points.get(id)?.title).filter(Boolean) as string[];
+  const n = s.story?.highlight.length ?? 0;
+  const what = names.length === 1 ? names[0]! : "this chapter's grammar";
+  const label = !n
+    ? `Read it through${names.length ? ` — today's grammar is ${what}` : ""}.`
+    : s.story?.reuse
+      ? `Back to an earlier story, with fresh eyes: the ${n} highlighted line${n > 1 ? "s use" : " uses"} ${what}.`
+      : `Spot it: the ${n} highlighted line${n > 1 ? "s use" : " uses"} ${what}.`;
+  const notes: Record<number, string> = {};
+  const prefix = `story:${story.id}#`;
+  for (const src of s.notes ?? []) {
+    const note = course.chunkNotes.find((x) => x.source === src)?.note;
+    if (src.startsWith(prefix) && note) notes[Number(src.slice(prefix.length))] = note;
+  }
+  return { label, highlight: s.story?.highlight ?? [], notes };
+}
+
+function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
+  const course = pack.course!;
+  const pos = cp.position(course, progress.course);
+  const out: TodayStep[] = [];
+  const now = new Date();
+  const pool = [...reviewPool(pack), ...cp.allPointItems(course)];
+  const chapterOf = cp.chapterOfKey(course);
+  const points = cp.pointsById(course);
+  const vocabByKey = new Map(pack.vocab.map((v) => [familiarity.deriveKeyForItem(v).lexKey, v]));
+  if (pos.kind === "finished") return out;
+  if (pos.kind === "stage-review") {
+    const c = cp.stageReviewContent(pack, course, pos.afterChapterId, progress);
+    out.push({ kind: "stage", afterChapterId: pos.afterChapterId, items: shuffle(c.items), scenario: pack.scenarios.find((s) => s.id === c.scenarioId) });
+    return out;
+  }
+  const { chapter: cc, session: s } = pos;
+  const order = course.chapters.indexOf(cc) + 1;
+  const chapter = (pack.chapters ?? []).find((c) => c.id === cc.chapterId)!;
+  const studied = (lexKey: string) => { const e = progress.familiarity[lexKey]; return !!e && familiarity.isStudied(e); };
+
+  if (s.role === "checkpoint") {
+    const words = cc.words.filter((w) => studied(w.lexKey)).map((w) => vocabByKey.get(w.lexKey)).filter((v): v is ReviewItem => !!v);
+    // A retry is preceded by a targeted review of the chapter's weakest words.
+    if (pos.retry) {
+      const weakest = [...words].sort((a, b) => (progress.familiarity[familiarity.deriveKeyForItem(a).lexKey]?.strength ?? 0) - (progress.familiarity[familiarity.deriveKeyForItem(b).lexKey]?.strength ?? 0)).slice(0, 8);
+      if (weakest.length) out.push({ kind: "warmup", items: weakest });
+    }
+    const cards = cc.pointIds.map((id) => points.get(id)).filter((p): p is GrammarPoint => !!p).flatMap((p) => cp.blankCardItems(p).slice(0, 1));
+    const items = [...shuffle(words).slice(0, 8), ...cards];
+    if (items.length) out.push({ kind: "checkpoint", chapter, items, scenario: pack.scenarios.find((x) => x.id === cc.checkpoint.scenarioId) });
+    return out;
+  }
+
+  const review = s.role === "review";
+  const warm = cp.pickWarmup({ pool, progress, now, currentOrder: order, chapterOf, size: review ? cp.REVIEW_ITEMS : cp.WARMUP_ITEMS, share: review ? cp.EARLIER_SHARE.review : cp.EARLIER_SHARE.normal });
+  // The conjugation drill only drills verb groups whose point has been TAUGHT (in an earlier session):
+  // -а verbs from chapter 4, -е/-и verbs from chapter 5, сум once its point is done.
+  const groups = new Set<string>();
+  if (progress.seenGrammar?.["pt-verbs-a"]) groups.add("a");
+  if (progress.seenGrammar?.["pt-verbs-e-i"]) { groups.add("e"); groups.add("i"); }
+  if (progress.seenGrammar?.["pt-sum"] && groups.size) groups.add("irregular");
+  const conjVerb = groups.size ? pickConjVerb(pack, progress, groups) : undefined;
+  if (warm.length || conjVerb) out.push({ kind: "warmup", items: warm, conjVerb });
+
+  const words = s.words.filter((w) => cp.needsTeaching(progress, w.lexKey)).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }));
+  if (words.length) out.push({ kind: "newwords", words });
+
+  const pointId = s.pointId ?? (s.role === "practice" ? cc.pointIds.filter((id) => cc.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1) : undefined);
+  const point = pointId ? points.get(pointId) : undefined;
+  if (point) out.push({ kind: "point", point, mode: s.role === "teach" ? "teach" : "practice", dayIndex: s.n });
+
+  if (s.story) {
+    const story = (pack.stories ?? []).find((x) => x.id === s.story!.id);
+    if (story) out.push({ kind: "story", story, dayIndex: progress.storyReads?.[story.id]?.length ?? 0, revisit: !!s.story.reuse, lens: storyLens(course, s, story, points) });
+  }
+  const canBuild = s.build.length > 0 && sentenceScope.withFallback(pack, { chapterOrder: order, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).items.length > 0;
+  if (canBuild) out.push({ kind: "build", ids: s.build, chapterOrder: order });
+  const scen = s.speak ? pack.scenarios.find((x) => x.id === s.speak) : undefined;
+  if (scen) out.push({ kind: "speak", scenario: scen });
+  if (s.writing) out.push({ kind: "writing", prompt: scen?.goal ?? "Write a few lines using this chapter\u2019s words." });
+  return out;
+}
 
 function Today({ progress, persist, config, navigate }: {
   progress: Progress;
@@ -351,7 +450,11 @@ function Today({ progress, persist, config, navigate }: {
   const pack = usePack();
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   // The plan is built once per mount (and when letters finish) so steps don't shift under the user mid-session.
+  // planVersion bumps when the learner starts the next course session straight away (new course only).
+  const [planVersion, setPlanVersion] = useState(0);
+  const v2 = cp.courseV2On(pack, progress);
   const steps = useMemo<TodayStep[]>(() => {
+    if (cp.courseV2On(pack, progress)) return courseSteps(pack, progress);
     const out: TodayStep[] = [];
     const now = new Date();
     // Due studied items, deduped by lexKey — the pool can hold two items for one word (e.g. an authored
@@ -486,9 +589,9 @@ function Today({ progress, persist, config, navigate }: {
 
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pack]);
+  }, [pack, planVersion, v2]);
 
-  const reviewDay = isReviewDay(progress.sessions ?? 0);
+  const reviewDay = !v2 && isReviewDay(progress.sessions ?? 0);
   const [phase, setPhase] = useState<"gate" | "flow">(lettersDone ? "flow" : "gate");
   const [idx, setIdx] = useState(0);
   // Once today's session is finished we record the local day (below). On a later reload/reopen that flag
@@ -498,6 +601,13 @@ function Today({ progress, persist, config, navigate }: {
   const [practiceMore, setPracticeMore] = useState(false);
   // Items missed this session (auto-collected) → offered as an optional recap once the flow is done.
   const [missed, setMissed] = useState<ReviewItem[]>([]);
+  // When this session's plan started — the recap lists words captured since then.
+  const startedAt = useMemo(() => new Date(), [planVersion]);
+  // The position the session was planned from (the course advances as soon as it ends, so the recap must
+  // describe the session just finished, not the next one).
+  const playedPos = useMemo(() => (v2 ? cp.position(pack.course!, progress.course) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [planVersion, v2]);
   const [recap, setRecap] = useState<"offer" | "review" | "done">("offer");
   const flag = useCallback((item: ReviewItem) => setMissed((m) => (m.some((x) => x.id === item.id) ? m : [...m, item])), []);
   // Missed new words / spoken lines aren't pack ReviewItems — turn them into recall cards (reusing the
@@ -512,12 +622,28 @@ function Today({ progress, persist, config, navigate }: {
   useEffect(() => { if (lettersDone) setPhase("flow"); }, [lettersDone]);
   // Reaching the end of the plan = today's session is done. Stamp the local day (once) so a reload opens
   // on the "done for today" screen. Guarded by the date check so this persists at most once per day.
+  // A checkpoint passed during THIS session (the course only moves past a checkpoint on a pass).
+  const checkpointPassed = useRef(false);
+  const advancedFor = useRef(-1);
   useEffect(() => {
-    if (steps.length > 0 && idx >= steps.length && progress.lastSessionDay !== localDay()) {
+    if (steps.length === 0 || idx < steps.length) return;
+    if (v2) {
+      // New course: every finished session advances the blueprint exactly once (the learner may start the
+      // next one straight away, so this can't key on the calendar day).
+      if (advancedFor.current === planVersion) return;
+      advancedFor.current = planVersion;
+      const course = cp.advance(pack.course!, progress.course, { checkpointPassed: checkpointPassed.current });
+      persist({ ...progress, lastSessionDay: localDay(), sessions: (progress.sessions ?? 0) + 1, course });
+      return;
+    }
+    if (progress.lastSessionDay !== localDay()) {
       persist({ ...progress, lastSessionDay: localDay(), sessions: (progress.sessions ?? 0) + 1 });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, steps.length]);
+  }, [idx, steps.length, planVersion]);
+  // Flipping the course switch mid-session starts today's session over on the other planner.
+  const firstV2 = useRef(v2);
+  useEffect(() => { if (firstV2.current !== v2) { firstV2.current = v2; setIdx(0); } }, [v2]);
   const est = Math.max(5, steps.length * 3);
   // Advance to the next step, persisting a single merged Progress and counting the day toward the streak.
   const done = (mutated: Progress = progress) => {
@@ -543,7 +669,9 @@ function Today({ progress, persist, config, navigate }: {
         <h3 style={{ marginTop: 4 }}>Done for today 🎉</h3>
         <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
         <div className="row" style={{ marginTop: 4 }}>
-          <button className="btn" onClick={() => { setIdx(0); setPracticeMore(true); }}>Practice more anyway →</button>
+          {v2
+            ? <button className="btn" onClick={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setIdx(0); setPracticeMore(true); }}>Start the next session now →</button>
+            : <button className="btn" onClick={() => { setIdx(0); setPracticeMore(true); }}>Practice more anyway →</button>}
           <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
           <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
         </div>
@@ -555,6 +683,31 @@ function Today({ progress, persist, config, navigate }: {
         <TodayHeader progress={progress} />
         <p className="lead">You&apos;re all caught up for today. 🎉 Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
+      </section>
+    );
+  if (idx >= steps.length && v2 && playedPos && recap !== "review")
+    return (
+      <section className="view">
+        <TodayHeader progress={progress} />
+        <CourseRecap
+          pos={playedPos}
+          since={startedAt}
+          progress={progress}
+          persist={persist}
+          missed={missed}
+          onReviewMissed={() => setRecap("review")}
+          onNext={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}
+          navigate={navigate}
+        />
+      </section>
+    );
+  if (idx >= steps.length && v2 && recap === "review" && missed.length)
+    return (
+      <section className="view">
+        <TodayHeader progress={progress} />
+        <h3 style={{ marginTop: 4 }}>One more pass</h3>
+        <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
+        <SessionRecap items={missed} onDone={() => { setMissed([]); setRecap("done"); }} />
       </section>
     );
   if (idx >= steps.length) {
@@ -592,6 +745,7 @@ function Today({ progress, persist, config, navigate }: {
         <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
         <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
         <div className="row" style={{ marginTop: 4 }}>
+          {v2 && <button className="btn" onClick={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}>Start the next session now →</button>}
           <button className="ghost small" onClick={() => navigate("progress")}>See your progress</button>
           <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards in the Library</button>
         </div>
@@ -636,8 +790,53 @@ function Today({ progress, persist, config, navigate }: {
             persist={persist}
             config={config}
             onMiss={flag}
+            onDone={(p) => { if (p.chapters?.[step.chapter.id]?.passedAt && p.chapters[step.chapter.id]!.passedAt !== progress.chapters?.[step.chapter.id]?.passedAt) checkpointPassed.current = true; done(p); }}
+          />
+        )}
+
+        {step.kind === "agenda" && (
+          <AgendaCard
+            agenda={step.agenda}
+            pointId={steps.find((x): x is Extract<TodayStep, { kind: "point" }> => x.kind === "point")?.point.id}
+            onOpenPoint={(id) => { pendingPointFocus = id; navigate("library", "grammar"); }}
+            onStart={() => done()}
+          />
+        )}
+
+        {step.kind === "stage" && (
+          <StageReview
+            key={idx}
+            afterChapterId={step.afterChapterId}
+            items={step.items}
+            scenario={step.scenario}
+            progress={progress}
+            persist={persist}
+            config={config}
+            onMiss={flag}
             onDone={(p) => done(p)}
           />
+        )}
+
+        {step.kind === "point" && (
+          <div>
+            <PointLesson
+              point={step.point}
+              mode={step.mode}
+              dayIndex={step.dayIndex}
+              onMiss={flag}
+              onDone={(results) => {
+                let p = progress;
+                for (const r of results) p = gradeItem(p, r.item, r.ok);
+                if (step.mode === "teach") {
+                  // The rule cards enter review now: you've just read the rule they ask about.
+                  for (const rc of cp.ruleCardItems(step.point)) p = gradeItem(p, rc, true);
+                  p = markSeen(p, step.point.id);
+                  for (const g of step.point.grammarIds) p = markSeen(p, g);
+                }
+                done(p);
+              }}
+            />
+          </div>
         )}
 
         {step.kind === "newwords" && (
@@ -679,6 +878,7 @@ function Today({ progress, persist, config, navigate }: {
             <Tag>{step.revisit ? "Read it again" : "Read the story"}</Tag>
             <TodayStoryStep
               story={step.story}
+              lens={step.lens}
               dayIndex={step.dayIndex}
               progress={progress}
               persist={persist}
@@ -693,7 +893,7 @@ function Today({ progress, persist, config, navigate }: {
         {step.kind === "build" && (
           <div>
             <Tag>Build a sentence</Tag>
-            <SentenceBuilder progress={progress} persist={persist} onDone={() => done()} />
+            <SentenceBuilder progress={progress} persist={persist} onDone={() => done()} preferIds={step.ids} chapterOrderOverride={step.chapterOrder} />
           </div>
         )}
 
@@ -954,6 +1154,270 @@ function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss 
   );
 }
 
+// A grammar point from the course blueprint (DESIGN-course-spine.md §3). TEACH: the short rule, the
+// concept's pattern table when it has one, the point's example lines (existing, so they play cached audio)
+// and up to three quick checks from its blank cards. PRACTICE: a one-line reminder, the matching game when
+// the concept tabulates, then the blank cards rotated by session. Checks are graded into SRS by the caller.
+function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
+  point: GrammarPoint;
+  mode: "teach" | "practice";
+  dayIndex: number;
+  onDone: (results: WarmResult[]) => void;
+  onMiss: (item: ReviewItem) => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const conceptId = pack.course ? cp.patternConceptFor(pack.course, point) : undefined;
+  const concept = pack.grammar.find((g) => g.id === conceptId && !!g.pattern);
+  const cards = useMemo(() => rotate(cp.blankCardItems(point), dayIndex).slice(0, mode === "teach" ? 3 : 2), [point, dayIndex, mode]);
+  const [answers, setAnswers] = useState<Record<string, boolean>>({});
+  const [showMore, setShowMore] = useState(false);
+  const [matched, setMatched] = useState(!(mode === "practice" && concept && isMatchable(concept)));
+  const allAnswered = cards.every((c) => c.id in answers);
+  const pattern = concept?.pattern ? (
+    <table className="gram-table">
+      <thead><tr>{concept.pattern.headers.map((h, i) => <th key={i}>{h}</th>)}</tr></thead>
+      <tbody>
+        {concept.pattern.rows.map((row, ri) => (
+          <tr key={ri}>{row.map((cell, ci) => <td key={ci}>{ci === concept.pattern!.spotlightCol ? <span className="gram-spot">{cell}</span> : cell}</td>)}</tr>
+        ))}
+      </tbody>
+    </table>
+  ) : null;
+  const examples = (
+    <div className="gram-ex-list">
+      {point.examples.map((ex) => (
+        <div className="gram-ex" key={ex.source}>
+          <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
+          <span className="mk">{ex.text}</span>
+          <span className="en">{ex.gloss}</span>
+        </div>
+      ))}
+    </div>
+  );
+  return (
+    <div className="fb">
+      <div className="gram-kicker">{mode === "teach" ? "New grammar" : "Grammar practice"}{point.depth === "recognize" ? " · just recognize it for now" : ""}</div>
+      <div className="gram-title">{point.title}</div>
+      {mode === "teach" ? (
+        <>
+          <div className="gram-plain"><span className="lab">The rule</span><p>{point.rule}</p></div>
+          {pattern}
+          {examples}
+        </>
+      ) : (
+        <>
+          <p className="muted small" style={{ margin: "4px 0 0" }}>{point.rule}</p>
+          <button className="ghost small" style={{ marginTop: 10 }} onClick={() => setShowMore((v) => !v)}>{showMore ? "Hide examples" : "Show examples"}</button>
+          {showMore && <div style={{ marginTop: 8 }}>{pattern}{examples}</div>}
+          {!matched && concept && <GrammarMatch concept={concept} onDone={() => setMatched(true)} />}
+        </>
+      )}
+      {matched && cards.length > 0 && (
+        <div className="gram-checks">
+          <div className="muted small" style={{ marginBottom: 6 }}>{cards.length > 1 ? "Quick checks" : "Quick check"}</div>
+          {cards.map((c) => <Drill key={c.id} drill={c} onGrade={(ok) => { setAnswers((a) => ({ ...a, [c.id]: ok })); if (!ok) onMiss(c); }} />)}
+        </div>
+      )}
+      {matched && allAnswered && (
+        <button className="btn" style={{ marginTop: 14 }} onClick={() => onDone(cards.map((c) => ({ item: c, ok: !!answers[c.id] })))}>Continue →</button>
+      )}
+    </div>
+  );
+}
+
+// The agenda that opens a session (DESIGN §5): a few seconds to see what today is for. Deliberately brief —
+// the detail lives in the recap and the Library.
+function AgendaCard({ agenda, onStart, pointId, onOpenPoint }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void }) {
+  return (
+    <div className="fb">
+      <div className="gram-kicker">Today's plan</div>
+      <div className="gram-title" style={{ fontSize: 17 }}>{agenda.title}</div>
+      <ol style={{ margin: "10px 0 4px", paddingLeft: 20 }}>
+        {agenda.items.map((it, i) => (
+          <li key={i} style={{ margin: "4px 0" }}>
+            {it}
+            {i === 0 && pointId && onOpenPoint && <> <button className="linklike small" onClick={() => onOpenPoint(pointId)}>more in the Library</button></>}
+          </li>
+        ))}
+      </ol>
+      <button className="btn" style={{ marginTop: 10 }} onClick={onStart}>Let&apos;s go →</button>
+    </div>
+  );
+}
+
+// The end-of-session recap (DESIGN §5): what you learned (the point's recap, quoted from today's own lines),
+// every word from today and today's grammar cards — each savable to the ★ deck — what you slipped on, and
+// what's next. More detail than the agenda, still not a textbook: the Library holds the rest.
+function CourseRecap({ pos, since, progress, persist, missed, onReviewMissed, onNext, navigate }: {
+  pos: cp.CoursePosition;
+  since: Date;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  missed: ReviewItem[];
+  onReviewMissed: () => void;
+  onNext: () => void;
+  navigate: (sec: Section, lv?: LibView) => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const rc = useMemo(() => cp.sessionRecap(pack, pack.course!, pos, progress, since),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pos, since]);
+  const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
+  const cardKey = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
+  const allWordsSaved = rc.words.length > 0 && rc.words.every((w) => starred(w.lexKey));
+  const allCardsSaved = rc.cards.length > 0 && rc.cards.every((c) => starred(cardKey(c)));
+  return (
+    <div>
+      <h3 style={{ marginTop: 4 }}>Today&apos;s recap</h3>
+      {pos.kind === "stage-review" && <p className="lead">Stage review done — everything you missed is back in your reviews.</p>}
+
+      {rc.points.map(({ point, fresh, lines }) => (
+        <div className="fb" key={point.id} style={{ marginBottom: 12 }}>
+          <div className="gram-kicker">{fresh ? "What you learned" : "What you practised"}</div>
+          <div className="gram-title">{point.title}</div>
+          <p style={{ margin: "6px 0" }}>{point.recap}</p>
+          {lines.length > 0 && (
+            <>
+              <div className="muted small" style={{ marginTop: 8 }}>From today&apos;s story</div>
+              <div className="gram-ex-list">
+                {lines.map((l) => (
+                  <div className="gram-ex" key={l.source}>
+                    <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
+                    <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+          {fresh && point.callbacks.length > 0 && (
+            <>
+              <div className="muted small" style={{ marginTop: 8 }}>You&apos;ve already been saying</div>
+              <div className="gram-ex-list">
+                {point.callbacks.map((l) => (
+                  <div className="gram-ex" key={l.source}>
+                    <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
+                    <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      ))}
+
+      {rc.words.length > 0 && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <div className="gram-kicker">Words from today · {rc.words.length}</div>
+            <button className="ghost small" disabled={allWordsSaved} onClick={() => persist(starMany(progress, rc.words))}>{allWordsSaved ? "★ All saved" : "★ Save all"}</button>
+          </div>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
+            {rc.words.map((w) => (
+              <li key={w.lexKey} className="row" style={{ gap: 8, margin: "4px 0" }}>
+                <button className={`ghost small${starred(w.lexKey) ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, w.lexKey, { gloss: w.gloss })}>{starred(w.lexKey) ? "★" : "☆"}</button>
+                <button className="gram-play" onClick={() => play(w.display)} aria-label={`Play ${w.display}`}>▶</button>
+                <b className="target">{w.display}</b>{w.gloss && <span className="muted small">— {w.gloss}</span>}
+              </li>
+            ))}
+          </ul>
+          <p className="muted small" style={{ margin: "8px 0 0" }}>They&apos;re already in your reviews; ★ also puts them in your own deck in Flashcards.</p>
+        </div>
+      )}
+
+      {rc.cards.length > 0 && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="row" style={{ justifyContent: "space-between" }}>
+            <div className="gram-kicker">Grammar cards from today · {rc.cards.length}</div>
+            <button className="ghost small" disabled={allCardsSaved} onClick={() => persist(starMany(progress, rc.cards.map((c) => ({ lexKey: cardKey(c), display: c.prompt, gloss: c.gloss }))))}>{allCardsSaved ? "★ All saved" : "★ Save all"}</button>
+          </div>
+          <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
+            {rc.cards.map((c) => (
+              <li key={c.id} className="row" style={{ gap: 8, margin: "4px 0" }}>
+                <button className={`ghost small${starred(cardKey(c)) ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => persist(starred(cardKey(c)) ? { ...progress, familiarity: { ...progress.familiarity, [cardKey(c)]: familiarity.unstar(progress.familiarity[cardKey(c)]!) } } : starMany(progress, [{ lexKey: cardKey(c), display: c.prompt, gloss: c.gloss }]))}>{starred(cardKey(c)) ? "★" : "☆"}</button>
+                <span>{c.prompt} → <b className="target">{c.answer}</b></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {missed.length > 0 && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="gram-kicker">You slipped on {missed.length}</div>
+          <ul style={{ margin: "6px 0 4px", paddingLeft: 18 }}>
+            {missed.map((m) => <li key={m.id}><b className="target">{m.answer}</b> <span className="muted small">— {m.gloss}</span></li>)}
+          </ul>
+          <button className="btn" onClick={onReviewMissed}>Review {missed.length} missed →</button>
+        </div>
+      )}
+
+      {rc.next && <p className="lead" style={{ margin: "8px 0" }}>{rc.next}</p>}
+      <div className="row" style={{ marginTop: 4 }}>
+        <button className="btn" onClick={onNext}>Start the next session now →</button>
+        <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
+        <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
+      </div>
+    </div>
+  );
+}
+
+// A stage review (DESIGN §4a item 6): a sample of every chapter in the stage, one card per grammar point,
+// then one of the stage's conversations. It's consolidation, not a gate: it always completes, and what you
+// miss goes back into review through the normal grading.
+function StageReview({ afterChapterId, items, scenario, progress, persist, config, onMiss, onDone }: {
+  afterChapterId: string;
+  items: ReviewItem[];
+  scenario?: Scenario;
+  progress: Progress;
+  persist: (p: Progress) => void;
+  config: api.Config | null;
+  onMiss: (item: ReviewItem) => void;
+  onDone: (p: Progress) => void;
+}) {
+  const pack = usePack();
+  const [phase, setPhase] = useState<"drill" | "speak" | "result">(items.length ? "drill" : scenario ? "speak" : "result");
+  const [graded, setGraded] = useState<Progress>(progress);
+  const [score, setScore] = useState({ got: 0, total: 0 });
+  const review = pack.course?.stageReviews.find((r) => r.afterChapterId === afterChapterId);
+  const titles = (review?.chapterIds ?? []).map((id) => pack.chapters?.find((c) => c.id === id)?.shortTitle).filter(Boolean).join(" · ");
+  if (phase === "drill")
+    return (
+      <div>
+        <Tag>Stage review</Tag>
+        <p className="lead" style={{ marginTop: 0 }}>A look back over everything in this stage: <b>{titles}</b>.</p>
+        <WarmupSession items={items} progress={progress} persist={persist} onMiss={onMiss} onComplete={(rs) => {
+          let p = progress;
+          for (const r of rs) p = gradeItem(p, r.item, r.ok);
+          setGraded(p);
+          setScore({ got: rs.filter((r) => r.ok).length, total: rs.length });
+          setPhase(scenario ? "speak" : "result");
+        }} />
+      </div>
+    );
+  if (phase === "speak" && scenario)
+    return (
+      <div>
+        <Tag>Stage review · use it</Tag>
+        <p className="lead" style={{ marginTop: 0 }}>Now a conversation from this stage: <b>{scenario.title}</b>.</p>
+        <ScenarioView progress={graded} persist={persist} config={config} lettersDone scenarioId={scenario.id} hidePicker bare askable restartIfDone onComplete={() => setPhase("result")} />
+        <div className="row" style={{ marginTop: 12 }}>
+          <button className="ghost small" onClick={() => setPhase("result")}>Not now →</button>
+        </div>
+      </div>
+    );
+  return (
+    <div className="fb">
+      <Tag>Stage review</Tag>
+      <p className="lead" style={{ margin: 0 }}>Stage done{score.total ? ` · ${score.got}/${score.total} recalled` : ""}. Anything you missed comes back in your reviews.</p>
+      <div className="row" style={{ marginTop: 10 }}>
+        <button className="btn" onClick={() => onDone(graded)}>Carry on →</button>
+      </div>
+    </div>
+  );
+}
+
 function Tag({ children }: { children: ReactNode }) {
   return <div className="muted small" style={{ marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>{children}</div>;
 }
@@ -964,6 +1428,23 @@ function Tag({ children }: { children: ReactNode }) {
 function TodayHeader({ progress }: { progress: Progress }) {
   const pack = usePack();
   const streak = progress.streak?.count ?? 0;
+  if (cp.courseV2On(pack, progress)) {
+    const pos = cp.position(pack.course!, progress.course);
+    const ch = pos.kind === "session" ? (pack.chapters ?? []).find((c) => c.id === pos.chapter.chapterId) : undefined;
+    return (
+      <div className="today-head">
+        <div>
+          <h2 style={{ marginBottom: 2 }}>Today</h2>
+          <span className="muted small">
+            {pos.kind === "session" && ch
+              ? <>Chapter {ch.order} · <b>{ch.shortTitle}</b> · session {pos.session.n} of {pos.chapter.sessions.length}{pos.session.role === "review" ? " · review day" : pos.session.role === "checkpoint" ? " · checkpoint" : ""}</>
+              : pos.kind === "stage-review" ? <>Stage review · everything so far</> : "Course complete"}
+          </span>
+        </div>
+        <span className="streak-chip" title="Day streak">🔥 {streak} day{streak === 1 ? "" : "s"}</span>
+      </div>
+    );
+  }
   const story = currentStory(pack, progress);
   const chapter = story ? chapterSpine.chapterOf(pack, story.id) : undefined;
   const dayIndex = story ? (progress.storyReads?.[story.id]?.length ?? 0) : 0;
@@ -1346,7 +1827,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
       mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
       mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
-      mode === "grammar" ? <Grammar progress={progress} persist={persist} /> :
+      mode === "grammar" ? (cp.courseV2On(pack, progress) ? <PointLibrary progress={progress} persist={persist} /> : <Grammar progress={progress} persist={persist} />) :
       mode === "build" ? <SentenceBuilder progress={progress} persist={persist} /> :
       <Writing config={config} />;
     return (
@@ -1980,6 +2461,98 @@ function Completion({ scenarioId, config, onComplete }: { scenarioId: string; co
 }
 
 // ---------- Library view 3: grammar (full reference) ----------
+// Set by Today's agenda link so the Library opens straight onto that grammar point.
+let pendingPointFocus: string | null = null;
+
+// The Library's grammar, new course (DESIGN §7): one page per point, grouped by chapter. Points you've been
+// taught are marked; upcoming ones are greyed but readable. Each page holds the full rule, the "why is it
+// like this" notes, common mistakes, the examples (plus every line from stories you've read that uses it),
+// the set phrases it explains, and its flashcards to save or try.
+function PointLibrary({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+  const pack = usePack();
+  const play = usePlay();
+  const course = pack.course!;
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState<string | null>(() => { const f = pendingPointFocus; pendingPointFocus = null; return f; });
+  useEffect(() => { if (open) document.getElementById(`pt-${open}`)?.scrollIntoView({ block: "start" }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const needle = q.trim().toLowerCase();
+  const matches = (p: GrammarPoint) => !needle || `${p.title} ${p.rule} ${p.library.rule} ${p.library.why.join(" ")}`.toLowerCase().includes(needle);
+  const readStories = new Set(Object.entries(progress.storyReads ?? {}).filter(([, d]) => d.length).map(([id]) => id));
+  const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
+  const LineRow = ({ l }: { l: { text: string; gloss: string; source: string } }) => (
+    <div className="gram-ex">
+      <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
+      <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+    </div>
+  );
+  return (
+    <section className="view">
+      <h2>Grammar</h2>
+      <p className="lead">Every grammar point in the course, chapter by chapter. Your daily sessions teach them in order; this is where to read more or look something up.</p>
+      <input className="text" placeholder="Search grammar…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "100%", marginBottom: 14 }} />
+      {course.chapters.map((cc, ci) => {
+        const ch = pack.chapters?.find((c) => c.id === cc.chapterId);
+        const pts = cc.pointIds.map((id) => course.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p && matches(p));
+        if (!pts.length) return null;
+        return (
+          <div key={cc.chapterId} style={{ marginBottom: 14 }}>
+            <div className="muted small" style={{ textTransform: "uppercase", letterSpacing: 0.5, margin: "6px 0" }}>Chapter {ch?.order ?? ci + 1} · {ch?.shortTitle}</div>
+            {pts.map((p) => {
+              const learned = !!progress.seenGrammar?.[p.id];
+              const isOpen = open === p.id;
+              const fromReading = (pack.stories ?? []).filter((st) => readStories.has(st.id)).flatMap((st) =>
+                st.body.flatMap((b, i) => (course.lineTags[`story:${st.id}#${i}`] ?? []).includes(p.id) ? [{ text: b.text, gloss: b.gloss, source: `story:${st.id}#${i}` }] : []))
+                .filter((l) => !p.examples.some((e) => e.text === l.text)).slice(0, 8);
+              const cards = cp.pointItems(p);
+              return (
+                <div className="concept" key={p.id} id={`pt-${p.id}`} style={learned ? undefined : { opacity: 0.7 }}>
+                  <button className="concept-head" onClick={() => setOpen(isOpen ? null : p.id)}>
+                    <span>{learned ? "✓ " : ""}{p.title}{p.depth === "recognize" ? <span className="muted small"> · recognize</span> : null}</span>
+                    <span className="muted">{learned ? "" : "upcoming "}{isOpen ? "−" : "+"}</span>
+                  </button>
+                  {isOpen && (
+                    <div style={{ marginTop: 10 }}>
+                      <p style={{ marginTop: 0 }}>{p.library.rule}</p>
+                      <div className="gram-kicker" style={{ marginTop: 10 }}>Why it&apos;s like this</div>
+                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.why.map((w, i) => <li key={i} style={{ margin: "4px 0" }}>{w}</li>)}</ul>
+                      <div className="gram-kicker" style={{ marginTop: 10 }}>Common mistakes</div>
+                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.mistakes.map((w, i) => <li key={i} style={{ margin: "4px 0" }}>{w}</li>)}</ul>
+                      <div className="gram-kicker" style={{ marginTop: 10 }}>Examples</div>
+                      <div className="gram-ex-list">{p.examples.map((l) => <LineRow key={l.source} l={l} />)}</div>
+                      {fromReading.length > 0 && (
+                        <>
+                          <div className="gram-kicker" style={{ marginTop: 10 }}>In stories you&apos;ve read</div>
+                          <div className="gram-ex-list">{fromReading.map((l) => <LineRow key={l.source} l={l} />)}</div>
+                        </>
+                      )}
+                      {p.callbacks.length > 0 && (
+                        <>
+                          <div className="gram-kicker" style={{ marginTop: 10 }}>Set phrases it explains</div>
+                          <div className="gram-ex-list">{p.callbacks.map((l) => <LineRow key={l.source} l={l} />)}</div>
+                        </>
+                      )}
+                      <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
+                        <div className="gram-kicker">Flashcards · {cards.length}</div>
+                        <button className="ghost small" onClick={() => persist(starMany(progress, cards.map((c) => ({ lexKey: familiarity.deriveKeyForItem(c).lexKey, display: c.prompt, gloss: c.gloss }))))}>
+                          {cards.every((c) => starred(familiarity.deriveKeyForItem(c).lexKey)) ? "★ All saved" : "★ Save all"}
+                        </button>
+                      </div>
+                      <div className="gram-checks">
+                        {cards.filter((c) => !c.meta?.ruleCard).map((c) => <Drill key={c.id} drill={c} onGrade={(ok) => persist(gradeItem(progress, c, ok))} />)}
+                        {cards.filter((c) => c.meta?.ruleCard).map((c) => <div key={c.id} className="small" style={{ margin: "6px 0" }}><b>{c.prompt}</b> <span className="muted">— {c.answer}</span></div>)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
 function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
   const [q, setQ] = useState("");
@@ -2027,6 +2600,8 @@ function Drill({ drill, onGrade }: { drill: ReviewItem; onGrade: (ok: boolean) =
   return (
     <div>
       <div className="small" style={{ margin: "8px 0 4px" }}><b>{drill.prompt}</b></div>
+      {/* A blank card's English disambiguates it ("Морам да ___" has one answer once you see "I have to go"). */}
+      {drill.meta?.point ? <div className="muted small" style={{ marginBottom: 4 }}>{drill.gloss}</div> : null}
       <div>
         {(drill.options ?? []).map((o) => {
           const cls = picked ? (o === drill.answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
@@ -2212,7 +2787,11 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
 }
 
 // ---------- shared story reader (synced audio + tap-capture) — used by Today and the Library Story view ----------
-function StoryReader({ story, progress, persist, config, onDone, doneLabel, askable }: {
+/** A story lens (new course, DESIGN §8): which lines use today's point(s), and set-phrase notes to show. */
+interface StoryLens { label: string; highlight: number[]; notes: Record<number, string> }
+
+function StoryReader({ story, progress, persist, config, onDone, doneLabel, askable, lens }: {
+  lens?: StoryLens;
   story: MiniStory;
   progress: Progress;
   persist: (p: Progress) => void;
@@ -2282,14 +2861,16 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
     <>
       <p className="lead">Listen and read along; tap any word to look it up. Read each line, then tap the greyed English on the right to check yourself.</p>
       <HighlightLegend />
-      <ScenarioGrammar ids={storyGrammarIds(pack, story)} label="Grammar in this story:" />
+      {lens
+        ? <div className="lens-banner">{lens.label}</div>
+        : <ScenarioGrammar ids={storyGrammarIds(pack, story)} label="Grammar in this story:" />}
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
         <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
       </div>
       <div className="reader">
         {story.body.map((l, i) => (
-          <div className={`rline2 rline-glossed ${current === i ? "playing" : ""}`} key={i}>
+          <div className={`rline2 rline-glossed ${current === i ? "playing" : ""} ${lens?.highlight.includes(i) ? "rline-lens" : ""}`} key={i}>
             <div className="rline-mk">
               <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
               <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text, l.gloss)} />
@@ -2304,6 +2885,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
                 {l.gloss}
               </button>
             )}
+            {lens?.notes[i] && <div className="rline-note">💬 Set phrase for now: {lens.notes[i]}</div>}
           </div>
         ))}
       </div>
@@ -2395,7 +2977,8 @@ function StoryQAView({ story, config, onRestart, onDone, dayIndex = 0 }: { story
 // Today's story step: read → Q&A → speak. Mirrors the Library's StoryView phasing, but uses the
 // session's chosen story and advances the daily flow on completion — the Q&A is the input→output
 // bridge (recall the story's words, last question spoken) before the full speak scenario.
-function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0 }: {
+function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0, lens }: {
+  lens?: StoryLens;
   story: MiniStory;
   progress: Progress;
   persist: (p: Progress) => void;
@@ -2410,6 +2993,7 @@ function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0
   return phase === "read" ? (
     <StoryReader
       story={story}
+      lens={lens}
       progress={progress}
       persist={persist}
       config={config}
@@ -2620,17 +3204,33 @@ const SESSION_TIERS: Record<number, number[]> = { 1: [1, 1, 1, 1, 1, 1], 2: [1, 
 const builtKey = (item: SentenceItem, variant: SentenceVariant) =>
   (item.tier ?? 1) === 1 && item.verbLemma ? `${item.verbLemma}:${variant.person}` : `${item.id}:${variant.person ?? ""}`;
 
-function SentenceBuilder({ progress, persist, onDone }: { progress: Progress; persist: (p: Progress) => void; onDone?: () => void }) {
+function SentenceBuilder({ progress, persist, onDone, preferIds, chapterOrderOverride }: {
+  progress: Progress;
+  persist: (p: Progress) => void;
+  onDone?: () => void;
+  /** New course: the blueprint's candidates for this session (today's point and words first, then at least
+   *  one from an earlier chapter). Used when any of them are buildable right now; else the usual scope. */
+  preferIds?: string[];
+  /** New course: the chapter the learner is on, from the blueprint rather than the old chapter map. */
+  chapterOrderOverride?: number;
+}) {
   const pack = usePack();
   const { current } = useChapterMap(progress);
-  const chapterOrder = current ? (pack.chapters ?? []).find((c) => c.id === current.id)?.order ?? 1 : (pack.chapters?.length ?? 1);
+  const chapterOrder = chapterOrderOverride ?? (current ? (pack.chapters ?? []).find((c) => c.id === current.id)?.order ?? 1 : (pack.chapters?.length ?? 1));
   const builtCount = (progress.builtConjugations ?? []).length;
   // Eligible sentences: introduced by the course already (verb included), built from words the learner has
   // met, and no longer than their rung allows.
-  const { items: scoped, usedFallback, source } = useMemo(
-    () => sentenceScope.withFallback(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] }),
-    [pack, chapterOrder, builtCount, progress.familiarity],
-  );
+  const { items: scoped, usedFallback, source } = useMemo(() => {
+    const r = sentenceScope.withFallback(pack, { chapterOrder, builtCount, hasMet: (k) => !!progress.familiarity[k] });
+    if (!preferIds?.length) return r;
+    // Phrase cards are built on demand by id; sentence items come from the pack. Keep the blueprint's order.
+    const phrases = sentenceScope.phraseCards(pack, { chapterOrder, hasMet: (k) => !!progress.familiarity[k] }, 200);
+    const pool = new Map([...r.items, ...phrases, ...(pack.sentences ?? [])].map((it) => [it.id, it]));
+    const inScope = new Set([...r.items.map((it) => it.id), ...phrases.map((it) => it.id)]);
+    const preferred = preferIds.filter((id) => inScope.has(id)).map((id) => pool.get(id)!).filter(Boolean);
+    return preferred.length ? { ...r, items: preferred, usedFallback: false } : r;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pack, chapterOrder, builtCount, progress.familiarity, preferIds?.join()]);
   const top = sentenceScope.maxTier({ chapterOrder, builtCount });
   const [nonce, setNonce] = useState(0);
   // ONE sentence per card. Flatten each verb item into its six person-variants, then pick 6 cards along a
@@ -2985,9 +3585,11 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   // The FULL deck — every pack word/phrase/grammar drill plus words you captured while reading. Nothing is
   // hidden behind "studied": you filter down to what you want to drill. Ordered so anything already due for
   // review (most-due first) leads, then new words before new sentences. Grading a new card enrolls it in SRS.
+  const v2 = cp.courseV2On(pack, progress);
   const deck = useMemo<ReviewUnit[]>(() => {
     const now = new Date();
-    const pool = reviewPool(pack);
+    // New course: grammar is the taught points' cards (rule + blank), not the old per-concept drills.
+    const pool = v2 && pack.course ? [...pack.vocab, ...cp.taughtPointItems(pack.course, progress)] : reviewPool(pack);
     const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
     const poolUnits: ReviewUnit[] = pool.map((it) => {
       const k = familiarity.deriveKeyForItem(it).lexKey;
@@ -3009,7 +3611,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
       return (isWord(a) ? 0 : 1) - (isWord(b) ? 0 : 1); // new items → words before sentences
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pack]);
+  }, [pack, v2]);
 
   // Word (single token) vs sentence/phrase, for the type filter.
   const isWordUnit = (u: ReviewUnit): boolean =>
@@ -3034,7 +3636,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
     return ch ? { key: ch.id, label: `${ch.order}. ${ch.shortTitle}`, order: ch.order } : { key: "more", label: "more", order: 1000 };
   }, [pack]);
 
-  const [type, setType] = useState<"all" | "words" | "sentences">("all");
+  const [type, setType] = useState<"all" | "words" | "sentences" | "grammar">("all");
   const [themes, setThemes] = useState<Set<string>>(new Set()); // empty ⇒ all themes
   const [starredOnly, setStarredOnly] = useState(false); // the learner's custom "★ saved" deck
   const [idx, setIdx] = useState(0);
@@ -3043,9 +3645,11 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   // Scope to the starred (custom) deck first when that toggle is on; type/theme filters then narrow within it.
   const starred = deck.filter(isStarredUnit);
   const scoped = starredOnly ? starred : deck;
+  const isGrammarUnit = (u: ReviewUnit) => u.type === "pool" && u.item.kind === "grammar";
   const words = scoped.filter(isWordUnit);
-  const sentences = scoped.filter((u) => !isWordUnit(u));
-  const byType = type === "words" ? words : type === "sentences" ? sentences : scoped;
+  const grammarUnits = scoped.filter(isGrammarUnit);
+  const sentences = scoped.filter((u) => !isWordUnit(u) && !isGrammarUnit(u));
+  const byType = type === "words" ? words : type === "sentences" ? sentences : type === "grammar" ? grammarUnits : scoped;
   // Chapters present in the current type, with counts, in course order.
   const buckets = new Map<string, { label: string; order: number; n: number }>();
   for (const u of byType) {
@@ -3068,7 +3672,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   const Filters = (
     <>
       <div className="picker small" style={{ marginBottom: 8 }}>
-        {([["all", `All · ${scoped.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
+        {([["all", `All · ${scoped.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`], ["grammar", `Grammar · ${grammarUnits.length}`]] as const).map(([f, label]) => (
           <button key={f} className={type === f ? "active" : ""} onClick={() => setType(f)}>{label}</button>
         ))}
       </div>
@@ -3267,7 +3871,43 @@ function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean
   );
 }
 
+// A grammar RULE card (course points): a plain question; reveal the one-line answer and an example line,
+// then grade yourself. No typing, no options — the simple flashcard the design asks for.
+function RuleCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
+  const play = usePlay();
+  const [shown, setShown] = useState(false);
+  const example = item.meta?.example as string | undefined;
+  return (
+    <div className="fb">
+      <div className="muted small">{(item.meta?.concept as string) || "Grammar"}</div>
+      <div style={{ fontSize: 18, margin: "6px 0" }}><b>{item.prompt}</b></div>
+      {!shown ? (
+        <button className="btn" onClick={() => setShown(true)}>Show answer</button>
+      ) : (
+        <>
+          <p style={{ margin: "6px 0" }}>{item.answer}</p>
+          {example && (
+            <div className="gram-ex">
+              <button className="gram-play" onClick={() => play(example)} aria-label={`Play ${example}`}>▶</button>
+              <span className="mk">{example}</span>{item.meta?.exampleGloss ? <span className="en">{item.meta.exampleGloss as string}</span> : null}
+            </div>
+          )}
+          <div className="row" style={{ marginTop: 10 }}>
+            <button className="ghost" onClick={() => onGrade(false)}>Again</button>
+            <button className="btn" onClick={() => onGrade(true)}>Good →</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function GrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
+  if (item.meta?.ruleCard) return <RuleCard item={item} onGrade={onGrade} />;
+  return <ChoiceGrammarCard item={item} onGrade={onGrade} />;
+}
+
+function ChoiceGrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
   const [picked, setPicked] = useState<string | null>(null);
   const choose = (opt: string) => {
     if (picked) return;
@@ -3278,6 +3918,7 @@ function GrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolea
     <div className="fb">
       <div className="muted small">{concept}</div>
       <div style={{ fontSize: 18, margin: "6px 0" }}><b>{item.prompt}</b></div>
+      {item.meta?.point ? <div className="muted small" style={{ marginBottom: 6 }}>{item.gloss}</div> : null}
       <div>
         {(item.options ?? []).map((o) => {
           const cls = picked ? (o === item.answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
@@ -5032,6 +5673,13 @@ function AccountPanel({ progress, persist, config, onClose }: { progress: Progre
           </label>
         )}
       </div>
+      {pack.course?.chapters.length ? (
+        <div className="setting-row">
+          <b>New course (beta)</b>
+          <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, courseV2: !(progress.settings?.courseV2 ?? cp.COURSE_V2_DEFAULT) } })}>{cp.courseV2On(pack, progress) ? "✓ On" : "Off"}</button>
+          <span className="muted small">Today follows the redesigned course: one grammar point at a time, a fixed plan per chapter, and review days built in.</span>
+        </div>
+      ) : null}
       <div className="setting-row">
         <b>Speech &amp; AI</b>
         {config ? [badge("Scribe", config.engines.eleven), badge("Google", config.engines.google), badge("Claude", config.engines.anthropic)] : <span className="muted small">…</span>}

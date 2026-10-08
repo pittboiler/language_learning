@@ -4,15 +4,42 @@
     {
       "name": "spike",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["server.js"],
+      "runtimeArgs": [
+        "server.js"
+      ],
       "cwd": "spike",
       "port": 5050
     },
     {
       "name": "web",
       "runtimeExecutable": "npx",
-      "runtimeArgs": ["--yes", "pnpm@latest", "--filter", "@ll/web", "dev"],
+      "runtimeArgs": [
+        "--yes",
+        "pnpm@latest",
+        "--filter",
+        "@ll/web",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "web-local",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "NEXT_PUBLIC_SUPABASE_URL=",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY=",
+        "npx",
+        "--yes",
+        "pnpm@latest",
+        "--filter",
+        "@ll/web",
+        "exec",
+        "next",
+        "dev",
+        "-p",
+        "3001"
+      ],
+      "port": 3001
     }
   ]
 }

@@ -214,3 +214,8 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 .tile.dragging { opacity: .35; }
 .tile.ghost { position: fixed; z-index: 50; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 6px 18px rgba(0, 0, 0, .45); border-color: var(--accent); margin: 0; }
 .drop-marker { display: inline-block; width: 2px; align-self: stretch; min-height: 28px; background: var(--accent); border-radius: 2px; }
+
+/* Story lens (new course): the lines that use today's grammar point, and set-phrase notes under lines. */
+.lens-banner { border-left: 3px solid var(--accent); background: rgba(76, 142, 255, .08); border-radius: 6px; padding: 8px 12px; margin: 0 0 10px; font-size: 14px; }
+.rline-lens { border-left: 3px solid var(--accent); background: rgba(76, 142, 255, .06); border-radius: 4px; padding-left: 8px; }
+.rline-note { grid-column: 1 / -1; font-size: 12.5px; color: var(--muted, #8b949e); margin: 2px 0 4px 30px; }

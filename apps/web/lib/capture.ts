@@ -25,8 +25,37 @@ export const properNounLike = (surface: string, pack: LanguagePack): boolean => 
   if (pack.vocab.some((v) => familiarity.normalize(v.answer) === norm)) return false;
   if ((pack.stories ?? []).some((s) => s.registersVocab.some((v) => v.lexKey === norm))) return false;
   const c = surface[0] ?? "";
-  return c !== c.toLowerCase() && c === c.toUpperCase(); // starts with an uppercase letter
+  if (!(c !== c.toLowerCase() && c === c.toUpperCase())) return false; // must start with an uppercase letter
+  // A word the pack's own lines only ever capitalize at the START of a sentence ("Мажот се смее.") is an
+  // ordinary word, not a name — names show up capitalized mid-sentence too ("вели Ана", "во Скопје").
+  const seen = lineCaps(pack);
+  return !(seen.initialOnly.has(norm));
 };
+
+// Per pack: words seen capitalized only sentence-initially (never mid-sentence) across story/reader lines.
+const capsCache = new WeakMap<LanguagePack, { initialOnly: Set<string> }>();
+function lineCaps(pack: LanguagePack): { initialOnly: Set<string> } {
+  const hit = capsCache.get(pack);
+  if (hit) return hit;
+  const initial = new Set<string>();
+  const mid = new Set<string>();
+  const lines = [...(pack.stories ?? []).flatMap((s) => (s.body ?? []).map((b) => b.text)), ...(pack.readers ?? []).flatMap((r) => (r.body ?? []).map((b) => b.text))];
+  for (const line of lines) {
+    // Split into sentences, then words; the first word of each sentence (after opening quotes) is "initial".
+    for (const sentence of line.split(/(?<=[.!?…])\s+|[:„“"]\s*/u)) {
+      const words = sentence.match(/\p{L}+/gu) ?? [];
+      words.forEach((w, i) => {
+        const c = w[0]!;
+        if (!(c !== c.toLowerCase() && c === c.toUpperCase())) return;
+        (i === 0 ? initial : mid).add(familiarity.normalize(w));
+      });
+    }
+  }
+  const initialOnly = new Set([...initial].filter((w) => !mid.has(w)));
+  const out = { initialOnly };
+  capsCache.set(pack, out);
+  return out;
+}
 
 /** Capture a tapped word into familiarity + SRS if it's new, remembering the sentence + its English
  *  (for in-context cloze review that shows what to say). Non-reviewable words (names) are captured as
@@ -93,4 +122,16 @@ export const toggleStar = (
 export const isWordStarred = (progress: Progress, surface: string): boolean => {
   const e = progress.familiarity[familiarity.normalize(surface)];
   return !!e && familiarity.isStarred(e);
+};
+
+/** Save several words/cards to the starred deck at once (the recap's "★ Save all"). Untracked ones are
+ *  captured first; every one is promoted to studied so it recurs in normal review. Pure. */
+export const starMany = (progress: Progress, items: { lexKey: string; display?: string; gloss?: string }[]): Progress => {
+  const fam = { ...progress.familiarity };
+  for (const it of items) {
+    const kind = it.lexKey.startsWith("grammar:") ? "grammar" : it.lexKey.includes(" ") ? "chunk" : "word";
+    const base = fam[it.lexKey] ?? familiarity.capture({ lexKey: it.lexKey, kind, display: it.display ?? it.lexKey, gloss: it.gloss });
+    fam[it.lexKey] = familiarity.markStarred(base);
+  }
+  return { ...progress, familiarity: fam };
 };

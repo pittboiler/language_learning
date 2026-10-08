@@ -10,3 +10,4 @@ dist/
 pipeline/output/
 .DS_Store
 .vercel
+backups/

@@ -56,6 +56,11 @@ const WHOLE: Record<string, string> = {
   // One word per concept: the pack teaches учител/учителка for "teacher", so the lone наставник goes.
   // (Same reason доктор — not лекар — is the taught word for "doctor" everywhere in the pack.)
   "Работам како наставник.": "Работам како учител.",
+  // 2026-10-08 (patched in promoted-stage0 directly; "Добро сум, фала." is correct elsewhere, so it
+  // can't be a whole-string rule): gen-s0-greet-story QA q2 asks "Како е Марко?" (how is HE) but the
+  // answer was Marko's own first-person line. Answer is now "Добро е." / "He's well."
+  // 2026-10-08: gen-s2-home-family-story QA q2 asked "Како работи мајката на Ана?" ("HOW does she work?")
+  // for the answer "Како доктор." — now "Што работи мајката на Ана?" ("What does Ana's mother do?").
   "Rabotam kako nastavnik.": "Rabotam kako učitel.",
 };
 

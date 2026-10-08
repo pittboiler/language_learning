@@ -278,23 +278,6 @@ export const breakdowns: Record<string, PhraseBreakdownData> = {
     ],
     "takeaway": "The little word \"ли\" turns it into a yes/no question; \"е\" means \"is.\""
   },
-  "Драго ми е": {
-    "breakdown": [
-      {
-        "part": "Драго",
-        "gloss": "pleasant"
-      },
-      {
-        "part": "ми",
-        "gloss": "to me"
-      },
-      {
-        "part": "е",
-        "gloss": "is"
-      }
-    ],
-    "takeaway": "Literally \"it is pleasant to me\"; the little \"ми\" (to me) sits before \"е.\""
-  },
   "еден / една / едно": {
     "breakdown": [
       {

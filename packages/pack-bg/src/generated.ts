@@ -455,7 +455,7 @@ export const generatedGrammar: GrammarConcept[] = [
         "options": [
           "момчета",
           "момчето",
-          "момчета"
+          "момчетата"
         ],
         "why": "Neuter noun момче takes -то.",
         "i1Level": 2,

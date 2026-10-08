@@ -1,4 +1,5 @@
-import type { GrammarConcept, LanguagePack } from "@ll/pack-schema";
+import type { GrammarConcept, LanguagePack, LineRef } from "@ll/pack-schema";
+import { lineCatalog, proseWords, resolveSource, tokens, wordCorpus } from "./course/lines.js";
 import { introducedBy, requiredChapter, tierCapForChapter } from "@ll/core/sentences";
 import { normalize as normalizeKey } from "@ll/core/familiarity";
 
@@ -231,4 +232,119 @@ export function lintSentences(pack: LanguagePack): SentenceLintIssue[] {
     }
   }
   return issues;
+}
+
+// --- Course blueprint lint ----------------------------------------------------------------------
+// The blueprint (DESIGN-course-spine.md) may only POINT AT existing target-language lines: every LineRef
+// must still resolve to the same text, every quoted word in its English prose must exist somewhere in the
+// pack, and every blank card must be answerable from its own line. Structurally, the spine must be in
+// order with two or three points per chapter, a session may teach at most three words, the conversation
+// waits until its words were taught in an earlier session, reuse only looks backward, and any line that
+// uses grammar from a later chapter carries a set-phrase note.
+export interface CourseLintIssue {
+  kind:
+    | "spine-order" | "points-per-chapter" | "missing-point" | "stale-line" | "new-language" | "bad-blank"
+    | "too-many-words" | "speak-too-early" | "reuse-forward" | "bad-highlight" | "no-checkpoint"
+    | "missing-chunk-note" | "unknown-point";
+  where: string;
+  detail: string;
+}
+
+export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
+  const course = pack.course;
+  if (!course) return [];
+  const issues: CourseLintIssue[] = [];
+  const add = (kind: CourseLintIssue["kind"], where: string, detail: string) => issues.push({ kind, where, detail });
+  const corpus = wordCorpus(pack);
+  const chapterOrder = new Map((pack.chapters ?? []).map((c) => [c.id, c.order]));
+  const pointIds = new Set(course.chapters.flatMap((c) => c.pointIds));
+  const pointChapter = new Map(course.chapters.flatMap((c) => c.pointIds.map((p) => [p, chapterOrder.get(c.chapterId) ?? 0] as const)));
+
+  // spine shape
+  for (const c of course.chapters) {
+    if (c.pointIds.length < 2 || c.pointIds.length > 3) add("points-per-chapter", c.chapterId, `${c.pointIds.length} points (want 2-3)`);
+    for (const id of c.pointIds) if (!course.points.some((p) => p.id === id)) add("missing-point", c.chapterId, `point ${id} has no text yet`);
+  }
+  const orders = course.points.map((p) => p.order);
+  if (orders.some((o, i) => i > 0 && o <= orders[i - 1]!)) add("spine-order", "points", "points are not in spine order");
+
+  // point text: references + no new language
+  const checkRef = (r: LineRef, where: string) => {
+    const now = resolveSource(pack, r.source);
+    if (now === undefined) add("stale-line", where, `${r.source} no longer exists`);
+    else if (now.trim() !== r.text.trim()) add("stale-line", where, `${r.source} now reads "${now}", blueprint has "${r.text}"`);
+  };
+  const checkProse = (s: string, where: string) => {
+    const bad = proseWords(s).filter((w) => !corpus.has(w));
+    if (bad.length) add("new-language", where, `quotes words not in the pack: ${bad.join(", ")}`);
+  };
+  for (const p of course.points) {
+    const at = `point ${p.id}`;
+    [...p.examples, ...p.callbacks].forEach((r) => checkRef(r, at));
+    [p.agenda, p.rule, p.recap, p.library.rule, ...p.library.why, ...p.library.mistakes].forEach((s) => checkProse(s, at));
+    for (const c of p.cards) {
+      if (c.kind === "rule") { checkProse(c.front, at); checkProse(c.back, at); if (c.example) checkRef(c.example, at); continue; }
+      checkRef(c.line, at);
+      checkProse(c.why, at);
+      if (!c.line.text.includes(c.blank)) add("bad-blank", at, `"${c.blank}" isn't in "${c.line.text}"`);
+      else if (!new RegExp(`(^|[^\\p{L}])${c.blank.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u").test(c.line.text)) add("bad-blank", at, `"${c.blank}" is only part of a word in "${c.line.text}"`);
+      if (new Set(c.options).size !== 3 || !c.options.includes(c.blank)) add("bad-blank", at, `options [${c.options.join(", ")}] must be 3 distinct incl. "${c.blank}"`);
+      for (const o of c.options) for (const w of tokens(o)) if (!corpus.has(w)) add("new-language", at, `option "${o}" isn't in the pack`);
+    }
+  }
+
+  // sessions
+  for (const c of course.chapters) {
+    const order = chapterOrder.get(c.chapterId) ?? 0;
+    const taughtBefore = new Set(course.chapters.filter((x) => (chapterOrder.get(x.chapterId) ?? 0) < order).flatMap((x) => x.words.map((w) => w.lexKey)));
+    const scen = pack.scenarios.find((s) => s.id === c.checkpoint.scenarioId);
+    const required = (scen?.requiredVocab ?? []).map((id) => pack.vocab.find((v) => v.id === id)).filter(Boolean).map((v) => normalizeKey(v!.answer));
+    const inCourse = new Set([...taughtBefore, ...c.words.map((w) => w.lexKey)]);
+    c.sessions.forEach((s, i) => {
+      const at = `${c.chapterId} session ${s.n}`;
+      if (s.words.length > 3) add("too-many-words", at, `${s.words.length} new words`);
+      if (s.speak) {
+        const before = new Set([...taughtBefore, ...c.sessions.slice(0, i).flatMap((x) => x.words.map((w) => w.lexKey))]);
+        const missing = required.filter((k) => inCourse.has(k) && !before.has(k));
+        if (missing.length) add("speak-too-early", at, `conversation needs ${missing.join(", ")}, not yet taught in an earlier session`);
+      }
+      if (s.story) {
+        const story = pack.stories?.find((x) => x.id === s.story!.id);
+        const owner = (pack.chapters ?? []).find((ch) => s.story!.id.startsWith(`gen-${ch.id}`) || ch.extraIds?.includes(s.story!.id));
+        if (owner && owner.order > order) add("reuse-forward", at, `story ${s.story.id} is from a later chapter`);
+        if (!story || s.story.highlight.some((h) => h < 0 || h >= story.body.length)) add("bad-highlight", at, `highlight out of range for ${s.story.id}`);
+      }
+    });
+    if (c.sessions.at(-1)?.role !== "checkpoint") add("no-checkpoint", c.chapterId, "last session isn't the checkpoint");
+  }
+
+  // tags + set-phrase notes
+  for (const [source, tags] of Object.entries(course.lineTags)) {
+    for (const t of tags) if (!pointIds.has(t)) add("unknown-point", source, `tag ${t} isn't a spine point`);
+  }
+  for (const l of lineCatalog(pack)) {
+    if (!l.chapterOrder) continue;
+    const later = (course.lineTags[l.source] ?? []).filter((t) => (pointChapter.get(t) ?? 0) > l.chapterOrder);
+    if (later.length && !course.chunkNotes.some((n) => n.source === l.source)) add("missing-chunk-note", l.source, `uses ${later.join(", ")} from a later chapter`);
+  }
+  return issues;
+}
+
+// --- Mixed-script lint ----------------------------------------------------------------------------
+// The mirror of the translit lint: a TARGET-language word must not smuggle in a Latin look-alike (e.g.
+// "сè" typed with Latin è instead of Cyrillic ѐ). It renders fine, but breaks word matching, familiarity
+// keys and the "no new language" corpus check. Any word mixing a non-Latin script with Latin letters is flagged.
+export interface ScriptMixIssue { location: string; word: string; value: string }
+
+export function lintScriptMix(pack: LanguagePack): ScriptMixIssue[] {
+  const out: ScriptMixIssue[] = [];
+  const check = (location: string, value: string | undefined) => {
+    for (const w of (value ?? "").split(/[^\p{L}]+/u)) {
+      if (/\p{Script=Latin}/u.test(w) && /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u.test(w)) out.push({ location, word: w, value: value! });
+    }
+  };
+  for (const l of lineCatalog(pack)) check(l.source, l.text);
+  for (const v of pack.vocab) check(`vocab ${v.id}`, v.answer);
+  for (const g of pack.infoGapTasks ?? []) for (const r of [g.roleA, g.roleB]) for (const t of r.targetPhrases) check(`infogap ${g.id}`, t.text);
+  return out;
 }

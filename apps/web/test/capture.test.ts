@@ -22,6 +22,10 @@ assert.equal(properNounLike("Сака", pack), false, "sentence-initial capitali
 assert.equal(properNounLike("Влегува", pack), false, "sentence-initial capitalized story word still matches");
 assert.equal(properNounLike("пие", pack), false, "lowercase uncurated word is not name-like (reviewable)");
 assert.equal(properNounLike("„", pack), false, "punctuation is not a name");
+// A capitalized word the pack only ever capitalizes at a sentence start is a word, not a name ("Мажот се смее").
+const packLines = { vocab: [], stories: [{ registersVocab: [], body: [{ text: "Мажот се смее. Ана вели: „Во ред.“" }, { text: "Тоа е Ана." }] }] } as unknown as LanguagePack;
+assert.equal(properNounLike("Мажот", packLines), false, "sentence-initial-only word is reviewable");
+assert.equal(properNounLike("Ана", packLines), true, "a name seen mid-sentence stays a name");
 
 // 2. captureWord enrolls a reviewable word with its sentence + English, and leaves it as a live SRS card.
 let p: Progress = { familiarity: {}, contexts: {}, contextGlosses: {} } as Progress;

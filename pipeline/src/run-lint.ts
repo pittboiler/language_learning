@@ -5,7 +5,7 @@
 // Run:  pipeline/node_modules/.bin/tsx pipeline/src/run-lint.ts
 import { macedonian } from "@ll/pack-mk";
 import { bulgarian } from "@ll/pack-bg";
-import { lintDrills, lintTranslit, lintSynonyms, lintChapters, lintHints, lintSentences, type SynonymGroup } from "./lint.js";
+import { lintDrills, lintTranslit, lintSynonyms, lintChapters, lintHints, lintSentences, lintCourse, lintScriptMix, type SynonymGroup } from "./lint.js";
 
 // One word per everyday concept, decided once and enforced here so a later generation wave can't quietly
 // reintroduce the other one. Add a group whenever a review turns up two words doing the same job.
@@ -13,6 +13,8 @@ const SYNONYMS: Record<string, SynonymGroup[]> = {
   mk: [
     { concept: "teacher", preferred: "учител/учителка", avoid: ["наставник", "nastavnik"] },
     { concept: "doctor", preferred: "доктор", avoid: ["лекар", "lekar"] },
+    { concept: "nice to meet you", preferred: "Мило ми е", avoid: ["Драго ми е", "Drago mi e"] },
+    { concept: "you're welcome", preferred: "Нема за што", avoid: ["Нема на што", "Nema na što", "Nema na shto"] },
   ],
 };
 
@@ -47,5 +49,18 @@ for (const pack of [macedonian, bulgarian]) {
   total += sentenceIssues.length;
   console.log(`${pack.name} (${pack.id}): ${sentenceIssues.length} unserveable sentence(s) of ${pack.sentences?.length ?? 0}`);
   for (const i of sentenceIssues) console.log(`  • [${i.kind}] ${i.id}: ${i.detail}`);
+
+  const mix = lintScriptMix(pack);
+  total += mix.length;
+  console.log(`${pack.name} (${pack.id}): ${mix.length} mixed-script word(s)`);
+  for (const i of mix) console.log(`  • ${i.location}: "${i.word}" in "${i.value}"`);
+
+  // Points not written yet are progress, not defects — report them separately from real issues.
+  const courseIssues = lintCourse(pack);
+  const pending = courseIssues.filter((i) => i.kind === "missing-point");
+  const real = courseIssues.filter((i) => i.kind !== "missing-point");
+  total += real.length;
+  console.log(`${pack.name} (${pack.id}): ${real.length} course-blueprint issue(s)${pending.length ? `, ${pending.length} point(s) not written yet` : ""}`);
+  for (const i of real) console.log(`  • [${i.kind}] ${i.where}: ${i.detail}`);
 }
 console.log(`\n=== ${total} total issue(s) across packs ===`);

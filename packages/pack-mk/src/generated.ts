@@ -72,7 +72,7 @@ export const generatedScenarios: Scenario[] = [
       },
       {
         "speaker": "partner",
-        "text": "Нема на што. Пријатно!",
+        "text": "Нема за што. Пријатно!",
         "gloss": "You're welcome. Have a nice day!"
       }
     ],
@@ -214,7 +214,7 @@ export const generatedScenarios: Scenario[] = [
       },
       {
         "speaker": "partner",
-        "text": "Драго ми е! Од каде си?",
+        "text": "Мило ми е! Од каде си?",
         "gloss": "Nice to meet you! Where are you from?"
       },
       {
@@ -247,9 +247,9 @@ export const generatedScenarios: Scenario[] = [
       },
       {
         "speaker": "learner",
-        "text": "Благодарам! Драго ми е.",
+        "text": "Благодарам! Мило ми е.",
         "gloss": "Thank you! Nice to meet you.",
-        "translit": "Blagodaram! Drago mi e.",
+        "translit": "Blagodaram! Milo mi e.",
         "satisfies": [
           "greeted"
         ]
@@ -614,8 +614,8 @@ export const generatedVocab: ReviewItem[] = [
     "id": "gen-introductions-v6",
     "kind": "phrase",
     "prompt": "Nice to meet you",
-    "answer": "Драго ми е",
-    "translit": "Drago mi e",
+    "answer": "Мило ми е",
+    "translit": "Milo mi e",
     "gloss": "Nice to meet you",
     "i1Level": 2,
     "tags": [

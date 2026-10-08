@@ -1,6 +1,7 @@
 import type { GrammarConcept, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
 import { chapters } from "./chapters.js";
+import { course } from "./course.js";
 import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
 import { conjugations } from "./conjugations.js";
@@ -75,6 +76,7 @@ export const macedonian: LanguagePack = {
   sentences,
   chapters,
   hints,
+  course,
 };
 
 export default macedonian;

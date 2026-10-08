@@ -1164,9 +1164,9 @@ export const promotedStories: MiniStory[] = [
         "id": "q2",
         "question": "Како е Марко?",
         "questionGloss": "How is Marko?",
-        "answer": "Добро сум, фала.",
-        "answerGloss": "I'm well, thanks.",
-        "answerTranslit": "Dobro sum, fala."
+        "answer": "Добро е.",
+        "answerGloss": "He's well.",
+        "answerTranslit": "Dobro e."
       },
       {
         "id": "q3",
@@ -1426,7 +1426,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
           "translit": "Sakam tri yabolka i eden leb."
         },
         {
-          "text": "Имате ли леб? Колку чини сè?",
+          "text": "Имате ли леб? Колку чини сѐ?",
           "gloss": "Do you have bread? How much is everything?",
           "translit": "Imate li leb? Kolku chini se?"
         },

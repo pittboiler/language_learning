@@ -18,7 +18,9 @@ export interface Progress {
   /** Active mini-story id for the story reader (null ⇒ first story). Lets the partner "shared story" deep-link. */
   storyPick?: string | null;
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
-  settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean };
+  settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean; courseV2?: boolean };
+  /** Position in the course blueprint (lib/course-player.ts) — only used when the new course is on. */
+  course?: { chapterId: string; session: number; retry?: boolean; stageReviewAfter?: string; finished?: boolean };
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
   streak?: { count: number; lastDay: string };
   /** Verb lemmas already drilled in the warm-up conjugation match game — so each day picks a new one. */

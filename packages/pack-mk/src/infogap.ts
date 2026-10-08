@@ -15,7 +15,7 @@ export const infoGapTasks: InfoGapTask[] = [
       secretInfo: ["You want two coffees and one water.", "You have 200 denars — make sure the total fits."],
       targetPhrases: [
         { text: "Сакам две кафиња и една вода.", gloss: "I want two coffees and one water.", translit: "Sakam dve kafinja i edna voda." },
-        { text: "Колку чини сè заедно?", gloss: "How much is it all together?", translit: "Kolku chini sè zaedno?" },
+        { text: "Колку чини сѐ заедно?", gloss: "How much is it all together?", translit: "Kolku chini sè zaedno?" },
         { text: "Во ред, имам доволно.", gloss: "OK, I have enough.", translit: "Vo red, imam dovolno." },
       ],
     },
