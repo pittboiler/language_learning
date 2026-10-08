@@ -2,6 +2,9 @@ import type { GrammarConcept, LanguagePack, LineRef } from "@ll/pack-schema";
 import { lineCatalog, proseWords, resolveSource, tokens, wordCorpus } from "./course/lines.js";
 import { introducedBy, requiredChapter, tierCapForChapter } from "@ll/core/sentences";
 import { normalize as normalizeKey } from "@ll/core/familiarity";
+import * as cp from "../../apps/web/lib/course-player.js";
+import { knownAtSlot, laterGrammarAt } from "./course/known.js";
+import { spinePoints } from "./course/spine.js";
 
 // Language-agnostic STRUCTURAL lint for grammar drills. The line-level Validator checks whether the
 // answer text is correct, natural Bulgarian/etc. — but it never sees the option SET, so it can't
@@ -330,6 +333,114 @@ export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
     if (later.length && !course.chunkNotes.some((n) => n.source === l.source)) add("missing-chunk-note", l.source, `uses ${later.join(", ")} from a later chapter`);
   }
   return issues;
+}
+
+// --- Session lint: what each session SHOWS vs what the course has TAUGHT by then ---------------------
+// The course lint above works chapter by chapter, but a learner meets things session by session. This walks
+// what the screens show — each point's lesson (examples, quick checks, rule-card examples, grammar table),
+// Build-a-sentence, the story and its questions, the conversation, and the agenda — and checks it against
+// the points and word forms taught by that session (lib/course-player.ts), so a lesson never quizzes
+// tomorrow's grammar. "error" counts against the lint; "note" is worth a look but isn't a defect (a glossed
+// word the learner hasn't met yet, a story line that's a set phrase for a session or two).
+export interface SessionLintIssue {
+  kind: "lesson-later-grammar" | "build-untaught" | "agenda" | "lesson-untaught-words" | "table-untaught-words" | "reading-later-grammar";
+  level: "error" | "note";
+  where: string;
+  detail: string;
+}
+
+export function lintCourseSessions(pack: LanguagePack): SessionLintIssue[] {
+  const course = pack.course;
+  if (!course) return [];
+  const out: SessionLintIssue[] = [];
+  const add = (level: SessionLintIssue["level"], kind: SessionLintIssue["kind"], where: string, detail: string) => out.push({ level, kind, where, detail });
+  const ps = cp.pointSlots(course);
+  const known = knownAtSlot(pack, course);
+  const noted = new Set(course.chunkNotes.map((n) => n.source));
+  const title = (id: string) => course.points.find((p) => p.id === id)?.title ?? id;
+  const fmt = (s?: cp.CourseSlot) => (s ? `ch${s.order} s${s.n}` : "never");
+  const laterPoints = (source: string | undefined, at: cp.CourseSlot) =>
+    (source ? course.lineTags[source] ?? [] : []).filter((p) => { const s = ps.get(p); return !!s && cp.cmpSlot(s, at) > 0; });
+  const unknownWords = (text: string, at: cp.CourseSlot) => [...new Set(cp.wordTokens(text).filter((t) => !known(t, at)))];
+
+  // A lesson line may not make the learner use a later point (see laterGrammarAt: a phrase they already own,
+  // like "Не разбирам", is fine; "Ми го дава" in the го lesson is not).
+  const laterInLesson = laterGrammarAt(pack, course);
+  const acceptLater = new Map(spinePoints().flatMap((p) => Object.entries(p.acceptLater ?? {})));
+  const lessonLine = (where: string, at: cp.CourseSlot, l: { text: string; source?: string }) => {
+    const unknown = unknownWords(l.text, at);
+    const later = laterInLesson(l.text, l.source, at);
+    // Accepted on purpose: the line has a set-phrase note (the lesson shows it under the example), or the
+    // spine accepts it for a point the pack has no cleaner line for.
+    const accepted = !!l.source && (noted.has(l.source) || !!acceptLater.get(l.source));
+    if (later.length) add(accepted ? "note" : "error", "lesson-later-grammar", where, `“${l.text}” uses ${later.map((p) => `${title(p)} (${fmt(ps.get(p))})`).join(", ")}${accepted ? " (accepted: set phrase)" : ""}`);
+    else if (unknown.length) add("note", "lesson-untaught-words", where, `“${l.text}”: ${unknown.join(", ")}`);
+  };
+  const readingLine = (where: string, at: cp.CourseSlot, text: string, source: string) => {
+    const later = laterPoints(source, at);
+    if (later.length && !noted.has(source) && unknownWords(text, at).length) add("note", "reading-later-grammar", where, `“${text}” uses ${later.map((p) => `${title(p)} (${fmt(ps.get(p))})`).join(", ")}`);
+  };
+
+  // 1. Each point's lesson, checked at the session that teaches it (practice sessions come later, so the
+  //    teach session is the strictest place to check). Rule cards come back in reviews from then on.
+  for (const p of course.points) {
+    const at = ps.get(p.id);
+    if (!at) continue;
+    const where = `${p.id} (taught ${fmt(at)})`;
+    p.examples.forEach((e) => lessonLine(`${where} example`, at, e));
+    p.cards.forEach((c, i) => {
+      if (c.kind === "rule") { if (c.example) lessonLine(`${where} rule card ${i} example`, at, c.example); return; }
+      lessonLine(`${where} quick check ${i}`, at, c.line);
+      const bad = [...new Set(c.options.flatMap(cp.wordTokens).filter((t) => !known(t, at)))];
+      if (bad.length) add("note", "lesson-untaught-words", `${where} quick check ${i} options`, bad.join(", "));
+    });
+    const concept = pack.grammar.find((g) => g.id === cp.patternConceptFor(course, p) && !!g.pattern);
+    concept?.pattern?.rows.forEach((r, i) => {
+      const bad = unknownWords(r.join(" "), at);
+      if (bad.length) add("note", "table-untaught-words", `${where} table ${concept.id} row ${i}`, `${r.join(" | ")}: ${bad.join(", ")}`);
+    });
+  }
+
+  // 2. Each session: Build-a-sentence, the story and its questions, the conversation, and the agenda.
+  for (const c of course.chapters) {
+    const firstSpeak = c.sessions.find((s) => s.speak)?.n;
+    for (const s of c.sessions) {
+      if (s.letters) continue;
+      const at = { order: c.order, n: s.n };
+      const where = `ch${c.order} s${s.n} (${s.role})`;
+      for (const id of s.build) {
+        const item = pack.sentences?.find((x) => x.id === id);
+        const phrase = id.startsWith("phrase-") ? pack.vocab.find((v) => v.id === id.slice("phrase-".length)) : undefined;
+        const text = item ? item.variants.map((v) => v.mk).join(" ") : phrase?.answer;
+        if (!text) { add("error", "build-untaught", where, `${id} doesn't exist`); continue; }
+        const bad = unknownWords(text, at);
+        if (bad.length) add("error", "build-untaught", where, `${id} uses ${bad.join(", ")} before they're taught`);
+      }
+      const story = s.story ? pack.stories?.find((x) => x.id === s.story!.id) : undefined;
+      story?.body.forEach((b, i) => readingLine(`${where} story ${story.id}#${i}`, at, b.text, `story:${story.id}#${i}`));
+      story?.qa.forEach((q) => {
+        readingLine(`${where} story question ${q.id}`, at, q.question, `qa:${story.id}#${q.id}:q`);
+        readingLine(`${where} story answer ${q.id}`, at, q.answer, `qa:${story.id}#${q.id}:a`);
+      });
+      const scen = s.speak ? pack.scenarios.find((x) => x.id === s.speak) : undefined;
+      scen?.script.forEach((t, i) => readingLine(`${where} conversation ${scen.id}#${i}`, at, t.text, `scenario:${scen.id}#${i}`));
+
+      // The agenda names what the session actually holds.
+      const ag = s.agenda;
+      const has = (re: RegExp) => ag.some((b) => re.test(b));
+      for (const w of s.words) if (!ag.some((b) => /^\d+ new words?:/.test(b) && b.includes(w.display.replace(/\.+$/, "")))) add("error", "agenda", where, `new word ${w.display} isn't on the agenda`);
+      if (story && !ag.some((b) => b.includes(story.title))) add("error", "agenda", where, `story “${story.title}” isn't on the agenda`);
+      if (scen && !ag.some((b) => b.includes(scen.title))) add("error", "agenda", where, `conversation “${scen.title}” isn't on the agenda`);
+      if (!scen && has(/^(Conversation|First try)/)) add("error", "agenda", where, "the agenda promises a conversation the session doesn't have");
+      if (s.build.length && !has(/^Build/)) add("error", "agenda", where, "Build-a-sentence isn't on the agenda");
+      if (has(/^First try/) && s.n !== firstSpeak) add("error", "agenda", where, `“First try at the conversation”, but session ${firstSpeak} already had it`);
+      if (s.role === "practice") {
+        const practised = s.pointId ?? c.pointIds.filter((id) => c.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1);
+        if (practised && !ag.some((b) => b.includes(title(practised)))) add("error", "agenda", where, `practises “${title(practised)}” but the agenda doesn't say so`);
+      }
+    }
+  }
+  return out;
 }
 
 // --- Mixed-script lint ----------------------------------------------------------------------------

@@ -14,6 +14,10 @@ export interface SpinePoint {
   heavy?: boolean;
   scope: string;
   words?: string[];
+  /** Lesson lines (sources) accepted even though they use a later point, because the pack has no cleaner
+   *  line for this point and the line's English spells the extra bit out. Keep it rare: the session lint
+   *  reports these as notes instead of errors. */
+  acceptLater?: Record<string, string>;
 }
 
 export interface SpineChapter {
@@ -120,7 +124,11 @@ export const SPINE: SpineChapter[] = [
         scope: "Adjective agreement in gender and number: добар/добра/добро/добри, евтин/евтина, голем/голема/големи, убав/убаво/убави, нов/ново — including with the article (новиот).",
         words: ["евтин", "скап", "добар"] },
       { id: "pt-go-ja-gi", title: "It, them: го, ја, ги", grammarIds: ["clitics"], depth: "produce",
-        scope: "Direct-object pronouns го (him/it), ја (her/it), ги (them) placed before the verb, including doubling a definite object: ќе ги земам, Го сакам." },
+        scope: "Direct-object pronouns го (him/it), ја (her/it), ги (them) placed before the verb, including doubling a definite object: ќе ги земам, Го сакам.",
+        acceptLater: {
+          // Every го/ги line in the pack carries something later (ќе, ми, a command); this one's English says "to-me + it + gives".
+          "grammar:clitics#1": "the only го-before-the-verb line without a command; its English spells out ми",
+        } },
     ],
   },
   {

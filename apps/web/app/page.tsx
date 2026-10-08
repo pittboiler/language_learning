@@ -365,7 +365,9 @@ function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[] {
   const retry = pos.kind === "session" && pos.retry;
   const n = warm?.items.length ?? 0;
   const warmLine = n ? `Warm-up: ${n} card${n > 1 ? "s" : ""} from earlier sessions` : "Warm-up: a quick verb drill";
-  return [{ kind: "agenda", agenda: warm && !retry ? { ...agenda, items: [warmLine, ...agenda.items] } : agenda }, ...steps];
+  // Build-a-sentence only runs when something is buildable right now; don't promise it otherwise.
+  const items = steps.some((x) => x.kind === "build") ? agenda.items : agenda.items.filter((b) => !b.startsWith("Build"));
+  return [{ kind: "agenda", agenda: { ...agenda, items: warm && !retry ? [warmLine, ...items] : items } }, ...steps];
 }
 
 // The lens for a session's story: a banner naming what to spot, the highlighted lines, and today's
@@ -1234,6 +1236,8 @@ function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
       </tbody>
     </table>
   ) : null;
+  // An example that leans on a later point (rare: the pack had no cleaner line) carries its set-phrase note.
+  const noteFor = (source: string) => pack.course?.chunkNotes.find((n) => n.source === source)?.note;
   const examples = (
     <div className="gram-ex-list">
       {point.examples.map((ex) => (
@@ -1241,6 +1245,7 @@ function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
           <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
           <span className="mk">{ex.text}</span>
           <span className="en">{ex.gloss}</span>
+          {noteFor(ex.source) && <span className="muted small" style={{ flexBasis: "100%", paddingLeft: 35 }}>{noteFor(ex.source)}</span>}
         </div>
       ))}
     </div>
@@ -1380,6 +1385,8 @@ function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string; gloss
 // the detail lives in the recap and the Library.
 function AgendaCard({ agenda, onStart, pointId, onOpenPoint, onSkipChapter }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void; onSkipChapter?: () => void }) {
   const [confirmSkip, setConfirmSkip] = useState(false);
+  // The grammar line follows the warm-up and new-words lines (the agenda runs in the lesson's order).
+  const pointLine = agenda.items.findIndex((b) => !/^(Warm-up:|\d+ new words?:)/.test(b));
   return (
     <div className="fb">
       <div className="gram-kicker">Today's plan</div>
@@ -1388,7 +1395,7 @@ function AgendaCard({ agenda, onStart, pointId, onOpenPoint, onSkipChapter }: { 
         {agenda.items.map((it, i) => (
           <li key={i} style={{ margin: "4px 0" }}>
             {it}
-            {i === 0 && pointId && onOpenPoint && <> <button className="linklike small" onClick={() => onOpenPoint(pointId)}>more in the Library</button></>}
+            {i === pointLine && pointId && onOpenPoint && <> <button className="linklike small" onClick={() => onOpenPoint(pointId)}>more in the Library</button></>}
           </li>
         ))}
       </ol>

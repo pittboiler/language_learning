@@ -9,6 +9,8 @@ import { deriveKeyForItem, normalize } from "@ll/core/familiarity";
 import { requiredChapter, tierCapForChapter } from "@ll/core/sentences";
 import { SPINE, STAGE_REVIEW_AFTER, spinePoints, type SpinePoint } from "./spine.js";
 import { tokens } from "./lines.js";
+import { knownInSet, properNames } from "./known.js";
+import { knownForms, wordTokens } from "../../../apps/web/lib/course-player.js";
 
 /** Hard cap on new words per session — Jake's pacing (lib/daily.ts NEW_WORDS_PER_SESSION). */
 export const WORDS_PER_SESSION = 3;
@@ -52,6 +54,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
   const contents = resolveChapters(pack);
   const byId = new Map(contents.map((c) => [c.chapter.id, c]));
   const allSpine = spinePoints();
+  const names = properNames(pack);
   const pointText = new Map(points.map((p) => [p.id, p]));
   const spineOf = new Map(allSpine.map((p) => [p.id, p]));
 
@@ -188,9 +191,10 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       if (speakFrom === -1 && ready && speakable && scen) speakFrom = i;
       const speak = speakFrom !== -1 && i >= speakFrom && slot.role !== "checkpoint" ? scen?.id : undefined;
 
+      const knownNow = knownInSet(pack, knownForms(pack, points, taughtUpTo, pointsSoFar), pointsSoFar.some((id) => spineOf.get(id)?.grammarIds.includes("definite-articles")), names);
       const build = slot.role === "checkpoint" ? [] : buildCandidates(pack, {
         order, taughtUpTo, pointsSoFar, current: slot.point?.id, conceptPoints, words: sessionWords[i]!,
-        chapterWords: taught, earlierWords: [...taughtBefore.values()],
+        chapterWords: taught, earlierWords: [...taughtBefore.values()], known: knownNow,
       });
 
       sessions.push({
@@ -257,7 +261,9 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     const wordsLine = s.words.length ? `${s.words.length} new word${s.words.length > 1 ? "s" : ""}: ${s.words.map((w) => w.display.replace(/\.+$/, "")).join(", ")}` : undefined;
     if (s.role === "teach" || s.role === "practice") {
       if (wordsLine) a.push(wordsLine);
-      a.push(s.role === "teach" ? pt?.agenda ?? `New: ${pointName(s.pointId!)}` : s.pointId ? `Practice: ${pointName(s.pointId)}` : "Practice day: more of this chapter's patterns");
+      // A practice session without its own point practises the chapter's latest one (as Today plays it).
+      const practised = s.pointId ?? ch.pointIds.filter((id) => ch.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1);
+      a.push(s.role === "teach" ? pt?.agenda ?? `New: ${pointName(s.pointId!)}` : practised ? `Practice: ${pointName(practised)}` : "Practice day: more of this chapter's patterns");
     } else {
       if (s.role === "review") a.push("Review day: nothing new");
       if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in your own words" : "Put it together: use this chapter in a real exchange");
@@ -269,7 +275,9 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     if (s.story) a.push(s.story.reuse
       ? `Reread “${storyTitle(s.story.id)}” from an earlier chapter: ${lensHere ? `find ${s.story.lens.length > 1 ? "this chapter's patterns" : pointName(s.story.lens[0]!).toLowerCase()}` : "a refresher on what you learned there"}`
       : `Read “${storyTitle(s.story.id)}”${s.story.highlight.length ? `: spot ${s.story.lens.length > 1 ? "everything from this chapter" : "today's pattern"}` : ""}`);
-    if (s.speak) a.push(`${s.role === "review" ? "First try at the conversation" : "Conversation"}: ${scenTitle(s.speak)}`);
+    if (s.build.length) a.push("Build a sentence: put the words in order");
+    const firstTry = s.role === "review" && ch.sessions.find((x) => x.speak)?.n === s.n;
+    if (s.speak) a.push(`${firstTry ? "First try at the conversation" : "Conversation"}: ${scenTitle(s.speak)}`);
     if (s.writing) a.push("Write a few lines of your own");
     s.agenda = a;
   }
@@ -374,6 +382,8 @@ function chapterLines(c: ChapterContent): string[] {
 function buildCandidates(pack: LanguagePack, o: {
   order: number; taughtUpTo: Set<string>; pointsSoFar: string[]; current?: string;
   conceptPoints: (cid: string) => string[]; words: CourseWord[]; chapterWords: CourseWord[]; earlierWords: CourseWord[];
+  /** Is this word form taught by now? Every word of every person's version must be. */
+  known: (token: string) => boolean;
 }): string[] {
   const vocabId = (w: CourseWord) => pack.vocab.find((v) => deriveKeyForItem(v).lexKey === w.lexKey)?.id;
   const phrase = (w: CourseWord) => { const n = w.display.split(/\s+/).length; return n >= 2 && n <= 5 && !w.display.includes("…") ? vocabId(w) : undefined; };
@@ -387,7 +397,8 @@ function buildCandidates(pack: LanguagePack, o: {
     const need = requiredChapter(pack, it);
     if (need === undefined || need > o.order) return false;
     if (!it.conceptIds.every((c) => o.conceptPoints(c).some((p) => o.pointsSoFar.includes(p)))) return false;
-    return it.supportWords.every((w) => o.taughtUpTo.has(normalize(w)));
+    if (!it.supportWords.every((w) => o.taughtUpTo.has(normalize(w)))) return false;
+    return it.variants.every((v) => wordTokens(v.mk).every(o.known));
   });
   const onPoint = sentences.filter((it) => o.current && it.conceptIds.some((c) => o.conceptPoints(c).includes(o.current!))).map((it) => it.id);
   const otherSentences = sentences.map((it) => it.id).filter((id) => !onPoint.includes(id));
