@@ -25,6 +25,8 @@ export interface ChapterContent {
   infoGapIds: string[];
   /** GrammarConcept ids, from the chapter scenario's `requiredStructures`. */
   grammarIds: string[];
+  /** Script chapter: the letters whose recognition makes it done (the alphabet's tricky ones). */
+  glyphs: string[];
 }
 
 /** The learner-state this module needs. Structurally a subset of the app's Progress, so it can be
@@ -34,6 +36,8 @@ export interface ChapterProgressInput {
   seenGrammar?: Record<string, boolean>;
   storyReads?: Record<string, string[]>;
   scenarios?: Record<string, { turnIndex: number; metCriteria: string[] }>;
+  /** Letters recognised (glyph → true) — a script chapter's progress. */
+  letters?: Record<string, boolean>;
   /** Chapter checkpoints the learner has passed (chapter id → when). */
   chapters?: Record<string, { passedAt: string }>;
 }
@@ -55,6 +59,8 @@ export interface ChapterStatus {
   storyTotal: number;
   criteriaMet: number;
   criteriaTotal: number;
+  lettersKnown: number;
+  lettersTotal: number;
   /** The end-of-chapter checkpoint has been passed. */
   checkpointPassed: boolean;
   /** The chapter's content is finished but its checkpoint hasn't been passed — it's owed a recap. */
@@ -88,6 +94,8 @@ export function resolveChapters(pack: LanguagePack): ChapterContent[] {
         writingIds: (pack.writingTasks ?? []).filter((w) => owns(chapter, w.id)).map((w) => w.id),
         infoGapIds: (pack.infoGapTasks ?? []).filter((g) => owns(chapter, g.id)).map((g) => g.id),
         grammarIds: [...new Set(scenarios.flatMap((s) => s.requiredStructures))],
+        // A script chapter is done when the alphabet's tricky letters (unique + look-alikes) are known.
+        glyphs: chapter.kind === "script" ? pack.alphabet.filter((a) => a.unique || a.falseFriend).map((a) => a.glyph) : [],
       };
     });
 }
@@ -140,6 +148,9 @@ export function chapterStatus(content: ChapterContent, p: ChapterProgressInput):
   if (grammarTotal) strands.push(grammarSeen / grammarTotal);
   if (content.stories.length) strands.push(storyDays > 0 ? 1 : 0);
   if (criteriaTotal) strands.push(criteriaMet / criteriaTotal);
+  const lettersTotal = content.glyphs.length;
+  const lettersKnown = content.glyphs.filter((g) => p.letters?.[g]).length;
+  if (lettersTotal) strands.push(lettersKnown / lettersTotal);
   const percent = strands.length ? strands.reduce((a, b) => a + b, 0) / strands.length : 0;
   const checkpointPassed = !!p.chapters?.[content.chapter.id]?.passedAt;
   return {
@@ -155,6 +166,8 @@ export function chapterStatus(content: ChapterContent, p: ChapterProgressInput):
     storyTotal: content.stories.length,
     criteriaMet,
     criteriaTotal,
+    lettersKnown,
+    lettersTotal,
     readyForCheckpoint: false, // filled in by chapterStatus's caller once completeness is known
   };
 }
@@ -165,7 +178,8 @@ const isComplete = (s: Omit<ChapterStatus, "state">): boolean =>
   (!s.wordsTotal || s.wordsKnown / s.wordsTotal >= MIN_WORDS_KNOWN) &&
   s.grammarSeen === s.grammarTotal &&
   (!s.storyTotal || s.storyRead) &&
-  s.criteriaMet === s.criteriaTotal;
+  s.criteriaMet === s.criteriaTotal &&
+  s.lettersKnown >= s.lettersTotal;
 
 /** Status for every chapter, with exactly one marked `current`: the first that isn't complete (or the
  *  last chapter, once they all are). Later chapters that happen to be complete still read as `done`,
@@ -176,7 +190,8 @@ export function chapterMap(pack: LanguagePack, p: ChapterProgressInput): Chapter
   const currentIdx = raw.findIndex((s) => !isComplete(s));
   return raw.map((s, i) => ({
     ...s,
-    readyForCheckpoint: isComplete(s) && !s.checkpointPassed,
+    // A script chapter has no content checkpoint (its letters quiz IS the check).
+    readyForCheckpoint: isComplete(s) && !s.checkpointPassed && !s.lettersTotal,
     state: isComplete(s) ? "done" : i === (currentIdx === -1 ? raw.length - 1 : currentIdx) ? "current" : "upcoming",
   }));
 }

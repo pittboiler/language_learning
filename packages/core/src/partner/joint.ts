@@ -68,8 +68,10 @@ export interface JointInputs {
 const order = (course: Course, id: string) => course.points.find((p) => p.id === id)?.order ?? 0;
 
 /** Index of the first session in a chapter where its conversation is attempted (speak), 1-based. */
+const byOrder = (course: Course, o: number) => course.chapters.find((c) => c.order === o);
+
 const speakFrom = (course: Course, chapterOrder: number): number | undefined => {
-  const ch = course.chapters[chapterOrder - 1];
+  const ch = byOrder(course, chapterOrder);
   return ch?.sessions.find((s) => !!s.speak)?.n;
 };
 
@@ -112,10 +114,8 @@ export function planJointSession(inp: JointInputs): JointPlan {
       const id = src.slice("story:".length, src.lastIndexOf("#"));
       byStory.set(id, [...(byStory.get(id) ?? []), lineNo(src)]);
     }
-    const chapterOfStory = (id: string) => {
-      const i = course.chapters.findIndex((c) => c.sessions.some((s) => s.story?.id === id && !s.story.reuse));
-      return i === -1 ? Infinity : i + 1;
-    };
+    const chapterOfStory = (id: string) =>
+      course.chapters.find((c) => c.sessions.some((s) => s.story?.id === id && !s.story.reuse))?.order ?? Infinity;
     const best = [...byStory.entries()]
       .filter(([id]) => chapterOfStory(id) <= sharedChapterOrder)
       .sort((a, b) => b[1].length - a[1].length || chapterOfStory(b[0]) - chapterOfStory(a[0]))[0];
@@ -124,9 +124,9 @@ export function planJointSession(inp: JointInputs): JointPlan {
 
   // Conversation: the latest chapter whose conversation BOTH have unlocked.
   let scenarioId: string | undefined;
-  for (let o = sharedChapterOrder; o >= 1 && !scenarioId; o--) {
+  for (let o = sharedChapterOrder; o >= 0 && !scenarioId; o--) {
     const ok = unlockedSpeak(course, me, o) && (!partner || unlockedSpeak(course, partner, o));
-    if (ok) scenarioId = course.chapters[o - 1]!.checkpoint.scenarioId;
+    if (ok) scenarioId = byOrder(course, o)?.checkpoint.scenarioId;
   }
 
   // Items, in agenda → lesson order. A partner who hasn't practised this window gets a lighter plan.
@@ -153,9 +153,9 @@ export function planJointSession(inp: JointInputs): JointPlan {
   const nextPoint = course.points.find((p) => !(mine.has(p.id) && theirs.has(p.id)));
   if (nextPoint) {
     const waitingOn = !mine.has(nextPoint.id) && !theirs.has(nextPoint.id) ? "both" : !mine.has(nextPoint.id) ? "you" : "partner";
-    const ch = course.chapters.findIndex((c) => c.pointIds.includes(nextPoint.id));
-    const s = course.chapters[ch]?.sessions.find((x) => x.pointId === nextPoint.id && x.role === "teach")?.n;
-    const where = `${titles.chapter(ch + 1)}, session ${s}`;
+    const ch = course.chapters.find((c) => c.pointIds.includes(nextPoint.id));
+    const s = ch?.sessions.find((x) => x.pointId === nextPoint.id && x.role === "teach")?.n;
+    const where = `${titles.chapter(ch?.order ?? 0)}, session ${s}`;
     const label = waitingOn === "both"
       ? `Next together: ${titles.point(nextPoint.id)}, after you've both done ${where}.`
       : waitingOn === "you"

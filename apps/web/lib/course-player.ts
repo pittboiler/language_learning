@@ -27,6 +27,9 @@ export interface CourseState {
   stageReviewAfter?: string;
   /** The whole course is finished. */
   finished?: boolean;
+  /** The blueprint structure this position was made on (Course.version). A different one re-places the
+   *  learner at the start: their words, grammar seen and saved cards are kept. */
+  v?: string;
 }
 
 export type CoursePosition =
@@ -34,10 +37,14 @@ export type CoursePosition =
   | { kind: "stage-review"; afterChapterId: string }
   | { kind: "finished" };
 
-export const initialState = (course: Course): CourseState => ({ chapterId: course.chapters[0]!.chapterId, session: 1 });
+export const initialState = (course: Course): CourseState => ({ chapterId: course.chapters[0]!.chapterId, session: 1, v: course.version });
+
+/** The saved state, unless it was made on a different course structure (then: the start). */
+const current = (course: Course, state: CourseState | undefined): CourseState =>
+  state && (!course.version || state.v === course.version) ? state : initialState(course);
 
 export function position(course: Course, state: CourseState | undefined): CoursePosition {
-  const s = state ?? initialState(course);
+  const s = current(course, state);
   if (s.finished) return { kind: "finished" };
   if (s.stageReviewAfter) return { kind: "stage-review", afterChapterId: s.stageReviewAfter };
   const chapter = course.chapters.find((c) => c.chapterId === s.chapterId) ?? course.chapters[0]!;
@@ -48,20 +55,21 @@ export function position(course: Course, state: CourseState | undefined): Course
 /** Advance after a finished session. A checkpoint only moves on when passed (else: retry, with a review
  *  first); a passed stage-ending checkpoint owes a stage review; a stage review leads to the next chapter. */
 export function advance(course: Course, state: CourseState | undefined, outcome: { checkpointPassed?: boolean }): CourseState {
-  const s = state ?? initialState(course);
+  const v = course.version;
+  const s = { ...current(course, state), v };
   if (s.finished) return s;
   const idx = course.chapters.findIndex((c) => c.chapterId === s.chapterId);
   const next = course.chapters[idx + 1];
-  const toNextChapter = (): CourseState => (next ? { chapterId: next.chapterId, session: 1 } : { chapterId: s.chapterId, session: s.session, finished: true });
+  const toNextChapter = (): CourseState => (next ? { chapterId: next.chapterId, session: 1, v } : { chapterId: s.chapterId, session: s.session, finished: true, v });
   if (s.stageReviewAfter) return toNextChapter();
   const chapter = course.chapters[idx]!;
   const session = chapter.sessions[s.session - 1];
   if (session?.role === "checkpoint") {
     if (!outcome.checkpointPassed) return { ...s, retry: true };
-    if (course.stageReviews.some((r) => r.afterChapterId === chapter.chapterId)) return { chapterId: s.chapterId, session: s.session, stageReviewAfter: chapter.chapterId };
+    if (course.stageReviews.some((r) => r.afterChapterId === chapter.chapterId)) return { chapterId: s.chapterId, session: s.session, stageReviewAfter: chapter.chapterId, v };
     return toNextChapter();
   }
-  return { chapterId: s.chapterId, session: Math.min(s.session + 1, chapter.sessions.length) };
+  return { chapterId: s.chapterId, session: Math.min(s.session + 1, chapter.sessions.length), v };
 }
 
 // ---- grammar points as reviewable cards ------------------------------------------------------------
@@ -133,11 +141,11 @@ export const EARLIER_SHARE = { normal: 2, review: 4 };
 /** Chapter order (1-based) that teaches each lexKey / point card, from the blueprint. */
 export function chapterOfKey(course: Course): Map<string, number> {
   const m = new Map<string, number>();
-  course.chapters.forEach((c, i) => {
-    for (const w of c.words) if (!m.has(w.lexKey)) m.set(w.lexKey, i + 1);
+  course.chapters.forEach((c) => {
+    for (const w of c.words) if (!m.has(w.lexKey)) m.set(w.lexKey, c.order);
     for (const pid of c.pointIds) {
       const p = course.points.find((x) => x.id === pid);
-      if (p) pointItems(p).forEach((it) => m.set(familiarity.deriveKeyForItem(it).lexKey, i + 1));
+      if (p) pointItems(p).forEach((it) => m.set(familiarity.deriveKeyForItem(it).lexKey, c.order));
     }
   });
   return m;
@@ -241,6 +249,8 @@ export interface Recap {
   words: { lexKey: string; display: string; gloss?: string }[];
   /** Today's grammar cards (the point's blank cards). */
   cards: ReviewItem[];
+  /** Chapter 0: the letters learned today, with their sounds and an example word. */
+  letters: { glyph: string; sound: string; example?: string; gloss?: string }[];
   next: string;
 }
 
@@ -248,7 +258,7 @@ export interface Recap {
  *  tapped during it. */
 export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosition, progress: Progress, since: Date): Recap {
   const points = pointsById(course);
-  const out: Recap = { points: [], words: [], cards: [], next: "" };
+  const out: Recap = { points: [], words: [], cards: [], letters: [], next: "" };
   const fresh = (lexKey: string) => {
     const e = progress.familiarity[lexKey];
     return !!e && new Date(e.createdAt) >= since && familiarity.isStudied(e) && e.status !== "ignored" && !lexKey.startsWith("grammar:");
@@ -259,6 +269,12 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
   }
   if (pos.kind !== "session") return out;
   const { chapter, session } = pos;
+  if (session.letters) {
+    out.letters = session.letters.glyphs.map((g) => pack.alphabet.find((a) => a.glyph === g)).filter((a): a is NonNullable<typeof a> => !!a)
+      .map((a) => ({ glyph: a.glyph, sound: a.sound, example: a.examples[0]?.text, gloss: a.examples[0]?.gloss }));
+    out.next = session.next;
+    return out;
+  }
   // Which points does today recap? The one taught/practised, else everything this chapter has taught so far.
   const taughtSoFar = chapter.pointIds.filter((id) => chapter.sessions.some((s) => s.n <= session.n && s.pointId === id));
   const ids = session.pointId ? [session.pointId] : taughtSoFar;
@@ -287,12 +303,12 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
 export function positionShare(pack: LanguagePack, p: Progress): CoursePositionShare | undefined {
   const course = pack.course;
   if (!course || !courseV2On(pack, p)) return undefined;
-  const state = p.course ?? initialState(course);
-  const idx = Math.max(0, course.chapters.findIndex((c) => c.chapterId === state.chapterId));
+  const state = current(course, p.course);
+  const ch = course.chapters.find((c) => c.chapterId === state.chapterId) ?? course.chapters[0]!;
   return {
-    chapterId: course.chapters[idx]!.chapterId,
-    chapterOrder: idx + 1,
-    session: state.stageReviewAfter ? course.chapters[idx]!.sessions.length + 1 : state.session,
+    chapterId: ch.chapterId,
+    chapterOrder: ch.order,
+    session: state.stageReviewAfter ? ch.sessions.length + 1 : state.session,
     points: course.points.filter((pt) => p.seenGrammar?.[pt.id]).map((pt) => pt.id),
   };
 }

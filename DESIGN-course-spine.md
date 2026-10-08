@@ -246,6 +246,22 @@ Phases 1–6 land behind one switch, so the live app stays on the current course
 - daily-plan logic is unit-tested headlessly (localhost uses the Supabase store, so seeded local profiles are ignored)
 - the agenda, recap and Library pages are checked in the browser preview with a test account
 
+## 11a. Revision after first use (2026-10-08)
+
+Jake's first session prompted three changes:
+
+- **Chapter 0: Letters & sounds.** The alphabet is now a chapter inside the course, not a gate in front of it. It's a "script" chapter (no words, stories or conversations; `Chapter.kind = "script"`, order 0, so the curriculum keeps chapters 1–12). Five sessions teach the letters in groups that build on each other:
+  1. Like English: А Е К М О Т
+  2. Look-alikes that fool you: В Н Р С У Х
+  3. New shapes: Б Г Д З И Л П
+  4. New shapes, part 2: Ф Ж Ц Ч Ш, plus the stress rule
+  5. Special to Macedonian: Ѓ Ѕ Ј Љ Њ Ќ Џ
+
+  Each session has a learn grid, a quiz until every letter is right, "Say it" with the example words, and a recap. The checkpoint quizzes the 13 tricky letters.
+- **Foundations first.** Chapter 1 now teaches сум + pronouns, then не. Chapter 2 teaches question words, ти/вие, then ли/дали. The repair phrases stay set phrases (with notes) until their grammar comes up, and the later points now point back to them ("You've been saying Можете ли да повторите? since chapter 1").
+- **"Say it" in every teach and practice session.** Two of today's new words plus two of the point's example lines, said out loud with the usual speech feedback. Before this, sessions 1–3 of a chapter had no speaking; the full conversation still waits for the review session.
+- **Re-placing learners.** `Course.version` hashes the structure (chapters, session roles, points, letter groups), so wording changes don't count. A saved position made on another structure re-places the learner at the start, keeping their words, grammar seen and ★ cards.
+
 ## 12. Partnered sessions (built 2026-10-08)
 
 The joint session takes the same agenda → lesson → recap shape, planned over where **both** partners are:

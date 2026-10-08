@@ -48,7 +48,7 @@ export interface PlanInput {
   chunkNotes?: ChunkNote[];
 }
 
-export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInput): { chapters: CourseChapter[]; stageReviews: StageReview[] } {
+export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInput): { chapters: CourseChapter[]; stageReviews: StageReview[]; version: string } {
   const contents = resolveChapters(pack);
   const byId = new Map(contents.map((c) => [c.chapter.id, c]));
   const allSpine = spinePoints();
@@ -67,6 +67,18 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     if (!content) throw new Error(`spine chapter ${spineCh.chapterId} is not in pack.chapters`);
     const chId = spineCh.chapterId;
     const order = content.chapter.order;
+
+    // Script chapter (letters & sounds): one session per letter group, then a checkpoint quiz on the
+    // tricky letters. No words, points, stories or conversations.
+    if (spineCh.letterSessions) {
+      const tricky = pack.alphabet.filter((a) => a.unique || a.falseFriend).map((a) => a.glyph);
+      const sessions: CourseSession[] = [
+        ...spineCh.letterSessions.map((ls, i): CourseSession => ({ n: i + 1, role: "teach", letters: ls, words: [], build: [], agenda: [], next: "" })),
+        { n: spineCh.letterSessions.length + 1, role: "checkpoint", letters: { title: "The tricky ones", glyphs: tricky }, words: [], build: [], agenda: [], next: "" },
+      ];
+      chapters.push({ chapterId: chId, order, pointIds: [], words: [], extraWords: [], sessions, checkpoint: { wordKeys: [], pointIds: [] } });
+      continue;
+    }
     const drop = new Set((spineCh.dropWords ?? []).map(normalize));
 
     // ---- word list, in priority order ----
@@ -197,6 +209,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
 
     chapters.push({
       chapterId: chId,
+      order,
       pointIds: chapterPointIds,
       words: taught,
       extraWords: [...leftover, ...extraWords],
@@ -234,12 +247,19 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
   for (const { ch, s } of flat) {
     const a: string[] = [];
     const pt = s.pointId ? pointText.get(s.pointId) : undefined;
+    if (s.letters) {
+      a.push(s.role === "checkpoint" ? `Checkpoint: ${s.letters.glyphs.length} tricky letters, until you know them all` : `${s.letters.title}: ${s.letters.glyphs.join(" ")}`);
+      if (s.role !== "checkpoint") a.push("Say example words out loud");
+      s.agenda = a;
+      continue;
+    }
     if (s.role === "teach") a.push(pt?.agenda ?? `New: ${pointName(s.pointId!)}`);
     if (s.role === "practice") a.push(s.pointId ? `Practice: ${pointName(s.pointId)}` : "Practice day: more of this chapter's patterns");
     if (s.role === "review") a.push("Review day: nothing new");
     if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in your own words" : "Put it together: use this chapter in a real exchange");
     if (s.role === "checkpoint") a.push("Checkpoint: this chapter's words and grammar", "Then the conversation once more");
     if (s.words.length) a.push(`${s.words.length} new word${s.words.length > 1 ? "s" : ""}: ${s.words.map((w) => w.display.replace(/\.+$/, "")).join(", ")}`);
+    if (s.role === "teach" || s.role === "practice") a.push("Say it: today's words and examples, out loud");
     const lensHere = s.story ? s.story.lens.every((id) => ch.pointIds.includes(id)) : false;
     if (s.story) a.push(s.story.reuse
       ? `Reread “${storyTitle(s.story.id)}” from an earlier chapter: ${lensHere ? `find ${s.story.lens.length > 1 ? "this chapter's patterns" : pointName(s.story.lens[0]!).toLowerCase()}` : "a refresher on what you learned there"}`
@@ -274,7 +294,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     });
     from = to + 1;
   }
-  return { chapters, stageReviews };
+  return { chapters, stageReviews, version: structureVersion(chapters) };
 
   function storyOrder(s: MiniStory): number {
     return contents.find((c) => c.stories.some((x) => x.id === s.id))?.chapter.order ?? 0;
@@ -317,6 +337,15 @@ function assignWords(slots: Slot[], pointWords: Map<string, CourseWord[]>, requi
     requiredBeforeReview: required.every((w) => before.has(w.lexKey)),
     mandatoryFit: (mandatory: CourseWord[]) => mandatory.every((w) => assigned.has(w.lexKey)),
   };
+}
+
+/** A short hash of the course STRUCTURE (chapters, session roles, points, letter groups) — wording changes
+ *  don't move learners, structural ones re-place them (see Course.version). */
+function structureVersion(chapters: CourseChapter[]): string {
+  const sig = chapters.map((c) => `${c.chapterId}:${c.sessions.map((s) => `${s.role}${s.pointId ? `/${s.pointId}` : ""}${s.letters ? `/${s.letters.glyphs.join("")}` : ""}`).join(",")}`).join("|");
+  let h = 2166136261;
+  for (let i = 0; i < sig.length; i++) { h ^= sig.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return (h >>> 0).toString(36);
 }
 
 /** The last point taught at or before slot i of a chapter. */
