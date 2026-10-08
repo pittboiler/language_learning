@@ -72,6 +72,19 @@ export function advance(course: Course, state: CourseState | undefined, outcome:
   return { chapterId: s.chapterId, session: Math.min(s.session + 1, chapter.sessions.length), v };
 }
 
+/** Can the learner skip where they are? Only a script chapter (letters & sounds) — someone who already
+ *  reads the alphabet shouldn't have to sit through it. */
+export const canSkipChapter = (pos: CoursePosition): boolean =>
+  pos.kind === "session" && pos.chapter.sessions.some((s) => !!s.letters);
+
+/** Skip the current (script) chapter: on to the next chapter's first session. */
+export function skipChapter(course: Course, state: CourseState | undefined): CourseState {
+  const s = current(course, state);
+  const idx = course.chapters.findIndex((c) => c.chapterId === s.chapterId);
+  const next = course.chapters[idx + 1];
+  return next ? { chapterId: next.chapterId, session: 1, v: course.version } : s;
+}
+
 // ---- grammar points as reviewable cards ------------------------------------------------------------
 /** Blank out `blank` where it stands as a whole word (не must not hit the не inside Извинете). Falls back
  *  to the first occurrence when the blank is part of a word on purpose (an ending). */
