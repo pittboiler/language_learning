@@ -323,9 +323,9 @@ type TodayStep =
   | { kind: "point"; point: GrammarPoint; mode: "teach" | "practice"; dayIndex: number }
   | { kind: "agenda"; agenda: cp.Agenda }
   | { kind: "letters"; lesson: { title: string; glyphs: string[]; note?: string }; checkpoint: boolean }
-  | { kind: "sayit"; lines: { text: string; gloss: string; translit?: string }[] }
+  | { kind: "sayit"; lines: { text: string; gloss: string; translit?: string; focus?: string[] }[] }
   | { kind: "stage"; afterChapterId: string; items: ReviewItem[]; scenario?: Scenario }
-  | { kind: "speak"; scenario: Scenario }
+  | { kind: "speak"; scenario: Scenario; focus?: string[] }
   | { kind: "build"; ids?: string[]; chapterOrder?: number }
   | { kind: "writing"; prompt: string };
 
@@ -371,8 +371,8 @@ function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[] {
   return [{ kind: "agenda", agenda: { ...agenda, items: warm && !retry ? [warmLine, ...items] : items } }, ...steps];
 }
 
-// The lens for a session's story: a banner naming what to spot, the highlighted lines, and today's
-// set-phrase notes (the blueprint surfaces a few per session) under the lines they belong to.
+// The lens for a session's story: a banner naming what to spot, the lines that use today's focus, and the
+// exact words in them. (Set-phrase notes sit with each line's English, for every line, in StoryReader.)
 function storyLens(course: NonNullable<LanguagePack["course"]>, s: CourseSession, story: MiniStory, points: Map<string, GrammarPoint>): StoryLens {
   const names = (s.story?.lens ?? []).map((id) => points.get(id)?.title).filter(Boolean) as string[];
   const n = s.story?.highlight.length ?? 0;
@@ -382,13 +382,10 @@ function storyLens(course: NonNullable<LanguagePack["course"]>, s: CourseSession
     : s.story?.reuse
       ? `Back to an earlier story, with fresh eyes: the ${n} highlighted line${n > 1 ? "s use" : " uses"} ${what}.`
       : `Spot it: the ${n} highlighted line${n > 1 ? "s use" : " uses"} ${what}.`;
-  const notes: Record<number, string> = {};
-  const prefix = `story:${story.id}#`;
-  for (const src of s.notes ?? []) {
-    const note = course.chunkNotes.find((x) => x.source === src)?.note;
-    if (src.startsWith(prefix) && note) notes[Number(src.slice(prefix.length))] = note;
-  }
-  return { label, highlight: s.story?.highlight ?? [], notes };
+  const lens = s.story?.lens ?? [];
+  const focus: Record<number, string[]> = {};
+  story.body.forEach((_, i) => { const w = cp.focusWords(course, `story:${story.id}#${i}`, lens); if (w.length) focus[i] = w; });
+  return { label, highlight: s.story?.highlight ?? [], points: lens, focus };
 }
 
 function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
@@ -458,7 +455,7 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   if (s.role === "teach" || s.role === "practice") {
     const vocabLine = (w: CourseSession["words"][number]) => { const v = vocabByKey.get(w.lexKey); return { text: w.display, gloss: w.gloss, translit: v?.translit }; };
     const fromWords = s.words.map(vocabLine).sort((a, b) => b.text.split(/\s+/).length - a.text.split(/\s+/).length).slice(0, 2);
-    const fromPoint = (point?.examples ?? []).filter((e) => !e.source.startsWith("grammar:")).slice(0, 2).map((e) => ({ text: e.text.replace(/^[„“"]+|[“”"]+$/g, ""), gloss: e.gloss }));
+    const fromPoint = (point?.examples ?? []).filter((e) => !e.source.startsWith("grammar:")).slice(0, 2).map((e) => ({ text: e.text.replace(/^[„“"]+|[“”"]+$/g, ""), gloss: e.gloss, focus: cp.focusWords(course, e.source, [point!.id]) }));
     const lines = [...fromWords, ...fromPoint].filter((l, i, all) => all.findIndex((x) => x.text === l.text) === i).slice(0, 4);
     if (lines.length) out.push({ kind: "sayit", lines });
   }
@@ -470,7 +467,7 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   const canBuild = s.build.length > 0 && sentenceScope.withFallback(pack, { chapterOrder: order, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).items.length > 0;
   if (canBuild) out.push({ kind: "build", ids: s.build, chapterOrder: order });
   const scen = s.speak ? pack.scenarios.find((x) => x.id === s.speak) : undefined;
-  if (scen) out.push({ kind: "speak", scenario: scen });
+  if (scen) out.push({ kind: "speak", scenario: scen, focus: cp.sessionFocus(cc, s) });
   if (s.writing) out.push({ kind: "writing", prompt: scen?.goal ?? "Write a few lines using this chapter\u2019s words." });
   return out;
 }
@@ -900,6 +897,7 @@ function Today({ progress, persist, config, navigate }: {
             <Tag>New words · {step.words.length}</Tag>
             <NewWordsCard
               words={step.words}
+              noteFor={(k) => { const v = pack.vocab.find((x) => familiarity.deriveKeyForItem(x).lexKey === k); return v ? pack.course?.chunkNotes.find((n) => n.source === `vocab:${v.id}`)?.note : undefined; }}
               onDone={() => done(captureWords(progress, step.words))}
               onMiss={flagWord}
               isStarred={(w) => { const e = progress.familiarity[w.lexKey]; return !!e && familiarity.isStarred(e); }}
@@ -942,6 +940,7 @@ function Today({ progress, persist, config, navigate }: {
               /* A revisit is consolidation: it must not mark a day against the chapter's unit, or a
                  review day would quietly push the chapter along. */
               onDone={() => done(step.revisit ? progress : markStorySeen(seedStoryVocab(progress, step.story), step.story.id))}
+              onMiss={flag}
             />
           </div>
         )}
@@ -964,7 +963,7 @@ function Today({ progress, persist, config, navigate }: {
           <div>
             <Tag>Speak · {step.scenario.title}</Tag>
             <p className="muted small">{step.scenario.goal} — use what you just read, out loud.</p>
-            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare askable restartIfDone onComplete={() => done()} onMiss={flagTurn} />
+            <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare askable restartIfDone onComplete={() => done()} onMiss={flagTurn} focusPoints={step.focus} />
           </div>
         )}
       </div>
@@ -1249,7 +1248,7 @@ function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
       {point.examples.map((ex) => (
         <div className="gram-ex" key={ex.source}>
           <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
-          <span className="mk">{ex.text}</span>
+          <span className="mk"><FocusText text={ex.text} words={pack.course ? cp.focusWords(pack.course, ex.source, [point.id]) : undefined} /></span>
           <span className="en">{ex.gloss}</span>
           {noteFor(ex.source) && <span className="muted small" style={{ flexBasis: "100%", paddingLeft: 35 }}>{noteFor(ex.source)}</span>}
         </div>
@@ -1369,7 +1368,7 @@ function LetterLesson({ lesson, checkpoint, progress, persist, onDone }: {
 
 // "Say it" (teach + practice sessions, and chapter 0): a few lines from today — the new phrases, the
 // grammar point's examples, or the letters' example words — said out loud with the usual speech feedback.
-function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string; gloss: string; translit?: string }[]; config: api.Config | null; onMiss: (t: DialogueTurn) => void; onDone: () => void }) {
+function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string; gloss: string; translit?: string; focus?: string[] }[]; config: api.Config | null; onMiss: (t: DialogueTurn) => void; onDone: () => void }) {
   const [i, setI] = useState(0);
   const line = lines[i];
   if (!line) return null;
@@ -1381,6 +1380,7 @@ function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string; gloss
         turn={{ speaker: "learner", text: line.text, gloss: line.gloss, translit: line.translit ?? romanize(line.text) }}
         config={config}
         onMiss={onMiss}
+        focusWords={line.focus}
         onDone={() => (i + 1 < lines.length ? setI(i + 1) : onDone())}
       />
     </div>
@@ -1671,7 +1671,7 @@ const FALLBACK_GLOSSES = ["hello", "thank you", "please", "yes", "good", "water"
 
 // Pre-teach the story's new words interactively: hear each, tap its meaning (multiple choice), then
 // they're captured. Engages instead of just listing.
-function NewWordsCard({ words, onDone, onMiss, onStar, isStarred }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void; onMiss?: (word: { lexKey: string; gloss?: string }) => void; onStar?: (word: { lexKey: string; gloss?: string }) => void; isStarred?: (word: { lexKey: string; gloss?: string }) => boolean }) {
+function NewWordsCard({ words, onDone, onMiss, onStar, isStarred, noteFor }: { words: { lexKey: string; gloss?: string }[]; onDone: () => void; onMiss?: (word: { lexKey: string; gloss?: string }) => void; onStar?: (word: { lexKey: string; gloss?: string }) => void; isStarred?: (word: { lexKey: string; gloss?: string }) => boolean; noteFor?: (lexKey: string) => string | undefined }) {
   const play = usePlay();
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -1708,6 +1708,8 @@ function NewWordsCard({ words, onDone, onMiss, onStar, isStarred }: { words: { l
           <div className="why">
             {picked === correct ? "✓ " : "✗ "}{word.lexKey} = {correct}
             <button className="btn" style={{ marginLeft: 8 }} onClick={advance}>{last ? "Add these & continue →" : "Next →"}</button>
+            {/* A phrase that leans on later grammar says so here, with its meaning: learn it whole for now. */}
+            {noteFor?.(word.lexKey) && <div className="muted small" style={{ marginTop: 8 }}>💬 {noteFor(word.lexKey)}</div>}
           </div>
         )}
       </div>
@@ -2277,8 +2279,9 @@ function Letters({ progress, persist, onDone, reference, onBack }: { progress: P
 }
 
 // ---------- Library view 2: scenarios ----------
-function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss, askable, restartIfDone }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void; askable?: boolean; restartIfDone?: boolean }) {
+function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss, askable, restartIfDone, focusPoints }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void; askable?: boolean; restartIfDone?: boolean; focusPoints?: string[] }) {
   const pack = usePack();
+  const course = cp.courseV2On(pack, progress) ? pack.course : undefined;
   const s = pack.scenarios.find((x) => x.id === (scenarioId ?? progress.pick)) || pack.scenarios[0]!;
   const sp = progress.scenarios[s.id] || { turnIndex: 0, metCriteria: [] };
   const run: scenario.ScenarioRun = { scenarioId: s.id, turnIndex: sp.turnIndex, metCriteria: sp.metCriteria, done: sp.turnIndex >= s.script.length };
@@ -2320,12 +2323,14 @@ function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hide
           </span>
         ))}
       </div>
-      {s.requiredStructures.length > 0 && <ScenarioGrammar ids={s.requiredStructures} />}
+      {course
+        ? <CoursePointChips sources={s.script.map((_, i) => `scenario:${s.id}#${i}`)} progress={progress} />
+        : s.requiredStructures.length > 0 && <ScenarioGrammar ids={s.requiredStructures} />}
 
       {done ? (
         <Completion scenarioId={s.id} config={config} onComplete={onComplete} />
       ) : turn?.speaker === "partner" ? (
-        <PartnerTurn key={run.turnIndex} turn={turn} autoplay={autoplay} onContinue={() => saveRun(scenario.advance(run, s))} />
+        <PartnerTurn key={run.turnIndex} turn={turn} autoplay={autoplay} onContinue={() => saveRun(scenario.advance(run, s))} focusWords={course && focusPoints ? cp.focusWords(course, `scenario:${s.id}#${run.turnIndex}`, focusPoints) : undefined} />
       ) : turn ? (
         <LearnerTurn
           key={run.turnIndex}
@@ -2333,10 +2338,11 @@ function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hide
           config={config}
           onDone={() => saveRun(scenario.completeTurn(run, s))}
           onMiss={onMiss}
+          focusWords={course && focusPoints ? cp.focusWords(course, `scenario:${s.id}#${run.turnIndex}`, focusPoints) : undefined}
         />
       ) : null}
 
-      {askable && <HaveAQuestion convoId={s.id} lines={s.script} conceptIds={s.requiredStructures} />}
+      {askable && <HaveAQuestion convoId={s.id} lines={s.script} conceptIds={s.requiredStructures} sources={s.script.map((_, i) => `scenario:${s.id}#${i}`)} progress={progress} />}
 
       <div className="row" style={{ marginTop: 14 }}>
         <button className="ghost" onClick={restart}>↺ Restart</button>
@@ -2364,6 +2370,55 @@ function storyGrammarIds(pack: LanguagePack, story: MiniStory): string[] {
     ? pack.scenarios.find((s) => s.theme && s.theme === story.theme && s.requiredStructures.length)
     : undefined;
   return byTheme?.requiredStructures ?? [];
+}
+
+// The new course's "grammar here" chips: the points these lines use that you've been taught (from the line
+// tags), each opening its rule inline. Points you haven't met yet aren't offered, so nothing is explained early.
+function CoursePointChips({ sources, progress, label = "Grammar here:" }: { sources: string[]; progress: Progress; label?: string }) {
+  const pack = usePack();
+  const play = usePlay();
+  const course = pack.course!;
+  const pts = useMemo(() => {
+    const used = new Set(sources.flatMap((src) => course.lineTags[src] ?? []));
+    return course.points.filter((pt) => used.has(pt.id) && progress.seenGrammar?.[pt.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [course, sources.join(), progress.seenGrammar]);
+  const [open, setOpen] = useState<string | null>(null);
+  if (!pts.length) return null;
+  const shown = pts.find((pt) => pt.id === open);
+  return (
+    <div className="gram-inline">
+      <span className="muted small">{label}</span>
+      {pts.map((pt) => (
+        <button key={pt.id} className={`ghost small ${open === pt.id ? "active" : ""}`} onClick={() => setOpen(open === pt.id ? null : pt.id)}>ⓖ {pt.title}</button>
+      ))}
+      {shown && (
+        <div className="fb" style={{ width: "100%", marginTop: 4 }}>
+          <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
+            <span className="gram-title" style={{ fontSize: 15 }}>ⓖ {shown.title}</span>
+            <button className="ghost small" onClick={() => setOpen(null)}>Hide ▲</button>
+          </div>
+          <p style={{ margin: "6px 0" }}>{shown.rule}</p>
+          <div className="gram-ex-list">
+            {shown.examples.slice(0, 2).map((ex) => (
+              <div className="gram-ex" key={ex.source}>
+                <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
+                <span className="mk">{ex.text}</span><span className="en">{ex.gloss}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** A line with today's focus words outlined (the same mark the story uses). */
+function FocusText({ text, words }: { text: string; words?: string[] }) {
+  if (!words?.length) return <>{text}</>;
+  const esc = [...words].sort((a, b) => b.length - a.length).map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const parts = text.split(new RegExp(`(?<![\\p{L}])(${esc.join("|")})(?![\\p{L}])`, "u"));
+  return <>{parts.map((part, i) => (i % 2 ? <mark key={i} className="focus-word">{part}</mark> : <span key={i}>{part}</span>))}</>;
 }
 
 function ScenarioGrammar({ ids, label = "Grammar here:" }: { ids: string[]; label?: string }) {
@@ -2394,8 +2449,20 @@ function ScenarioGrammar({ ids, label = "Grammar here:" }: { ids: string[]; labe
 // "Have a question?" — a scoped AI explainer for the conversation in a Today session step (story read /
 // speak scenario). Concept-derived canned chips + a bounded (≤120 char) free-text box; the answer is cached
 // cross-user and rate-limited server-side (see DESIGN-ai-explain.md). Rendered ONLY in the Today flow.
-function HaveAQuestion({ convoId, lines, conceptIds }: { convoId: string; lines: { text: string; gloss?: string }[]; conceptIds: string[] }) {
+function HaveAQuestion({ convoId, lines, conceptIds, sources, progress }: {
+  convoId: string;
+  lines: { text: string; gloss?: string }[];
+  conceptIds: string[];
+  /** New course: the lines' sources, so the chips offer the taught points these lines use. */
+  sources?: string[];
+  progress?: Progress;
+}) {
   const pack = usePack();
+  const course = progress && cp.courseV2On(pack, progress) ? pack.course : undefined;
+  // On the course the chips are the points these lines use that you've been taught, and the helper is told
+  // what's been taught so it names later grammar ("chapter 8") instead of teaching it early.
+  const taughtHere = course && sources ? course.points.filter((pt) => progress!.seenGrammar?.[pt.id] && sources.some((src) => (course.lineTags[src] ?? []).includes(pt.id))) : [];
+  const courseCtx = course && progress ? cp.explainContext(course, progress) : undefined;
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [answer, setAnswer] = useState<string | null>(null);
@@ -2406,7 +2473,7 @@ function HaveAQuestion({ convoId, lines, conceptIds }: { convoId: string; lines:
   const ask = async (question: string, canned?: string) => {
     setSpin(true); setErr(""); setAnswer(null);
     try {
-      const r = await api.explain({ packId: pack.id, convoId, lines, question, canned });
+      const r = await api.explain({ packId: pack.id, convoId, lines, question, canned, ...(courseCtx ? { course: courseCtx } : {}) });
       if (r.answer) setAnswer(r.answer);
       else if (r.error === "rate_limited") setErr("You've asked a lot today — take a look at the grammar reference for now, and come back tomorrow.");
       else if (r.error === "unconfigured") setErr("AI help isn't configured in this environment.");
@@ -2424,7 +2491,13 @@ function HaveAQuestion({ convoId, lines, conceptIds }: { convoId: string; lines:
       {open && (
         <div className="fb" style={{ marginTop: 8 }}>
           <div className="muted small">Ask about the grammar or wording in this conversation.</div>
-          {concepts.length > 0 && (
+          {course ? (taughtHere.length > 0 && (
+            <div className="row" style={{ flexWrap: "wrap", margin: "8px 0" }}>
+              {taughtHere.map((pt) => (
+                <button key={pt.id} className="ghost small" disabled={spin} onClick={() => ask(`Why "${pt.title}"? Explain how it shows up in this conversation.`, pt.id)}>ⓖ {pt.title}?</button>
+              ))}
+            </div>
+          )) : concepts.length > 0 && (
             <div className="row" style={{ flexWrap: "wrap", margin: "8px 0" }}>
               {concepts.map((c) => (
                 <button key={c.id} className="ghost small" disabled={spin} onClick={() => ask(`Why "${c.name}"? Explain how it shows up in this conversation.`, c.id)}>ⓖ {c.name}?</button>
@@ -2452,7 +2525,7 @@ function HaveAQuestion({ convoId, lines, conceptIds }: { convoId: string; lines:
   );
 }
 
-function PartnerTurn({ turn, autoplay, onContinue }: { turn: DialogueTurn; autoplay: boolean; onContinue: () => void }) {
+function PartnerTurn({ turn, autoplay, onContinue, focusWords }: { turn: DialogueTurn; autoplay: boolean; onContinue: () => void; focusWords?: string[] }) {
   const play = usePlay();
   useEffect(() => {
     if (autoplay) play(turn.text, 0.85);
@@ -2460,7 +2533,7 @@ function PartnerTurn({ turn, autoplay, onContinue }: { turn: DialogueTurn; autop
   return (
     <div>
       <div className="bubble partner">
-        <div><button className="spk" onClick={() => play(turn.text, 0.85)}>🔊</button>{turn.text}</div>
+        <div><button className="spk" onClick={() => play(turn.text, 0.85)}>🔊</button><FocusText text={turn.text} words={focusWords} /></div>
         <div className="gloss">{turn.gloss}</div>
       </div>
       <div className="row"><button className="btn" onClick={onContinue}>Continue →</button></div>
@@ -2468,7 +2541,7 @@ function PartnerTurn({ turn, autoplay, onContinue }: { turn: DialogueTurn; autop
   );
 }
 
-function LearnerTurn({ turn, config, onDone, onMiss }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void; onMiss?: (turn: DialogueTurn) => void }) {
+function LearnerTurn({ turn, config, onDone, onMiss, focusWords }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void; onMiss?: (turn: DialogueTurn) => void; focusWords?: string[] }) {
   const pack = usePack();
   const play = usePlay();
   const rec = useRef(makeRecorder());
@@ -2529,7 +2602,7 @@ function LearnerTurn({ turn, config, onDone, onMiss }: { turn: DialogueTurn; con
     <div>
       <p className="muted small">🐢 Speak slowly and clearly — recognition (and your pronunciation) both improve with deliberate pacing.</p>
       <p className="muted small">Your turn — say:</p>
-      <div className="target">{turn.text}</div>
+      <div className="target"><FocusText text={turn.text} words={focusWords} /></div>
       {turn.translit && (showTranslit ? (
         <div className="translit" style={{ cursor: "pointer" }} title="Tap to hide" onClick={() => setShowTranslit(false)}>{turn.translit}</div>
       ) : (
@@ -2936,12 +3009,12 @@ function HighlightLegend() {
 }
 
 // Renders a line as tappable, status-colored word tokens. Shared by the reader + the story player.
-function TappableText({ text, progress, onTapWord }: { text: string; progress: Progress; onTapWord: (surface: string) => void }) {
+function TappableText({ text, progress, onTapWord, focus }: { text: string; progress: Progress; onTapWord: (surface: string) => void; focus?: string[] }) {
   return (
     <span className="rtext">
       {scoring.tokenize(text).map((t, j) =>
         t.isWord ? (
-          <WordToken key={j} surface={t.surface} status={wordStatus(progress, t.lexKey)} onTap={() => onTapWord(t.surface)} />
+          <WordToken key={j} surface={t.surface} status={`${wordStatus(progress, t.lexKey)}${focus?.includes(t.surface) ? " focus" : ""}`} onTap={() => onTapWord(t.surface)} />
         ) : (
           <span key={j}>{t.surface}</span>
         ),
@@ -3010,7 +3083,15 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
 
 // ---------- shared story reader (synced audio + tap-capture) — used by Today and the Library Story view ----------
 /** A story lens (new course, DESIGN §8): which lines use today's point(s), and set-phrase notes to show. */
-interface StoryLens { label: string; highlight: number[]; notes: Record<number, string> }
+interface StoryLens {
+  label: string;
+  /** Lines that use today's focus. */
+  highlight: number[];
+  /** Today's focus points. */
+  points: string[];
+  /** Line index → the exact words carrying today's focus (highlighted word by word). */
+  focus: Record<number, string[]>;
+}
 
 function StoryReader({ story, progress, persist, config, onDone, doneLabel, askable, lens }: {
   lens?: StoryLens;
@@ -3024,9 +3105,15 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
 }) {
   const pack = usePack();
   const play = usePlay();
+  const course = cp.courseV2On(pack, progress) ? pack.course : undefined;
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
   const [current, setCurrent] = useState(-1);
   const [revealed, setRevealed] = useState<Record<number, boolean>>({});
+  // Set-phrase notes for this story's lines (line index → note), shown with a line's English.
+  const noteOf = useMemo(() => {
+    const prefix = `story:${story.id}#`;
+    return new Map((pack.course?.chunkNotes ?? []).filter((n) => n.source.startsWith(prefix)).map((n) => [Number(n.source.slice(prefix.length)), n.note]));
+  }, [pack, story.id]);
   const speed = useContext(SlowContext);
   const playing = useRef(false);
 
@@ -3084,8 +3171,10 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
       <p className="lead">Listen and read along; tap any word to look it up. Read each line, then tap the greyed English on the right to check yourself.</p>
       <HighlightLegend />
       {lens
-        ? <div className="lens-banner">{lens.label}</div>
-        : <ScenarioGrammar ids={storyGrammarIds(pack, story)} label="Grammar in this story:" />}
+        ? <div className="lens-banner">{lens.label}{Object.keys(lens.focus).length ? <> The words that carry it are <mark className="focus-word">outlined</mark>.</> : null}</div>
+        : course
+          ? <CoursePointChips sources={story.body.map((_, i) => `story:${story.id}#${i}`)} progress={progress} label="Grammar in this story:" />
+          : <ScenarioGrammar ids={storyGrammarIds(pack, story)} label="Grammar in this story:" />}
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
         <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
@@ -3095,7 +3184,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
           <div className={`rline2 rline-glossed ${current === i ? "playing" : ""} ${lens?.highlight.includes(i) ? "rline-lens" : ""}`} key={i}>
             <div className="rline-mk">
               <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
-              <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text, l.gloss)} />
+              <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text, l.gloss)} focus={lens?.focus[i]} />
             </div>
             {l.gloss && (
               <button
@@ -3107,12 +3196,13 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
                 {l.gloss}
               </button>
             )}
-            {lens?.notes[i] && <div className="rline-note">💬 Set phrase for now: {lens.notes[i]}</div>}
+            {/* A line that leans on grammar from a later chapter explains itself with its English, on tap. */}
+            {revealed[i] && noteOf.get(i) && <div className="rline-note">💬 {noteOf.get(i)}</div>}
           </div>
         ))}
       </div>
       {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
-      {askable && <HaveAQuestion convoId={story.id} lines={story.body} conceptIds={storyGrammarIds(pack, story)} />}
+      {askable && <HaveAQuestion convoId={story.id} lines={story.body} conceptIds={storyGrammarIds(pack, story)} sources={story.body.map((_, i) => `story:${story.id}#${i}`)} progress={progress} />}
       <div className="row" style={{ marginTop: 14 }}>
         <button className="btn" onClick={onDone}>{doneLabel}</button>
       </div>
@@ -3125,6 +3215,14 @@ function StoryView({ progress, persist, config, onDone }: { progress: Progress; 
   const pack = usePack();
   const story = pack.stories?.find((s) => s.id === progress.storyPick) ?? pack.stories?.[0];
   const [phase, setPhase] = useState<"read" | "qa">("read");
+  // On the course: exercises on the grammar you've been taught that this story uses (no single focus).
+  const libUseIt = useMemo(() => {
+    if (!story || !pack.course || !cp.courseV2On(pack, progress)) return [];
+    const used = new Set(story.body.flatMap((_, i) => pack.course!.lineTags[`story:${story.id}#${i}`] ?? []));
+    const taught = pack.course.points.filter((pt) => used.has(pt.id) && progress.seenGrammar?.[pt.id]).map((pt) => pt.id);
+    return taught.length ? cp.useItItems(pack.course, story, taught, (progress.storyReads?.[story.id]?.length ?? 0)) : [];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pack, story?.id, phase]);
 
   if (!story) return <section className="view"><h2>Story</h2><p className="lead">No stories yet for this pack.</p></section>;
 
@@ -3147,6 +3245,8 @@ function StoryView({ progress, persist, config, onDone }: { progress: Progress; 
           doneLabel={`I read it → questions (+${story.registersVocab.length} words)`}
           onDone={toQA}
         />
+      ) : libUseIt.length ? (
+        <UseIt items={libUseIt} config={config} onRestart={() => setPhase("read")} onDone={onDone} />
       ) : (
         <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} onDone={onDone} />
       )}
@@ -3199,18 +3299,22 @@ function StoryQAView({ story, config, onRestart, onDone, dayIndex = 0 }: { story
 // Today's story step: read → Q&A → speak. Mirrors the Library's StoryView phasing, but uses the
 // session's chosen story and advances the daily flow on completion — the Q&A is the input→output
 // bridge (recall the story's words, last question spoken) before the full speak scenario.
-function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0, lens }: {
+function TodayStoryStep({ story, progress, persist, config, onDone, onMiss, dayIndex = 0, lens }: {
   lens?: StoryLens;
   story: MiniStory;
   progress: Progress;
   persist: (p: Progress) => void;
   config: api.Config | null;
   onDone: () => void;
+  onMiss?: (item: ReviewItem) => void;
   dayIndex?: number;
 }) {
+  const pack = usePack();
   const [phase, setPhase] = useState<"read" | "qa">("read");
-  const hasQA = story.qa.length > 0;
-  // Seed the story's vocab when moving to Q&A so the questions reuse words now marked as met.
+  // The course: a few exercises on today's focus, from the story's own lines. Otherwise the story's questions.
+  const useIt = useMemo(() => (pack.course && lens ? cp.useItItems(pack.course, story, lens.points, dayIndex) : []), [pack, story, lens, dayIndex]);
+  const hasQA = useIt.length > 0 || story.qa.length > 0;
+  // Seed the story's vocab when moving on so the exercises reuse words now marked as met.
   const toQA = () => { persist(seedStoryVocab(progress, story)); setPhase("qa"); };
   return phase === "read" ? (
     <StoryReader
@@ -3220,11 +3324,80 @@ function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0
       persist={persist}
       config={config}
       askable
-      doneLabel={hasQA ? `I read it → ${story.qa.length} questions` : "I read it → speak"}
+      doneLabel={useIt.length ? `I read it → use it (${useIt.length})` : hasQA ? `I read it → ${story.qa.length} questions` : "I read it → speak"}
       onDone={hasQA ? toQA : onDone}
     />
+  ) : useIt.length ? (
+    <UseIt items={useIt} config={config} onMiss={onMiss} onRestart={() => setPhase("read")} onDone={onDone} />
   ) : (
     <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} onDone={onDone} dayIndex={dayIndex} />
+  );
+}
+
+// "Use it": a few quick exercises on today's focus after the story, each a little more productive than the
+// last — understand a line, pick the missing form, build a line from its words, say one aloud. Built from the
+// story's own lines (cp.useItItems), so they practise the lesson at hand. Misses join the session's recap.
+function UseIt({ items, config, onMiss, onRestart, onDone }: {
+  items: cp.UseItItem[];
+  config: api.Config | null;
+  onMiss?: (item: ReviewItem) => void;
+  onRestart?: () => void;
+  onDone?: () => void;
+}) {
+  const play = usePlay();
+  const [i, setI] = useState(0);
+  const [picked, setPicked] = useState<string | null>(null);
+  const [finished, setFinished] = useState(false);
+  const it = items[i];
+  const options = useMemo(() => (it && (it.kind === "understand" || it.kind === "complete") ? shuffle(it.options) : []), [it]);
+  const asCard = (l: { text: string; gloss: string; source: string }): ReviewItem => ({ id: `use-${l.source}`, kind: "phrase", prompt: l.gloss, answer: l.text, gloss: l.gloss, i1Level: 0, tags: [] });
+  const next = () => { setPicked(null); setFinished(false); if (i + 1 < items.length) setI(i + 1); else onDone?.(); };
+  if (!it) return null;
+  const answer = it.kind === "understand" ? it.line.gloss : it.kind === "complete" ? it.blank : "";
+  const choose = (o: string) => { if (picked) return; setPicked(o); setFinished(true); if (o !== answer) onMiss?.(asCard(it.line)); };
+  const head = { understand: "What does it mean?", complete: "Complete the line", build: "Build the line", say: "Say it" }[it.kind];
+  return (
+    <div>
+      <p className="lead" style={{ marginBottom: 6 }}>Use it: today&apos;s focus, in the story&apos;s own lines.</p>
+      <div className="fb">
+        <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+          <div className="gram-kicker">{head}</div>
+          <span className="muted small">{i + 1} of {items.length}</span>
+        </div>
+        {it.kind === "understand" && (
+          <>
+            <div className="row" style={{ margin: "8px 0" }}><button className="spk" onClick={() => play(it.line.text)}>🔊</button><b className="target">{it.line.text}</b></div>
+            <div>{options.map((o) => <button key={o} className={picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt"} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
+          </>
+        )}
+        {it.kind === "complete" && (
+          <>
+            <div className="row" style={{ margin: "8px 0 2px" }}><button className="spk" onClick={() => play(it.line.text)}>🔊</button><b className="target">{cp.blankOut(it.line.text, it.blank)}</b></div>
+            <div className="muted small" style={{ marginBottom: 4 }}>{it.line.gloss}</div>
+            <div>{options.map((o) => <button key={o} className={picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt"} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
+            {picked && <div className="why">{picked === answer ? "✓ " : "✗ "}{it.why}</div>}
+          </>
+        )}
+        {it.kind === "build" && (
+          <>
+            <TileBuilder key={it.line.source} variant={{ en: it.line.gloss, mk: it.line.text }} onFinish={(outcome) => { if (outcome === "revealed") onMiss?.(asCard(it.line)); setFinished(true); }} />
+          </>
+        )}
+        {it.kind === "say" && (
+          <>
+            <div className="muted small" style={{ margin: "6px 0" }}>Say this line out loud.</div>
+            <LearnerTurn key={it.line.source} turn={{ speaker: "learner", text: it.line.text, translit: it.line.translit, gloss: it.line.gloss }} config={config} onDone={() => setFinished(true)} />
+            {!finished && <button className="ghost small" style={{ marginTop: 6 }} onClick={() => setFinished(true)}>Can&apos;t talk right now, skip</button>}
+          </>
+        )}
+        {finished && (
+          <div className="row" style={{ marginTop: 12 }}>
+            <button className="btn" onClick={next}>{i + 1 < items.length ? "Next →" : "Done →"}</button>
+          </div>
+        )}
+      </div>
+      {onRestart && <button className="ghost small" style={{ marginTop: 10 }} onClick={onRestart}>↺ Read the story again</button>}
+    </div>
   );
 }
 

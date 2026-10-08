@@ -249,7 +249,7 @@ export interface CourseLintIssue {
   kind:
     | "spine-order" | "points-per-chapter" | "missing-point" | "stale-line" | "new-language" | "bad-blank"
     | "too-many-words" | "speak-too-early" | "reuse-forward" | "bad-highlight" | "no-checkpoint"
-    | "missing-chunk-note" | "unknown-point";
+    | "missing-chunk-note" | "unknown-point" | "bad-focus";
   where: string;
   detail: string;
 }
@@ -321,6 +321,22 @@ export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
       }
     });
     if (c.sessions.at(-1)?.role !== "checkpoint") add("no-checkpoint", c.chapterId, "last session isn't the checkpoint");
+  }
+
+  // focus: the words are whole words of the line; a fill-in is one of them, with 3 distinct pack-word options
+  const wholeWord = (line: string, w: string) => !!w && new RegExp(`(^|[^\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u").test(line);
+  for (const [source, byPoint] of Object.entries(course.lineFocus ?? {})) {
+    const text = resolveSource(pack, source);
+    if (text === undefined) { add("stale-line", source, "focus on a line that no longer exists"); continue; }
+    for (const [pid, f] of Object.entries(byPoint)) {
+      if (!(course.lineTags[source] ?? []).includes(pid)) add("bad-focus", source, `focus for ${pid}, which isn't a tag of the line`);
+      for (const w of f.words) if (!wholeWord(text, w)) add("bad-focus", source, `${pid}: "${w}" isn't a whole word of “${text}”`);
+      if (!f.blank) continue;
+      if (!f.words.includes(f.blank.word)) add("bad-focus", source, `${pid}: fill-in "${f.blank.word}" isn't one of its words`);
+      if (new Set(f.blank.options).size !== 3 || !f.blank.options.includes(f.blank.word)) add("bad-focus", source, `${pid}: options [${f.blank.options.join(", ")}] must be 3 distinct incl. "${f.blank.word}"`);
+      for (const o of f.blank.options) for (const w of tokens(o)) if (!corpus.has(w)) add("new-language", source, `${pid}: option "${o}" isn't in the pack`);
+      checkProse(f.blank.why, `${source} ${pid} fill-in`);
+    }
   }
 
   // tags + set-phrase notes

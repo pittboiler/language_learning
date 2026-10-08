@@ -231,4 +231,37 @@ for (const c of course.chapters) {
   assert.ok(notes.words.some((w) => w.lexKey === "мажот") && !notes.words.some((w) => w.lexKey === "навистина"));
 }
 
+// 17. "Use it": exercises built from the story's own lines that use today's focus, easiest first; a fill-in
+//     comes from the line's focus when there is one, else from the point's quick checks; a story with no line
+//     on the focus falls back to the point's examples.
+{
+  const story = macedonian.stories!.find((x) => x.id === "gen-s0-repair-story")!;
+  const onSum = story.body.map((_, i) => `story:${story.id}#${i}`).filter((src) => (course.lineTags[src] ?? []).includes("pt-sum"));
+  assert.ok(onSum.length > 0, "the chapter 1 story has a сум line");
+  const withFocus = { ...course, lineFocus: { [onSum[0]!]: { "pt-sum": { words: ["е"], blank: { word: "е", options: ["е", "си", "сум"], why: "Ana is “she” → е." } } } } };
+  const items = cp.useItItems(withFocus, story, ["pt-sum"], 0);
+  assert.deepEqual(items.map((x) => x.kind), ["understand", "complete", "build", "say"].filter((k) => items.some((x) => x.kind === k)), "easiest first");
+  const complete = items.find((x) => x.kind === "complete");
+  assert.ok(complete && complete.kind === "complete" && complete.blank === "е" && complete.options.includes("си"), "the line's own fill-in");
+  const understand = items.find((x) => x.kind === "understand");
+  assert.ok(understand && understand.kind === "understand" && understand.options.includes(understand.line.gloss) && understand.options.length === 3);
+  const sumPoint = course.points.find((x) => x.id === "pt-sum")!;
+  assert.ok(items.filter((x) => x.kind !== "complete").every((x) => onSum.includes(x.line.source) || sumPoint.examples.some((e) => e.source === x.line.source)), "every line uses today's point (the story's, or the lesson's examples)");
+  assert.ok(new Set(items.map((x) => x.line.source)).size >= 3, "a story with one сум line borrows the lesson's examples, so the exercises vary");
+  const build = items.find((x) => x.kind === "build");
+  assert.ok(!build || !/[„“"]/.test(build.line.text), "tiles carry no quotation marks");
+  // No line on the focus in this story → the point's own examples / quick checks stand in.
+  const fallback = cp.useItItems(course, story, ["pt-go-ja-gi"], 0);
+  const goPoint = course.points.find((x) => x.id === "pt-go-ja-gi")!;
+  assert.ok(fallback.length > 0 && fallback.filter((x) => x.kind !== "complete").every((x) => goPoint.examples.some((e) => cp.bareLine(e.text) === x.line.text || e.source === x.line.source)));
+  // Focus words for highlighting; the session's focus points.
+  assert.deepEqual(cp.focusWords(withFocus, onSum[0]!, ["pt-sum", "pt-ne"]), ["е"]);
+  const ch1 = course.chapters.find((c) => c.order === 1)!;
+  assert.deepEqual(cp.sessionFocus(ch1, ch1.sessions[0]!), ["pt-sum"]);
+  // The question helper knows the chapter, what's taught, and what comes later (with its chapter).
+  const ctx = cp.explainContext(course, prog({ course: { chapterId: ch1.chapterId, session: 2, v: course.version }, seenGrammar: { "pt-sum": true } }));
+  assert.equal(ctx.chapter, 1);
+  assert.ok(ctx.taught.length === 1 && ctx.later.some((l) => l.chapter === 8));
+}
+
 console.log("course-player.test.ts: all assertions passed ✓");
