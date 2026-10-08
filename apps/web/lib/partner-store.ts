@@ -7,11 +7,14 @@ import { supabase, uid, supabaseConfigured } from "./supabase";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import type { FamiliarityProjection } from "@ll/core/partner/familiarity-diff";
+import type { CoursePositionShare } from "@ll/core/partner/joint";
 
 /** What one member publishes for the partner to read (already visibility-gated by `publish`, §1.1). */
 export interface PublishedState {
   activity: ActivityRecord;
   familiarity?: FamiliarityProjection; // Phase 2
+  /** Where I am in the course blueprint (new course) — lets the joint session meet both partners. */
+  course?: CoursePositionShare;
 }
 
 export interface PartnerArtifact {
@@ -172,6 +175,8 @@ function supabasePartnerStore(): PartnerStore {
           metrics: vis.shareActivity ? state.activity.metrics : undefined,
         },
         familiarity: vis.shareFamiliarity ? state.familiarity : undefined,
+        // Course position is activity-level information: shared under the same switch.
+        course: vis.shareActivity ? state.course : undefined,
       };
       const { error } = await sb.from("partner_published_state").upsert({
         partnership_id: partnershipId,

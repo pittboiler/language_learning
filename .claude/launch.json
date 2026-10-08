@@ -40,6 +40,22 @@
         "3001"
       ],
       "port": 3001
+    },
+    {
+      "name": "web-partner",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": [
+        "--yes",
+        "pnpm@latest",
+        "--filter",
+        "@ll/web",
+        "exec",
+        "next",
+        "dev",
+        "-p",
+        "3002"
+      ],
+      "port": 3002
     }
   ]
 }

@@ -28,7 +28,8 @@
     "./live": "./src/live/index.ts",
     "./together": "./src/together/index.ts",
     "./story-together": "./src/story-together/index.ts",
-    "./explain": "./src/explain/index.ts"
+    "./explain": "./src/explain/index.ts",
+    "./partner/joint": "./src/partner/joint.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",
