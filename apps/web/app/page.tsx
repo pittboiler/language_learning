@@ -8,7 +8,7 @@
 // Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import type { Chapter, ConjugationSet, DialogueTurn, GlyphLesson, GrammarConcept, GrammarPoint, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, CourseSession, DialogueTurn, GlyphLesson, GrammarConcept, GrammarPoint, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -317,7 +317,7 @@ type TodayStep =
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
-  | { kind: "story"; story: MiniStory; dayIndex: number; revisit?: boolean; highlight?: number[] }
+  | { kind: "story"; story: MiniStory; dayIndex: number; revisit?: boolean; lens?: StoryLens }
   | { kind: "point"; point: GrammarPoint; mode: "teach" | "practice"; dayIndex: number }
   | { kind: "agenda"; agenda: cp.Agenda }
   | { kind: "stage"; afterChapterId: string; items: ReviewItem[]; scenario?: Scenario }
@@ -353,6 +353,26 @@ function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[] {
   const steps = courseBody(pack, progress);
   const agenda = cp.sessionAgenda(pack, pack.course!, cp.position(pack.course!, progress.course));
   return steps.length && agenda ? [{ kind: "agenda", agenda }, ...steps] : steps;
+}
+
+// The lens for a session's story: a banner naming what to spot, the highlighted lines, and today's
+// set-phrase notes (the blueprint surfaces a few per session) under the lines they belong to.
+function storyLens(course: NonNullable<LanguagePack["course"]>, s: CourseSession, story: MiniStory, points: Map<string, GrammarPoint>): StoryLens {
+  const names = (s.story?.lens ?? []).map((id) => points.get(id)?.title).filter(Boolean) as string[];
+  const n = s.story?.highlight.length ?? 0;
+  const what = names.length === 1 ? names[0]! : "this chapter's grammar";
+  const label = !n
+    ? `Read it through${names.length ? ` — today's grammar is ${what}` : ""}.`
+    : s.story?.reuse
+      ? `Back to an earlier story, with fresh eyes: the ${n} highlighted line${n > 1 ? "s use" : " uses"} ${what}.`
+      : `Spot it: the ${n} highlighted line${n > 1 ? "s use" : " uses"} ${what}.`;
+  const notes: Record<number, string> = {};
+  const prefix = `story:${story.id}#`;
+  for (const src of s.notes ?? []) {
+    const note = course.chunkNotes.find((x) => x.source === src)?.note;
+    if (src.startsWith(prefix) && note) notes[Number(src.slice(prefix.length))] = note;
+  }
+  return { label, highlight: s.story?.highlight ?? [], notes };
 }
 
 function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
@@ -404,7 +424,7 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
 
   if (s.story) {
     const story = (pack.stories ?? []).find((x) => x.id === s.story!.id);
-    if (story) out.push({ kind: "story", story, dayIndex: progress.storyReads?.[story.id]?.length ?? 0, revisit: !!s.story.reuse, highlight: s.story.highlight });
+    if (story) out.push({ kind: "story", story, dayIndex: progress.storyReads?.[story.id]?.length ?? 0, revisit: !!s.story.reuse, lens: storyLens(course, s, story, points) });
   }
   const canBuild = s.build.length > 0 && sentenceScope.withFallback(pack, { chapterOrder: order, builtCount: (progress.builtConjugations ?? []).length, hasMet: (k) => !!progress.familiarity[k] }).items.length > 0;
   if (canBuild) out.push({ kind: "build" });
@@ -851,6 +871,7 @@ function Today({ progress, persist, config, navigate }: {
             <Tag>{step.revisit ? "Read it again" : "Read the story"}</Tag>
             <TodayStoryStep
               story={step.story}
+              lens={step.lens}
               dayIndex={step.dayIndex}
               progress={progress}
               persist={persist}
@@ -2759,7 +2780,11 @@ function WordPanel({ sel, progress, persist, config, onClose }: {
 }
 
 // ---------- shared story reader (synced audio + tap-capture) — used by Today and the Library Story view ----------
-function StoryReader({ story, progress, persist, config, onDone, doneLabel, askable }: {
+/** A story lens (new course, DESIGN §8): which lines use today's point(s), and set-phrase notes to show. */
+interface StoryLens { label: string; highlight: number[]; notes: Record<number, string> }
+
+function StoryReader({ story, progress, persist, config, onDone, doneLabel, askable, lens }: {
+  lens?: StoryLens;
   story: MiniStory;
   progress: Progress;
   persist: (p: Progress) => void;
@@ -2829,14 +2854,16 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
     <>
       <p className="lead">Listen and read along; tap any word to look it up. Read each line, then tap the greyed English on the right to check yourself.</p>
       <HighlightLegend />
-      <ScenarioGrammar ids={storyGrammarIds(pack, story)} label="Grammar in this story:" />
+      {lens
+        ? <div className="lens-banner">{lens.label}</div>
+        : <ScenarioGrammar ids={storyGrammarIds(pack, story)} label="Grammar in this story:" />}
       <div className="row" style={{ marginBottom: 8 }}>
         <button className="btn" onClick={playAll}>{current >= 0 ? "⏹ Stop" : "▶ Play story"}</button>
         <span className="muted small">🐢 shadow each line — listen (speed switch is up top), then say it back.</span>
       </div>
       <div className="reader">
         {story.body.map((l, i) => (
-          <div className={`rline2 rline-glossed ${current === i ? "playing" : ""}`} key={i}>
+          <div className={`rline2 rline-glossed ${current === i ? "playing" : ""} ${lens?.highlight.includes(i) ? "rline-lens" : ""}`} key={i}>
             <div className="rline-mk">
               <button className="spk" onClick={() => play(l.text, speed)}>🔊</button>
               <TappableText text={l.text} progress={progress} onTapWord={(s) => onTap(s, l.text, l.gloss)} />
@@ -2851,6 +2878,7 @@ function StoryReader({ story, progress, persist, config, onDone, doneLabel, aska
                 {l.gloss}
               </button>
             )}
+            {lens?.notes[i] && <div className="rline-note">💬 Set phrase for now: {lens.notes[i]}</div>}
           </div>
         ))}
       </div>
@@ -2942,7 +2970,8 @@ function StoryQAView({ story, config, onRestart, onDone, dayIndex = 0 }: { story
 // Today's story step: read → Q&A → speak. Mirrors the Library's StoryView phasing, but uses the
 // session's chosen story and advances the daily flow on completion — the Q&A is the input→output
 // bridge (recall the story's words, last question spoken) before the full speak scenario.
-function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0 }: {
+function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0, lens }: {
+  lens?: StoryLens;
   story: MiniStory;
   progress: Progress;
   persist: (p: Progress) => void;
@@ -2957,6 +2986,7 @@ function TodayStoryStep({ story, progress, persist, config, onDone, dayIndex = 0
   return phase === "read" ? (
     <StoryReader
       story={story}
+      lens={lens}
       progress={progress}
       persist={persist}
       config={config}

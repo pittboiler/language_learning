@@ -10529,7 +10529,7 @@ export const course: Course = {
         "pt-sum",
         "pt-prepositions"
       ],
-      "note": "Е means “is” (chapter 2) and во means “in” (chapter 7)."
+      "note": "е means “is” (chapter 2) and во means “in” (chapter 7)."
     },
     {
       "source": "story:gen-s0-repair-story#1",
@@ -10573,7 +10573,7 @@ export const course: Course = {
         "pt-da",
         "pt-ti-vie"
       ],
-      "note": "Да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
+      "note": "да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
     },
     {
       "source": "story:gen-s0-repair-story#6",
@@ -10581,7 +10581,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Значи means “means”; verb endings are explained in chapter 5."
+      "note": "значи means “means”; verb endings are explained in chapter 5."
     },
     {
       "source": "story:gen-s0-repair-story#7",
@@ -10589,7 +10589,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Учам (“I learn”) and вели (“says”): verb endings come in chapter 5."
+      "note": "учам (“I learn”) and вели (“says”): verb endings come in chapter 5."
     },
     {
       "source": "story:gen-s0-repair-story#8",
@@ -10608,7 +10608,7 @@ export const course: Course = {
         "pt-verbs-a",
         "pt-verbs-e-i"
       ],
-      "note": "Вели (“says”) and разбира (“understands”): verb endings come in chapters 4 and 5."
+      "note": "вели (“says”) and разбира (“understands”): verb endings come in chapters 4 and 5."
     },
     {
       "source": "qa:gen-s0-repair-story#q1:a",
@@ -10644,7 +10644,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Знае means “knows”; verb endings come in chapter 5."
+      "note": "знае means “knows”; verb endings come in chapter 5."
     },
     {
       "source": "qa:gen-s0-repair-story#q3:a",
@@ -10652,7 +10652,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Учи means “learns”; verb endings come in chapter 5."
+      "note": "учи means “learns”; verb endings come in chapter 5."
     },
     {
       "source": "scenario:gen-s0-repair#0",
@@ -10664,7 +10664,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-prepositions"
       ],
-      "note": "Сте is the polite “you are” (chapter 2); ве носи means “brings you” (chapters 5 and 6); во means “in” (chapter 7)."
+      "note": "сте is the polite “you are” (chapter 2); ве носи means “brings you” (chapters 5 and 6); во means “in” (chapter 7)."
     },
     {
       "source": "scenario:gen-s0-repair#1",
@@ -10693,7 +10693,7 @@ export const course: Course = {
         "pt-da",
         "pt-ti-vie"
       ],
-      "note": "Да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
+      "note": "да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2)."
     },
     {
       "source": "scenario:gen-s0-repair#4",
@@ -10714,7 +10714,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-prepositions"
       ],
-      "note": "Разбирам means “I understand” (chapter 4); се вели means “one says” (chapter 5); на here means “in” a language (chapter 7)."
+      "note": "разбирам means “I understand” (chapter 4); се вели means “one says” (chapter 5); на here means “in” a language (chapter 7)."
     },
     {
       "source": "scenario:gen-s0-repair#6",
@@ -10735,7 +10735,7 @@ export const course: Course = {
         "pt-sum",
         "pt-prepositions"
       ],
-      "note": "Сум means “I am” and sits after the other words (chapter 2); од means “from” (chapter 7)."
+      "note": "сум means “I am” and sits after the other words (chapter 2); од means “from” (chapter 7)."
     },
     {
       "source": "story:gen-s0-greet-story#0",
@@ -10745,7 +10745,7 @@ export const course: Course = {
         "pt-prepositions",
         "pt-the"
       ],
-      "note": "Оди means “goes” (chapter 5); улицата is “the street”: “the” goes on the end (chapter 4)."
+      "note": "оди means “goes” (chapter 5); улицата is “the street”: “the” goes on the end (chapter 4)."
     },
     {
       "source": "story:gen-s0-greet-story#4",
@@ -10753,7 +10753,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-a"
       ],
-      "note": "Прашува (“asks”) and Сакаш (“you want”): verb endings come in chapter 4."
+      "note": "прашува (“asks”) and Сакаш (“you want”): verb endings come in chapter 4."
     },
     {
       "source": "story:gen-s0-greet-story#5",
@@ -10761,7 +10761,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says”; verb endings come in chapter 5."
+      "note": "вели means “says”; verb endings come in chapter 5."
     },
     {
       "source": "qa:gen-s0-greet-story#q1:q",
@@ -10770,7 +10770,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-prepositions"
       ],
-      "note": "Вели means “says” (chapter 5); за means “about” (chapter 7)."
+      "note": "вели means “says” (chapter 5); за means “about” (chapter 7)."
     },
     {
       "source": "qa:gen-s0-greet-story#q3:q",
@@ -10797,7 +10797,7 @@ export const course: Course = {
       "pointIds": [
         "pt-adjectives"
       ],
-      "note": "Љубезни (“kind”) is an adjective matching вие (chapter 6)."
+      "note": "љубезни (“kind”) is an adjective matching вие (chapter 6)."
     },
     {
       "source": "scenario:gen-s0-greet#4",
@@ -10824,7 +10824,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Во means “in” (chapter 7)."
+      "note": "во means “in” (chapter 7)."
     },
     {
       "source": "story:gen-s0-survive-story#1",
@@ -10851,7 +10851,7 @@ export const course: Course = {
         "pt-the",
         "pt-verbs-a"
       ],
-      "note": "Лебот means “the bread”: “the” goes on the end (chapter 4)."
+      "note": "лебот means “the bread”: “the” goes on the end (chapter 4)."
     },
     {
       "source": "story:gen-s0-survive-story#4",
@@ -10859,7 +10859,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says” (chapter 5)."
+      "note": "вели means “says” (chapter 5)."
     },
     {
       "source": "story:gen-s0-survive-story#5",
@@ -10875,7 +10875,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Чини means “costs”; verb endings come in chapter 5."
+      "note": "чини means “costs”; verb endings come in chapter 5."
     },
     {
       "source": "story:gen-s0-survive-story#7",
@@ -10884,7 +10884,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-the"
       ],
-      "note": "Продавачот means “the shopkeeper”: “the” goes on the end (chapter 4)."
+      "note": "продавачот means “the shopkeeper”: “the” goes on the end (chapter 4)."
     },
     {
       "source": "story:gen-s0-survive-story#8",
@@ -10892,7 +10892,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Си оди means “heads off” (chapter 5)."
+      "note": "си оди means “heads off” (chapter 5)."
     },
     {
       "source": "qa:gen-s0-survive-story#q1:q",
@@ -10900,7 +10900,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-a"
       ],
-      "note": "Сака means “wants” (chapter 4)."
+      "note": "сака means “wants” (chapter 4)."
     },
     {
       "source": "qa:gen-s0-survive-story#q2:q",
@@ -10908,7 +10908,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Чини means “costs”; verb endings come in chapter 5."
+      "note": "чини means “costs”; verb endings come in chapter 5."
     },
     {
       "source": "qa:gen-s0-survive-story#q3:q",
@@ -10926,7 +10926,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Чини means “costs”; verb endings come in chapter 5."
+      "note": "чини means “costs”; verb endings come in chapter 5."
     },
     {
       "source": "scenario:gen-s0-survive#0",
@@ -10985,7 +10985,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Во means “into”; chapter 7 covers prepositions."
+      "note": "во means “into”; chapter 7 covers prepositions."
     },
     {
       "source": "story:ana-coffee#2",
@@ -10993,7 +10993,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+      "note": "вели means “says”; chapter 5 explains -е/-и verbs."
     },
     {
       "source": "story:ana-coffee#3",
@@ -11002,7 +11002,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-commands"
       ],
-      "note": "Вели (“says”) from chapter 5 and Повелете (“here you go”) from chapter 7."
+      "note": "вели (“says”) from chapter 5 and Повелете (“here you go”) from chapter 7."
     },
     {
       "source": "story:ana-coffee#4",
@@ -11011,7 +11011,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-adjectives"
       ],
-      "note": "Пие (“drinks”) from chapter 5 and добро (“good”) agreeing with its noun from chapter 6."
+      "note": "пие (“drinks”) from chapter 5 and добро (“good”) agreeing with its noun from chapter 6."
     },
     {
       "source": "story:ana-coffee#7",
@@ -11019,7 +11019,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+      "note": "вели means “says”; chapter 5 explains -е/-и verbs."
     },
     {
       "source": "qa:ana-coffee#q2:a",
@@ -11044,7 +11044,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Во means “in/into”; chapter 7 covers prepositions."
+      "note": "во means “in/into”; chapter 7 covers prepositions."
     },
     {
       "source": "story:gen-s1-cafe-order-story#1",
@@ -11052,7 +11052,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+      "note": "вели means “says”; chapter 5 explains -е/-и verbs."
     },
     {
       "source": "story:gen-s1-cafe-order-story#2",
@@ -11060,7 +11060,7 @@ export const course: Course = {
       "pointIds": [
         "pt-future"
       ],
-      "note": "Ќе marks the future; chapter 8 explains it."
+      "note": "ќе marks the future; chapter 8 explains it."
     },
     {
       "source": "story:gen-s1-cafe-order-story#3",
@@ -11068,7 +11068,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+      "note": "вели means “says”; chapter 5 explains -е/-и verbs."
     },
     {
       "source": "story:gen-s1-cafe-order-story#4",
@@ -11085,7 +11085,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+      "note": "вели means “says”; chapter 5 explains -е/-и verbs."
     },
     {
       "source": "story:gen-s1-cafe-order-story#6",
@@ -11093,7 +11093,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели means “says”; chapter 5 explains -е/-и verbs."
+      "note": "вели means “says”; chapter 5 explains -е/-и verbs."
     },
     {
       "source": "qa:gen-s1-cafe-order-story#q3:q",
@@ -11126,7 +11126,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Во means “in”; chapter 7 explains these little words."
+      "note": "во means “in”; chapter 7 explains these little words."
     },
     {
       "source": "reader:cafe#2",
@@ -11135,7 +11135,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-commands"
       ],
-      "note": "Вели is an и-verb (chapter 5) and Повелете is a command (chapter 7)."
+      "note": "вели is an и-verb (chapter 5) and Повелете is a command (chapter 7)."
     },
     {
       "source": "reader:cafe#3",
@@ -11143,7 +11143,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Пие is an е-verb; chapter 5 explains these verbs."
+      "note": "пие is an е-verb; chapter 5 explains these verbs."
     },
     {
       "source": "reader:cafe#4",
@@ -11151,7 +11151,7 @@ export const course: Course = {
       "pointIds": [
         "pt-adjectives"
       ],
-      "note": "Добро matches its noun; chapter 6 explains adjective agreement."
+      "note": "добро matches its noun; chapter 6 explains adjective agreement."
     },
     {
       "source": "reader:gen-s1-cafe-order-reader#0",
@@ -11159,7 +11159,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Во means “in”; chapter 7 explains these little words."
+      "note": "во means “in”; chapter 7 explains these little words."
     },
     {
       "source": "reader:gen-s1-cafe-order-reader#1",
@@ -11168,7 +11168,7 @@ export const course: Course = {
         "pt-verbs-e-i",
         "pt-future"
       ],
-      "note": "Вели is an и-verb (chapter 5) and ќе marks the future (chapter 8)."
+      "note": "вели is an и-verb (chapter 5) and ќе marks the future (chapter 8)."
     },
     {
       "source": "reader:gen-s1-cafe-order-reader#3",
@@ -11185,7 +11185,7 @@ export const course: Course = {
       "pointIds": [
         "pt-verbs-e-i"
       ],
-      "note": "Вели is an и-verb; chapter 5 explains these verbs."
+      "note": "вели is an и-verb; chapter 5 explains these verbs."
     },
     {
       "source": "story:gen-s1-greet-intro-story#0",
@@ -11193,7 +11193,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Во means “in/at”; chapter 7 explains prepositions."
+      "note": "во means “in/at”; chapter 7 explains prepositions."
     },
     {
       "source": "story:gen-s1-greet-intro-story#1",
@@ -11201,7 +11201,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "До means “next to”; chapter 7 explains prepositions."
+      "note": "до means “next to”; chapter 7 explains prepositions."
     },
     {
       "source": "story:gen-s1-greet-intro-story#3",
@@ -11274,7 +11274,7 @@ export const course: Course = {
       "pointIds": [
         "pt-mi-ti-mu"
       ],
-      "note": "Ти means “to you”; chapter 8 explains these pronouns."
+      "note": "ти means “to you”; chapter 8 explains these pronouns."
     },
     {
       "source": "scenario:gen-introductions#2",
@@ -11291,7 +11291,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Од means “from”; chapter 7 explains prepositions."
+      "note": "од means “from”; chapter 7 explains prepositions."
     },
     {
       "source": "scenario:gen-introductions#6",
@@ -11299,7 +11299,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "Во means “in/to”; chapter 7 explains prepositions."
+      "note": "во means “in/to”; chapter 7 explains prepositions."
     },
     {
       "source": "scenario:gen-introductions#7",
@@ -11348,7 +11348,7 @@ export const course: Course = {
       "pointIds": [
         "pt-prepositions"
       ],
-      "note": "На means “to/at”; little linking words come in chapter 7."
+      "note": "на means “to/at”; little linking words come in chapter 7."
     },
     {
       "source": "qa:gen-s1-market-story#q3:q",
@@ -11381,7 +11381,7 @@ export const course: Course = {
         "pt-future",
         "pt-commands"
       ],
-      "note": "Ќе marks the future (chapter 8) and Повелете is a polite command (chapter 7)."
+      "note": "ќе marks the future (chapter 8) and Повелете is a polite command (chapter 7)."
     },
     {
       "source": "story:gen-s1-directions-story#5",
@@ -11389,7 +11389,7 @@ export const course: Course = {
       "pointIds": [
         "pt-ima-nema"
       ],
-      "note": "Има means “there is”; chapter 12 explains it."
+      "note": "има means “there is”; chapter 12 explains it."
     },
     {
       "source": "scenario:gen-s1-directions#6",
@@ -11405,7 +11405,7 @@ export const course: Course = {
       "pointIds": [
         "pt-ima-nema"
       ],
-      "note": "Нема means there isn't; chapter 12 explains it."
+      "note": "нема means there isn't; chapter 12 explains it."
     },
     {
       "source": "scenario:gen-s2-smalltalk#6",

@@ -50,13 +50,22 @@ if (pack.course) course = structuredClone(pack.course);
 // Notes read as one voice: no "Set phrase for now:" prefix (the UI labels them), curly quotes, capitalized.
 const tidyNote = (n: string): string => {
   const t = n.trim().replace(/^set phrases? for now:\s*/i, "").replace(/'([^']+)'/g, "“$1”");
-  return t.charAt(0).toUpperCase() + t.slice(1);
+  return /^[a-z]/.test(t) ? t.charAt(0).toUpperCase() + t.slice(1) : t; // never recase a target-language word
 };
+// A note that opens with a target-language word keeps that word's casing from its own line ("да повторите",
+// not "Да повторите"): an earlier tidy pass capitalized every note's first letter.
+function restoreCase(note: string, line: string): string {
+  const first = /^[\p{Script=Cyrillic}]+/u.exec(note)?.[0];
+  if (!first) return note;
+  const lower = first.charAt(0).toLowerCase() + first.slice(1);
+  return line.includes(lower) && !line.includes(first) ? lower + note.slice(first.length) : note;
+}
+
 // Keep stored note text in step with the live lines (content fixes change a line's text, not its source).
 const catalogBySource = new Map(catalog.map((l) => [l.source, l]));
 course.chunkNotes = course.chunkNotes
   .filter((n) => catalogBySource.has(n.source))
-  .map((n) => ({ ...n, text: catalogBySource.get(n.source)!.text, note: tidyNote(n.note) }));
+  .map((n) => ({ ...n, text: catalogBySource.get(n.source)!.text, note: restoreCase(tidyNote(n.note), catalogBySource.get(n.source)!.text) }));
 
 // Sanity: the spine must cover the pack's chapters, in order.
 const packOrder = [...(pack.chapters ?? [])].sort((a, b) => a.order - b.order).map((c) => c.id);
