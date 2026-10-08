@@ -409,6 +409,14 @@ export interface ChunkNote {
   note: string;
 }
 
+/** Where a point lives inside a line: the exact words that carry it (highlighted as today's focus), and one
+ *  of them as a fill-in with two plausible wrong options (the "complete the line" exercise). */
+export interface LineFocus {
+  /** Whole words exactly as they appear in the line. */
+  words: string[];
+  blank?: { word: string; options: string[]; why: string };
+}
+
 export interface Course {
   /** Changes only when the chapter/session STRUCTURE changes (not wording) — a learner whose saved
    *  position was made on another structure is re-placed. */
@@ -420,6 +428,8 @@ export interface Course {
    *  backward-reuse picker and the Library's "every example you've read". */
   lineTags: Record<string, string[]>;
   chunkNotes: ChunkNote[];
+  /** Line source → point id → where that point sits in the line (stories, their questions, conversations). */
+  lineFocus?: Record<string, Record<string, LineFocus>>;
 }
 
 export interface LanguagePack {

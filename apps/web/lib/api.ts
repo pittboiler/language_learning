@@ -210,7 +210,7 @@ export interface ExplainResponse {
 /** "Have a question?" — ask one scoped question about a Today conversation. Server caches the answer
  *  cross-user and rate-limits per user (25/day). `canned` carries a grammar-concept id for the derived
  *  chips (cacheable); free-text goes in `question`. */
-export async function explain(opts: { packId?: string; convoId: string; lines: { text: string; gloss?: string }[]; question?: string; canned?: string }): Promise<ExplainResponse> {
+export async function explain(opts: { packId?: string; convoId: string; lines: { text: string; gloss?: string }[]; question?: string; canned?: string; course?: { chapter: number; taught: string[]; later: { title: string; chapter: number }[] } }): Promise<ExplainResponse> {
   let userId = "";
   try { userId = await uid(); } catch { /* anon id best-effort — server treats missing id as unlimited-but-cached */ }
   try {

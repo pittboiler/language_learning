@@ -8,7 +8,7 @@ import { normalize } from "@ll/core/familiarity";
 export interface CatalogLine extends LineRef {
   /** Order of the chapter whose content holds the line (0 for chapter-less grammar examples). */
   chapterOrder: number;
-  kind: "story" | "qa" | "scenario" | "reader" | "grammar";
+  kind: "story" | "qa" | "scenario" | "reader" | "grammar" | "vocab";
 }
 
 /** Split a grammar example "<target> — <English>" into its halves. */
@@ -36,6 +36,15 @@ export function lineCatalog(pack: LanguagePack): CatalogLine[] {
       const { text, gloss } = splitExample(ex);
       out.push({ source: `grammar:${g.id}#${i}`, text, gloss, chapterOrder: 0, kind: "grammar" });
     });
+  }
+  // Phrases the course teaches as words ("Можете ли да повторите?"): a phrase can lean on grammar from a later
+  // chapter too, and its card carries the same kind of note. Chapter = the course chapter that teaches it.
+  for (const c of pack.course?.chapters ?? []) {
+    for (const w of c.words) {
+      if (normalize(w.display).split(/\s+/).filter(Boolean).length < 2) continue;
+      const v = pack.vocab.find((x) => normalize(x.answer) === normalize(w.display));
+      if (v && !out.some((l) => l.source === `vocab:${v.id}`)) out.push({ source: `vocab:${v.id}`, text: v.answer, gloss: v.gloss, chapterOrder: c.order, kind: "vocab" });
+    }
   }
   return out;
 }

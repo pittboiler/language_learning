@@ -10,6 +10,8 @@
 //   signoff   Mark the points of --chapters as validated once a human has signed them off.
 //   lines     Print the lines of chapters/concepts with their sources (authoring aid): lines 4 5 clitics
 //   fit       Lines that could serve a point's lesson at its teach session (authoring aid): fit pt-sum
+//   focus     LLM: for every tagged story / question / conversation / grammar-example line, the words carrying each
+//             point (today's focus is highlighted word by word) and one fill-in with two wrong options.
 //   import    No LLM: merge drafts written outside the API (pipeline/course-drafts/*.json), held to the
 //             same validation as LLM output. --keep-confidence keeps a signed-off point signed off (for
 //             content fixes made under standing permission; list them in the PR).
@@ -170,6 +172,123 @@ async function writeNotes() {
       course.chunkNotes.push({ source: l.source, text: l.text, pointIds: laterFor(l.source), note: restoreCase(tidyNote(r.note), l.text) });
     }
     console.log(`  notes ${i + 1}-${i + batch.length}: $${costUsd.toFixed(3)}`);
+  }
+}
+
+// =====================================================================================================
+// focus — where each tagged point sits inside a line (words to highlight + one fill-in with 2 distractors)
+// =====================================================================================================
+/** Is `w` a whole word of `line` (exact spelling, not part of a longer word)? */
+const wholeWord = (line: string, w: string) =>
+  !!w && new RegExp(`(^|[^\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u").test(line);
+
+/** Problems with a line's focus words (fatal) and, separately, with its fill-in (only the fill-in is dropped). */
+function validateFocus(l: CatalogLine, point: string, f: { words: string[]; blank: { word: string; options: string[]; why: string } }): { words: string[]; blank: string[] } {
+  const words: string[] = [];
+  const blank: string[] = [];
+  if (!(course.lineTags[l.source] ?? []).includes(point)) words.push(`${point} isn't a tag of this line`);
+  if (!f.words.length) words.push(`${point}: no words`);
+  for (const w of f.words) if (!wholeWord(l.text, w)) words.push(`${point}: "${w}" isn't a whole word of the line`);
+  if (f.blank.word) {
+    if (!f.words.includes(f.blank.word)) blank.push(`${point}: blank "${f.blank.word}" isn't one of its words`);
+    const opts = new Set(f.blank.options);
+    if (opts.size !== 3 || !opts.has(f.blank.word)) blank.push(`${point}: options must be 3 distinct incl. "${f.blank.word}"`);
+    for (const o of f.blank.options) for (const t of tokens(o)) if (!corpus.has(t)) blank.push(`${point}: option "${o}" isn't in the pack`);
+    if (!f.blank.why.trim()) blank.push(`${point}: no why`);
+    const quoted = proseWords(f.blank.why).filter((w) => !corpus.has(w) && !tokens(l.text).includes(w));
+    if (quoted.length) blank.push(`${point}: the why quotes words not in the pack: ${quoted.join(", ")}`);
+  }
+  return { words, blank };
+}
+
+/** Words of the right kind for each point's wrong options: the point's quick-check forms, its grammar
+ *  tables and drills, and (for verb points) every conjugated form of that group in the pack. All are pack
+ *  words, so a fill-in built from them passes the "no new language" check. */
+function optionPool(): string {
+  const groupsOf: Record<string, string[]> = { "verb-conjugation": ["a"], "verb-conjugation-e": ["e"], "verb-conjugation-i": ["i"], "to-be": ["irregular"] };
+  return course.points.map((p) => {
+    const w = new Set<string>();
+    for (const c of p.cards) if (c.kind === "blank") [c.blank, ...c.options].forEach((o) => w.add(o));
+    for (const g of p.grammarIds.map((id) => pack.grammar.find((x) => x.id === id)).filter(Boolean)) {
+      for (const row of g!.pattern?.rows ?? []) for (const cell of row) for (const m of cell.match(/[\p{Script=Cyrillic}]+/gu) ?? []) w.add(m);
+      for (const d of g!.drills) [d.answer, ...(d.options ?? [])].forEach((o) => { if (o && o.split(/\s+/).length === 1) w.add(o); });
+      for (const grp of groupsOf[g!.id] ?? []) for (const v of pack.conjugations ?? []) if (v.group === grp) Object.values(v.forms).forEach((f) => w.add(f));
+    }
+    const list = [...w].filter((x) => tokens(x).every((t) => corpus.has(t))).slice(0, 60);
+    return list.length ? `- ${p.id}: ${list.join(", ")}` : "";
+  }).filter(Boolean).join("\n");
+}
+
+async function focus() {
+  course.lineFocus ??= {};
+  // A fill-in that no longer passes (e.g. its "why" quotes a word that isn't in the pack) is dropped, so
+  // `focus --blanks` writes it again.
+  for (const [src, byPoint] of Object.entries(course.lineFocus)) {
+    const l = catalogBySource.get(src);
+    for (const [pid, f] of Object.entries(byPoint)) {
+      if (l && f.blank && validateFocus(l, pid, { words: f.words, blank: f.blank }).blank.length) { delete f.blank; console.log(`  dropped the fill-in on ${src} (${pid}); --blanks rewrites it`); }
+    }
+  }
+  const kinds = new Set(["story", "qa", "scenario", "grammar"]);
+  // --blanks: also retry lines whose focus words are in but a fill-in is missing.
+  const BLANKS = process.argv.includes("--blanks");
+  const todo = catalog.filter((l) => kinds.has(l.kind) && (course.lineTags[l.source] ?? []).length
+    && (REDO || (course.lineTags[l.source] ?? []).some((p) => !course.lineFocus![l.source]?.[p] || (BLANKS && !course.lineFocus![l.source]![p]!.blank))));
+  console.log(`${todo.length} line(s) need focus${BLANKS ? " or a fill-in" : ""}`);
+  const SCHEMA = {
+    type: "object", additionalProperties: false, required: ["lines"],
+    properties: { lines: { type: "array", items: {
+      type: "object", additionalProperties: false, required: ["i", "points"],
+      properties: {
+        i: { type: "integer" },
+        points: { type: "array", items: {
+          type: "object", additionalProperties: false, required: ["point", "words", "blank"],
+          properties: {
+            point: { type: "string" },
+            words: { type: "array", items: { type: "string" }, description: "Exact whole words of the line that carry this point." },
+            blank: { type: "object", additionalProperties: false, required: ["word", "options", "why"], properties: {
+              word: { type: "string", description: "One of `words` as a fill-in, or \"\" when no single word makes a fair blank." },
+              options: { type: "array", items: { type: "string" } },
+              why: { type: "string" },
+            } },
+          },
+        } },
+      },
+    } } },
+  };
+  const SYSTEM =
+    `You mark where grammar points sit inside lines of a ${pack.name} course for English-speaking beginners. The course's points:\n${pointList}\n\n` +
+    `Each line comes with the point ids it uses. For EACH of those points give:\n` +
+    `- words: the word(s) of the line that carry the point, copied EXACTLY as written (same capitalization), whole words only, no punctuation. ` +
+    `E.g. pt-sum in „Ана е во Скопје.“ → ["е"]; pt-the in „Кафето е добро.“ → ["Кафето"]; pt-ne in „Извинете, не разбирам.“ → ["не"].\n` +
+    `- blank: if one of those words makes a fair fill-in-the-blank for a beginner practising THIS point, give word (that word, exactly as written), ` +
+    `options (exactly 3 distinct choices including the word; the other two are real ${pack.name} words of the same kind that would be WRONG here: ` +
+    `another person's form, another gender, another question word, the form without the ending…; match the word's capitalization), ` +
+    `and why (one short plain-English line saying why the right one is right, no jargon). If no single word is a fair blank, word is "" with empty options and why.\n` +
+    `HARD RULE: never invent ${pack.name}. Options are checked against the course's word list, so take the wrong options from the words ` +
+    `already in the line or from this list of course words for each point (anything else is rejected); a wrong option must be clearly wrong in this line.\n${optionPool()}`;
+  for (let start = 0; start < todo.length; start += 30) {
+    const batch = todo.slice(start, start + 30);
+    const user = batch.map((l, i) => `${i}. ${l.text}  (${l.gloss})  — points: ${(course.lineTags[l.source] ?? []).join(", ")}`).join("\n");
+    const { data, costUsd } = await structuredCall<{ lines: { i: number; points: { point: string; words: string[]; blank: { word: string; options: string[]; why: string } }[] }[] }>({
+      model: MODELS.offline, system: SYSTEM, user: `Mark these lines:\n${user}`, schema: SCHEMA, maxTokens: 20000, thinking: true,
+    });
+    cost += costUsd;
+    let ok = 0, bad = 0, noBlank = 0;
+    for (const r of data.lines) {
+      const l = batch[r.i];
+      if (!l) continue;
+      for (const f of r.points) {
+        const errs = validateFocus(l, f.point, f);
+        if (errs.words.length) { bad++; console.warn(`  ⚠ ${l.source}: ${errs.words.join(" | ")}`); continue; }
+        if (errs.blank.length) { noBlank++; console.warn(`  · ${l.source}: fill-in dropped: ${errs.blank.join(" | ")}`); }
+        ok++;
+        const keepBlank = f.blank.word && !errs.blank.length ? { blank: { word: f.blank.word, options: f.blank.options, why: f.blank.why.trim() } } : course.lineFocus[l.source]?.[f.point]?.blank ? { blank: course.lineFocus[l.source]![f.point]!.blank } : {};
+        course.lineFocus[l.source] = { ...course.lineFocus[l.source], [f.point]: { words: f.words, ...keepBlank } };
+      }
+    }
+    console.log(`  focus lines ${start + 1}-${start + batch.length}: ${ok} ok (${noBlank} without a fill-in), ${bad} rejected, $${costUsd.toFixed(3)}`);
+    save();
   }
 }
 
@@ -432,6 +551,13 @@ function review() {
         ? `- 🃏 *${c.front}* → ${c.back}${c.example ? ` (e.g. ${c.example.text})` : ""}`
         : `- ▢ ${blankOut(c.line.text, c.blank)} → **${c.blank}** of [${c.options.join(" / ")}]: ${c.why}`));
     }
+    // Today's focus inside the chapter's own story: the words highlighted, and the "complete the line" fill-ins.
+    const home = pack.stories?.find((st) => st.id === `gen-${sc.chapterId}-story`);
+    if (home && course.lineFocus) {
+      const rows = home.body.flatMap((b, i) => Object.entries(course.lineFocus![`story:${home.id}#${i}`] ?? {}).map(([pid, f]) =>
+        `- ${b.text} · ${pid}: **${f.words.join(", ")}**${f.blank ? ` · fill-in ${blankOut(b.text, f.blank.word)} → **${f.blank.word}** of [${f.blank.options.join(" / ")}]: ${f.blank.why}` : ""}`));
+      if (rows.length) L.push("", `**Focus in “${home.title}”** (highlighted words; fill-ins for “Use it”):`, ...rows);
+    }
     const notes = course.chunkNotes.filter((n) => catalog.find((l) => l.source === n.source)?.chapterOrder === ch.order);
     const surfaced = new Set(course.chapters.flatMap((c) => c.sessions.flatMap((s) => s.notes ?? [])));
     const tapOnly = notes.filter((n) => !surfaced.has(n.source));
@@ -496,6 +622,7 @@ if (cmd === "signoff") {
   save();
 }
 if (cmd === "notes") { await writeNotes(); save(); }
+if (cmd === "focus") { await focus(); save(); }
 if (cmd === "import") { importDrafts(process.argv[3]!); save(); }
 if (cmd === "tag" || cmd === "all") { await tag(); save(); }
 if (cmd === "points" || cmd === "all") { await points(); save(); }

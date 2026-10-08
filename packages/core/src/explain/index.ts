@@ -36,10 +36,24 @@ export function explainSystem(langName: string): string {
   );
 }
 
+/** Where the learner is in the course: what they've been taught, and what's coming (with its chapter), so
+ *  an answer can name a later point without teaching it early. */
+export interface ExplainCourse {
+  chapter: number;
+  taught: string[];
+  later: { title: string; chapter: number }[];
+}
+
 /** User message: the conversation + the (canned or free-text) question. `canned` frames a concept chip. */
-export function explainUser(lines: ExplainLine[], question: string, canned?: boolean): string {
+export function explainUser(lines: ExplainLine[], question: string, canned?: boolean, course?: ExplainCourse): string {
   const q = canned
     ? `Explain this grammar point as it appears in the conversation: "${(question ?? "").slice(0, 200)}"`
     : (question ?? "").slice(0, EXPLAIN_MAX_Q);
-  return `Conversation:\n${formatConversation(lines)}\n\nQuestion: ${q}`;
+  const ctx = course
+    ? `\n\nThe learner is in chapter ${course.chapter} of the course. Taught so far: ${course.taught.join("; ") || "nothing yet"}. ` +
+      `Coming later: ${course.later.slice(0, 30).map((l) => `${l.title} (chapter ${l.chapter})`).join("; ")}. ` +
+      `If the question is about something from a later chapter, say in a few words what it does and which chapter explains it, ` +
+      `and suggest treating it as a set phrase for now; don't teach it in full yet.`
+    : "";
+  return `Conversation:\n${formatConversation(lines)}${ctx}\n\nQuestion: ${q}`;
 }

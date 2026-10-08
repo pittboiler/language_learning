@@ -5,7 +5,7 @@
 // The blueprint fixes WHAT is taught WHEN. Only review content is decided here at runtime: which due
 // cards make the warm-up (with a guaranteed share from earlier chapters), what a failed checkpoint
 // re-drills, and what a stage review samples.
-import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, LanguagePack, ReviewItem } from "@ll/pack-schema";
+import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { CourseLogEntry, Progress } from "./store";
@@ -381,6 +381,90 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
   if (session.pointId) { const p = points.get(session.pointId); if (p) out.cards = pointItems(p); }
   out.next = session.next;
   return out;
+}
+
+// ---- today's focus inside lines, and "Use it" (the exercises after the story) ---------------------------
+/** The words carrying any of these points in a line (from course.lineFocus), for word-level highlighting. */
+export function focusWords(course: Course, source: string, pointIds: string[]): string[] {
+  const f = course.lineFocus?.[source];
+  return f ? [...new Set(pointIds.flatMap((p) => f[p]?.words ?? []))] : [];
+}
+
+/** The points a session focuses on: the story's lens, else its own point. */
+export const sessionFocus = (chapter: CourseChapter, s: CourseSession): string[] =>
+  s.story?.lens.length ? s.story.lens : [practisedPoint(chapter, s)].filter((x): x is string => !!x);
+
+export type UseItItem =
+  /** Read a line, pick what it means (English options from the same story). */
+  | { kind: "understand"; line: LineRef; options: string[] }
+  /** The line with today's form blanked; tap one of three. */
+  | { kind: "complete"; line: LineRef; blank: string; options: string[]; why: string }
+  /** Put the line's words back in order. */
+  | { kind: "build"; line: LineRef }
+  /** Say the line, with speech feedback (skippable). */
+  | { kind: "say"; line: LineRef & { translit?: string } };
+
+/** A line without its quotation marks (tiles and speech shouldn't carry „ “). */
+export const bareLine = (text: string) => text.replace(/[„“”"«»]/g, "").replace(/\s+/g, " ").trim();
+
+/** About four exercises on today's focus, easiest first (understand → complete → build → say), built only
+ *  from the story's own lines that use the focus points, so they practise the lesson at hand. When the story
+ *  has no such line, the points' own example lines and quick checks stand in. `seed` varies the picks
+ *  from one reading of the same story to the next. */
+export function useItItems(course: Course, story: MiniStory, focus: string[], seed = 0): UseItItem[] {
+  const all = story.body.map((b, i) => ({ text: b.text, gloss: b.gloss, source: `story:${story.id}#${i}`, translit: b.translit }));
+  const onFocus = (src: string) => (course.lineTags[src] ?? []).some((t) => focus.includes(t));
+  const rot = <T,>(a: T[]) => (a.length ? a.map((_, i) => a[(i + seed) % a.length]!) : a);
+  const pts = focus.map((id) => course.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p);
+  // The story's own lines on today's focus first; when it has fewer than three, the lesson's example lines
+  // join them, so four exercises don't all lean on one sentence.
+  const storyLines = rot(all.filter((l) => l.gloss && onFocus(l.source)));
+  const examples = pts.flatMap((p) => p.examples).filter((e) => e.gloss && !storyLines.some((l) => bareLine(l.text) === bareLine(e.text))).map((e) => ({ ...e, translit: undefined as string | undefined }));
+  const lines = storyLines.length >= 3 ? storyLines : [...storyLines, ...rot(examples)];
+  if (!lines.length) return [];
+  const used = new Set<string>();
+  const pick = (ok: (l: (typeof lines)[number]) => boolean) => lines.find((l) => ok(l) && !used.has(l.source)) ?? lines.find(ok);
+  const take = <T extends { source: string }>(l: T | undefined) => { if (l) used.add(l.source); return l; };
+  const out: UseItItem[] = [];
+
+  // 1. Understand: the line's English among two other lines' English (from the same story, or examples).
+  const u = take(pick(() => true));
+  const others = [...new Set([...all, ...lines].filter((l) => l.gloss && l.source !== u?.source && l.gloss !== u?.gloss).map((l) => l.gloss))];
+  if (u && others.length >= 2) out.push({ kind: "understand", line: { text: u.text, gloss: u.gloss, source: u.source }, options: [u.gloss, ...rot(others).slice(0, 2)] });
+
+  // 2. Complete: today's form blanked (from the line's focus), else one of the points' quick checks.
+  const blankOf = (src: string) => focus.map((p) => course.lineFocus?.[src]?.[p]?.blank).find((b) => !!b);
+  const c = take(pick((l) => !!blankOf(l.source)));
+  const cb = c && blankOf(c.source);
+  if (c && cb) out.push({ kind: "complete", line: { text: c.text, gloss: c.gloss, source: c.source }, blank: cb.word, options: cb.options, why: cb.why });
+  else {
+    const card = rot(pts.flatMap((p) => p.cards).filter((x): x is Extract<GrammarCard, { kind: "blank" }> => x.kind === "blank"))[0];
+    if (card) out.push({ kind: "complete", line: card.line, blank: card.blank, options: card.options, why: card.why });
+  }
+
+  // 3. Build: a line of two to seven words.
+  const words = (t: string) => bareLine(t).split(" ").length;
+  const b = take(pick((l) => words(l.text) >= 2 && words(l.text) <= 7));
+  if (b) out.push({ kind: "build", line: { text: bareLine(b.text), gloss: b.gloss, source: b.source } });
+
+  // 4. Say it: the shortest focus line not used yet.
+  const sayable = [...lines].sort((x, y) => words(x.text) - words(y.text));
+  const sy = sayable.find((l) => !used.has(l.source)) ?? sayable[0];
+  if (sy) out.push({ kind: "say", line: { text: bareLine(sy.text), gloss: sy.gloss, source: sy.source, translit: sy.translit } });
+  return out;
+}
+
+/** What the "Have a question?" helper is told about the learner: their chapter, the points taught so far,
+ *  and what comes later (with its chapter). */
+export function explainContext(course: Course, p: Progress): { chapter: number; taught: string[]; later: { title: string; chapter: number }[] } {
+  const pos = position(course, p.course);
+  const orderOf = (chapterId: string) => course.chapters.find((c) => c.chapterId === chapterId)?.order ?? 0;
+  const chapter = pos.kind === "session" ? pos.chapter.order : pos.kind === "stage-review" ? orderOf(pos.afterChapterId) : Math.max(...course.chapters.map((c) => c.order));
+  return {
+    chapter,
+    taught: course.points.filter((pt) => p.seenGrammar?.[pt.id]).map((pt) => pt.title),
+    later: course.points.filter((pt) => !p.seenGrammar?.[pt.id]).map((pt) => ({ title: pt.title, chapter: orderOf(pt.chapterId) })),
+  };
 }
 
 // ---- lesson notes: a small record per finished session, rebuilt into its recap later --------------------
