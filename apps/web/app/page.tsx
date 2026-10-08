@@ -767,7 +767,14 @@ function Today({ progress, persist, config, navigate }: {
           />
         )}
 
-        {step.kind === "agenda" && <AgendaCard agenda={step.agenda} onStart={() => done()} />}
+        {step.kind === "agenda" && (
+          <AgendaCard
+            agenda={step.agenda}
+            pointId={steps.find((x): x is Extract<TodayStep, { kind: "point" }> => x.kind === "point")?.point.id}
+            onOpenPoint={(id) => { pendingPointFocus = id; navigate("library", "grammar"); }}
+            onStart={() => done()}
+          />
+        )}
 
         {step.kind === "stage" && (
           <StageReview
@@ -1193,13 +1200,18 @@ function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
 
 // The agenda that opens a session (DESIGN §5): a few seconds to see what today is for. Deliberately brief —
 // the detail lives in the recap and the Library.
-function AgendaCard({ agenda, onStart }: { agenda: cp.Agenda; onStart: () => void }) {
+function AgendaCard({ agenda, onStart, pointId, onOpenPoint }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void }) {
   return (
     <div className="fb">
       <div className="gram-kicker">Today's plan</div>
       <div className="gram-title" style={{ fontSize: 17 }}>{agenda.title}</div>
       <ol style={{ margin: "10px 0 4px", paddingLeft: 20 }}>
-        {agenda.items.map((it, i) => <li key={i} style={{ margin: "4px 0" }}>{it}</li>)}
+        {agenda.items.map((it, i) => (
+          <li key={i} style={{ margin: "4px 0" }}>
+            {it}
+            {i === 0 && pointId && onOpenPoint && <> <button className="linklike small" onClick={() => onOpenPoint(pointId)}>more in the Library</button></>}
+          </li>
+        ))}
       </ol>
       <button className="btn" style={{ marginTop: 10 }} onClick={onStart}>Let&apos;s go →</button>
     </div>
@@ -1787,7 +1799,7 @@ function LibrarySection({ progress, persist, config, lettersDone, mode, setMode 
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
       mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
       mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
-      mode === "grammar" ? <Grammar progress={progress} persist={persist} /> :
+      mode === "grammar" ? (cp.courseV2On(pack, progress) ? <PointLibrary progress={progress} persist={persist} /> : <Grammar progress={progress} persist={persist} />) :
       mode === "build" ? <SentenceBuilder progress={progress} persist={persist} /> :
       <Writing config={config} />;
     return (
@@ -2421,6 +2433,98 @@ function Completion({ scenarioId, config, onComplete }: { scenarioId: string; co
 }
 
 // ---------- Library view 3: grammar (full reference) ----------
+// Set by Today's agenda link so the Library opens straight onto that grammar point.
+let pendingPointFocus: string | null = null;
+
+// The Library's grammar, new course (DESIGN §7): one page per point, grouped by chapter. Points you've been
+// taught are marked; upcoming ones are greyed but readable. Each page holds the full rule, the "why is it
+// like this" notes, common mistakes, the examples (plus every line from stories you've read that uses it),
+// the set phrases it explains, and its flashcards to save or try.
+function PointLibrary({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
+  const pack = usePack();
+  const play = usePlay();
+  const course = pack.course!;
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState<string | null>(() => { const f = pendingPointFocus; pendingPointFocus = null; return f; });
+  useEffect(() => { if (open) document.getElementById(`pt-${open}`)?.scrollIntoView({ block: "start" }); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const needle = q.trim().toLowerCase();
+  const matches = (p: GrammarPoint) => !needle || `${p.title} ${p.rule} ${p.library.rule} ${p.library.why.join(" ")}`.toLowerCase().includes(needle);
+  const readStories = new Set(Object.entries(progress.storyReads ?? {}).filter(([, d]) => d.length).map(([id]) => id));
+  const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
+  const LineRow = ({ l }: { l: { text: string; gloss: string; source: string } }) => (
+    <div className="gram-ex">
+      <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
+      <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+    </div>
+  );
+  return (
+    <section className="view">
+      <h2>Grammar</h2>
+      <p className="lead">Every grammar point in the course, chapter by chapter. Your daily sessions teach them in order; this is where to read more or look something up.</p>
+      <input className="text" placeholder="Search grammar…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "100%", marginBottom: 14 }} />
+      {course.chapters.map((cc, ci) => {
+        const ch = pack.chapters?.find((c) => c.id === cc.chapterId);
+        const pts = cc.pointIds.map((id) => course.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p && matches(p));
+        if (!pts.length) return null;
+        return (
+          <div key={cc.chapterId} style={{ marginBottom: 14 }}>
+            <div className="muted small" style={{ textTransform: "uppercase", letterSpacing: 0.5, margin: "6px 0" }}>Chapter {ch?.order ?? ci + 1} · {ch?.shortTitle}</div>
+            {pts.map((p) => {
+              const learned = !!progress.seenGrammar?.[p.id];
+              const isOpen = open === p.id;
+              const fromReading = (pack.stories ?? []).filter((st) => readStories.has(st.id)).flatMap((st) =>
+                st.body.flatMap((b, i) => (course.lineTags[`story:${st.id}#${i}`] ?? []).includes(p.id) ? [{ text: b.text, gloss: b.gloss, source: `story:${st.id}#${i}` }] : []))
+                .filter((l) => !p.examples.some((e) => e.text === l.text)).slice(0, 8);
+              const cards = cp.pointItems(p);
+              return (
+                <div className="concept" key={p.id} id={`pt-${p.id}`} style={learned ? undefined : { opacity: 0.7 }}>
+                  <button className="concept-head" onClick={() => setOpen(isOpen ? null : p.id)}>
+                    <span>{learned ? "✓ " : ""}{p.title}{p.depth === "recognize" ? <span className="muted small"> · recognize</span> : null}</span>
+                    <span className="muted">{learned ? "" : "upcoming "}{isOpen ? "−" : "+"}</span>
+                  </button>
+                  {isOpen && (
+                    <div style={{ marginTop: 10 }}>
+                      <p style={{ marginTop: 0 }}>{p.library.rule}</p>
+                      <div className="gram-kicker" style={{ marginTop: 10 }}>Why it&apos;s like this</div>
+                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.why.map((w, i) => <li key={i} style={{ margin: "4px 0" }}>{w}</li>)}</ul>
+                      <div className="gram-kicker" style={{ marginTop: 10 }}>Common mistakes</div>
+                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.mistakes.map((w, i) => <li key={i} style={{ margin: "4px 0" }}>{w}</li>)}</ul>
+                      <div className="gram-kicker" style={{ marginTop: 10 }}>Examples</div>
+                      <div className="gram-ex-list">{p.examples.map((l) => <LineRow key={l.source} l={l} />)}</div>
+                      {fromReading.length > 0 && (
+                        <>
+                          <div className="gram-kicker" style={{ marginTop: 10 }}>In stories you&apos;ve read</div>
+                          <div className="gram-ex-list">{fromReading.map((l) => <LineRow key={l.source} l={l} />)}</div>
+                        </>
+                      )}
+                      {p.callbacks.length > 0 && (
+                        <>
+                          <div className="gram-kicker" style={{ marginTop: 10 }}>Set phrases it explains</div>
+                          <div className="gram-ex-list">{p.callbacks.map((l) => <LineRow key={l.source} l={l} />)}</div>
+                        </>
+                      )}
+                      <div className="row" style={{ justifyContent: "space-between", marginTop: 10 }}>
+                        <div className="gram-kicker">Flashcards · {cards.length}</div>
+                        <button className="ghost small" onClick={() => persist(starMany(progress, cards.map((c) => ({ lexKey: familiarity.deriveKeyForItem(c).lexKey, display: c.prompt, gloss: c.gloss }))))}>
+                          {cards.every((c) => starred(familiarity.deriveKeyForItem(c).lexKey)) ? "★ All saved" : "★ Save all"}
+                        </button>
+                      </div>
+                      <div className="gram-checks">
+                        {cards.filter((c) => !c.meta?.ruleCard).map((c) => <Drill key={c.id} drill={c} onGrade={(ok) => persist(gradeItem(progress, c, ok))} />)}
+                        {cards.filter((c) => c.meta?.ruleCard).map((c) => <div key={c.id} className="small" style={{ margin: "6px 0" }}><b>{c.prompt}</b> <span className="muted">— {c.answer}</span></div>)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
+    </section>
+  );
+}
+
 function Grammar({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
   const [q, setQ] = useState("");
