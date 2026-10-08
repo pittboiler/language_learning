@@ -794,6 +794,8 @@ function Today({ progress, persist, config, navigate }: {
                 let p = progress;
                 for (const r of results) p = gradeItem(p, r.item, r.ok);
                 if (step.mode === "teach") {
+                  // The rule cards enter review now: you've just read the rule they ask about.
+                  for (const rc of cp.ruleCardItems(step.point)) p = gradeItem(p, rc, true);
                   p = markSeen(p, step.point.id);
                   for (const g of step.point.grammarIds) p = markSeen(p, g);
                 }
@@ -3426,9 +3428,11 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   // The FULL deck — every pack word/phrase/grammar drill plus words you captured while reading. Nothing is
   // hidden behind "studied": you filter down to what you want to drill. Ordered so anything already due for
   // review (most-due first) leads, then new words before new sentences. Grading a new card enrolls it in SRS.
+  const v2 = cp.courseV2On(pack, progress);
   const deck = useMemo<ReviewUnit[]>(() => {
     const now = new Date();
-    const pool = reviewPool(pack);
+    // New course: grammar is the taught points' cards (rule + blank), not the old per-concept drills.
+    const pool = v2 && pack.course ? [...pack.vocab, ...cp.taughtPointItems(pack.course, progress)] : reviewPool(pack);
     const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
     const poolUnits: ReviewUnit[] = pool.map((it) => {
       const k = familiarity.deriveKeyForItem(it).lexKey;
@@ -3450,7 +3454,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
       return (isWord(a) ? 0 : 1) - (isWord(b) ? 0 : 1); // new items → words before sentences
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pack]);
+  }, [pack, v2]);
 
   // Word (single token) vs sentence/phrase, for the type filter.
   const isWordUnit = (u: ReviewUnit): boolean =>
@@ -3475,7 +3479,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
     return ch ? { key: ch.id, label: `${ch.order}. ${ch.shortTitle}`, order: ch.order } : { key: "more", label: "more", order: 1000 };
   }, [pack]);
 
-  const [type, setType] = useState<"all" | "words" | "sentences">("all");
+  const [type, setType] = useState<"all" | "words" | "sentences" | "grammar">("all");
   const [themes, setThemes] = useState<Set<string>>(new Set()); // empty ⇒ all themes
   const [starredOnly, setStarredOnly] = useState(false); // the learner's custom "★ saved" deck
   const [idx, setIdx] = useState(0);
@@ -3484,9 +3488,11 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   // Scope to the starred (custom) deck first when that toggle is on; type/theme filters then narrow within it.
   const starred = deck.filter(isStarredUnit);
   const scoped = starredOnly ? starred : deck;
+  const isGrammarUnit = (u: ReviewUnit) => u.type === "pool" && u.item.kind === "grammar";
   const words = scoped.filter(isWordUnit);
-  const sentences = scoped.filter((u) => !isWordUnit(u));
-  const byType = type === "words" ? words : type === "sentences" ? sentences : scoped;
+  const grammarUnits = scoped.filter(isGrammarUnit);
+  const sentences = scoped.filter((u) => !isWordUnit(u) && !isGrammarUnit(u));
+  const byType = type === "words" ? words : type === "sentences" ? sentences : type === "grammar" ? grammarUnits : scoped;
   // Chapters present in the current type, with counts, in course order.
   const buckets = new Map<string, { label: string; order: number; n: number }>();
   for (const u of byType) {
@@ -3509,7 +3515,7 @@ function Review({ progress, persist }: { progress: Progress; persist: (p: Progre
   const Filters = (
     <>
       <div className="picker small" style={{ marginBottom: 8 }}>
-        {([["all", `All · ${scoped.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`]] as const).map(([f, label]) => (
+        {([["all", `All · ${scoped.length}`], ["words", `Words · ${words.length}`], ["sentences", `Sentences · ${sentences.length}`], ["grammar", `Grammar · ${grammarUnits.length}`]] as const).map(([f, label]) => (
           <button key={f} className={type === f ? "active" : ""} onClick={() => setType(f)}>{label}</button>
         ))}
       </div>
@@ -3708,7 +3714,43 @@ function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean
   );
 }
 
+// A grammar RULE card (course points): a plain question; reveal the one-line answer and an example line,
+// then grade yourself. No typing, no options — the simple flashcard the design asks for.
+function RuleCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
+  const play = usePlay();
+  const [shown, setShown] = useState(false);
+  const example = item.meta?.example as string | undefined;
+  return (
+    <div className="fb">
+      <div className="muted small">{(item.meta?.concept as string) || "Grammar"}</div>
+      <div style={{ fontSize: 18, margin: "6px 0" }}><b>{item.prompt}</b></div>
+      {!shown ? (
+        <button className="btn" onClick={() => setShown(true)}>Show answer</button>
+      ) : (
+        <>
+          <p style={{ margin: "6px 0" }}>{item.answer}</p>
+          {example && (
+            <div className="gram-ex">
+              <button className="gram-play" onClick={() => play(example)} aria-label={`Play ${example}`}>▶</button>
+              <span className="mk">{example}</span>{item.meta?.exampleGloss ? <span className="en">{item.meta.exampleGloss as string}</span> : null}
+            </div>
+          )}
+          <div className="row" style={{ marginTop: 10 }}>
+            <button className="ghost" onClick={() => onGrade(false)}>Again</button>
+            <button className="btn" onClick={() => onGrade(true)}>Good →</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function GrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
+  if (item.meta?.ruleCard) return <RuleCard item={item} onGrade={onGrade} />;
+  return <ChoiceGrammarCard item={item} onGrade={onGrade} />;
+}
+
+function ChoiceGrammarCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
   const [picked, setPicked] = useState<string | null>(null);
   const choose = (opt: string) => {
     if (picked) return;

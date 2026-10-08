@@ -98,10 +98,31 @@ export function blankCardItems(point: GrammarPoint): ReviewItem[] {
   }]);
 }
 
+/** A point's rule cards: a plain question, revealed to a one-line answer (+ an existing example line). */
+export function ruleCardItems(point: GrammarPoint): ReviewItem[] {
+  return point.cards.flatMap((c: GrammarCard, i): ReviewItem[] => c.kind !== "rule" ? [] : [{
+    id: `pt:${point.id}:r${i}`,
+    kind: "grammar",
+    prompt: c.front,
+    answer: c.back,
+    gloss: c.back,
+    i1Level: 0,
+    tags: ["grammar", point.id],
+    meta: { concept: point.title, point: point.id, ruleCard: true, ...(c.example ? { example: c.example.text, exampleGloss: c.example.gloss } : {}) },
+  }]);
+}
+
+/** All of a point's flashcards: rule cards first, then blank cards. */
+export const pointItems = (point: GrammarPoint): ReviewItem[] => [...ruleCardItems(point), ...blankCardItems(point)];
+
 export const pointsById = (course: Course) => new Map(course.points.map((p) => [p.id, p]));
 
 /** Every point card in the course — they join the warm-up's review pool once their point is taught. */
-export const allPointItems = (course: Course): ReviewItem[] => course.points.flatMap(blankCardItems);
+export const allPointItems = (course: Course): ReviewItem[] => course.points.flatMap(pointItems);
+
+/** Cards for the points a learner has been taught (seenGrammar[pointId]) — the Flashcards "Grammar" deck. */
+export const taughtPointItems = (course: Course, p: Progress): ReviewItem[] =>
+  course.points.filter((pt) => p.seenGrammar?.[pt.id]).flatMap(pointItems);
 
 // ---- warm-up: due cards, with a guaranteed share from EARLIER chapters (DESIGN §4a item 1) ----------
 export const WARMUP_ITEMS = 8;
@@ -115,7 +136,7 @@ export function chapterOfKey(course: Course): Map<string, number> {
     for (const w of c.words) if (!m.has(w.lexKey)) m.set(w.lexKey, i + 1);
     for (const pid of c.pointIds) {
       const p = course.points.find((x) => x.id === pid);
-      if (p) blankCardItems(p).forEach((it) => m.set(familiarity.deriveKeyForItem(it).lexKey, i + 1));
+      if (p) pointItems(p).forEach((it) => m.set(familiarity.deriveKeyForItem(it).lexKey, i + 1));
     }
   });
   return m;
@@ -254,7 +275,7 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
     seen.add(k);
     out.words.push({ lexKey: k, display: e.display ?? k, gloss: e.gloss });
   }
-  if (session.pointId) { const p = points.get(session.pointId); if (p) out.cards = blankCardItems(p); }
+  if (session.pointId) { const p = points.get(session.pointId); if (p) out.cards = pointItems(p); }
   out.next = session.next;
   return out;
 }

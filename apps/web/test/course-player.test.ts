@@ -131,4 +131,12 @@ assert.ok(course.chapters[0]!.sessions[0]!.words.every((w) => rc.words.some((x) 
 assert.ok(rc.cards.length >= 1);
 assert.ok(rc.next.startsWith("Next:"));
 
+// 12. Rule cards: question → one-line answer, flagged for the reveal card, keyed apart from blank cards;
+//     the Grammar deck holds only taught points' cards.
+const rules = cp.ruleCardItems(yesNo);
+assert.ok(rules.length >= 1 && rules.every((r) => r.meta?.ruleCard && !r.options && r.id.includes(":r")));
+assert.equal(cp.pointItems(yesNo).length, rules.length + cp.blankCardItems(yesNo).length);
+assert.deepEqual(cp.taughtPointItems(course, prog()), []);
+assert.ok(cp.taughtPointItems(course, prog({ seenGrammar: { "pt-yes-no": true } })).every((it) => it.tags.includes("pt-yes-no")));
+
 console.log("course-player.test.ts: all assertions passed ✓");
