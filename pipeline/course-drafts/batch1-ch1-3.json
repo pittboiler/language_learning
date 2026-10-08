@@ -1,0 +1,362 @@
+{
+  "_about": "Course blueprint drafts for chapters 1-3, authored in-session (the API was out of credits). Imported + validated by `run-course.ts import`. Line sources follow LineRef in pack-schema.",
+  "lineTags": {
+    "story:gen-s0-repair-story#0": ["pt-sum", "pt-prepositions"],
+    "story:gen-s0-repair-story#1": ["pt-gender", "pt-verbs-a"],
+    "story:gen-s0-repair-story#2": ["pt-ne", "pt-commands", "pt-verbs-a"],
+    "story:gen-s0-repair-story#3": ["pt-more-most"],
+    "story:gen-s0-repair-story#4": ["pt-the", "pt-verbs-e-i"],
+    "story:gen-s0-repair-story#5": ["pt-yes-no", "pt-da", "pt-ti-vie"],
+    "story:gen-s0-repair-story#6": ["pt-question-words", "pt-verbs-e-i"],
+    "story:gen-s0-repair-story#7": ["pt-verbs-e-i"],
+    "story:gen-s0-repair-story#8": ["pt-the", "pt-se", "pt-verbs-e-i"],
+    "qa:gen-s0-repair-story#q1:q": ["pt-question-words", "pt-ne", "pt-verbs-a", "pt-verbs-e-i"],
+    "qa:gen-s0-repair-story#q1:a": ["pt-ne", "pt-verbs-a"],
+    "qa:gen-s0-repair-story#q2:q": ["pt-question-words", "pt-se", "pt-verbs-a", "pt-da", "pt-the", "pt-more-most"],
+    "qa:gen-s0-repair-story#q2:a": ["pt-more-most"],
+    "qa:gen-s0-repair-story#q3:q": ["pt-yes-no", "pt-verbs-e-i"],
+    "qa:gen-s0-repair-story#q3:a": ["pt-verbs-e-i"],
+    "scenario:gen-s0-repair#0": ["pt-question-words", "pt-sum", "pt-ti-vie", "pt-go-ja-gi", "pt-verbs-e-i", "pt-prepositions"],
+    "scenario:gen-s0-repair#1": ["pt-commands", "pt-ne", "pt-verbs-a", "pt-more-most"],
+    "scenario:gen-s0-repair#2": ["pt-ima-nema", "pt-question-words", "pt-sum", "pt-ti-vie"],
+    "scenario:gen-s0-repair#3": ["pt-yes-no", "pt-da", "pt-ti-vie"],
+    "scenario:gen-s0-repair#4": ["pt-se", "pt-question-words", "pt-verbs-a", "pt-ti-vie"],
+    "scenario:gen-s0-repair#5": ["pt-verbs-a", "pt-question-words", "pt-se", "pt-verbs-e-i", "pt-prepositions"],
+    "scenario:gen-s0-repair#6": ["pt-se", "pt-verbs-e-i", "pt-sum", "pt-ti-vie", "pt-prepositions"],
+    "scenario:gen-s0-repair#7": ["pt-sum", "pt-prepositions"],
+
+    "story:gen-s0-greet-story#0": ["pt-verbs-e-i", "pt-prepositions", "pt-the"],
+    "story:gen-s0-greet-story#1": ["pt-question-words", "pt-sum", "pt-ti-vie"],
+    "story:gen-s0-greet-story#2": ["pt-sum", "pt-ti-vie"],
+    "story:gen-s0-greet-story#3": ["pt-sum"],
+    "story:gen-s0-greet-story#4": ["pt-verbs-a", "pt-ti-vie"],
+    "story:gen-s0-greet-story#5": ["pt-verbs-e-i"],
+    "story:gen-s0-greet-story#6": [],
+    "story:gen-s0-greet-story#7": [],
+    "qa:gen-s0-greet-story#q1:q": ["pt-question-words", "pt-verbs-e-i", "pt-prepositions"],
+    "qa:gen-s0-greet-story#q1:a": [],
+    "qa:gen-s0-greet-story#q2:q": ["pt-question-words", "pt-sum"],
+    "qa:gen-s0-greet-story#q2:a": ["pt-sum"],
+    "qa:gen-s0-greet-story#q3:q": ["pt-commands", "pt-prepositions", "pt-question-words", "pt-se", "pt-verbs-a"],
+    "qa:gen-s0-greet-story#q3:a": [],
+    "scenario:gen-s0-greet#0": ["pt-question-words", "pt-sum", "pt-ti-vie"],
+    "scenario:gen-s0-greet#1": ["pt-sum", "pt-ti-vie"],
+    "scenario:gen-s0-greet#2": ["pt-sum", "pt-yes-no", "pt-ti-vie", "pt-verbs-a"],
+    "scenario:gen-s0-greet#3": ["pt-sum", "pt-ti-vie", "pt-adjectives"],
+    "scenario:gen-s0-greet#4": ["pt-ima-nema", "pt-se", "pt-verbs-a"],
+    "scenario:gen-s0-greet#5": ["pt-se", "pt-verbs-a"],
+
+    "story:gen-s0-survive-story#0": ["pt-sum", "pt-prepositions"],
+    "story:gen-s0-survive-story#1": ["pt-verbs-a", "pt-plurals"],
+    "story:gen-s0-survive-story#2": ["pt-yes-no", "pt-verbs-a", "pt-ti-vie", "pt-plurals"],
+    "story:gen-s0-survive-story#3": ["pt-question-words", "pt-sum", "pt-the", "pt-verbs-a"],
+    "story:gen-s0-survive-story#4": ["pt-yes-no", "pt-verbs-e-i"],
+    "story:gen-s0-survive-story#5": ["pt-verbs-a", "pt-numbers", "pt-gender"],
+    "story:gen-s0-survive-story#6": ["pt-question-words", "pt-numbers", "pt-verbs-e-i"],
+    "story:gen-s0-survive-story#7": ["pt-numbers", "pt-verbs-e-i", "pt-the"],
+    "story:gen-s0-survive-story#8": ["pt-verbs-e-i"],
+    "qa:gen-s0-survive-story#q1:q": ["pt-question-words", "pt-numbers", "pt-verbs-a"],
+    "qa:gen-s0-survive-story#q1:a": ["pt-numbers"],
+    "qa:gen-s0-survive-story#q2:q": ["pt-question-words", "pt-numbers", "pt-verbs-e-i"],
+    "qa:gen-s0-survive-story#q2:a": ["pt-numbers"],
+    "qa:gen-s0-survive-story#q3:q": ["pt-commands", "pt-prepositions", "pt-question-words", "pt-verbs-a"],
+    "qa:gen-s0-survive-story#q3:a": ["pt-question-words", "pt-numbers", "pt-verbs-e-i"],
+    "scenario:gen-s0-survive#0": ["pt-commands"],
+    "scenario:gen-s0-survive#1": ["pt-verbs-a", "pt-gender"],
+    "scenario:gen-s0-survive#2": [],
+    "scenario:gen-s0-survive#3": ["pt-yes-no", "pt-verbs-a", "pt-ti-vie", "pt-question-words", "pt-numbers", "pt-verbs-e-i"],
+    "scenario:gen-s0-survive#4": ["pt-gender", "pt-numbers"],
+    "scenario:gen-s0-survive#5": ["pt-commands", "pt-yes-no", "pt-verbs-e-i", "pt-question-words", "pt-sum", "pt-the"],
+    "scenario:gen-s0-survive#6": ["pt-commands"],
+    "scenario:gen-s0-survive#7": ["pt-commands", "pt-numbers"],
+
+    "grammar:gender#0": ["pt-gender"],
+    "grammar:gender#1": ["pt-gender"],
+    "grammar:gender#2": ["pt-gender"],
+    "grammar:to-be#0": ["pt-sum"],
+    "grammar:to-be#1": ["pt-sum"],
+    "grammar:to-be#2": ["pt-sum"],
+    "grammar:to-be#3": ["pt-sum", "pt-ne"],
+    "grammar:negation#0": ["pt-ne", "pt-verbs-a"],
+    "grammar:negation#1": ["pt-ne", "pt-sum"],
+    "grammar:negation#2": ["pt-ima-nema"],
+    "grammar:negation#3": ["pt-ima-nema"],
+    "grammar:questions#0": ["pt-yes-no", "pt-verbs-a"],
+    "grammar:questions#1": ["pt-question-words", "pt-sum"],
+    "grammar:questions#2": ["pt-question-words", "pt-sum", "pt-the"],
+    "grammar:questions#3": ["pt-question-words", "pt-numbers"],
+    "grammar:numbers#0": ["pt-numbers", "pt-gender"],
+    "grammar:numbers#1": ["pt-numbers"],
+    "grammar:numbers#2": ["pt-numbers"],
+    "grammar:numbers#3": ["pt-numbers", "pt-irregular-plurals"]
+  },
+
+  "chunkNotes": {
+    "story:gen-s0-repair-story#0": "е means “is” (chapter 2) and во means “in” (chapter 7).",
+    "story:gen-s0-repair-story#1": "еден (“a”) matches the noun (chapter 3); зборува (“speaks”) gets its ending explained in chapter 4.",
+    "story:gen-s0-repair-story#2": "Извинете is a polite request form (chapter 7); in разбирам, the -м ending means “I” (chapter 4).",
+    "story:gen-s0-repair-story#3": "Побавно is по- (“more”) + бавно (“slow”); chapter 7 explains по-.",
+    "story:gen-s0-repair-story#4": "Мажот is “the man”: “the” goes on the end (chapter 4). вели means “says” (chapter 5).",
+    "story:gen-s0-repair-story#5": "да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2).",
+    "story:gen-s0-repair-story#6": "значи means “means”; verb endings are explained in chapter 5.",
+    "story:gen-s0-repair-story#7": "учам (“I learn”) and вели (“says”): verb endings come in chapter 5.",
+    "story:gen-s0-repair-story#8": "Мажот is “the man” (chapter 4); се смее (“laughs”) is a verb that comes with се (chapter 5).",
+    "qa:gen-s0-repair-story#q1:q": "вели (“says”) and разбира (“understands”): verb endings come in chapters 4 and 5.",
+    "qa:gen-s0-repair-story#q1:a": "In разбирам, the -м ending means “I” (chapter 4).",
+    "qa:gen-s0-repair-story#q2:q": "A long one: се вели (“one says”, chapter 5), да зборува (“to speak”, chapter 4), пополека (“more slowly”, chapter 7).",
+    "qa:gen-s0-repair-story#q2:a": "Побавно is по- (“more”) + бавно (“slow”); chapter 7 explains по-.",
+    "qa:gen-s0-repair-story#q3:q": "знае means “knows”; verb endings come in chapter 5.",
+    "qa:gen-s0-repair-story#q3:a": "учи means “learns”; verb endings come in chapter 5.",
+    "scenario:gen-s0-repair#0": "сте is the polite “you are” (chapter 2); ве носи means “brings you” (chapters 5 and 6); во means “in” (chapter 7).",
+    "scenario:gen-s0-repair#1": "Извинете is a polite request (chapter 7); in разбирам, -м means “I” (chapter 4); Побавно means “slower” (chapter 7).",
+    "scenario:gen-s0-repair#2": "Нема проблем means “no problem” (нема, chapter 12); сте is the polite “you are” (chapter 2).",
+    "scenario:gen-s0-repair#3": "да повторите means “to repeat” (chapter 4 explains да); the -те ending is the polite “you” (chapter 2).",
+    "scenario:gen-s0-repair#4": "Се разбира means “of course” (се verbs, chapter 5); доаѓате is the polite “you come” (chapters 2 and 4).",
+    "scenario:gen-s0-repair#5": "разбирам means “I understand” (chapter 4); се вели means “one says” (chapter 5); на here means “in” a language (chapter 7).",
+    "scenario:gen-s0-repair#6": "се вели means “one says” (chapter 5); вие сте is the polite “you are” (chapter 2); од means “from” (chapter 7).",
+    "scenario:gen-s0-repair#7": "сум means “I am” and sits after the other words (chapter 2); од means “from” (chapter 7).",
+
+    "story:gen-s0-greet-story#0": "оди means “goes” (chapter 5); улицата is “the street”: “the” goes on the end (chapter 4).",
+    "story:gen-s0-greet-story#4": "прашува (“asks”) and Сакаш (“you want”): verb endings come in chapter 4.",
+    "story:gen-s0-greet-story#5": "вели means “says”; verb endings come in chapter 5.",
+    "qa:gen-s0-greet-story#q1:q": "вели means “says” (chapter 5); за means “about” (chapter 7).",
+    "qa:gen-s0-greet-story#q3:q": "Кажи на глас means “say it out loud”, a command (chapter 7); се поздравуваш means “you greet” (chapter 5).",
+    "scenario:gen-s0-greet#2": "Сакате is the polite “you want”; verb endings come in chapter 4.",
+    "scenario:gen-s0-greet#3": "љубезни (“kind”) is an adjective matching вие (chapter 6).",
+    "scenario:gen-s0-greet#4": "Нема проблем means “no problem” (chapter 12); Се гледаме means “see you” (се verbs, chapter 5).",
+    "scenario:gen-s0-greet#5": "Се гледаме means “see you”, literally “we see each other” (chapter 5).",
+
+    "story:gen-s0-survive-story#0": "во means “in” (chapter 7).",
+    "story:gen-s0-survive-story#1": "Сакам means “I want” (the -м ending, chapter 4); јаболка means “apples” (plurals, chapter 6).",
+    "story:gen-s0-survive-story#2": "Имате is the polite “you have” (chapter 4); јаболка means “apples” (chapter 6).",
+    "story:gen-s0-survive-story#3": "лебот means “the bread”: “the” goes on the end (chapter 4).",
+    "story:gen-s0-survive-story#4": "вели means “says” (chapter 5).",
+    "story:gen-s0-survive-story#5": "Сакам means “I want” (the -м ending, chapter 4).",
+    "story:gen-s0-survive-story#6": "чини means “costs”; verb endings come in chapter 5.",
+    "story:gen-s0-survive-story#7": "продавачот means “the shopkeeper”: “the” goes on the end (chapter 4).",
+    "story:gen-s0-survive-story#8": "си оди means “heads off” (chapter 5).",
+    "qa:gen-s0-survive-story#q1:q": "сака means “wants” (chapter 4).",
+    "qa:gen-s0-survive-story#q2:q": "чини means “costs”; verb endings come in chapter 5.",
+    "qa:gen-s0-survive-story#q3:q": "Кажи на глас means “say it out loud”, a command (chapter 7).",
+    "qa:gen-s0-survive-story#q3:a": "чини means “costs”; verb endings come in chapter 5.",
+    "scenario:gen-s0-survive#0": "Изволете means “how can I help?”, a polite command form (chapter 7).",
+    "scenario:gen-s0-survive#1": "Сакам means “I want” (chapter 4).",
+    "scenario:gen-s0-survive#3": "Имате is the polite “you have”; чини means “costs” (verb endings, chapters 4 and 5).",
+    "scenario:gen-s0-survive#5": "Извинете is a polite request (chapter 7); касата means “the till” (chapter 4).",
+    "scenario:gen-s0-survive#6": "Повелете means “here you go”, a polite command form (chapter 7).",
+    "scenario:gen-s0-survive#7": "Повелете means “here you are”, a polite command form (chapter 7)."
+  },
+
+  "points": {
+    "pt-ne": {
+      "agenda": "Say “not”: put не right before the verb",
+      "rule": "To make a sentence negative, put не directly in front of the verb: Не разбирам (“I don't understand”), Не знам (“I don't know”). Nothing goes between не and the verb.",
+      "recap": "Today's rule is one small word: не, right before the verb. You used it in the two phrases a beginner needs most, Не разбирам and Не знам. The verb stays exactly as it was; не just sits in front of it. It works the same way with “is”: Тоа не е точно means “That isn't right”. There's no extra word like English “do”: “I don't know” is simply Не знам.",
+      "library": {
+        "rule": "Macedonian makes almost any sentence negative with one small word, не, placed immediately before the verb: разбирам → не разбирам, знам → не знам, сакам → не сакам. With am/is/are it goes in front of that word too: Тоа не е точно (“That isn't right”). не and its verb are said together, in one breath, with no pause between them. On its own at the start of a reply, Не simply means “No”: Не, фала (“No, thanks”).",
+        "why": [
+          "Why right before the verb? Macedonian treats не and the verb as a pair said in one breath, so не always sits directly in front of it: Не разбирам.",
+          "Two jobs for one word: on its own at the start of a reply, Не means “No”; in front of a verb it means “not”. You can hear both in Не, сѐ уште учи (“No, she's still learning”).",
+          "There's no helper word like English “do”: “I don't know” is just Не знам, literally “not I-know”.",
+          "For “there isn't” or “don't have”, Macedonian uses a different word, нема (Нема проблем, “No problem”). That one comes in chapter 12; for now, treat Нема проблем as a set phrase."
+        ],
+        "mistakes": [
+          "Not putting не after the verb, but before it: Не разбирам.",
+          "Not adding an extra word for “do”: “I don't understand” is just Не разбирам.",
+          "Not reading every Не as “not”: at the start of an answer, Не, фала means “No, thanks”."
+        ]
+      },
+      "examples": ["story:gen-s0-repair-story#2", "qa:gen-s0-repair-story#q1:a", "grammar:negation#1", "grammar:negation#0"],
+      "callbacks": [],
+      "ruleCards": [
+        { "front": "Where does не go to make a sentence negative?", "back": "Right before the verb: Не разбирам, Не знам.", "example": "qa:gen-s0-repair-story#q1:a" },
+        { "front": "How do you say “I don't know”? Is there a word for “do”?", "back": "No “do” word: just Не знам.", "example": "" }
+      ],
+      "blankCards": [
+        { "line": "story:gen-s0-repair-story#2", "blank": "не", "options": ["не", "да", "ли"], "why": "не right before the verb makes it “don't understand”." },
+        { "line": "grammar:negation#1", "blank": "не", "options": ["не", "ли", "сум"], "why": "не goes right in front of е: “isn't”." }
+      ]
+    },
+
+    "pt-yes-no": {
+      "agenda": "Ask yes/no questions: ли after the verb, or дали up front",
+      "rule": "To ask a yes/no question, put ли right after the verb: Можете ли да повторите? (“Can you repeat?”). Or start the question with дали instead: Дали сакаш кафе? Both work the same way.",
+      "recap": "You now have two ways to turn a statement into a yes/no question. ли sits right after the verb, so Можете (“you can”) becomes Можете ли…? (“can you…?”). дали does the same job from the front: Дали Ана знае добро македонски? In Можете ли да повторите?, the да is a separate little word that links “can” to “repeat”. It has nothing to do with the question, and chapter 4 explains it. You'll also hear questions asked with just a rising voice, like Сакаш кафе?",
+      "library": {
+        "rule": "Macedonian marks a yes/no question with a small word instead of flipping the word order the way English does. In everyday set phrases the usual choice is ли, placed immediately after the verb: Имате ли …? (“Do you have…?”), Може ли …? (“Can I…? / Is it possible?”), Можете ли да повторите? (“Can you repeat?”). The other option is дали at the very start, with the rest of the sentence left as a normal statement: Дали сакаш кафе? (“Do you want coffee?”). Both are correct and mean the same thing. Short requests tend to use ли; дали is handy for longer questions. In relaxed speech, a plain statement with a rising voice also works.",
+        "why": [
+          "Why does ли come after the verb? ли can't stand on its own, so it leans on the word being asked about, almost always the verb: Имате ли…? is literally “have-you (question)…?”.",
+          "Why “ли да” in Можете ли да повторите? They're two separate words doing two jobs. ли makes it a question. да links two verbs, because Macedonian has no “to repeat” form: “you can … that you repeat”. Chapter 4 covers да.",
+          "With am/is/are, use дали. Forms like си and е can't carry ли, so “Are you here?” is Дали си тука?",
+          "Don't confuse the two да words. Да on its own means “yes”; the да inside a sentence is the linking word."
+        ],
+        "mistakes": [
+          "Not starting a sentence with ли: it always follows the verb, as in Можете ли…?",
+          "Not using дали and ли together: pick one, either Дали сакаш кафе? or Сакаш ли кафе?",
+          "Not adding a word for “do”: “Do you have water?” is just Имате ли вода?"
+        ]
+      },
+      "examples": ["story:gen-s0-repair-story#5", "qa:gen-s0-repair-story#q3:q", "grammar:questions#0"],
+      "callbacks": [],
+      "ruleCards": [
+        { "front": "Where does ли go in a yes/no question?", "back": "Right after the verb: Можете ли…?, Имате ли…?", "example": "story:gen-s0-repair-story#5" },
+        { "front": "What does дали do?", "back": "It starts a yes/no question; the rest stays like a normal sentence: Дали сакаш кафе?", "example": "grammar:questions#0" }
+      ],
+      "blankCards": [
+        { "line": "story:gen-s0-repair-story#5", "blank": "ли", "options": ["ли", "да", "не"], "why": "ли right after the verb makes it a yes/no question." },
+        { "line": "qa:gen-s0-repair-story#q3:q", "blank": "Дали", "options": ["Дали", "Што", "Каде"], "why": "Дали opens a yes/no question." }
+      ]
+    },
+
+    "pt-question-words": {
+      "agenda": "Ask what, where, how, how much: question words go first",
+      "rule": "Start the question with the question word: Што значи …? (“What does … mean?”), Како се вели …? (“How do you say…?”), Колку чини? (“How much is it?”). With a question word you don't need ли or дали.",
+      "recap": "Today's question words are што (what), каде (where), како (how) and колку (how much / how many). Each one goes at the very start, and the rest follows in normal order: Што значи 'фала'? A question word already makes it a question, so there's no ли or дали. If there's a little word like од (“from”), it comes along to the front: Од каде сте? (“Where are you from?”). Two more you'll meet soon: кој (who) and зошто (why).",
+      "library": {
+        "rule": "Questions that ask for information rather than yes or no begin with a question word: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much / how many). The question word goes first, and the rest of the sentence follows in normal order: Каде е тоалетот? (“Where's the toilet?”), Што е тоа? (“What is that?”). Because the question word already does the asking, ли and дали aren't used with it.",
+        "why": [
+          "Why no ли here? ли and дали are only for yes/no questions. A question word already makes the sentence a question.",
+          "A little word in front travels with it: Од каде сте? is literally “From where are you?”. English leaves “from” at the end; Macedonian keeps it with каде.",
+          "како does a lot of work: Како си? (“How are you?”), Како се вели …? (“How do you say…?”).",
+          "колку covers both “how much” and “how many”: Колку чини? asks a price, Колку јаболка сака Ана? asks a count."
+        ],
+        "mistakes": [
+          "Not leaving the question word at the end, as in English “You're from where?”: it goes first, Од каде сте?",
+          "Not adding ли to a question that already starts with a question word.",
+          "Not mixing up што and кој: што asks about a thing (Што е тоа?), кој about a person."
+        ]
+      },
+      "examples": ["story:gen-s0-repair-story#6", "scenario:gen-s0-repair#5", "scenario:gen-s0-repair#2", "grammar:questions#2"],
+      "callbacks": [],
+      "ruleCards": [
+        { "front": "Where does a question word like што or каде go?", "back": "At the very start: Што значи …?, Каде е …?", "example": "story:gen-s0-repair-story#6" },
+        { "front": "Do you add ли to a question that starts with што, каде or колку?", "back": "No. The question word already makes it a question.", "example": "grammar:questions#2" }
+      ],
+      "blankCards": [
+        { "line": "grammar:questions#2", "blank": "Каде", "options": ["Каде", "Колку", "Дали"], "why": "каде means “where”." },
+        { "line": "story:gen-s0-repair-story#6", "blank": "Што", "options": ["Што", "Каде", "Колку"], "why": "што means “what”: “What does it mean?”" },
+        { "line": "grammar:questions#3", "blank": "Колку", "options": ["Колку", "Што", "Каде"], "why": "колку means “how much”." }
+      ]
+    },
+
+    "pt-sum": {
+      "agenda": "Say am, is, are: сум, си, е and friends",
+      "rule": "сум means “am”, and it changes with the person: јас сум, ти си, тој/таа е, ние сме, вие сте, тие се. It never starts a sentence; something always comes first: Добро сум (“I'm well”), Јас сум Ана.",
+      "recap": "The verb for am/is/are changes with who you mean: сум (I), си (you), е (he/she/it), сме (we), сте (you all, or polite you), се (they). It's a light word that leans on the word before it, so it never opens a sentence: Добро сум, фала. Because the form already says who, you can usually drop јас: Добро сум is a complete “I'm well”. You've been hearing it since chapter 1, in Ана е во Скопје and Од Германија сум.",
+      "library": {
+        "rule": "The present tense of “to be” has six forms: сум (I am), си (you are), е (he/she/it is), сме (we are), сте (you all are, or polite you are), се (they are). These forms are unstressed: they lean on the word before them, so they can't start a sentence. Put a subject or another word first: Јас сум Ана, Тоа е кафе, Добро сум. Since the form already shows the person, the pronoun is usually left out unless you want to stress it. To make it negative, put не in front: не е, не сум.",
+        "why": [
+          "Why can't сум start a sentence? It's unstressed, so it needs a word in front to lean on. That's why it's Добро сум (“I'm well”), with сум second.",
+          "Why is јас often missing? сум can only mean “I am”, so јас is added only for emphasis or contrast: И јас сум добро (“I'm fine too”).",
+          "Watch the look-alike: се means “they are” here, but the same little word also appears in Се гледаме (“See you”). Chapter 5 explains that second job.",
+          "сте is both “you all are” and the polite “you are” to one person, so it pairs with вие either way (more in the next lesson)."
+        ],
+        "mistakes": [
+          "Not opening with сум, but leaning it on a word first: Добро сум, Јас сум Ана.",
+          "Not using сум for everyone: “you are” is си (or сте when polite), “she is” is е.",
+          "Not adding a pronoun every time: Добро сум already means “I'm well”."
+        ]
+      },
+      "examples": ["story:gen-s0-greet-story#2", "grammar:to-be#0", "grammar:to-be#2", "qa:gen-s0-greet-story#q2:q"],
+      "callbacks": ["story:gen-s0-repair-story#0", "scenario:gen-s0-repair#7"],
+      "ruleCards": [
+        { "front": "How do you say “I am”, “you are”, “he/she/it is”?", "back": "сум, си, е: Јас сум Ана, Како си?, Тоа е кафе.", "example": "grammar:to-be#0" },
+        { "front": "Can сум start a sentence?", "back": "No. Something comes first: Добро сум.", "example": "story:gen-s0-greet-story#3" }
+      ],
+      "blankCards": [
+        { "line": "story:gen-s0-greet-story#3", "blank": "сум", "options": ["сум", "си", "е"], "why": "“I'm well”: I → сум." },
+        { "line": "grammar:to-be#2", "blank": "сме", "options": ["сме", "сте", "се"], "why": "ние (we) → сме." },
+        { "line": "qa:gen-s0-greet-story#q2:q", "blank": "е", "options": ["е", "си", "сум"], "why": "Marko is “he” → е." }
+      ]
+    },
+
+    "pt-ti-vie": {
+      "agenda": "Choose ти for friends, вие for strangers and elders",
+      "rule": "Macedonian has two words for “you”. Use ти with friends and family (Како си?) and вие with strangers, elders and groups (Како сте?). The verb matches: polite forms end in -те.",
+      "recap": "Today you chose between two “you”s. ти is the casual one: Здраво, Марко! Како си? вие is polite (and also “you all”): Добар ден! Како сте? The verb follows your choice, so polite forms end in -те: сте, Сакате ли кафе?, and the Можете ли да повторите? you've used since chapter 1. Notice the pairing in the greetings too: a casual Здраво goes with ти, a polite Добар ден with вие. With a stranger, start with вие.",
+      "library": {
+        "rule": "Like many European languages, Macedonian splits “you” in two. ти is singular and familiar: friends, family, children, people your own age in relaxed settings. вие is for one person you address politely (a waiter, a shopkeeper, an older person, anyone you've just met in a formal setting) and also for any group. Everything that refers to “you” follows the choice: си or сте for “are”, and verb endings in -ш or -те (Сакаш or Сакате). The polite words you already know, Извинете and Повелете, are вие forms too.",
+        "why": [
+          "Why does Можете ли да повторите? end in -те? It's the polite вие form, the natural choice when you ask a stranger to repeat.",
+          "вие does double duty: polite “you” to one person, and “you all” to a group. Context tells you which.",
+          "The greeting often signals the register: Здраво goes with ти, Добар ден with вие.",
+          "Moving from вие to ти is a step toward friendliness. With older people, let them offer it."
+        ],
+        "mistakes": [
+          "Not mixing the two in one sentence: Како сте? (polite) or Како си? (casual), with the verb matching the “you” you picked.",
+          "Not using ти with a waiter or shopkeeper you don't know: вие is the safe default."
+        ]
+      },
+      "examples": ["story:gen-s0-greet-story#1", "scenario:gen-s0-greet#0", "scenario:gen-s0-greet#2", "story:gen-s0-greet-story#4"],
+      "callbacks": ["story:gen-s0-repair-story#5", "story:gen-s0-repair-story#2"],
+      "ruleCards": [
+        { "front": "Which “you” for a waiter you don't know?", "back": "вие, the polite one: Како сте?", "example": "scenario:gen-s0-greet#0" },
+        { "front": "What ending marks the polite “you” on a verb?", "back": "-те: сте, Сакате, Можете.", "example": "scenario:gen-s0-greet#2" }
+      ],
+      "blankCards": [
+        { "line": "scenario:gen-s0-greet#0", "blank": "сте", "options": ["сте", "си", "сум"], "why": "Добар ден is polite, so вие → сте." },
+        { "line": "story:gen-s0-greet-story#1", "blank": "си", "options": ["си", "сте", "сме"], "why": "A friend gets ти → си." }
+      ]
+    },
+
+    "pt-gender": {
+      "agenda": "Match еден, една, едно to the noun's gender",
+      "rule": "Every noun is masculine, feminine or neuter, and “a/one” matches it: еден сок, една вода, едно пиво. A rough guide: a consonant at the end means masculine, -а feminine, -о or -е neuter.",
+      "recap": "Today's big idea: every noun has a gender, and the words around it match. еден goes with masculine nouns (еден леб), една with feminine (една вода), едно with neuter (едно кафе). The ending usually gives it away: a consonant, -а, or -о/-е. “This” matches the same way: овој, оваа, ова. You met it in chapter 1 without noticing: Еден маж зборува брзо.",
+      "library": {
+        "rule": "Every Macedonian noun is masculine, feminine or neuter, and the small words that go with it change to match. The first place you see this is “a/one”: еден for masculine (еден сок), една for feminine (една вода), едно for neuter (едно пиво). Most of the time the ending tells you the gender: nouns ending in a consonant are usually masculine, nouns in -а usually feminine, and nouns in -о or -е usually neuter. “This” follows the same pattern: овој, оваа, ова.",
+        "why": [
+          "Gender belongs to the word, not the thing: вода (water) is feminine and леб (bread) masculine because of their endings, not their meaning.",
+          "Why does кафе take едно? It ends in -е, which usually means neuter, even though it's a borrowed word.",
+          "There are exceptions, so learn each noun with its еден/една/едно: think “една вода”, not just “вода”.",
+          "Gender keeps paying off: it decides the form of “the” (chapter 4) and of adjectives (chapter 6)."
+        ],
+        "mistakes": [
+          "Not using еден for everything, but matching the noun: една вода, едно пиво.",
+          "Not guessing from the English meaning: go by the ending."
+        ]
+      },
+      "examples": ["grammar:gender#0", "grammar:gender#1", "grammar:gender#2", "scenario:gen-s0-survive#4"],
+      "callbacks": ["story:gen-s0-repair-story#1"],
+      "ruleCards": [
+        { "front": "How do you choose between еден, една and едно?", "back": "By the noun's gender, usually from its ending: consonant, -а, or -о/-е.", "example": "grammar:gender#1" },
+        { "front": "Which gender is a noun ending in -а, like вода?", "back": "Feminine: една вода.", "example": "grammar:gender#1" }
+      ],
+      "blankCards": [
+        { "line": "scenario:gen-s0-survive#4", "blank": "една", "options": ["една", "еден", "едно"], "why": "вода ends in -а: feminine → една." },
+        { "line": "story:gen-s0-survive-story#5", "blank": "еден", "options": ["еден", "една", "едно"], "why": "леб ends in a consonant: masculine → еден." },
+        { "line": "scenario:gen-s0-survive#1", "blank": "едно", "options": ["едно", "еден", "една"], "why": "кафе ends in -е: neuter → едно." }
+      ]
+    },
+
+    "pt-numbers": {
+      "agenda": "Count things and ask the price",
+      "rule": "After a number bigger than one, the noun goes plural: пет јаболка, десет денари. “Two” has two forms: два for masculine nouns, две for feminine and neuter. To ask a price: Колку чини?",
+      "recap": "Today you counted. “One” matches the noun (еден/една/едно); “two” is два or две; from three up, the number stays the same and the noun goes plural: пет јаболка, десет денари, седумдесет денари. To ask a price it's just Колку чини?, and you can point and add ова: Колку чини ова? Plurals get their own lesson in chapter 6; for now, learn јаболка and денари as the forms you hear after a number.",
+      "library": {
+        "rule": "Numbers work in two steps. “One” agrees with the noun's gender, as in the last lesson: еден, една, едно. “Two” still shows gender: два with masculine nouns, две with feminine and neuter ones (две кафиња). From three up the number never changes, and the noun takes its plural form: три пива, пет јаболка, десет денари. To ask a price, use Колку чини? (“How much does it cost?”); add ова (“this”) when pointing: Колку чини ова? People are counted with special forms such as двајца (“two people”), which you only need to recognize for now.",
+        "why": [
+          "Why јаболка (“apples”) after пет? From two up, the noun takes its plural form, just as пиво becomes пива in три пива. Plurals come in chapter 6; numbers are where you meet them first.",
+          "Why два and две? “Two” is the one number after “one” that still matches gender: два for masculine, две for feminine and neuter.",
+          "колку is both “how much” and “how many”: Колку чини? asks a price, Колку јаболка сака Ана? asks a count.",
+          "Counting people has its own form, двајца (“two people”). Recognize it for now."
+        ],
+        "mistakes": [
+          "Not keeping the noun singular after a number: three beers is три пива, with the plural.",
+          "Not using два with feminine or neuter nouns: две кафиња."
+        ]
+      },
+      "examples": ["story:gen-s0-survive-story#5", "story:gen-s0-survive-story#7", "grammar:numbers#2", "story:gen-s0-survive-story#6"],
+      "callbacks": [],
+      "ruleCards": [
+        { "front": "What happens to a noun after пет or десет?", "back": "It goes plural: пет јаболка, десет денари.", "example": "story:gen-s0-survive-story#7" },
+        { "front": "два or две?", "back": "два with masculine nouns, две with feminine and neuter: две кафиња.", "example": "grammar:numbers#1" }
+      ],
+      "blankCards": [
+        { "line": "grammar:numbers#1", "blank": "две", "options": ["две", "два", "еден"], "why": "кафе is neuter, so “two” is две." },
+        { "line": "grammar:numbers#2", "blank": "пива", "options": ["пива", "пиво", "пивото"], "why": "From two up the noun is plural: пива." },
+        { "line": "qa:gen-s0-survive-story#q3:a", "blank": "Колку", "options": ["Колку", "Каде", "Што"], "why": "Колку чини? means “How much is it?”" }
+      ]
+    }
+  }
+}

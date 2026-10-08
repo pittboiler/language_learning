@@ -281,6 +281,134 @@ export interface ConjugationSet {
   confidence?: "authored" | "validated" | "unreviewed";
 }
 
+// ---- Course blueprint (the grammar spine + session-by-session plan) ----
+// See DESIGN-course-spine.md. A pack's course fixes WHAT is taught WHEN: an ordered list of small grammar
+// points, each owned by one chapter, and a planned sequence of sessions per chapter. The daily flow plays
+// the blueprint; only review content (what's due) is decided at runtime. Every target-language string
+// here is a REFERENCE to a line that already exists in the pack — the blueprint never introduces new text
+// in the target language (enforced by the pipeline lint).
+
+/** A pointer to an existing target-language line. `source` names where it lives so the UI can play its
+ *  cached audio and the lint can check `text` still matches: `story:<id>#<i>`, `qa:<storyId>#<qaId>`,
+ *  `scenario:<id>#<i>`, `grammar:<conceptId>#<i>`, or `vocab:<itemId>`. */
+export interface LineRef {
+  text: string;
+  gloss: string;
+  source: string;
+}
+
+/** A deliberately simple grammar flashcard. `rule`: a plain-English question and a one-line answer.
+ *  `blank`: an existing line with ONE gap where the point lives, answered by tapping one of the options
+ *  (never by typing a sentence). */
+export type GrammarCard =
+  | { kind: "rule"; front: string; back: string; example?: LineRef }
+  | { kind: "blank"; line: LineRef; blank: string; options: string[]; why: string };
+
+/** One small, teachable grammar point — the unit of the course spine (finer than a GrammarConcept, which
+ *  stays the home of pattern tables and drills). Explained at three depths: `agenda` names it, `rule`
+ *  teaches it, `recap` consolidates it, and `library` holds the full detail. */
+export interface GrammarPoint {
+  id: string;
+  chapterId: string;
+  /** 1-based position in the whole spine. */
+  order: number;
+  /** GrammarConcepts this point draws its pattern table and drills from (may be empty). */
+  grammarIds: string[];
+  /** `recognize` = explained and recapped but never drilled for production. */
+  depth: "produce" | "recognize";
+  /** A heavy point gets a practice session of its own after it's taught. */
+  heavy?: boolean;
+  /** Plain-English name, e.g. "Yes/no questions: ли or дали". */
+  title: string;
+  /** One line for the session agenda (~12 words). */
+  agenda: string;
+  /** Two or three sentences for the in-lesson card. */
+  rule: string;
+  /** A fuller paragraph for the end-of-session recap. */
+  recap: string;
+  library: {
+    rule: string;
+    /** "Why is it like this?" notes — the nuances that trip learners up. */
+    why: string[];
+    mistakes: string[];
+  };
+  examples: LineRef[];
+  /** Set phrases met earlier that this point finally explains ("you've been saying … since chapter 1"). */
+  callbacks: LineRef[];
+  cards: GrammarCard[];
+  confidence: Confidence;
+}
+
+/** What one session of a chapter is for. */
+export type SessionRole = "teach" | "practice" | "review" | "use" | "checkpoint";
+
+export interface CourseWord {
+  lexKey: string;
+  display: string;
+  gloss: string;
+}
+
+export interface CourseSession {
+  /** 1-based within the chapter. */
+  n: number;
+  role: SessionRole;
+  /** The point introduced (teach) or practised (practice) in this session. */
+  pointId?: string;
+  /** New words taught this session (a hard cap applies). */
+  words: CourseWord[];
+  /** The story read today, with the lines that exemplify the lens points highlighted. `reuse` marks a
+   *  story from an earlier chapter brought back for consolidation (it never advances its own chapter). */
+  story?: { id: string; lens: string[]; highlight: number[]; reuse?: boolean };
+  /** Build-a-sentence candidates (SentenceItem ids), in priority order. */
+  build: string[];
+  /** Conversation to attempt today (Scenario id). */
+  speak?: string;
+  writing?: boolean;
+  /** The agenda bullets shown at the start. */
+  agenda: string[];
+  /** One line for the recap's "next time". */
+  next: string;
+}
+
+export interface CourseChapter {
+  chapterId: string;
+  pointIds: string[];
+  /** The trimmed word list the chapter teaches, in teaching order. */
+  words: CourseWord[];
+  /** Words the chapter used to carry that now live in the Library only (＋Learn on demand). */
+  extraWords: CourseWord[];
+  sessions: CourseSession[];
+  checkpoint: { wordKeys: string[]; pointIds: string[]; scenarioId?: string };
+}
+
+/** A cumulative review after a stage: everything taught so far, one session. */
+export interface StageReview {
+  afterChapterId: string;
+  chapterIds: string[];
+  wordKeys: string[];
+  pointIds: string[];
+  scenarioIds: string[];
+}
+
+/** A line that uses a point taught LATER than the chapter it appears in — it's served as a set phrase,
+ *  with a short note so it isn't left unexplained. */
+export interface ChunkNote {
+  source: string;
+  text: string;
+  pointIds: string[];
+  note: string;
+}
+
+export interface Course {
+  points: GrammarPoint[];
+  chapters: CourseChapter[];
+  stageReviews: StageReview[];
+  /** Which spine points each existing line uses, keyed by LineRef `source`. Powers story lenses, the
+   *  backward-reuse picker and the Library's "every example you've read". */
+  lineTags: Record<string, string[]>;
+  chunkNotes: ChunkNote[];
+}
+
 export interface LanguagePack {
   id: string; // e.g. "mk"
   languageCode: string; // e.g. "mk"
@@ -311,4 +439,7 @@ export interface LanguagePack {
    *  and to the producing partner in a dyad drill. Keyed rather than inlined on items so captured
    *  words and partner turns, which only carry a lexKey, resolve to the same hint. Optional/additive. */
   hints?: Record<string, string>;
+  /** The course blueprint: grammar spine + per-chapter session plan. Optional/additive — without it the
+   *  daily flow keeps its runtime planner. */
+  course?: Course;
 }
