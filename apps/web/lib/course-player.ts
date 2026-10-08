@@ -5,7 +5,7 @@
 // The blueprint fixes WHAT is taught WHEN. Only review content is decided here at runtime: which due
 // cards make the warm-up (with a guaranteed share from earlier chapters), what a failed checkpoint
 // re-drills, and what a stage review samples.
-import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem } from "@ll/pack-schema";
+import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem, SentenceItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { CourseLogEntry, Progress } from "./store";
@@ -465,6 +465,67 @@ export function explainContext(course: Course, p: Progress): { chapter: number; 
     taught: course.points.filter((pt) => p.seenGrammar?.[pt.id]).map((pt) => pt.title),
     later: course.points.filter((pt) => !p.seenGrammar?.[pt.id]).map((pt) => ({ title: pt.title, chapter: orderOf(pt.chapterId) })),
   };
+}
+
+// ---- practice tools on the course: what's in reach by the learner's place ------------------------------
+/** The learner's place as a slot (a stage review or the end counts as past its chapter). */
+export function currentSlot(course: Course, p: Progress): CourseSlot {
+  const pos = position(course, p.course);
+  if (pos.kind === "session") return { order: pos.chapter.order, n: pos.session.n };
+  if (pos.kind === "stage-review") return { order: course.chapters.find((c) => c.chapterId === pos.afterChapterId)?.order ?? 0, n: 999 };
+  return { order: 999, n: 999 };
+}
+
+/** Build-a-sentence on the course: a sentence is in reach once the course has taught its verb (the forms it
+ *  uses) and every grammar point it uses (its line tags; for an untagged item, a point for each concept). */
+export function sentenceAllowed(pack: LanguagePack, course: Course, p: Progress): (it: SentenceItem) => boolean {
+  const at = currentSlot(course, p);
+  const forms = formSlots(pack, course);
+  const ps = pointSlots(course);
+  const reached = (s?: CourseSlot) => !!s && cmpSlot(s, at) <= 0;
+  return (it) => {
+    const verb = it.verbLemma ? pack.conjugations?.find((c) => c.lemma === it.verbLemma) : undefined;
+    if (verb) {
+      const verbForms = new Set([verb.lemma, ...Object.values(verb.forms)].flatMap(wordTokens));
+      if (!it.variants.every((v) => wordTokens(v.mk).filter((t) => verbForms.has(t)).every((t) => reached(forms.get(t))))) return false;
+    }
+    const tags = course.lineTags[`sentence:${it.id}`];
+    if (tags) return tags.every((id) => reached(ps.get(id)));
+    return it.conceptIds.every((cid) => course.points.some((pt) => pt.grammarIds.includes(cid) && reached(ps.get(pt.id))));
+  };
+}
+
+/** Verbs the warm-up's conjugation drill may use: ones the course has taught by now (a form of them is a
+ *  taught word) whose endings have been taught too. */
+export function taughtVerbs(pack: LanguagePack, course: Course, p: Progress): Set<string> {
+  const at = currentSlot(course, p);
+  const forms = formSlots(pack, course);
+  return new Set((pack.conjugations ?? []).filter((v) => [v.lemma, ...Object.values(v.forms)].flatMap(wordTokens).some((t) => { const s = forms.get(t); return !!s && cmpSlot(s, at) <= 0; })).map((v) => v.lemma));
+}
+
+/** The course chapter that teaches a word (lexKey), or that lists it among its extra, Library-only words.
+ *  A word inside a taught bundle ("два, три, четири, пет") belongs to that bundle's chapter. */
+export function chapterOfWord(course: Course, lexKey: string): { order: number; chapterId: string; extra: boolean } | undefined {
+  for (const c of course.chapters) if (c.words.some((w) => w.lexKey === lexKey)) return { order: c.order, chapterId: c.chapterId, extra: false };
+  for (const c of course.chapters) if (c.words.some((w) => w.lexKey.split(/[\s,/]+/).includes(lexKey))) return { order: c.order, chapterId: c.chapterId, extra: false };
+  for (const c of course.chapters) if (c.extraWords.some((w) => w.lexKey === lexKey)) return { order: c.order, chapterId: c.chapterId, extra: true };
+  return undefined;
+}
+
+/** Has the learner learned this word inside a taught bundle (два inside "два, три, четири, пет")? */
+export function learnedInBundle(course: Course, p: Progress, lexKey: string): boolean {
+  return course.chapters.some((c) => c.words.some((w) => w.lexKey !== lexKey && w.lexKey.split(/[\s,/]+/).includes(lexKey) && !!p.familiarity[w.lexKey] && familiarity.isStudied(p.familiarity[w.lexKey]!)));
+}
+
+/** Review days bring back the learner's own picks: due words they ★ saved or picked with ＋ Learn, which the
+ *  daily warm-up (course material only) leaves out. Pack items where they exist, else built from the entry. */
+export function ownWordsDue(pack: LanguagePack, p: Progress, now: Date, limit: number): ReviewItem[] {
+  const byKey = new Map(pack.vocab.map((v) => [familiarity.deriveKeyForItem(v).lexKey, v]));
+  return Object.values(p.familiarity)
+    .filter((e) => (familiarity.isStarred(e) || familiarity.isPicked(e)) && familiarity.isStudied(e) && !!e.srs && new Date(e.srs.due) <= now && !e.lexKey.startsWith("grammar:"))
+    .sort((a, b) => (a.strength ?? 0) - (b.strength ?? 0))
+    .slice(0, limit)
+    .map((e) => byKey.get(e.lexKey) ?? { id: `own-${e.lexKey}`, kind: "phrase" as const, prompt: e.gloss ?? e.display ?? e.lexKey, answer: e.display ?? e.lexKey, gloss: e.gloss ?? e.display ?? e.lexKey, i1Level: 0, tags: [] });
 }
 
 // ---- lesson notes: a small record per finished session, rebuilt into its recap later --------------------

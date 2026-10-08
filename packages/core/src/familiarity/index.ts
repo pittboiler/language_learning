@@ -92,6 +92,23 @@ export function unstar(entry: FamiliarityEntry): FamiliarityEntry {
   return { ...entry, tags: (entry.tags ?? []).filter((t) => t !== STARRED_TAG) };
 }
 
+/** Tag marking a word the learner chose to learn from the word lists ("＋ Learn"), outside the lessons. Like a
+ *  ★, it's their own pick, and the course's review days bring these back. */
+export const PICKED_TAG = "picked";
+
+/** Did the learner pick this word up themselves (＋ Learn)? */
+export function isPicked(entry: FamiliarityEntry): boolean {
+  return (entry.tags ?? []).includes(PICKED_TAG);
+}
+
+/** Mark a word as the learner's own pick (and studied). Idempotent. */
+export function markPicked(entry: FamiliarityEntry): FamiliarityEntry {
+  const tags = new Set(entry.tags ?? []);
+  tags.delete(EXPOSED_TAG);
+  tags.add(PICKED_TAG);
+  return { ...entry, tags: [...tags] };
+}
+
 const clamp01 = (n: number): number => Math.max(0, Math.min(1, n));
 
 /** Normalize a surface form to a lexKey: NFC, lowercase, trim, strip edge punctuation, collapse ws.

@@ -8,7 +8,7 @@ import { normalize } from "@ll/core/familiarity";
 export interface CatalogLine extends LineRef {
   /** Order of the chapter whose content holds the line (0 for chapter-less grammar examples). */
   chapterOrder: number;
-  kind: "story" | "qa" | "scenario" | "reader" | "grammar" | "vocab";
+  kind: "story" | "qa" | "scenario" | "reader" | "grammar" | "vocab" | "sentence";
 }
 
 /** Split a grammar example "<target> — <English>" into its halves. */
@@ -46,15 +46,22 @@ export function lineCatalog(pack: LanguagePack): CatalogLine[] {
       if (v && !out.some((l) => l.source === `vocab:${v.id}`)) out.push({ source: `vocab:${v.id}`, text: v.answer, gloss: v.gloss, chapterOrder: c.order, kind: "vocab" });
     }
   }
+  // Build-a-sentence items, tagged like any line so the builder only offers grammar the course has taught.
+  // Every person's version shares the grammar, so the first stands for the item.
+  for (const it of pack.sentences ?? []) {
+    const v = it.variants[0];
+    if (v) out.push({ source: `sentence:${it.id}`, text: v.mk, gloss: v.en, chapterOrder: 0, kind: "sentence" });
+  }
   return out;
 }
 
 /** Resolve a LineRef source to the line's current text (undefined ⇒ the source no longer exists). */
 export function resolveSource(pack: LanguagePack, source: string): string | undefined {
-  const m = /^(story|qa|scenario|reader|grammar|vocab):([^#]+)(?:#(.+))?$/.exec(source);
+  const m = /^(story|qa|scenario|reader|grammar|vocab|sentence):([^#]+)(?:#(.+))?$/.exec(source);
   if (!m) return undefined;
   const [, kind, id, rest] = m;
   if (kind === "vocab") return pack.vocab.find((v) => v.id === id)?.answer;
+  if (kind === "sentence") return pack.sentences?.find((x) => x.id === id)?.variants[0]?.mk;
   if (kind === "story") return pack.stories?.find((s) => s.id === id)?.body[Number(rest)]?.text;
   if (kind === "qa") {
     const [qaId, side] = (rest ?? "").split(":");
