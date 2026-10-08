@@ -151,40 +151,59 @@ export const WARMUP_ITEMS = 8;
 export const REVIEW_ITEMS = 14;
 export const EARLIER_SHARE = { normal: 2, review: 4 };
 
-/** Chapter order (1-based) that teaches each lexKey / point card, from the blueprint. */
-export function chapterOfKey(course: Course): Map<string, number> {
-  const m = new Map<string, number>();
-  course.chapters.forEach((c) => {
-    for (const w of c.words) if (!m.has(w.lexKey)) m.set(w.lexKey, c.order);
-    for (const pid of c.pointIds) {
-      const p = course.points.find((x) => x.id === pid);
-      if (p) pointItems(p).forEach((it) => m.set(familiarity.deriveKeyForItem(it).lexKey, c.order));
+/** Where the blueprint first teaches a lexKey / point card: chapter order (1-based) and session n. */
+export interface CourseSlot { order: number; n: number }
+
+/** The slot of every word and point card in the course. A word a session teaches belongs to that session;
+ *  a point's cards to the session that teaches the point. Chapter words/points no session introduces
+ *  count from the chapter's last session. */
+export function slotOfKey(course: Course): Map<string, CourseSlot> {
+  const m = new Map<string, CourseSlot>();
+  const cardKeys = (pid: string) => {
+    const p = course.points.find((x) => x.id === pid);
+    return p ? pointItems(p).map((it) => familiarity.deriveKeyForItem(it).lexKey) : [];
+  };
+  const put = (k: string, slot: CourseSlot) => { if (!m.has(k)) m.set(k, slot); };
+  for (const c of course.chapters) {
+    for (const s of c.sessions) {
+      for (const w of s.words) put(w.lexKey, { order: c.order, n: s.n });
+      if (s.role === "teach" && s.pointId) cardKeys(s.pointId).forEach((k) => put(k, { order: c.order, n: s.n }));
     }
-  });
+    const last = { order: c.order, n: c.sessions.length };
+    for (const w of c.words) put(w.lexKey, last);
+    for (const pid of c.pointIds) cardKeys(pid).forEach((k) => put(k, last));
+  }
   return m;
 }
 
+/** Has the course taught this slot in a session before `current`? */
+export const taughtBefore = (slot: CourseSlot | undefined, current: CourseSlot): boolean =>
+  !!slot && (slot.order < current.order || (slot.order === current.order && slot.n < current.n));
+
 /** Pick the warm-up: due studied cards, but at least `share` of them from chapters before the current one
- *  — the weakest first, due or not — so a busy chapter can't crowd older material out. */
+ *  — the weakest first, due or not — so a busy chapter can't crowd older material out. Only what the
+ *  course has already taught, in an earlier session, is eligible: a card met out of order (before a
+ *  course reorder, or a word tapped in a story) stays in Flashcards and waits for its own session. */
 export function pickWarmup(opts: {
   pool: ReviewItem[];
   progress: Progress;
   now: Date;
-  currentOrder: number;
-  chapterOf: Map<string, number>;
+  current: CourseSlot;
+  slotOf: Map<string, CourseSlot>;
   size: number;
   share: number;
 }): ReviewItem[] {
-  const { progress, now } = opts;
+  const { progress, now, current } = opts;
   const keyOf = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
   const entry = (it: ReviewItem) => progress.familiarity[keyOf(it)];
-  const studied = (it: ReviewItem) => { const e = entry(it); return !!e && familiarity.isStudied(e) && !!e.srs; };
+  const slot = (it: ReviewItem) => opts.slotOf.get(keyOf(it));
+  const studied = (it: ReviewItem) => { const e = entry(it); return !!e && familiarity.isStudied(e) && !!e.srs && taughtBefore(slot(it), current); };
   const due = (it: ReviewItem) => studied(it) && new Date(entry(it)!.srs!.due) <= now;
   const seen = new Set<string>();
   const uniq = opts.pool.filter((it) => { const k = keyOf(it); if (seen.has(k)) return false; seen.add(k); return true; });
 
   const earlier = uniq
-    .filter((it) => studied(it) && (opts.chapterOf.get(keyOf(it)) ?? Infinity) < opts.currentOrder)
+    .filter((it) => studied(it) && slot(it)!.order < current.order)
     .sort((a, b) => Number(due(b)) - Number(due(a)) || (entry(a)!.strength ?? 0) - (entry(b)!.strength ?? 0));
   const out: ReviewItem[] = earlier.slice(0, opts.share);
   const picked = new Set(out.map(keyOf));
@@ -225,10 +244,11 @@ export function stageReviewContent(pack: LanguagePack, course: Course, afterChap
   return { items: [...words, ...cards], scenarioId };
 }
 
-/** Is this word new to the learner (no studied entry yet)? Words met only in passing still get taught. */
+/** Does this session still teach the word? Yes unless the learner knows it (or set it aside): a word met
+ *  earlier (in passing, or before a course reorder) is still taught in its own session, as the agenda says. */
 export const needsTeaching = (progress: Progress, lexKey: string): boolean => {
-  const e = progress.familiarity[lexKey];
-  return !e || !familiarity.isStudied(e) || e.status === "new";
+  const status = progress.familiarity[lexKey]?.status;
+  return status !== "known" && status !== "ignored";
 };
 
 // ---- agenda + recap (DESIGN §5) ---------------------------------------------------------------------

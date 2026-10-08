@@ -3666,8 +3666,8 @@ export const course: Course = {
           },
           "build": [],
           "agenda": [
-            "Say am, is, are: сум, си, е and friends",
             "3 new words: јас, ти, Извинете",
+            "Say am, is, are: сум, си, е and friends",
             "Say it: today's words and examples, out loud",
             "Read “Ана учи македонски”: spot today's pattern"
           ],
@@ -3714,8 +3714,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "Say “not”: put не right before the verb",
             "3 new words: Не разбирам, Не знам, Можете ли да повторите?",
+            "Say “not”: put не right before the verb",
             "Say it: today's words and examples, out loud",
             "Read “Ана учи македонски”: spot today's pattern"
           ],
@@ -3765,8 +3765,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "Practice day: more of this chapter's patterns",
             "3 new words: Побавно, ве молам, Уште еднаш, ве молам, Како се вели … на македонски?",
+            "Practice day: more of this chapter's patterns",
             "Say it: today's words and examples, out loud",
             "Read “Ана учи македонски”: spot everything from this chapter"
           ],
@@ -3817,8 +3817,8 @@ export const course: Course = {
           ],
           "speak": "gen-s0-repair",
           "agenda": [
-            "Practice day: more of this chapter's patterns",
             "3 new words: тој, таа, ние",
+            "Practice day: more of this chapter's patterns",
             "Say it: today's words and examples, out loud",
             "Read “Ана учи македонски”: spot everything from this chapter",
             "Conversation: Keeping the conversation alive (repair kit)"
@@ -4158,8 +4158,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v8"
           ],
           "agenda": [
-            "Ask what, where, how, how much: question words go first",
             "3 new words: што, каде, Здраво",
+            "Ask what, where, how, how much: question words go first",
             "Say it: today's words and examples, out loud",
             "Read “Ана и Марко”: spot today's pattern"
           ],
@@ -4211,8 +4211,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v4"
           ],
           "agenda": [
-            "Choose ти for friends, вие for strangers and elders",
             "3 new words: вие, Како си?, Добар ден",
+            "Choose ти for friends, вие for strangers and elders",
             "Say it: today's words and examples, out loud",
             "Read “Ана и Марко”: spot today's pattern"
           ],
@@ -4262,8 +4262,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "Ask yes/no questions: ли after the verb, or дали up front",
             "3 new words: Добро сум, фала, како, колку",
+            "Ask yes/no questions: ли after the verb, or дали up front",
             "Say it: today's words and examples, out loud",
             "Reread “Ана учи македонски” from an earlier chapter: find yes/no questions: ли or дали"
           ],
@@ -4311,8 +4311,8 @@ export const course: Course = {
             "phrase-gen-s0-greet-v6"
           ],
           "agenda": [
-            "Practice day: more of this chapter's patterns",
             "3 new words: Како сте?, Фала, Ве молам",
+            "Practice day: more of this chapter's patterns",
             "Say it: today's words and examples, out loud",
             "Read “Ана и Марко”: spot everything from this chapter"
           ],
@@ -4698,8 +4698,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "Match еден, една, едно to the noun's gender",
             "3 new words: еден / една / едно, ова / тоа, Сакам …",
+            "Match еден, една, едно to the noun's gender",
             "Say it: today's words and examples, out loud",
             "Read “Ана во продавница”: spot today's pattern"
           ],
@@ -4751,8 +4751,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Count things and ask the price",
             "3 new words: два, три, четири, пет, шест, седум, осум, девет, десет, Може ли …?",
+            "Count things and ask the price",
             "Say it: today's words and examples, out loud",
             "Read “Ана во продавница”: spot today's pattern"
           ],
@@ -4804,8 +4804,8 @@ export const course: Course = {
             "phrase-gen-s0-survive-v8"
           ],
           "agenda": [
-            "Practice day: more of this chapter's patterns",
             "3 new words: Каде е …?, Колку чини?, Имате ли …?",
+            "Practice day: more of this chapter's patterns",
             "Say it: today's words and examples, out loud",
             "Read “Ана во продавница”: spot everything from this chapter"
           ],
@@ -5120,8 +5120,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v4"
           ],
           "agenda": [
-            "Change the verb ending to say who wants, has, or pays.",
             "3 new words: имам, давам, Едно пиво, ве молам",
+            "Change the verb ending to say who wants, has, or pays.",
             "Say it: today's words and examples, out loud",
             "Read “Марко во кафето”: spot today's pattern"
           ],
@@ -5172,8 +5172,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "Practice: Verb endings: the -а verbs",
             "3 new words: кафе, пиво, вода",
+            "Practice: Verb endings: the -а verbs",
             "Say it: today's words and examples, out loud",
             "Read “Марко во кафето”: spot today's pattern"
           ],
@@ -5226,8 +5226,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Say “the”: add -от, -та or -то to the end of the noun",
             "3 new words: чај, сок, Што ќе сакате?",
+            "Say “the”: add -от, -та or -то to the end of the noun",
             "Say it: today's words and examples, out loud",
             "Read “Марко во кафето”: spot today's pattern"
           ],
@@ -5317,8 +5317,8 @@ export const course: Course = {
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
-            "Say want to / can / must: stack да + verb (Сакам да платам).",
             "3 new words: Повелете, Сметката, ве молам, Наздравје!",
+            "Say want to / can / must: stack да + verb (Сакам да платам).",
             "Say it: today's words and examples, out loud",
             "Reread “Ана учи македонски” from an earlier chapter: find want to, can: да + verb",
             "Conversation: Café & bar: order and pay (the anchor)"
@@ -5604,8 +5604,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "Two more verb groups: just swap the middle vowel to -е or -и.",
             "3 new words: јадам, пијам, Јас сум …",
+            "Two more verb groups: just swap the middle vowel to -е or -и.",
             "Say it: today's words and examples, out loud",
             "Read “Во барот”: spot today's pattern"
           ],
@@ -5657,8 +5657,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "Practice: The other verb groups: -е and -и verbs",
             "3 new words: знам, одам, Мило ми е",
+            "Practice: The other verb groups: -е and -и verbs",
             "Say it: today's words and examples, out loud",
             "Read “Во барот”: spot today's pattern"
           ],
@@ -5708,8 +5708,8 @@ export const course: Course = {
             "phrase-gen-introductions-v6"
           ],
           "agenda": [
-            "Meet verbs that always travel with се, sitting right before the verb.",
             "3 new words: Како се викаш?, Јас се викам, Од каде си?",
+            "Meet verbs that always travel with се, sitting right before the verb.",
             "Say it: today's words and examples, out loud",
             "Read “Во барот”: spot today's pattern"
           ],
@@ -5761,8 +5761,8 @@ export const course: Course = {
             "phrase-gen-introductions-v1"
           ],
           "agenda": [
-            "Practice day: more of this chapter's patterns",
             "3 new words: Од … сум, Што работиш?, работам",
+            "Practice day: more of this chapter's patterns",
             "Say it: today's words and examples, out loud",
             "Read “Во барот”: spot everything from this chapter"
           ],
@@ -6127,8 +6127,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Talk about more than one: plural endings",
             "3 new words: јаболка, едно кило, половина кило",
+            "Talk about more than one: plural endings",
             "Say it: today's words and examples, out loud",
             "Read “Ана на пазар”: spot today's pattern"
           ],
@@ -6178,8 +6178,8 @@ export const course: Course = {
             "phrase-gen-s1-market-v3"
           ],
           "agenda": [
-            "Make the describing word match its noun: добар, добра, добро, добри.",
             "3 new words: евтин, скап, Колку чини килото?",
+            "Make the describing word match its noun: добар, добра, добро, добри.",
             "Say it: today's words and examples, out loud",
             "Reread “Ана и кафето” from an earlier chapter: find adjectives match their noun"
           ],
@@ -6225,8 +6225,8 @@ export const course: Course = {
             "phrase-gen-s1-market-v4"
           ],
           "agenda": [
-            "Say “it” and “them”: го, ја, ги go right before the verb",
             "3 new words: леб, млеко, добар",
+            "Say “it” and “them”: го, ја, ги go right before the verb",
             "Say it: today's words and examples, out loud",
             "Read “Ана на пазар”"
           ],
@@ -6606,8 +6606,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "Place little words во, на, со, од, до before a noun to say where.",
             "3 new words: во, на, лево",
+            "Place little words во, на, со, од, до before a noun to say where.",
             "Say it: today's words and examples, out loud",
             "Read “Ана бара центар”: spot today's pattern"
           ],
@@ -6656,8 +6656,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
             "3 new words: Свртете лево, десно, право",
+            "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
             "Say it: today's words and examples, out loud",
             "Read “Ана бара центар”: spot today's pattern"
           ],
@@ -6703,8 +6703,8 @@ export const course: Course = {
             "phrase-gen-s1-directions-v11"
           ],
           "agenda": [
-            "Build \"more\" and \"most\": stick по- or нај- on the front",
             "3 new words: близу / далеку, тука / таму, од",
+            "Build \"more\" and \"most\": stick по- or нај- on the front",
             "Say it: today's words and examples, out loud",
             "Reread “Ана учи македонски” from an earlier chapter: find more and most: по- and нај-"
           ],
@@ -7056,8 +7056,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Say to me, to you, to her — and build \"I like it\".",
             "3 new words: Ми се допаѓа, Не ми се допаѓа, Сакам да …",
+            "Say to me, to you, to her — and build \"I like it\".",
             "Say it: today's words and examples, out loud",
             "Read “Времето денес”: spot today's pattern"
           ],
@@ -7106,8 +7106,8 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v1"
           ],
           "agenda": [
-            "Practice: To me, to you: ми, ти, му",
             "3 new words: Мислам дека …, Се согласувам, убаво / грозно",
+            "Practice: To me, to you: ми, ти, му",
             "Say it: today's words and examples, out loud",
             "Read “Времето денес”: spot today's pattern"
           ],
@@ -7153,8 +7153,8 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v2"
           ],
           "agenda": [
-            "Talk about the future: ќе before the verb, нема да for won't",
             "3 new words: Ќе …, Ќе се видиме, времето",
+            "Talk about the future: ќе before the verb, нема да for won't",
             "Say it: today's words and examples, out loud",
             "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
           ],
@@ -7200,8 +7200,8 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v2"
           ],
           "agenda": [
-            "Practice: The future: ќе and нема да",
             "3 new words: денес, и / ама / затоа, дека",
+            "Practice: The future: ќе and нема да",
             "Say it: today's words and examples, out loud",
             "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
           ],
@@ -7467,8 +7467,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "Talk about finished events: say I was, had, went, ate, watched.",
             "3 new words: вчера / денес / утре, бев, имав",
+            "Talk about finished events: say I was, had, went, ate, watched.",
             "Say it: today's words and examples, out loud",
             "Read “Денот на Марко”: spot today's pattern"
           ],
@@ -7518,8 +7518,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Practice: What happened: the past tense",
             "3 new words: отидов, јадев, Што правеше?",
+            "Practice: What happened: the past tense",
             "Say it: today's words and examples, out loud",
             "Read “Денот на Марко”: spot today's pattern"
           ],
@@ -7880,8 +7880,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Say my and your to match the noun — plus the family shortcut",
             "3 new words: мојот / мојата, мој, мајка / татко",
+            "Say my and your to match the noun — plus the family shortcut",
             "Say it: today's words and examples, out loud",
             "Read “Мојот живот”: spot today's pattern"
           ],
@@ -7924,8 +7924,8 @@ export const course: Course = {
             "phrase-gen-s2-home-family-v9"
           ],
           "agenda": [
-            "Spot two odd plurals: деца (children) and луѓе (people)",
             "3 new words: брат / сестра, жена / маж, дете / деца",
+            "Spot two odd plurals: деца (children) and луѓе (people)",
             "Say it: today's words and examples, out loud",
             "Read “Мојот живот”"
           ],
@@ -7972,8 +7972,8 @@ export const course: Course = {
             "phrase-gen-s2-home-family-v2"
           ],
           "agenda": [
-            "Practice day: more of this chapter's patterns",
             "3 new words: Живеам во …, Работам како …, твој",
+            "Practice day: more of this chapter's patterns",
             "Say it: today's words and examples, out loud",
             "Read “Мојот живот”: spot everything from this chapter"
           ],
@@ -8250,8 +8250,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "Tell the time with во plus a number plus часот.",
             "3 new words: Ало?, Дома ли е …?, Кога?",
+            "Tell the time with во plus a number plus часот.",
             "Say it: today's words and examples, out loud",
             "Read “Телефонски повик”: spot today's pattern"
           ],
@@ -8297,8 +8297,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?",
             "3 new words: Во колку часот?, Каде да се видиме?, Ајде да …",
+            "Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?",
             "Say it: today's words and examples, out loud",
             "Read “Телефонски повик”: spot today's pattern"
           ],
@@ -8597,8 +8597,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "Say there is / there isn't with има and нема (and double negatives).",
             "3 new words: Има проблем, Не работи, Ова не е …",
+            "Say there is / there isn't with има and нема (and double negatives).",
             "Say it: today's words and examples, out loud",
             "Read “Проблем во кафулето”: spot today's pattern"
           ],
@@ -8641,8 +8641,8 @@ export const course: Course = {
             "phrase-gen-s2-problems-v1"
           ],
           "agenda": [
-            "Recognize the \"have done\" past: сум plus an -л word for experiences.",
             "3 new words: Можете ли да помогнете?, погрешно, Сакам да вратам",
+            "Recognize the \"have done\" past: сум plus an -л word for experiences.",
             "Say it: today's words and examples, out loud",
             "Read “Проблем во кафулето”"
           ],
