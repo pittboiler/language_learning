@@ -54,9 +54,9 @@ let cost = 0;
 let course: Course = { points: [], chapters: [], stageReviews: [], lineTags: {}, chunkNotes: [] };
 if (pack.course) course = structuredClone(pack.course);
 
-// Notes read as one voice: no "Set phrase for now:" prefix (the UI labels them), curly quotes, capitalized.
+// Notes read as one voice: no "Set phrase for now:" prefix, curly quotes, "chapter 2" not "ch2", capitalized.
 const tidyNote = (n: string): string => {
-  const t = n.trim().replace(/^set phrases? for now:\s*/i, "").replace(/'([^']+)'/g, "“$1”");
+  const t = n.trim().replace(/^set phrases? for now:\s*/i, "").replace(/'([^']+)'/g, "“$1”").replace(/\bch(\d+)\b/g, "chapter $1");
   return /^[a-z]/.test(t) ? t.charAt(0).toUpperCase() + t.slice(1) : t; // never recase a target-language word
 };
 // A note that opens with a target-language word keeps that word's casing from its own line ("да повторите",
@@ -182,6 +182,17 @@ async function writeNotes() {
 const wholeWord = (line: string, w: string) =>
   !!w && new RegExp(`(^|[^\\p{L}])${w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}])`, "u").test(line);
 
+/** Whole words the pack actually uses (lines, vocabulary, verb forms, drill answers), stricter than the corpus,
+ *  which also holds grammar-table endings like -он: an explanation may only quote these. */
+const realWords = (() => {
+  const w = new Set<string>();
+  for (const l of catalog) tokens(l.text).forEach((t) => w.add(t));
+  for (const v of pack.vocab) tokens(v.answer).forEach((t) => w.add(t));
+  for (const c of pack.conjugations ?? []) [c.lemma, ...Object.values(c.forms)].flatMap(tokens).forEach((t) => w.add(t));
+  for (const g of pack.grammar) for (const d of g.drills) [d.answer, ...(d.options ?? [])].flatMap(tokens).forEach((t) => w.add(t));
+  return w;
+})();
+
 /** Problems with a line's focus words (fatal) and, separately, with its fill-in (only the fill-in is dropped). */
 function validateFocus(l: CatalogLine, point: string, f: { words: string[]; blank: { word: string; options: string[]; why: string } }): { words: string[]; blank: string[] } {
   const words: string[] = [];
@@ -195,7 +206,7 @@ function validateFocus(l: CatalogLine, point: string, f: { words: string[]; blan
     if (opts.size !== 3 || !opts.has(f.blank.word)) blank.push(`${point}: options must be 3 distinct incl. "${f.blank.word}"`);
     for (const o of f.blank.options) for (const t of tokens(o)) if (!corpus.has(t)) blank.push(`${point}: option "${o}" isn't in the pack`);
     if (!f.blank.why.trim()) blank.push(`${point}: no why`);
-    const quoted = proseWords(f.blank.why).filter((w) => !corpus.has(w) && !tokens(l.text).includes(w));
+    const quoted = proseWords(f.blank.why).filter((w) => !realWords.has(w) && !tokens(l.text).includes(w));
     if (quoted.length) blank.push(`${point}: the why quotes words not in the pack: ${quoted.join(", ")}`);
   }
   return { words, blank };
@@ -221,20 +232,18 @@ function optionPool(): string {
 
 async function focus() {
   course.lineFocus ??= {};
-  // A fill-in that no longer passes (e.g. its "why" quotes a word that isn't in the pack) is dropped, so
-  // `focus --blanks` writes it again.
+  // A fill-in that no longer passes (e.g. its "why" quotes a word that isn't in the pack) is dropped; the
+  // line keeps its words. Write a replacement by hand through `import` (lineFocus) if the line needs one.
   for (const [src, byPoint] of Object.entries(course.lineFocus)) {
     const l = catalogBySource.get(src);
     for (const [pid, f] of Object.entries(byPoint)) {
-      if (l && f.blank && validateFocus(l, pid, { words: f.words, blank: f.blank }).blank.length) { delete f.blank; console.log(`  dropped the fill-in on ${src} (${pid}); --blanks rewrites it`); }
+      if (l && f.blank && validateFocus(l, pid, { words: f.words, blank: f.blank }).blank.length) { delete f.blank; console.log(`  dropped the fill-in on ${src} (${pid})`); }
     }
   }
   const kinds = new Set(["story", "qa", "scenario", "grammar"]);
-  // --blanks: also retry lines whose focus words are in but a fill-in is missing.
-  const BLANKS = process.argv.includes("--blanks");
   const todo = catalog.filter((l) => kinds.has(l.kind) && (course.lineTags[l.source] ?? []).length
-    && (REDO || (course.lineTags[l.source] ?? []).some((p) => !course.lineFocus![l.source]?.[p] || (BLANKS && !course.lineFocus![l.source]![p]!.blank))));
-  console.log(`${todo.length} line(s) need focus${BLANKS ? " or a fill-in" : ""}`);
+    && (REDO || (course.lineTags[l.source] ?? []).some((p) => !course.lineFocus![l.source]?.[p])));
+  console.log(`${todo.length} line(s) need focus`);
   const SCHEMA = {
     type: "object", additionalProperties: false, required: ["lines"],
     properties: { lines: { type: "array", items: {
@@ -449,6 +458,7 @@ function importDrafts(file: string) {
     lineTags?: Record<string, string[]>;
     chunkNotes?: Record<string, string>;
     points?: Record<string, PointDraft>;
+    lineFocus?: Record<string, Record<string, { words: string[]; blank?: { word: string; options: string[]; why: string } }>>;
   };
   const valid = new Set(spine.map((p) => p.id));
   const bySource = new Map(catalog.map((l) => [l.source, l]));
@@ -479,9 +489,18 @@ function importDrafts(file: string) {
     const next = toPoint(sp, draft, bySource);
     course.points = [...course.points.filter((p) => p.id !== id), KEEP_CONFIDENCE && prev ? { ...next, confidence: prev.confidence } : next];
   }
+  for (const [source, byPoint] of Object.entries(raw.lineFocus ?? {})) {
+    const l = bySource.get(source);
+    if (!l) { errors.push(`lineFocus: unknown source ${source}`); continue; }
+    for (const [pid, f] of Object.entries(byPoint)) {
+      const errs = validateFocus(l, pid, { words: f.words, blank: f.blank ?? { word: "", options: [], why: "" } });
+      if (errs.words.length || errs.blank.length) { errors.push(...[...errs.words, ...errs.blank].map((e) => `lineFocus ${source}: ${e}`)); continue; }
+      course.lineFocus = { ...course.lineFocus, [source]: { ...course.lineFocus?.[source], [pid]: { words: f.words, ...(f.blank ? { blank: f.blank } : {}) } } };
+    }
+  }
   course.points.sort((a, b) => a.order - b.order);
   if (errors.length) { console.error(`✗ ${errors.length} problem(s) in ${file}:\n  - ${errors.join("\n  - ")}`); process.exit(1); }
-  console.log(`imported ${Object.keys(raw.lineTags ?? {}).length} line tag(s), ${Object.keys(raw.points ?? {}).length} point(s) from ${file}`);
+  console.log(`imported ${Object.keys(raw.lineTags ?? {}).length} line tag(s), ${Object.keys(raw.points ?? {}).length} point(s), ${Object.keys(raw.lineFocus ?? {}).length} line focus from ${file}`);
 }
 
 async function points() {

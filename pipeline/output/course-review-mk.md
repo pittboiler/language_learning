@@ -166,9 +166,36 @@ Macedonian makes almost any sentence negative with one small word, не, placed 
 - ▢ „Извинете, ___ разбирам.“ → **не** of [не / да / ли]: не right before the verb makes it “don't understand”.
 - ▢ Тоа ___ е точно → **не** of [не / ли / сум]: не goes right in front of е: “isn't”.
 
+**Focus in “Ана учи македонски”** (highlighted words; fill-ins for “Use it”):
+- Ана е во Скопје. · pt-sum: **е** · fill-in Ана ___ во Скопје. → **е** of [е / сум / си]: Ана is one other person (she), so it's the тој/таа form: е.
+- Ана е во Скопје. · pt-prepositions: **во** · fill-in Ана е ___ Скопје. → **во** of [во / на / од]: во means 'in' a place.
+- Еден маж зборува брзо. · pt-gender: **Еден** · fill-in ___ маж зборува брзо. → **Еден** of [Еден / Една / Едно]: маж is masculine, so 'a/one' is еден.
+- Еден маж зборува брзо. · pt-verbs-a: **зборува** · fill-in Еден маж ___ брзо. → **зборува** of [зборува / зборувам / зборуваш]: He speaks — third person uses зборува.
+- „Извинете, не разбирам.“ · pt-ne: **не** · fill-in „Извинете, ___ разбирам.“ → **не** of [не / да / ли]: "не" goes right before the verb to say "don't".
+- „Извинете, не разбирам.“ · pt-commands: **Извинете** · fill-in „___, не разбирам.“ → **Извинете** of [Извинете / Кажете / Свртете]: Polite form for "excuse me".
+- „Извинете, не разбирам.“ · pt-verbs-a: **разбирам**
+- „Побавно, ве молам.“ · pt-more-most: **Побавно** · fill-in „___, ве молам.“ → **Побавно** of [Побавно / побрзо / подобро]: по- makes "slow" into "slower".
+- Мажот вели: „Во ред.“ · pt-the: **Мажот**
+- Мажот вели: „Во ред.“ · pt-verbs-e-i: **вели**
+- „Можете ли да повторите?“ · pt-yes-no: **ли**
+- „Можете ли да повторите?“ · pt-da: **да** · fill-in „Можете ли ___ повторите?“ → **да** of [да / дека / за]: After можете you use да + verb.
+- „Можете ли да повторите?“ · pt-ti-vie: **Можете** · fill-in „___ ли да повторите?“ → **Можете** of [Можете / Можеш / Можам]: Polite 'you can' is Можете.
+- „Аха. Што значи 'фала'?“ · pt-question-words: **Што** · fill-in „Аха. ___ значи 'фала'?“ → **Што** of [Што / Како / Каде]: "Што" means "what".
+- „Аха. Што значи 'фала'?“ · pt-verbs-e-i: **значи**
+- „Сѐ уште учам,“ вели Ана. · pt-verbs-e-i: **учам, вели** · fill-in „Сѐ уште ___,“ вели Ана. → **учам** of [учам / учиш / учи]: 'I am learning' ends in -ам.
+- Мажот се смее. „Навистина?“ · pt-se: **се** · fill-in Мажот ___ смее. „Навистина?“ → **се** of [се / го / ми]: This verb always carries "се".
+- Мажот се смее. „Навистина?“ · pt-the: **Мажот**
+- Мажот се смее. „Навистина?“ · pt-verbs-e-i: **смее**
+
 **Set-phrase notes available on tap only** (not surfaced in a session):
 - Се вели „Германија“. Значи, вие сте од Германија?: се вели means “is said” (chapter 5); сте is the polite form (chapter 2); од means “from” (chapter 7).
 - Да, точно. Од Германија сум.: од means “from” (chapter 7).
+- Не разбирам.: разбирам is an -а verb meaning "I understand"; chapter 4 explains the endings.
+- Можете ли да повторите?: "ли" makes a yes/no question (chapter 2), "Можете" is the polite form (chapter 2), and "да повторите" is да+verb (chapter 4).
+- Побавно, ве молам.: "Побавно" uses по- to mean "slower"; chapter 7 explains по-.
+- Како се вели … на македонски?: "Како" opens a question (chapter 2), "се вели" is a се-verb (chapter 5), and "на" is a preposition (chapter 7).
+- Што значи …?: "Што" is a question word meaning "what"; chapter 2 explains these.
+- Сѐ уште учам.: "учам" is an -и verb meaning "I learn"; chapter 5 explains these endings.
 
 ---
 
@@ -338,6 +365,20 @@ Macedonian marks a yes/no question with a small word instead of flipping the wor
 - ▢ „Можете ___ да повторите?“ → **ли** of [ли / да / не]: ли right after the verb makes it a yes/no question.
 - ▢ Здраво! ___ е Марко таму? → **Дали** of [Дали / Што / Каде]: Дали opens a yes/no question: “Is Marko there?”
 
+**Focus in “Ана и Марко”** (highlighted words; fill-ins for “Use it”):
+- Ана оди по улицата. · pt-verbs-e-i: **оди** · fill-in Ана ___ по улицата. → **оди** of [оди / одиш / одам]: "оди" is the he/she form.
+- Ана оди по улицата. · pt-prepositions: **по** · fill-in Ана оди ___ улицата. → **по** of [по / во / до]: 'Along the street' uses по.
+- Ана оди по улицата. · pt-the: **улицата**
+- „Здраво, Марко! Како си?“ · pt-question-words: **Како** · fill-in „Здраво, Марко! ___ си?“ → **Како** of [Како / Колку / Каде]: 'How are you' uses Како.
+- „Здраво, Марко! Како си?“ · pt-sum: **си** · fill-in „Здраво, Марко! Како ___?“ → **си** of [си / сте / е]: Informal 'you are' is си.
+- „Здраво, Марко! Како си?“ · pt-ti-vie: **си**
+- „Добро сум, фала. А ти?“ · pt-sum: **сум** · fill-in „Добро ___, фала. А ти?“ → **сум** of [сум / си / е]: 'I am' is сум.
+- „Добро сум, фала. А ти?“ · pt-ti-vie: **ти**
+- „Добро сум.“ · pt-sum: **сум** · fill-in „Добро ___.“ → **сум** of [сум / си / е]: 'I am' is сум.
+- Марко прашува: „Сакаш кафе?“ · pt-verbs-a: **Сакаш** · fill-in Марко прашува: „___ кафе?“ → **Сакаш** of [Сакаш / Сакам / Сака]: 'You want' (friend) ends in -ш.
+- Марко прашува: „Сакаш кафе?“ · pt-ti-vie: **Сакаш**
+- „Да, фала!“ вели Ана. · pt-verbs-e-i: **вели**
+
 ---
 
 ## Chapter 3: Survival operators + numbers 1–10
@@ -467,6 +508,36 @@ Numbers work in two steps. “One” agrees with the noun's gender, as in the la
 - ▢ ___ кафиња → **две** of [две / два / еден]: кафе is neuter, so “two” is две.
 - ▢ три ___ → **пива** of [пива / пиво / пивото]: From two up the noun is plural: пива.
 - ▢ Десет ___. → **денари** of [денари / денар / пива]: After десет the noun goes plural: денари.
+
+**Focus in “Ана во продавница”** (highlighted words; fill-ins for “Use it”):
+- Ана е во продавница. · pt-sum: **е** · fill-in Ана ___ во продавница. → **е** of [е / сум / си]: "е" is the he/she form.
+- Ана е во продавница. · pt-prepositions: **во** · fill-in Ана е ___ продавница. → **во** of [во / на / со]: "во" means "in" a shop.
+- „Добар ден! Сакам јаболка.“ · pt-verbs-a: **Сакам** · fill-in „Добар ден! ___ јаболка.“ → **Сакам** of [Сакам / Сакаш / Сакаме]: -ам ending means "I".
+- „Добар ден! Сакам јаболка.“ · pt-plurals: **јаболка**
+- „Имате ли јаболка?“ · pt-yes-no: **ли** · fill-in „Имате ___ јаболка?“ → **ли** of [ли / да / дали]: "ли" after the verb makes a yes/no question.
+- „Имате ли јаболка?“ · pt-verbs-a: **Имате** · fill-in „___ ли јаболка?“ → **Имате** of [Имате / Имаш / Имам]: -те ending is polite/plural "you".
+- „Имате ли јаболка?“ · pt-ti-vie: **Имате**
+- „Имате ли јаболка?“ · pt-plurals: **јаболка**
+- „А каде е лебот?“ прашува Ана. · pt-question-words: **каде** · fill-in „А ___ е лебот?“ прашува Ана. → **каде** of [каде / кога / колку]: "каде" means "where".
+- „А каде е лебот?“ прашува Ана. · pt-sum: **е** · fill-in „А каде ___ лебот?“ прашува Ана. → **е** of [е / сум / си]: "е" is the he/she form.
+- „А каде е лебот?“ прашува Ана. · pt-the: **лебот** · fill-in „А каде е ___?“ прашува Ана. → **лебот** of [лебот / лебта / леб]: Masculine nouns take -от for "the".
+- „А каде е лебот?“ прашува Ана. · pt-verbs-a: **прашува**
+- „Може ли тоа?“ вели Ана. · pt-yes-no: **ли** · fill-in „Може ___ тоа?“ вели Ана. → **ли** of [ли / да / дали]: "ли" after the verb makes a yes/no question.
+- „Може ли тоа?“ вели Ана. · pt-verbs-e-i: **Може** · fill-in „___ ли тоа?“ вели Ана. → **Може** of [Може / Можам / Можеш]: "Може" is the he/she/it form.
+- „Сакам пет јаболка и еден леб.“ · pt-verbs-a: **Сакам** · fill-in „___ пет јаболка и еден леб.“ → **Сакам** of [Сакам / Сакаш / Сакаме]: The -м ending means "I" want.
+- „Сакам пет јаболка и еден леб.“ · pt-numbers: **пет**
+- „Сакам пет јаболка и еден леб.“ · pt-gender: **еден** · fill-in „Сакам пет јаболка и ___ леб.“ → **еден** of [еден / една / едно]: леб is masculine, so it takes еден.
+- „Колку чини ова?“ · pt-question-words: **Колку** · fill-in „___ чини ова?“ → **Колку** of [Колку / Што / Каде]: Asking "how much" uses колку.
+- „Колку чини ова?“ · pt-numbers: **Колку, чини**
+- „Колку чини ова?“ · pt-verbs-e-i: **чини**
+- „Десет денари“, вели продавачот. · pt-numbers: **Десет, денари** · fill-in „Десет ___“, вели продавачот. → **денари** of [денари / денар / пива]: After a number the noun goes plural.
+- „Десет денари“, вели продавачот. · pt-verbs-e-i: **вели**
+- „Десет денари“, вели продавачот. · pt-the: **продавачот**
+- Ана вели „Фала!“ и си оди. · pt-verbs-e-i: **вели, оди**
+
+**Set-phrase notes available on tap only** (not surfaced in a session):
+- Имате ли …?: имате is an а-verb form meaning “you have”; chapter 4 explains these endings.
+- денар / денари: денари is just the plural of денар; chapter 6 explains plurals.
 
 ---
 
@@ -645,6 +716,26 @@ English uses an "infinitive" (to pay, to go) after want/can/must. Macedonian has
 - ▢ Можам да ___? → **платам** of [платам / одам / учам]: The second verb matches "I", just like можам.
 - ▢ ___ да одам → **Морам** of [Морам / Сакам / Треба]: Морам да одам = I have to go; the helper sets the meaning.
 
+**Focus in “Марко во кафето”** (highlighted words; fill-ins for “Use it”):
+- Марко влегува во едно кафуле во Скопје. · pt-verbs-a: **влегува**
+- Марко влегува во едно кафуле во Скопје. · pt-prepositions: **во, во** · fill-in Марко влегува ___ едно кафуле во Скопје. → **во** of [во / на / до]: во means "in" — he enters into the café.
+- Марко влегува во едно кафуле во Скопје. · pt-gender: **едно** · fill-in Марко влегува во ___ кафуле во Скопје. → **едно** of [едно / еден / една]: кафуле is neuter, so it takes едно.
+- „Добар ден!“ вели Марко. · pt-verbs-e-i: **вели**
+- „Што ќе сакате?“ прашува келнерот. · pt-question-words: **Што** · fill-in „___ ќе сакате?“ прашува келнерот. → **Што** of [Што / Каде / Како]: Што asks "what".
+- „Што ќе сакате?“ прашува келнерот. · pt-future: **ќе** · fill-in „Што ___ сакате?“ прашува келнерот. → **ќе** of [ќе / нема / да]: ќе before the verb makes the future "will".
+- „Што ќе сакате?“ прашува келнерот. · pt-verbs-a: **сакате** · fill-in „Што ќе ___?“ прашува келнерот. → **сакате** of [сакате / сакаш / сакам]: Polite/plural "you" takes the -те ending.
+- „Што ќе сакате?“ прашува келнерот. · pt-the: **келнерот**
+- „Едно пиво, ве молам“, вели Марко. · pt-gender: **Едно** · fill-in „___ пиво, ве молам“, вели Марко. → **Едно** of [Едно / Еден / Една]: пиво is neuter, so it takes едно.
+- „Едно пиво, ве молам“, вели Марко. · pt-verbs-e-i: **вели**
+- „Повелете“, вели келнерот. · pt-commands: **Повелете** · fill-in „___“, вели келнерот. → **Повелете** of [Повелете / Свртете / Одете]: Повелете is the polite "here you go".
+- „Повелете“, вели келнерот. · pt-verbs-e-i: **вели**
+- „Повелете“, вели келнерот. · pt-the: **келнерот**
+- „Наздравје!“ вели Марко. · pt-verbs-e-i: **вели**
+- „Сметката, ве молам“, вели Марко. · pt-the: **Сметката**
+- „Сметката, ве молам“, вели Марко. · pt-verbs-e-i: **вели**
+- Пивото чини педесет. · pt-the: **Пивото**
+- Пивото чини педесет. · pt-numbers: **педесет**
+
 **Set-phrase notes available on tap only** (not surfaced in a session):
 - Повелете. Наздравје!: Повелете (“here you go”) is a command from chapter 7.
 - Марко влегува во кафуле.: во means “in”; chapter 7 explains these little words.
@@ -655,6 +746,7 @@ English uses an "infinitive" (to pay, to go) after want/can/must. Macedonian has
 - Келнерот вели: Што ќе сакате?: вели is an и-verb (chapter 5) and ќе marks the future (chapter 8).
 - Повелете, вели келнерот.: Повелете is a command (chapter 7) and вели is an и-verb (chapter 5).
 - Наздравје! вели Марко.: вели is an и-verb; chapter 5 explains these verbs.
+- Што ќе сакате?: ќе marks the future; chapter 8 explains it.
 
 ---
 
@@ -792,6 +884,30 @@ Certain Macedonian verbs always carry the little word се directly in front of 
 - ▢ Аха, разбирам! Како ___ вели „Germany“ на македонски? → **се** of [се / го / ми]: „Како се вели…?“ (how do you say…?) keeps се right before the verb.
 - ▢ „Здраво! Како ___ викаш?“ прашува Марко. → **се** of [се / го / ми]: Asking a name uses се викаш, with се in front of the verb.
 
+**Focus in “Во барот”** (highlighted words; fill-ins for “Use it”):
+- Ана е во барот. · pt-sum: **е** · fill-in Ана ___ во барот. → **е** of [е / сум / се]: "He/she/it is" uses е.
+- Ана е во барот. · pt-the: **барот**
+- Ана е во барот. · pt-prepositions: **во** · fill-in Ана е ___ барот. → **во** of [во / на / до]: во means "in/at" a place.
+- Марко седи до неа. · pt-verbs-e-i: **седи**
+- Марко седи до неа. · pt-prepositions: **до** · fill-in Марко седи ___ неа. → **до** of [до / од / со]: до means "next to".
+- „Здраво! Како се викаш?“ прашува Марко. · pt-question-words: **Како** · fill-in „Здраво! ___ се викаш?“ прашува Марко. → **Како** of [Како / Што / Каде]: Како asks "how".
+- „Здраво! Како се викаш?“ прашува Марко. · pt-se: **се** · fill-in „Здраво! Како ___ викаш?“ прашува Марко. → **се** of [се / го / ми]: викам always carries се: се викаш = "your name is".
+- „Здраво! Како се викаш?“ прашува Марко. · pt-verbs-a: **викаш**
+- „Јас сум Ана. Мило ми е.“ · pt-sum: **сум** · fill-in „Јас ___ Ана. Мило ми е.“ → **сум** of [сум / си / е]: "I am" uses сум.
+- „Јас сум Ана. Мило ми е.“ · pt-mi-ti-mu: **ми** · fill-in „Јас сум Ана. Мило ___ е.“ → **ми** of [ми / ти / му]: Мило ми е = "it is nice to me".
+- „Од каде си?“ прашува Марко. · pt-prepositions: **Од** · fill-in „___ каде си?“ прашува Марко. → **Од** of [Од / До / Со]: „Од“ means „from“ when asking where someone is from.
+- „Од каде си?“ прашува Марко. · pt-question-words: **каде** · fill-in „Од ___ си?“ прашува Марко. → **каде** of [каде / што / кој]: „каде“ asks „where“.
+- „Од каде си?“ прашува Марко. · pt-sum: **си** · fill-in „Од каде ___?“ прашува Марко. → **си** of [си / е / сум]: „си“ is the „you“ form of to be.
+- „Од каде си?“ прашува Марко. · pt-verbs-a: **прашува**
+- „Од Англија сум. Учам македонски.“ · pt-prepositions: **Од** · fill-in „___ Англија сум. Учам македонски.“ → **Од** of [Од / До / Со]: „Од“ means „from“.
+- „Од Англија сум. Учам македонски.“ · pt-sum: **сум** · fill-in „Од Англија ___. Учам македонски.“ → **сум** of [сум / си / е]: „сум“ is the „I“ form of to be.
+- „Од Англија сум. Учам македонски.“ · pt-verbs-e-i: **Учам** · fill-in „Од Англија сум. ___ македонски.“ → **Учам** of [Учам / Учи / Учат]: The -ам ending means „I“.
+- „Што работиш?“ прашува Ана. · pt-question-words: **Што** · fill-in „___ работиш?“ прашува Ана. → **Што** of [Што / Каде / Кој]: „Што“ asks „what“.
+- „Што работиш?“ прашува Ана. · pt-verbs-e-i: **работиш** · fill-in „Што ___?“ прашува Ана. → **работиш** of [работиш / работи / оди]: The -иш ending means „you“.
+- „Што работиш?“ прашува Ана. · pt-verbs-a: **прашува**
+- „Јас сум доктор. Зборувам малку англиски.“ · pt-sum: **сум** · fill-in „Јас ___ доктор. Зборувам малку англиски.“ → **сум** of [сум / си / е]: „сум“ is the „I“ form of to be.
+- „Јас сум доктор. Зборувам малку англиски.“ · pt-verbs-a: **Зборувам** · fill-in „Јас сум доктор. ___ малку англиски.“ → **Зборувам** of [Зборувам / зборуваш / зборува]: The -ам ending means „I“.
+
 **Set-phrase notes available on tap only** (not surfaced in a session):
 - Мило ми е! Од каде си?: Ми (“to me”) is chapter 8, Од (“from”) is chapter 7.
 - Од Америка сум.: Од means “from”; chapter 7 explains prepositions.
@@ -800,6 +916,10 @@ Certain Macedonian verbs always carry the little word се directly in front of 
 - Јас сум од Англија.: од means “from”; chapter 7 explains prepositions.
 - Одлично! Добредојде во Скопје.: во means “in/to”; chapter 7 explains prepositions.
 - Благодарам! Мило ми е.: Ми means “to me”; chapter 8 explains these pronouns.
+- Мило ми е: ми means “to me”; chapter 8 explains these pronouns.
+- Од каде си?: од means “from”; chapter 7 explains these little linking words.
+- Од … сум.: од means “from”; chapter 7 explains these little linking words.
+- Јас сум од...: од means “from”; chapter 7 explains these little linking words.
 
 ---
 
@@ -963,6 +1083,24 @@ Macedonian has short object pronouns (direct-object clitics) that mean "it," "hi
 - 🃏 *How do you say "them"?* → ги, placed before the verb. (e.g. Добро, ќе ги земам. Повелете.)
 - ▢ Добро, ќе ___ земам. Повелете. → **ги** of [го / ја / ги]: “Them” (plural) is ги, sitting before the verb.
 - ▢ Ми ___ дава → **го** of [го / ја / ги]: “It” is го, right before the verb: he gives it to me.
+
+**Focus in “Ана на пазар”** (highlighted words; fill-ins for “Use it”):
+- Ана оди на пазар. · pt-verbs-e-i: **оди** · fill-in Ана ___ на пазар. → **оди** of [оди / одам / одиш]: For „she“ (Ана) the verb ends in „и“.
+- Ана оди на пазар. · pt-prepositions: **на** · fill-in Ана оди ___ пазар. → **на** of [на / во / од]: „на пазар“ means „to the market“.
+- „Добар ден! Сакам леб.“ · pt-verbs-a: **Сакам** · fill-in „Добар ден! ___ леб.“ → **Сакам** of [Сакам / Сакаш / Сака]: The „-ам“ ending means „I“.
+- „Имате ли млеко?“ прашува Ана. · pt-verbs-a: **Имате** · fill-in „___ ли млеко?“ прашува Ана. → **Имате** of [Имате / Имаш / Имам]: Polite „you“ uses the „-те“ ending.
+- „Имате ли млеко?“ прашува Ана. · pt-yes-no: **ли** · fill-in „Имате ___ млеко?“ прашува Ана. → **ли** of [ли / дали / да]: „ли“ comes right after the verb to make a yes/no question.
+- „Да, имаме“, вели продавачот. · pt-verbs-a: **имаме** · fill-in „Да, ___“, вели продавачот. → **имаме** of [имаме / имам / имаат]: The „-аме“ ending means „we“.
+- „Да, имаме“, вели продавачот. · pt-verbs-e-i: **вели**
+- „Да, имаме“, вели продавачот. · pt-the: **продавачот**
+- „Сакам едно кило јаболка. Колку чини?“ · pt-verbs-a: **Сакам** · fill-in „___ едно кило јаболка. Колку чини?“ → **Сакам** of [Сакам / Сакаш / Сака]: The „-ам“ ending means „I“.
+- „Сакам едно кило јаболка. Колку чини?“ · pt-gender: **едно** · fill-in „Сакам ___ кило јаболка. Колку чини?“ → **едно** of [едно / еден / една]: „кило“ is neuter, so „едно“.
+- „Сакам едно кило јаболка. Колку чини?“ · pt-question-words: **Колку** · fill-in „Сакам едно кило јаболка. ___ чини?“ → **Колку** of [Колку / Што / Како]: „Колку“ asks „how much“.
+- „Сакам едно кило јаболка. Колку чини?“ · pt-numbers: **Колку, чини**
+- „Сакам едно кило јаболка. Колку чини?“ · pt-plurals: **јаболка**
+- „Педесет денари.“ · pt-numbers: **Педесет, денари**
+- „Педесет денари.“ · pt-plurals: **денари** · fill-in „Педесет ___.“ → **денари** of [денари / денар / пива]: After a number the noun goes plural.
+- „Сакам и половина кило сирење.“ · pt-verbs-a: **Сакам** · fill-in „___ и половина кило сирење.“ → **Сакам** of [Сакам / Сакаш / Сака]: The „-ам“ ending means „I“.
 
 **Set-phrase notes available on tap only** (not surfaced in a session):
 - Повелете. Благодарам!: Повелете is a polite “here you are”; command forms come in chapter 7.
@@ -1131,6 +1269,31 @@ To say "more", attach по- to the front of an adjective or adverb; to say "most
 - ▢ Тој е ___ → **најдобар** of [најдобар / подобар / најголем]: нај- means "most": the best.
 - ▢ Таа е повисока ___ мене → **од** of [од / на / во]: "Than" in a comparison is од.
 
+**Focus in “Ана бара центар”** (highlighted words; fill-ins for “Use it”):
+- Ана е тука, на улицата. · pt-sum: **е** · fill-in Ана ___ тука, на улицата. → **е** of [е / сум / си]: Ана is he/she/it, so the verb is е.
+- Ана е тука, на улицата. · pt-prepositions: **на** · fill-in Ана е тука, ___ улицата. → **на** of [на / во / со]: on the street uses на.
+- Ана е тука, на улицата. · pt-the: **улицата**
+- „Каде е центарот?“ прашува Ана. · pt-question-words: **Каде** · fill-in „___ е центарот?“ прашува Ана. → **Каде** of [Каде / Што / Кога]: asking about place means where.
+- „Каде е центарот?“ прашува Ана. · pt-sum: **е** · fill-in „Каде ___ центарот?“ прашува Ана. → **е** of [е / сум / се]: the centre (it) takes е.
+- „Каде е центарот?“ прашува Ана. · pt-the: **центарот**
+- „Каде е центарот?“ прашува Ана. · pt-verbs-a: **прашува**
+- „Свртете лево,“ вели човекот. · pt-commands: **Свртете** · fill-in „___ лево,“ вели човекот. → **Свртете** of [Свртете / Одете / Кажете]: you are telling someone to turn.
+- „Свртете лево,“ вели човекот. · pt-verbs-e-i: **вели**
+- „Свртете лево,“ вели човекот. · pt-the: **човекот**
+- „Потоа одете право. Тоа е близу.“ · pt-commands: **одете** · fill-in „Потоа ___ право. Тоа е близу.“ → **одете** of [одете / свртете / кажете]: you are telling someone to go.
+- „Потоа одете право. Тоа е близу.“ · pt-sum: **е** · fill-in „Потоа одете право. Тоа ___ близу.“ → **е** of [е / сум / се]: Тоа (it) takes е.
+- Ана сака да оди со автобус. · pt-verbs-a: **сака** · fill-in Ана ___ да оди со автобус. → **сака** of [сака / сакам / сакаш]: Ана is she, so сака.
+- Ана сака да оди со автобус. · pt-da: **да** · fill-in Ана сака ___ оди со автобус. → **да** of [да / ли / не]: да links to the next verb after сака.
+- Ана сака да оди со автобус. · pt-verbs-e-i: **оди** · fill-in Ана сака да ___ со автобус. → **оди** of [оди / одам / одиш]: she goes, third person оди.
+- Ана сака да оди со автобус. · pt-prepositions: **со** · fill-in Ана сака да оди ___ автобус. → **со** of [со / во / на]: by bus uses со.
+- Таму има автобус за центарот. · pt-ima-nema: **има** · fill-in Таму ___ автобус за центарот. → **има** of [има / нема / немам]: there is a bus, positive има.
+- Таму има автобус за центарот. · pt-the: **центарот**
+- Ана купува билет. · pt-verbs-a: **купува** · fill-in Ана ___ билет. → **купува** of [купува / купувам / купуваш]: Ана is she, so купува.
+- „Благодарам! Центарот не е далеку,“ вели Ана. · pt-the: **Центарот**
+- „Благодарам! Центарот не е далеку,“ вели Ана. · pt-ne: **не** · fill-in „Благодарам! Центарот ___ е далеку,“ вели Ана. → **не** of [не / да / ли]: не goes before the verb to say not.
+- „Благодарам! Центарот не е далеку,“ вели Ана. · pt-sum: **е** · fill-in „Благодарам! Центарот не ___ далеку,“ вели Ана. → **е** of [е / сум / се]: the centre (it) takes е.
+- „Благодарам! Центарот не е далеку,“ вели Ана. · pt-verbs-e-i: **вели**
+
 ---
 
 ## Chapter 8: Small talk, likes & opinions
@@ -1254,6 +1417,34 @@ Macedonian builds the future with a single little word: ќе placed right before
 - ▢ ___ одиме утре → **ќе** of [ќе / ли / нема]: The future marker ќе stays the same for "we" too.
 - ▢ „Што ___ сакате?“ прашува келнерот. → **ќе** of [ќе / да / ли]: „Што ќе сакате?" uses ќе for "what will/would you like."
 
+**Focus in “Времето денес”** (highlighted words; fill-ins for “Use it”):
+- Ова е Марко. · pt-gender: **Ова**
+- Ова е Марко. · pt-sum: **е** · fill-in Ова ___ Марко. → **е** of [е / сум / се]: this (it) takes е.
+- Денес времето е убаво. · pt-the: **времето**
+- Денес времето е убаво. · pt-sum: **е** · fill-in Денес времето ___ убаво. → **е** of [е / сум / се]: the weather (it) takes е.
+- Денес времето е убаво. · pt-adjectives: **убаво**
+- „Ми се допаѓа“, вели Марко. · pt-mi-ti-mu: **Ми** · fill-in „___ се допаѓа“, вели Марко. → **Ми** of [Ми / Ти / Му]: it pleases me uses ми.
+- „Ми се допаѓа“, вели Марко. · pt-verbs-e-i: **вели**
+- Ана вели: „Се согласувам.“ · pt-se: **Се** · fill-in Ана вели: „___ согласувам.“ → **Се** of [Се / го / ми]: this verb always carries се.
+- Ана вели: „Се согласувам.“ · pt-verbs-e-i: **вели**
+- „Мислам дека денес е убав ден“, вели Ана. · pt-verbs-a: **Мислам**
+- „Мислам дека денес е убав ден“, вели Ана. · pt-sum: **е** · fill-in „Мислам дека денес ___ убав ден“, вели Ана. → **е** of [е / сум / се]: ден is one thing (it), so it uses е.
+- „Мислам дека денес е убав ден“, вели Ана. · pt-adjectives: **убав**
+- „Мислам дека денес е убав ден“, вели Ана. · pt-verbs-e-i: **вели**
+- „Ама не ми се допаѓа дождот“, вели Ана. · pt-ne: **не** · fill-in „Ама ___ ми се допаѓа дождот“, вели Ана. → **не** of [не / да / ли]: не goes before the verb to say 'don't'.
+- „Ама не ми се допаѓа дождот“, вели Ана. · pt-mi-ti-mu: **ми** · fill-in „Ама не ___ се допаѓа дождот“, вели Ана. → **ми** of [ми / ти / му]: It doesn't please me → ми.
+- „Ама не ми се допаѓа дождот“, вели Ана. · pt-the: **дождот**
+- „Ама не ми се допаѓа дождот“, вели Ана. · pt-verbs-e-i: **допаѓа**
+- „Дождот е грозен“, вели Ана. · pt-the: **Дождот**
+- „Дождот е грозен“, вели Ана. · pt-sum: **е** · fill-in „Дождот ___ грозен“, вели Ана. → **е** of [е / сум / се]: Дождот is one thing (it), so it uses е.
+- „Дождот е грозен“, вели Ана. · pt-adjectives: **грозен**
+- „Дождот е грозен“, вели Ана. · pt-verbs-e-i: **вели**
+- „Денес нема дожд. Сакам да одам надвор!“ вели Марко. · pt-ima-nema: **нема** · fill-in „Денес ___ дожд. Сакам да одам надвор!“ вели Марко. → **нема** of [нема / има / немам]: There is no rain → нема.
+- „Денес нема дожд. Сакам да одам надвор!“ вели Марко. · pt-verbs-a: **Сакам** · fill-in „Денес нема дожд. ___ да одам надвор!“ вели Марко. → **Сакам** of [Сакам / Сакаш / Сакаме]: 'I' want uses the -ам ending.
+- „Денес нема дожд. Сакам да одам надвор!“ вели Марко. · pt-da: **да** · fill-in „Денес нема дожд. Сакам ___ одам надвор!“ вели Марко. → **да** of [да / не / ли]: сакам is followed by да + verb.
+- „Денес нема дожд. Сакам да одам надвор!“ вели Марко. · pt-verbs-e-i: **одам** · fill-in „Денес нема дожд. Сакам да ___ надвор!“ вели Марко. → **одам** of [одам / одиш / оди]: 'I' go uses the -ам ending.
+- Затоа тие одат надвор заедно. · pt-verbs-e-i: **одат** · fill-in Затоа тие ___ надвор заедно. → **одат** of [одат / одам / оди]: 'they' go uses the -ат ending.
+
 ---
 
 ## Chapter 9: Your day: past & future
@@ -1358,6 +1549,25 @@ Macedonian verbs usually come in two-member pairs (verb aspect: imperfective / p
 - 🃏 *Why do many Macedonian verbs come in two forms?* → One form is for ongoing or repeated actions, the other for a single finished action. (e.g. пие кафе секое утро)
 - 🃏 *Which form fits "drank it all up"?* → The one-time finished form, as in "го испи кафето". (e.g. го испи кафето)
 - ▢ го ___ кафето → **испи** of [испи / пие / јадеше]: A single finished action uses the completed form, not the ongoing "пие".
+
+**Focus in “Денот на Марко”** (highlighted words; fill-ins for “Use it”):
+- Вчера Марко беше дома. · pt-past: **беше** · fill-in Вчера Марко ___ дома. → **беше** of [беше / бев / имаше]: 'he was' → беше.
+- Тој имаше многу работа. · pt-past: **имаше** · fill-in Тој ___ многу работа. → **имаше** of [имаше / имав / беше]: 'he had' → имаше.
+- Денес Марко отиде во паркот. · pt-past: **отиде** · fill-in Денес Марко ___ во паркот. → **отиде** of [отиде / отидов / беше]: 'he went' → отиде.
+- Денес Марко отиде во паркот. · pt-prepositions: **во** · fill-in Денес Марко отиде ___ паркот. → **во** of [во / на / од]: went into the park → во.
+- Денес Марко отиде во паркот. · pt-the: **паркот**
+- Таму јадеше сендвич. · pt-past: **јадеше** · fill-in Таму ___ сендвич. → **јадеше** of [јадеше / јадев / беше]: 'he ate' → јадеше.
+- Ана праша: „Што правеше?“ · pt-question-words: **Што** · fill-in Ана праша: „___ правеше?“ → **Што** of [Што / Каде / Кога]: 'What' → Што.
+- Ана праша: „Што правеше?“ · pt-past: **правеше** · fill-in Ана праша: „Што ___?“ → **правеше** of [правеше / гледав / имав]: Describes a past action → правеше.
+- „Бев во паркот и читав книга“, вели Марко. · pt-past: **Бев, читав** · fill-in „Бев во паркот и ___ книга“, вели Марко. → **читав** of [читав / чита / гледав]: 'I' read in the past → читав.
+- „Бев во паркот и читав книга“, вели Марко. · pt-prepositions: **во** · fill-in „Бев ___ паркот и читав книга“, вели Марко. → **во** of [во / на / од]: in the park → во.
+- „Бев во паркот и читав книга“, вели Марко. · pt-the: **паркот**
+- „Бев во паркот и читав книга“, вели Марко. · pt-verbs-e-i: **читав**
+- Утре Марко ќе работи дома. · pt-future: **ќе** · fill-in Утре Марко ___ работи дома. → **ќе** of [ќе / нема / да]: ќе + verb makes the future.
+- Утре Марко ќе работи дома. · pt-verbs-e-i: **работи** · fill-in Утре Марко ќе ___ дома. → **работи** of [работи / работиш / оди]: 'he' works → работи.
+- „Ќе се видиме!“, вели Ана. · pt-future: **Ќе** · fill-in „___ се видиме!“, вели Ана. → **Ќе** of [Ќе / Нема / Не]: Ќе + verb makes the future.
+- „Ќе се видиме!“, вели Ана. · pt-se: **се** · fill-in „Ќе ___ видиме!“, вели Ана. → **се** of [се / го / ми]: видиме comes with се here.
+- „Ќе се видиме!“, вели Ана. · pt-verbs-e-i: **видиме**
 
 ---
 
@@ -1466,6 +1676,27 @@ A small group of common nouns have irregular plurals that you simply learn by he
 - 🃏 *Person is "човек". What's "people"?* → "луѓе" — a whole new word, not a changed ending. (e.g. Мојот татко е добар човек.)
 - ▢ Имам едно ___. → **дете** of [дете / деца / луѓе]: Singular "one child" uses "дете"; the plural "деца" is the odd form.
 - ▢ Мојот татко е добар ___. → **човек** of [човек / луѓе / деца]: Singular "a good man/person" is "човек"; its plural is the separate word "луѓе".
+
+**Focus in “Мојот живот”** (highlighted words; fill-ins for “Use it”):
+- Јас сум Ана. · pt-sum: **Јас, сум** · fill-in Јас ___ Ана. → **сум** of [сум / си / е]: With Јас use сум.
+- Живеам во Скопје. · pt-verbs-e-i: **Живеам** · fill-in ___ во Скопје. → **Живеам** of [Живеам / Живееш / Живее]: 'I live' ends in -ам.
+- Живеам во Скопје. · pt-prepositions: **во** · fill-in Живеам ___ Скопје. → **во** of [во / на / со]: во = in Skopje.
+- Имам брат и сестра. · pt-verbs-a: **Имам** · fill-in ___ брат и сестра. → **Имам** of [Имам / Имаш / Има]: 'I have' ends in -ам.
+- Мојата мајка работи како доктор. · pt-possessives: **Мојата** · fill-in ___ мајка работи како доктор. → **Мојата** of [Мојата / Мојот / Моето]: мајка is feminine.
+- Мојата мајка работи како доктор. · pt-verbs-e-i: **работи**
+- Мојот татко е добар човек. · pt-possessives: **Мојот** · fill-in ___ татко е добар човек. → **Мојот** of [Мојот / Мојата / Моето]: татко is masculine.
+- Мојот татко е добар човек. · pt-sum: **е** · fill-in Мојот татко ___ добар човек. → **е** of [е / сум / си]: 'He is' uses е.
+- Мојот татко е добар човек. · pt-adjectives: **добар** · fill-in Мојот татко е ___ човек. → **добар** of [добар / добра / добро]: човек is masculine.
+- Јас работам како учителка. · pt-verbs-e-i: **работам** · fill-in Јас ___ како учителка. → **работам** of [работам / работиш / работи]: 'I work' ends in -ам.
+- Имам едно дете. · pt-verbs-a: **Имам** · fill-in ___ едно дете. → **Имам** of [Имам / Имаш / Има]: 'I have' ends in -ам.
+- Имам едно дете. · pt-gender: **едно** · fill-in Имам ___ дете. → **едно** of [едно / еден / една]: дете is neuter.
+- Мојата сестра прашува: „На колку години си?“ · pt-possessives: **Мојата** · fill-in ___ сестра прашува: „На колку години си?“ → **Мојата** of [Мојата / Мојот / Моето]: сестра is feminine.
+- Мојата сестра прашува: „На колку години си?“ · pt-verbs-a: **прашува**
+- Мојата сестра прашува: „На колку години си?“ · pt-question-words: **колку** · fill-in Мојата сестра прашува: „На ___ години си?“ → **колку** of [колку / што / каде]: Asking 'how many'.
+- Мојата сестра прашува: „На колку години си?“ · pt-sum: **си** · fill-in Мојата сестра прашува: „На колку години ___?“ → **си** of [си / сум / е]: 'You are' uses си.
+- Мојата сестра прашува: „На колку години си?“ · pt-prepositions: **На**
+- Јас имам триесет години. · pt-verbs-a: **имам** · fill-in Јас ___ триесет години. → **имам** of [имам / имаш / има]: 'I have' ends in -ам.
+- Јас имам триесет години. · pt-numbers: **триесет, години**
 
 ---
 
@@ -1576,6 +1807,25 @@ Macedonian builds suggestions and plans from the same да you met with сака
 - ▢ Во шест часот. Каде ___ се видиме? → **да** of [да / ли / ќе]: да after the question word carries the "shall we" meaning.
 - ▢ Може во седум. ___ да се видиме? → **Каде** of [Каде / Кога / Колку]: Каде asks "where" shall we meet.
 
+**Focus in “Телефонски повик”** (highlighted words; fill-ins for “Use it”):
+- Марко ѝ телефонира на Ана. · pt-verbs-a: **телефонира**
+- Марко ѝ телефонира на Ана. · pt-mi-ti-mu: **ѝ** · fill-in Марко ___ телефонира на Ана. → **ѝ** of [ѝ / ми / му]: ѝ means 'to her', pointing to Ana.
+- Марко ѝ телефонира на Ана. · pt-prepositions: **на** · fill-in Марко ѝ телефонира ___ Ана. → **на** of [на / во / со]: на links the calling to Ana.
+- Ало? Дома ли е Ана? · pt-yes-no: **ли** · fill-in Ало? Дома ___ е Ана? → **ли** of [ли / да / дали]: ли right after the verb makes a yes/no question.
+- Ало? Дома ли е Ана? · pt-sum: **е** · fill-in Ало? Дома ли ___ Ана? → **е** of [е / сум / си]: е is the form for 'is' with Ana.
+- Да, јас сум. Здраво, Марко! · pt-sum: **јас, сум** · fill-in Да, јас ___. Здраво, Марко! → **сум** of [сум / си / е]: сум is the form that goes with јас (I).
+- Ајде да се видиме денес. · pt-ajde-da: **Ајде, да** · fill-in Ајде ___ се видиме денес. → **да** of [да / ли / ќе]: ајде is followed by да plus a verb for a suggestion.
+- Ајде да се видиме денес. · pt-se: **се** · fill-in Ајде да ___ видиме денес. → **се** of [се / го / ми]: видиме always carries се.
+- Кога? Во колку часот? · pt-question-words: **Кога, колку** · fill-in ___? Во колку часот? → **Кога** of [Кога / Каде / Што]: Кога asks 'when'.
+- Кога? Во колку часот? · pt-time: **Во, часот** · fill-in Кога? Во колку ___? → **часот** of [часот / кафулето / плоштадот]: часот is used for telling clock time.
+- Во шест часот. Каде да се видиме? · pt-time: **Во, часот** · fill-in Во шест ___. Каде да се видиме? → **часот** of [часот / кафулето / плоштадот]: часот is used for the hour.
+- Во шест часот. Каде да се видиме? · pt-numbers: **шест**
+- Во шест часот. Каде да се видиме? · pt-question-words: **Каде** · fill-in Во шест часот. ___ да се видиме? → **Каде** of [Каде / Кога / Што]: Каде asks 'where'.
+- Во шест часот. Каде да се видиме? · pt-ajde-da: **да** · fill-in Во шест часот. Каде ___ се видиме? → **да** of [да / ли / ќе]: да plus a verb makes the planning question.
+- Во шест часот. Каде да се видиме? · pt-se: **се** · fill-in Во шест часот. Каде да ___ видиме? → **се** of [се / го / ми]: видиме always carries се.
+- Ајде во кафулето кај плоштадот. · pt-the: **кафулето, плоштадот**
+- Ајде во кафулето кај плоштадот. · pt-prepositions: **во, кај** · fill-in Ајде ___ кафулето кај плоштадот. → **во** of [во / на / со]: во means 'in' the café.
+
 ---
 
 ## Chapter 12: Problems & complaints (repair kit, leveled up)
@@ -1684,3 +1934,28 @@ This is a second past tense (the сум-perfect, built on an l-form). You take t
 - 🃏 *What two pieces build the "have done" past?* → сум (or си/сме…) plus a word ending in -л/-ла/-ло/-ле. (e.g. Сум бил во Скопје)
 - 🃏 *What happens to сум in he/she/they?* → It disappears — just the bare -л word is left. (e.g. Тој видел сѐ)
 - ▢ Дали си ___ баклава? → **јадел** of [јадел / бил / видел]: After си, the -л word carries the meaning — here "eaten".
+
+**Focus in “Проблем во кафулето”** (highlighted words; fill-ins for “Use it”):
+- Марко е во едно кафуле. · pt-sum: **е** · fill-in Марко ___ во едно кафуле. → **е** of [е / сум / си]: е is 'is' for Marko.
+- Марко е во едно кафуле. · pt-gender: **едно** · fill-in Марко е во ___ кафуле. → **едно** of [едно / еден / една]: едно is the neuter 'a' for кафуле.
+- Марко е во едно кафуле. · pt-prepositions: **во** · fill-in Марко е ___ едно кафуле. → **во** of [во / на / со]: во means 'in' the café.
+- Извинете, ама има проблем. · pt-commands: **Извинете** · fill-in ___, ама има проблем. → **Извинете** of [Извинете / Кажете / Одете]: Извинете is the polite 'sorry/excuse me'.
+- Извинете, ама има проблем. · pt-ima-nema: **има** · fill-in Извинете, ама ___ проблем. → **има** of [има / нема / не]: има means 'there is' a problem.
+- Ова не е моето кафе. · pt-gender: **Ова**
+- Ова не е моето кафе. · pt-ne: **не** · fill-in Ова ___ е моето кафе. → **не** of [не / да / ли]: не before the verb says 'not'.
+- Ова не е моето кафе. · pt-sum: **е** · fill-in Ова не ___ моето кафе. → **е** of [е / сум / си]: е is 'is' for 'this'.
+- Ова не е моето кафе. · pt-possessives: **моето** · fill-in Ова не е ___ кафе. → **моето** of [моето / мојот / мојата]: моето is the neuter 'my' for кафе.
+- Ова не е моето кафе. · pt-the: **моето**
+- Сметката е погрешна. · pt-the: **Сметката**
+- Сметката е погрешна. · pt-sum: **е** · fill-in Сметката ___ погрешна. → **е** of [е / сум / си]: е is 'is' for the bill.
+- Сметката е погрешна. · pt-adjectives: **погрешна**
+- Не разбирам зошто. · pt-ne: **Не** · fill-in ___ разбирам зошто. → **Не** of [Не / Ли / Да]: Не before the verb makes it negative.
+- Не разбирам зошто. · pt-verbs-a: **разбирам**
+- Можете ли да помогнете? · pt-yes-no: **ли** · fill-in Можете ___ да помогнете? → **ли** of [ли / дали / да]: ли right after the verb makes a yes/no question.
+- Можете ли да помогнете? · pt-da: **да** · fill-in Можете ли ___ помогнете? → **да** of [да / ли / не]: да links the two verbs since there is no infinitive.
+- Сакам да вратам ова кафе. · pt-verbs-a: **Сакам** · fill-in ___ да вратам ова кафе. → **Сакам** of [Сакам / Сакаш / Сакаме]: The -ам ending means ‘I’.
+- Сакам да вратам ова кафе. · pt-da: **да** · fill-in Сакам ___ вратам ова кафе. → **да** of [да / ли / не]: да links to the next verb.
+- Сакам да вратам ова кафе. · pt-gender: **ова**
+- Жената вели: "Се извинувам, веднаш!" · pt-the: **Жената**
+- Жената вели: "Се извинувам, веднаш!" · pt-verbs-e-i: **вели**
+- Жената вели: "Се извинувам, веднаш!" · pt-se: **Се** · fill-in Жената вели: "___ извинувам, веднаш!" → **Се** of [Се / Го / Ми]: This verb always carries се before it.

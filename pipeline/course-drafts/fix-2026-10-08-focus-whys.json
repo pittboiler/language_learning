@@ -1,0 +1,10 @@
+{
+  "lineFocus": {
+    "story:gen-s0-repair-story#0": {
+      "pt-sum": { "words": ["е"], "blank": { "word": "е", "options": ["е", "сум", "си"], "why": "Ана is one other person (she), so it's the тој/таа form: е." } }
+    },
+    "scenario:gen-s0-survive#5": {
+      "pt-verbs-e-i": { "words": ["може"], "blank": { "word": "може", "options": ["може", "можам", "можеш"], "why": "Може ли…? (“is it possible…?”) uses the it-form, може." } }
+    }
+  }
+}
