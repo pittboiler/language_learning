@@ -197,4 +197,38 @@ for (const c of course.chapters) {
   }
 }
 
+// 16. The course map: chapters and sessions marked from the learner's place; a stage review owed after a
+//     chapter shows as "current" on that chapter's row; finished sessions carry their saved record.
+{
+  const ch1 = course.chapters.find((c) => c.order === 1)!;
+  const at = { chapterId: ch1.chapterId, session: 3, v: course.version };
+  const entry = cp.logEntry(cp.position(course, { ...at, session: 1 }), new Date("2026-10-08T15:00:00Z"), new Date("2026-10-08T15:20:00Z"), [{ answer: "сум", gloss: "am" }])!;
+  const ov = cp.courseOverview(macedonian, course, prog({ course: at, courseLog: [entry], seenGrammar: { "pt-sum": true } }));
+  const o1 = ov.chapters.find((c) => c.chapterId === ch1.chapterId)!;
+  assert.equal(ov.chapters[0]!.state, "done", "chapter 0 is behind the learner");
+  assert.equal(o1.state, "current");
+  assert.deepEqual(o1.sessions.slice(0, 4).map((x) => x.state), ["done", "done", "current", "upcoming"]);
+  assert.equal(o1.sessions[0]!.log?.missed?.[0]?.answer, "сум", "session 1 carries its record");
+  assert.ok(o1.points.find((x) => x.id === "pt-sum")!.taught && !o1.points.find((x) => x.id === "pt-ne")!.taught);
+  assert.equal(ov.done, 2, "two curriculum sessions done (chapter 0 isn't counted)");
+  assert.equal(ov.total, course.chapters.filter((c) => c.order > 0).reduce((n, c) => n + c.sessions.length, 0));
+  assert.ok(o1.sessions[0]!.headline.startsWith("New: ") && o1.sessions[0]!.headline.includes("јас"), "headline names the point and words");
+  const stage = course.stageReviews[0]!;
+  const owed = cp.courseOverview(macedonian, course, prog({ course: { chapterId: stage.afterChapterId, session: 99, stageReviewAfter: stage.afterChapterId, v: course.version } }));
+  const row = owed.chapters.find((c) => c.chapterId === stage.afterChapterId)!;
+  assert.equal(row.state, "done");
+  assert.equal(row.stageReview?.state, "current");
+  // A record points back at its session; a passed checkpoint names what comes next.
+  const back = cp.positionOf(course, entry);
+  assert.ok(back?.kind === "session" && back.session.n === 1 && back.chapter.chapterId === ch1.chapterId);
+  const lastOfStage = course.chapters.find((c) => c.chapterId === stage.afterChapterId)!;
+  assert.equal(cp.afterCheckpoint(macedonian, course, { chapterId: lastOfStage.chapterId, session: lastOfStage.sessions.length, v: course.version }), "a stage review of everything so far");
+  assert.match(cp.afterCheckpoint(macedonian, course, { chapterId: ch1.chapterId, session: ch1.sessions.length, v: course.version }), /^chapter 2, /);
+  // Saved notes only pick up words tapped during the session.
+  const inside = familiarity.capture({ lexKey: "мажот", kind: "word", display: "Мажот" }, new Date("2026-10-08T15:10:00Z"));
+  const later = familiarity.capture({ lexKey: "навистина", kind: "word", display: "Навистина" }, new Date("2026-10-09T09:00:00Z"));
+  const notes = cp.sessionRecap(macedonian, course, back!, prog({ familiarity: { мажот: inside, навистина: later } }), new Date(entry.startedAt), new Date(entry.at));
+  assert.ok(notes.words.some((w) => w.lexKey === "мажот") && !notes.words.some((w) => w.lexKey === "навистина"));
+}
+
 console.log("course-player.test.ts: all assertions passed ✓");
