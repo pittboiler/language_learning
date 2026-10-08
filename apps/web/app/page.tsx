@@ -357,8 +357,15 @@ const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Set<strin
 // parts (warm-up with an earlier-chapter share, checkpoint and stage-review items) from the learner's state.
 function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[] {
   const steps = courseBody(pack, progress);
-  const agenda = cp.sessionAgenda(pack, pack.course!, cp.position(pack.course!, progress.course));
-  return steps.length && agenda ? [{ kind: "agenda", agenda }, ...steps] : steps;
+  const pos = cp.position(pack.course!, progress.course);
+  const agenda = cp.sessionAgenda(pack, pack.course!, pos);
+  if (!steps.length || !agenda) return steps;
+  // The warm-up comes first, so the agenda says so (a checkpoint retry's review is already in its bullets).
+  const warm = steps.find((x): x is Extract<TodayStep, { kind: "warmup" }> => x.kind === "warmup");
+  const retry = pos.kind === "session" && pos.retry;
+  const n = warm?.items.length ?? 0;
+  const warmLine = n ? `Warm-up: ${n} card${n > 1 ? "s" : ""} from earlier sessions` : "Warm-up: a quick verb drill";
+  return [{ kind: "agenda", agenda: warm && !retry ? { ...agenda, items: [warmLine, ...agenda.items] } : agenda }, ...steps];
 }
 
 // The lens for a session's story: a banner naming what to spot, the highlighted lines, and today's
@@ -387,7 +394,7 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   const out: TodayStep[] = [];
   const now = new Date();
   const pool = [...reviewPool(pack), ...cp.allPointItems(course)];
-  const chapterOf = cp.chapterOfKey(course);
+  const slotOf = cp.slotOfKey(course);
   const points = cp.pointsById(course);
   const vocabByKey = new Map(pack.vocab.map((v) => [familiarity.deriveKeyForItem(v).lexKey, v]));
   if (pos.kind === "finished") return out;
@@ -426,7 +433,7 @@ function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] {
   }
 
   const review = s.role === "review";
-  const warm = cp.pickWarmup({ pool, progress, now, currentOrder: order, chapterOf, size: review ? cp.REVIEW_ITEMS : cp.WARMUP_ITEMS, share: review ? cp.EARLIER_SHARE.review : cp.EARLIER_SHARE.normal });
+  const warm = cp.pickWarmup({ pool, progress, now, current: { order, n: s.n }, slotOf, size: review ? cp.REVIEW_ITEMS : cp.WARMUP_ITEMS, share: review ? cp.EARLIER_SHARE.review : cp.EARLIER_SHARE.normal });
   // The conjugation drill only drills verb groups whose point has been TAUGHT (in an earlier session):
   // -а verbs from chapter 4, -е/-и verbs from chapter 5, сум once its point is done.
   const groups = new Set<string>();

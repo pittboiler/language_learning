@@ -76,7 +76,7 @@ for (const it of items) {
 
 // 7. Warm-up: the earlier-chapter share is honoured even when only current-chapter cards are due.
 const now = new Date("2026-10-10T12:00:00Z");
-const chapterOf = cp.chapterOfKey(course);
+const slotOf = cp.slotOfKey(course);
 const vocabFor = (lexKey: string) => macedonian.vocab.find((v) => familiarity.deriveKeyForItem(v).lexKey === lexKey)!;
 const earlyWords = course.chapters[1]!.words.slice(0, 3).map((w) => vocabFor(w.lexKey)).filter(Boolean);
 const currentWords = course.chapters.find((c) => c.order === 4)!.words.slice(0, 8).map((w) => vocabFor(w.lexKey)).filter(Boolean);
@@ -89,11 +89,28 @@ const fam = Object.fromEntries([
   ...earlyWords.map((it, i) => entry(it, "2026-12-01T00:00:00Z", 0.1 * (i + 1))), // not due, but earlier
   ...currentWords.map((it) => entry(it, "2026-10-09T00:00:00Z", 0.5)), // due, current chapter
 ]);
-const warm = cp.pickWarmup({ pool: [...currentWords, ...earlyWords], progress: prog({ familiarity: fam }), now, currentOrder: 4, chapterOf, size: 8, share: 2 });
+const warm = cp.pickWarmup({ pool: [...currentWords, ...earlyWords], progress: prog({ familiarity: fam }), now, current: { order: 4, n: 99 }, slotOf, size: 8, share: 2 });
 assert.equal(warm.length, 8);
-const fromEarlier = warm.filter((it) => (chapterOf.get(familiarity.deriveKeyForItem(it).lexKey) ?? 99) < 4);
+const fromEarlier = warm.filter((it) => (slotOf.get(familiarity.deriveKeyForItem(it).lexKey)?.order ?? 99) < 4);
 assert.equal(fromEarlier.length, 2, "two earlier-chapter cards even though none are due");
 assert.equal(familiarity.deriveKeyForItem(fromEarlier[0]!).lexKey, familiarity.deriveKeyForItem(earlyWords[0]!).lexKey, "weakest earlier card first");
+
+// 7b. ...but only what the course has taught in an EARLIER session: at chapter 1 session 1, cards met out
+//     of order (session 2's не, its words, a word tapped in a story) are due but stay out of the warm-up.
+{
+  const ch1 = course.chapters.find((c) => c.order === 1)!;
+  const neSession = ch1.sessions.find((x) => x.pointId === "pt-ne")!;
+  const neCards = cp.pointItems(course.points.find((p) => p.id === "pt-ne")!);
+  const neWords = neSession.words.map((w) => vocabFor(w.lexKey)).filter(Boolean);
+  const tapped: ReviewItem = { id: "tap-навистина", kind: "vocab", prompt: "Really?", answer: "Навистина?", gloss: "Really?", i1Level: 0, tags: [] } as ReviewItem;
+  const early = [...neCards, ...neWords, tapped];
+  const famEarly = Object.fromEntries(early.map((it) => entry(it, "2026-10-09T00:00:00Z", 0.3)));
+  const at = (n: number) => cp.pickWarmup({ pool: early, progress: prog({ familiarity: famEarly }), now, current: { order: 1, n }, slotOf, size: 8, share: 2 });
+  assert.equal(at(1).length, 0, "nothing from later sessions or off-course at ch1 s1");
+  const later = at(neSession.n + 1).map((it) => familiarity.deriveKeyForItem(it).lexKey);
+  assert.ok(later.length > 0 && later.every((k) => slotOf.has(k)), "once taught, не's cards and words come back; the tapped word never does");
+  assert.equal(cp.needsTeaching(prog({ familiarity: famEarly }), neWords[0] ? familiarity.deriveKeyForItem(neWords[0]).lexKey : ""), true, "a word met out of order is still taught in its session");
+}
 
 // 8. Stage review samples studied words from each chapter of the stage, plus one card per point.
 const stage = course.stageReviews[0]!;
@@ -122,7 +139,8 @@ assert.equal(cp.patternConceptFor(course, pt("pt-gender")), "gender");
 const s1 = cp.position(course, { chapterId: "s0-repair", session: 2, v: course.version }); // не is taught in chapter 1, session 2
 const ag = cp.sessionAgenda(macedonian, course, s1)!;
 assert.match(ag.title, /^Chapter 1 · .* · session 2$/);
-assert.equal(ag.items[0], course.points.find((p) => p.id === "pt-ne")!.agenda);
+assert.match(ag.items[0]!, /^3 new words:/, "agenda follows the lesson's order: new words first");
+assert.equal(ag.items[1], course.points.find((p) => p.id === "pt-ne")!.agenda);
 const l0 = cp.sessionAgenda(macedonian, course, start)!;
 assert.match(l0.title, /^Chapter 0 · Letters & sounds · session 1$/);
 const lr = cp.sessionRecap(macedonian, course, start, prog(), new Date());

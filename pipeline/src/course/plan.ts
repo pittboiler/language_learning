@@ -253,12 +253,17 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       s.agenda = a;
       continue;
     }
-    if (s.role === "teach") a.push(pt?.agenda ?? `New: ${pointName(s.pointId!)}`);
-    if (s.role === "practice") a.push(s.pointId ? `Practice: ${pointName(s.pointId)}` : "Practice day: more of this chapter's patterns");
-    if (s.role === "review") a.push("Review day: nothing new");
-    if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in your own words" : "Put it together: use this chapter in a real exchange");
-    if (s.role === "checkpoint") a.push("Checkpoint: this chapter's words and grammar", "Then the conversation once more");
-    if (s.words.length) a.push(`${s.words.length} new word${s.words.length > 1 ? "s" : ""}: ${s.words.map((w) => w.display.replace(/\.+$/, "")).join(", ")}`);
+    // Bullets follow the order Today plays them in: new words, then the grammar, then say it / story / talk.
+    const wordsLine = s.words.length ? `${s.words.length} new word${s.words.length > 1 ? "s" : ""}: ${s.words.map((w) => w.display.replace(/\.+$/, "")).join(", ")}` : undefined;
+    if (s.role === "teach" || s.role === "practice") {
+      if (wordsLine) a.push(wordsLine);
+      a.push(s.role === "teach" ? pt?.agenda ?? `New: ${pointName(s.pointId!)}` : s.pointId ? `Practice: ${pointName(s.pointId)}` : "Practice day: more of this chapter's patterns");
+    } else {
+      if (s.role === "review") a.push("Review day: nothing new");
+      if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in your own words" : "Put it together: use this chapter in a real exchange");
+      if (s.role === "checkpoint") a.push("Checkpoint: this chapter's words and grammar", "Then the conversation once more");
+      if (wordsLine) a.push(wordsLine);
+    }
     if (s.role === "teach" || s.role === "practice") a.push("Say it: today's words and examples, out loud");
     const lensHere = s.story ? s.story.lens.every((id) => ch.pointIds.includes(id)) : false;
     if (s.story) a.push(s.story.reuse
@@ -276,7 +281,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       s.next = STAGE_REVIEW_AFTER.includes(ch.chapterId) ? `Next: a stage review, then ${chapterTitle(nxt.ch.chapterId)}` : `Next: a new chapter, ${chapterTitle(nxt.ch.chapterId)}`;
       return;
     }
-    s.next = `Next: ${nxt.s.agenda[0] ?? nxt.s.role}`;
+    s.next = `Next: ${nxt.s.agenda.find((b) => !/^\d+ new words?:/.test(b)) ?? nxt.s.role}`;
   });
 
   // ---- stage reviews ----
