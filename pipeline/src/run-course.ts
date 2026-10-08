@@ -9,8 +9,10 @@
 //   review    No LLM: render pipeline/output/course-review-mk.md for sign-off.
 //   signoff   Mark the points of --chapters as validated once a human has signed them off.
 //   lines     Print the lines of chapters/concepts with their sources (authoring aid): lines 4 5 clitics
+//   fit       Lines that could serve a point's lesson at its teach session (authoring aid): fit pt-sum
 //   import    No LLM: merge drafts written outside the API (pipeline/course-drafts/*.json), held to the
-//             same validation as LLM output.
+//             same validation as LLM output. --keep-confidence keeps a signed-off point signed off (for
+//             content fixes made under standing permission; list them in the PR).
 //
 // Idempotent: tags and points already in course.ts are kept unless --redo is passed.
 //
@@ -28,6 +30,8 @@ import { lineCatalog, proseWords, tokens, wordCorpus, type CatalogLine } from ".
 import { planCourse } from "./course/plan.js";
 import { lintCourse } from "./lint.js";
 import { blankOut } from "../../apps/web/lib/course-player.js";
+import * as cpSlots from "../../apps/web/lib/course-player.js";
+import { knownAtSlot, laterGrammarAt } from "./course/known.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = join(ROOT, "packages", "pack-mk", "src", "course.ts");
@@ -37,6 +41,7 @@ const cmd = process.argv[2] ?? "all";
 const argVal = (flag: string) => { const i = process.argv.indexOf(flag); return i === -1 ? undefined : process.argv[i + 1]; };
 const ONLY = argVal("--chapters")?.split(",");
 const REDO = process.argv.includes("--redo");
+const KEEP_CONFIDENCE = process.argv.includes("--keep-confidence");
 
 const spine = spinePoints();
 const catalog = lineCatalog(pack);
@@ -349,7 +354,11 @@ function importDrafts(file: string) {
     if (!sp) { errors.push(`points: unknown point ${id}`); continue; }
     const errs = validateDraft(draft, bySource, sp);
     if (errs.length) { errors.push(...errs.map((e) => `point ${id}: ${e}`)); continue; }
-    course.points = [...course.points.filter((p) => p.id !== id), toPoint(sp, draft, bySource)];
+    // --keep-confidence: a content fix to a signed-off point (standing permission to fix errors) keeps its
+    // sign-off; without it, an imported point is a fresh draft awaiting review.
+    const prev = course.points.find((p) => p.id === id);
+    const next = toPoint(sp, draft, bySource);
+    course.points = [...course.points.filter((p) => p.id !== id), KEEP_CONFIDENCE && prev ? { ...next, confidence: prev.confidence } : next];
   }
   course.points.sort((a, b) => a.order - b.order);
   if (errors.length) { console.error(`✗ ${errors.length} problem(s) in ${file}:\n  - ${errors.join("\n  - ")}`); process.exit(1); }
@@ -457,6 +466,25 @@ if (cmd === "export") {
   };
   writeFileSync(process.argv[3]!, JSON.stringify({ points: out }, null, 2));
   console.log(`exported ${pts.length} point(s) to ${process.argv[3]}`);
+  process.exit(0);
+}
+if (cmd === "fit") {
+  // Authoring aid for content fixes: existing lines that could serve a point's lesson, i.e. tagged with it and
+  // using nothing taught after its teach session (the session lint's rule), fewest unmet words first.
+  //   fit pt-sum pt-ne
+  const ps = cpSlots.pointSlots(course);
+  const known = knownAtSlot(pack, course);
+  const later = laterGrammarAt(pack, course);
+  for (const id of process.argv.slice(3)) {
+    const at = ps.get(id);
+    if (!at) { console.log(`${id}: no teach session`); continue; }
+    console.log(`\n${id}, taught ch${at.order} s${at.n}`);
+    catalog.filter((l) => (course.lineTags[l.source] ?? []).includes(id) && !later(l.text, l.source, at).length)
+      .map((l) => ({ l, unmet: [...new Set(cpSlots.wordTokens(l.text).filter((t) => !known(t, at)))] }))
+      .sort((a, b) => a.unmet.length - b.unmet.length)
+      .slice(0, 15)
+      .forEach(({ l, unmet }) => console.log(`  ${l.source.padEnd(36)} ${l.text} — ${l.gloss}${unmet.length ? `   [not met yet: ${unmet.join(", ")}]` : ""}`));
+  }
   process.exit(0);
 }
 if (cmd === "signoff") {

@@ -180,6 +180,57 @@ export function slotOfKey(course: Course): Map<string, CourseSlot> {
 export const taughtBefore = (slot: CourseSlot | undefined, current: CourseSlot): boolean =>
   !!slot && (slot.order < current.order || (slot.order === current.order && slot.n < current.n));
 
+// ---- what the course has taught by a session: one answer for every screen and for the lint ----------
+export const cmpSlot = (a: CourseSlot, b: CourseSlot): number => a.order - b.order || a.n - b.n;
+
+/** The session that teaches each point. */
+export function pointSlots(course: Course): Map<string, CourseSlot> {
+  const m = new Map<string, CourseSlot>();
+  for (const c of course.chapters) for (const s of c.sessions) {
+    if (s.role === "teach" && s.pointId && !m.has(s.pointId)) m.set(s.pointId, { order: c.order, n: s.n });
+  }
+  return m;
+}
+
+/** Cyrillic word tokens of a line, normalized the way familiarity keys are. */
+export const wordTokens = (s: string): string[] =>
+  (s.match(/[\p{Script=Cyrillic}]+/gu) ?? []).map((t) => familiarity.normalize(t)).filter(Boolean);
+
+/** The point that teaches a verb group's endings (from the grammar concept the point draws on). */
+const verbGroupConcept = (group: string) => (group === "a" ? "verb-conjugation" : group === "irregular" ? "to-be" : `verb-conjugation-${group}`);
+
+/** Every word form known once these words and points are taught: the words' own tokens, the points' card
+ *  forms (a blank and its options: сум, си, е…), and every form of a verb once one of its forms is known
+ *  AND its group's endings have been taught (разбирам known + -а verbs taught ⇒ разбира, разбираш…). */
+export function knownForms(pack: LanguagePack, points: GrammarPoint[], words: Iterable<string>, pointIds: Iterable<string>): Set<string> {
+  const known = new Set<string>();
+  for (const w of words) wordTokens(w).forEach((t) => known.add(t));
+  const taught = new Set(pointIds);
+  for (const p of points) {
+    if (!taught.has(p.id)) continue;
+    for (const c of p.cards) if (c.kind === "blank") [c.blank, ...c.options].flatMap(wordTokens).forEach((t) => known.add(t));
+  }
+  for (const v of pack.conjugations ?? []) {
+    const forms = [v.lemma, ...Object.values(v.forms)].flatMap(wordTokens);
+    const endings = points.find((p) => p.grammarIds.includes(verbGroupConcept(v.group)));
+    if (endings && taught.has(endings.id) && forms.some((f) => known.has(f))) forms.forEach((f) => known.add(f));
+  }
+  return known;
+}
+
+/** The session at which each word form becomes known (see knownForms), walking the course in order. */
+export function formSlots(pack: LanguagePack, course: Course): Map<string, CourseSlot> {
+  const m = new Map<string, CourseSlot>();
+  const words: string[] = [];
+  const pts: string[] = [];
+  for (const c of course.chapters) for (const s of c.sessions) {
+    words.push(...s.words.map((w) => w.display));
+    if (s.role === "teach" && s.pointId) pts.push(s.pointId);
+    for (const t of knownForms(pack, course.points, words, pts)) if (!m.has(t)) m.set(t, { order: c.order, n: s.n });
+  }
+  return m;
+}
+
 /** Pick the warm-up: due studied cards, but at least `share` of them from chapters before the current one
  *  — the weakest first, due or not — so a busy chapter can't crowd older material out. Only what the
  *  course has already taught, in an earlier session, is eligible: a card met out of order (before a

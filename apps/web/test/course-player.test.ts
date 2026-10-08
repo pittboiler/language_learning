@@ -172,4 +172,29 @@ assert.ok(cp.canSkipChapter(start), "chapter 0 is skippable");
 assert.deepEqual(cp.skipChapter(course, { chapterId: "s0-letters", session: 3, v: course.version }), { chapterId: "s0-repair", session: 1, v: course.version });
 assert.ok(!cp.canSkipChapter(cp.position(course, { chapterId: "s0-repair", session: 1, v: course.version })), "chapter 1 isn't");
 
+// 14. What's known by a session: a session's words, a point's card forms with the point, and every form of
+//     a verb once one form is known and its group's endings are taught.
+{
+  const slots = cp.formSlots(macedonian, course);
+  const at = (o: number, n: number) => ({ order: o, n });
+  const knownBy = (t: string, s: cp.CourseSlot) => { const x = slots.get(t); return !!x && cp.cmpSlot(x, s) <= 0; };
+  assert.ok(knownBy("јас", at(1, 1)) && knownBy("сум", at(1, 1)), "ch1 s1 teaches јас and сум");
+  assert.ok(!knownBy("не", at(1, 1)) && knownBy("не", at(1, 2)), "не comes with its point in s2");
+  const verbsA = cp.pointSlots(course).get("pt-verbs-a")!;
+  assert.ok(knownBy("сакам", at(3, 1)) && !knownBy("сакаш", at(3, 1)), "сакам is a word in ch3; сакаш waits for the -а endings");
+  assert.ok(knownBy("сакаш", verbsA), "once -а endings are taught, every form of a known -а verb is known");
+}
+
+// 15. Agenda: a practice day names the point it practises; Build-a-sentence is listed when the session has
+//     it; "First try" only labels the chapter's first conversation.
+for (const c of course.chapters) {
+  const firstSpeak = c.sessions.find((x) => x.speak)?.n;
+  for (const x of c.sessions) {
+    if (x.letters) continue;
+    if (x.build.length) assert.ok(x.agenda.some((b) => b.startsWith("Build")), `ch${c.order} s${x.n} lists Build`);
+    if (x.agenda.some((b) => b.startsWith("First try"))) assert.equal(x.n, firstSpeak, `ch${c.order} s${x.n}: "First try" only on the first conversation`);
+    if (x.role === "practice") assert.ok(x.agenda.some((b) => b.startsWith("Practice: ")), `ch${c.order} s${x.n} names its point`);
+  }
+}
+
 console.log("course-player.test.ts: all assertions passed ✓");

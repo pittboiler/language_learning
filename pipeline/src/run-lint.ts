@@ -5,7 +5,7 @@
 // Run:  pipeline/node_modules/.bin/tsx pipeline/src/run-lint.ts
 import { macedonian } from "@ll/pack-mk";
 import { bulgarian } from "@ll/pack-bg";
-import { lintDrills, lintTranslit, lintSynonyms, lintChapters, lintHints, lintSentences, lintCourse, lintScriptMix, type SynonymGroup } from "./lint.js";
+import { lintDrills, lintTranslit, lintSynonyms, lintChapters, lintHints, lintSentences, lintCourse, lintCourseSessions, lintScriptMix, type SynonymGroup } from "./lint.js";
 
 // One word per everyday concept, decided once and enforced here so a later generation wave can't quietly
 // reintroduce the other one. Add a group whenever a review turns up two words doing the same job.
@@ -62,5 +62,18 @@ for (const pack of [macedonian, bulgarian]) {
   total += real.length;
   console.log(`${pack.name} (${pack.id}): ${real.length} course-blueprint issue(s)${pending.length ? `, ${pending.length} point(s) not written yet` : ""}`);
   for (const i of real) console.log(`  • [${i.kind}] ${i.where}: ${i.detail}`);
+
+  // Session by session: does each lesson only use what's been taught by then? Errors count; notes are a
+  // summary (glossed words not met yet, set-phrase lines) — pass --notes to list them.
+  const sessionIssues = lintCourseSessions(pack);
+  const errs = sessionIssues.filter((i) => i.level === "error");
+  const notes = sessionIssues.filter((i) => i.level === "note");
+  total += errs.length;
+  if (pack.course) {
+    const byKind = [...new Set(notes.map((i) => i.kind))].map((k) => `${notes.filter((i) => i.kind === k).length} ${k}`).join(", ");
+    console.log(`${pack.name} (${pack.id}): ${errs.length} session issue(s)${notes.length ? ` · notes: ${byKind}` : ""}`);
+    for (const i of errs) console.log(`  • [${i.kind}] ${i.where}: ${i.detail}`);
+    if (process.argv.includes("--notes")) for (const i of notes) console.log(`  · [${i.kind}] ${i.where}: ${i.detail}`);
+  }
 }
 console.log(`\n=== ${total} total issue(s) across packs ===`);

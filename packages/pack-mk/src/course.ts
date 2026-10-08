@@ -33,19 +33,19 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "Ана е во Скопје.",
-          "gloss": "Ana is in Skopje.",
-          "source": "story:gen-s0-repair-story#0"
-        },
-        {
-          "text": "Да, точно. Од Германија сум.",
-          "gloss": "Yes, exactly. I'm from Germany.",
-          "source": "scenario:gen-s0-repair#7"
-        },
-        {
           "text": "Јас сум Ана",
           "gloss": "I am Ana",
           "source": "grammar:to-be#0"
+        },
+        {
+          "text": "„Добро сум.“",
+          "gloss": "\"I'm well.\"",
+          "source": "story:gen-s0-greet-story#3"
+        },
+        {
+          "text": "Марко е доктор.",
+          "gloss": "Marko is a doctor.",
+          "source": "qa:gen-s1-greet-intro-story#q2:a"
         },
         {
           "text": "Ние сме тука",
@@ -58,7 +58,7 @@ export const course: Course = {
         {
           "kind": "rule",
           "front": "How do you say “I am”, “you are”, “he/she/it is”?",
-          "back": "сум, си, е: Јас сум Ана, Како си?, Тоа е кафе.",
+          "back": "сум (I), си (you), е (he/she/it): Јас сум Ана, Марко е доктор.",
           "example": {
             "text": "Јас сум Ана",
             "gloss": "I am Ana",
@@ -108,9 +108,9 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Како е Марко?",
-            "gloss": "How is Marko?",
-            "source": "qa:gen-s0-greet-story#q2:q"
+            "text": "Марко е доктор.",
+            "gloss": "Marko is a doctor.",
+            "source": "qa:gen-s1-greet-intro-story#q2:a"
           },
           "blank": "е",
           "options": [
@@ -166,9 +166,9 @@ export const course: Course = {
           "source": "grammar:negation#1"
         },
         {
-          "text": "Не сакам чај",
-          "gloss": "I don't want tea",
-          "source": "grammar:negation#0"
+          "text": "Не, Марко не е тука сега.",
+          "gloss": "No, Marko is not here now.",
+          "source": "scenario:gen-phone#2"
         }
       ],
       "callbacks": [],
@@ -231,7 +231,7 @@ export const course: Course = {
       "depth": "produce",
       "title": "Question words",
       "agenda": "Ask what, where, how, how much: question words go first",
-      "rule": "Start the question with the question word: Што значи …? (“What does … mean?”), Како се вели …? (“How do you say…?”), Колку чини? (“How much is it?”). With a question word you don't need ли or дали.",
+      "rule": "Start the question with the question word: Што значи …? (“What does … mean?”), Како се вели …? (“How do you say …?”), Каде е Марко? (“Where is Marko?”). The question word up front is all it takes.",
       "recap": "You've been asking Што значи …? and Како се вели …? since chapter 1; now here's how they work. Today's question words are што (what), каде (where), како (how) and колку (how much / how many). Each one goes at the very start, and the rest follows in normal order: Што значи 'фала'? A question word already makes it a question, so there's no ли or дали. If there's a little word like од (“from”), it comes along to the front: Од каде сте? (“Where are you from?”). Two more you'll meet soon: кој (who) and зошто (why).",
       "library": {
         "rule": "Questions that ask for information rather than yes or no begin with a question word: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much / how many). The question word goes first, and the rest of the sentence follows in normal order: Каде е тоалетот? (“Where's the toilet?”), Што е тоа? (“What is that?”). Because the question word already does the asking, ли and дали aren't used with it.",
@@ -249,24 +249,24 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "„Аха. Што значи 'фала'?“",
-          "gloss": "\"Uh-huh. What does 'fala' mean?\"",
-          "source": "story:gen-s0-repair-story#6"
-        },
-        {
           "text": "Аха, разбирам! Како се вели „Germany“ на македонски?",
           "gloss": "Ah, I understand! How do you say 'Germany' in Macedonian?",
           "source": "scenario:gen-s0-repair#5"
         },
         {
-          "text": "Нема проблем. Од каде сте?",
-          "gloss": "No problem. Where are you from?",
-          "source": "scenario:gen-s0-repair#2"
+          "text": "Како е Марко?",
+          "gloss": "How is Marko?",
+          "source": "qa:gen-s0-greet-story#q2:q"
         },
         {
-          "text": "Каде е тоалетот?",
-          "gloss": "Where's the toilet?",
-          "source": "grammar:questions#2"
+          "text": "Каде е Марко?",
+          "gloss": "Where is Marko?",
+          "source": "qa:gen-s2-problems-story#q1:q"
+        },
+        {
+          "text": "Што е тоа?",
+          "gloss": "What is that?",
+          "source": "grammar:questions#1"
         }
       ],
       "callbacks": [
@@ -287,65 +287,65 @@ export const course: Course = {
           "front": "Where does a question word like што or каде go?",
           "back": "At the very start: Што значи …?, Каде е …?",
           "example": {
-            "text": "„Аха. Што значи 'фала'?“",
-            "gloss": "\"Uh-huh. What does 'fala' mean?\"",
-            "source": "story:gen-s0-repair-story#6"
+            "text": "Што е тоа?",
+            "gloss": "What is that?",
+            "source": "grammar:questions#1"
           }
         },
         {
           "kind": "rule",
-          "front": "Do you add ли to a question that starts with што, каде or колку?",
-          "back": "No. The question word already makes it a question.",
+          "front": "What do што, каде and како mean?",
+          "back": "што = what, каде = where, како = how.",
           "example": {
-            "text": "Каде е тоалетот?",
-            "gloss": "Where's the toilet?",
-            "source": "grammar:questions#2"
+            "text": "Каде е Марко?",
+            "gloss": "Where is Marko?",
+            "source": "qa:gen-s2-problems-story#q1:q"
           }
         },
         {
           "kind": "blank",
           "line": {
-            "text": "Каде е тоалетот?",
-            "gloss": "Where's the toilet?",
-            "source": "grammar:questions#2"
+            "text": "Каде е Марко?",
+            "gloss": "Where is Marko?",
+            "source": "qa:gen-s2-problems-story#q1:q"
           },
           "blank": "Каде",
           "options": [
             "Каде",
-            "Колку",
-            "Дали"
+            "Што",
+            "Како"
           ],
           "why": "каде means “where”."
         },
         {
           "kind": "blank",
           "line": {
-            "text": "„Аха. Што значи 'фала'?“",
-            "gloss": "\"Uh-huh. What does 'fala' mean?\"",
-            "source": "story:gen-s0-repair-story#6"
+            "text": "Што е тоа?",
+            "gloss": "What is that?",
+            "source": "grammar:questions#1"
           },
           "blank": "Што",
           "options": [
             "Што",
             "Каде",
-            "Колку"
+            "Како"
           ],
-          "why": "што means “what”: “What does it mean?”"
+          "why": "што means “what”: “What is that?”"
         },
         {
           "kind": "blank",
           "line": {
-            "text": "Колку чини?",
-            "gloss": "How much is it?",
-            "source": "grammar:questions#3"
+            "text": "Како е Марко?",
+            "gloss": "How is Marko?",
+            "source": "qa:gen-s0-greet-story#q2:q"
           },
-          "blank": "Колку",
+          "blank": "Како",
           "options": [
-            "Колку",
-            "Што",
-            "Каде"
+            "Како",
+            "Каде",
+            "Што"
           ],
-          "why": "колку means “how much”."
+          "why": "како means “how”: “How is Marko?”"
         }
       ],
       "confidence": "validated"
@@ -385,14 +385,14 @@ export const course: Course = {
           "source": "scenario:gen-s0-greet#0"
         },
         {
-          "text": "И јас сум добро, фала. Сакате ли кафе?",
-          "gloss": "I'm fine too, thanks. Would you like coffee?",
-          "source": "scenario:gen-s0-greet#2"
+          "text": "Добар ден! Добро сум, фала. А вие?",
+          "gloss": "Good day! I'm fine, thanks. And you?",
+          "source": "scenario:gen-s0-greet#1"
         },
         {
-          "text": "Марко прашува: „Сакаш кафе?“",
-          "gloss": "Marko asks: \"Do you want coffee?\"",
-          "source": "story:gen-s0-greet-story#4"
+          "text": "Можете ли да повторите? Уште еднаш, ве молам.",
+          "gloss": "Can you repeat? Once more, please.",
+          "source": "scenario:gen-s0-repair#3"
         }
       ],
       "callbacks": [
@@ -421,11 +421,11 @@ export const course: Course = {
         {
           "kind": "rule",
           "front": "What ending marks the polite “you” on a verb?",
-          "back": "-те: сте, Сакате, Можете.",
+          "back": "-те: Како сте?, Можете ли да повторите?",
           "example": {
-            "text": "И јас сум добро, фала. Сакате ли кафе?",
-            "gloss": "I'm fine too, thanks. Would you like coffee?",
-            "source": "scenario:gen-s0-greet#2"
+            "text": "Можете ли да повторите? Уште еднаш, ве молам.",
+            "gloss": "Can you repeat? Once more, please.",
+            "source": "scenario:gen-s0-repair#3"
           }
         },
         {
@@ -471,7 +471,7 @@ export const course: Course = {
       "depth": "produce",
       "title": "Yes/no questions: ли or дали",
       "agenda": "Ask yes/no questions: ли after the verb, or дали up front",
-      "rule": "To ask a yes/no question, put ли right after the verb: Можете ли да повторите? (“Can you repeat?”). Or start the question with дали instead: Дали сакаш кафе? Both work the same way.",
+      "rule": "To ask a yes/no question, put ли right after the verb: Можете ли да повторите? (“Can you repeat?”). Or start the question with дали instead: Дали е далеку? (“Is it far?”). Both work the same way.",
       "recap": "You now have two ways to turn a statement into a yes/no question. ли sits right after the verb, so Можете (“you can”) becomes Можете ли…? (“can you…?”). дали does the same job from the front: Дали Ана знае добро македонски? You've been saying Можете ли да повторите? since chapter 1: that's ли at work. In it, the да is a separate little word that links “can” to “repeat”. It has nothing to do with the question, and chapter 4 explains it. You'll also hear questions asked with just a rising voice, like Сакаш кафе?",
       "library": {
         "rule": "Macedonian marks a yes/no question with a small word instead of flipping the word order the way English does. In everyday set phrases the usual choice is ли, placed immediately after the verb: Имате ли …? (“Do you have…?”), Може ли …? (“Can I…? / Is it possible?”), Можете ли да повторите? (“Can you repeat?”). The other option is дали at the very start, with the rest of the sentence left as a normal statement: Дали сакаш кафе? (“Do you want coffee?”). Both are correct and mean the same thing. Short requests tend to use ли; дали is handy for longer questions. In relaxed speech, a plain statement with a rising voice also works.",
@@ -494,14 +494,14 @@ export const course: Course = {
           "source": "story:gen-s0-repair-story#5"
         },
         {
-          "text": "Дали Ана знае добро македонски?",
-          "gloss": "Does Ana know Macedonian well?",
-          "source": "qa:gen-s0-repair-story#q3:q"
+          "text": "Дали е далеку?",
+          "gloss": "Is it far?",
+          "source": "scenario:gen-directions#2"
         },
         {
-          "text": "Дали сакаш кафе?",
-          "gloss": "Do you want coffee?",
-          "source": "grammar:questions#0"
+          "text": "Здраво! Дали е Марко таму?",
+          "gloss": "Hi! Is Marko there?",
+          "source": "scenario:gen-phone#1"
         }
       ],
       "callbacks": [
@@ -515,7 +515,7 @@ export const course: Course = {
         {
           "kind": "rule",
           "front": "Where does ли go in a yes/no question?",
-          "back": "Right after the verb: Можете ли…?, Имате ли…?",
+          "back": "Right after the verb: Можете ли да повторите?",
           "example": {
             "text": "„Можете ли да повторите?“",
             "gloss": "\"Can you repeat?\"",
@@ -525,11 +525,11 @@ export const course: Course = {
         {
           "kind": "rule",
           "front": "What does дали do?",
-          "back": "It starts a yes/no question; the rest stays like a normal sentence: Дали сакаш кафе?",
+          "back": "It starts a yes/no question; the rest stays like a normal sentence: Дали е далеку?",
           "example": {
-            "text": "Дали сакаш кафе?",
-            "gloss": "Do you want coffee?",
-            "source": "grammar:questions#0"
+            "text": "Дали е далеку?",
+            "gloss": "Is it far?",
+            "source": "scenario:gen-directions#2"
           }
         },
         {
@@ -550,9 +550,9 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Дали Ана знае добро македонски?",
-            "gloss": "Does Ana know Macedonian well?",
-            "source": "qa:gen-s0-repair-story#q3:q"
+            "text": "Здраво! Дали е Марко таму?",
+            "gloss": "Hi! Is Marko there?",
+            "source": "scenario:gen-phone#1"
           },
           "blank": "Дали",
           "options": [
@@ -560,7 +560,7 @@ export const course: Course = {
             "Што",
             "Каде"
           ],
-          "why": "Дали opens a yes/no question."
+          "why": "Дали opens a yes/no question: “Is Marko there?”"
         }
       ],
       "confidence": "validated"
@@ -607,9 +607,9 @@ export const course: Course = {
           "source": "grammar:gender#2"
         },
         {
-          "text": "Да. Едно кафе и една вода — седумдесет денари.",
-          "gloss": "Yes. One coffee and one water — seventy denars.",
-          "source": "scenario:gen-s0-survive#4"
+          "text": "Едно кафе, ве молам.",
+          "gloss": "One coffee, please.",
+          "source": "qa:ana-coffee#q3:a"
         }
       ],
       "callbacks": [
@@ -643,9 +643,9 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Да. Едно кафе и една вода — седумдесет денари.",
-            "gloss": "Yes. One coffee and one water — seventy denars.",
-            "source": "scenario:gen-s0-survive#4"
+            "text": "една вода",
+            "gloss": "a water (feminine)",
+            "source": "grammar:gender#1"
           },
           "blank": "една",
           "options": [
@@ -658,9 +658,9 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "„Сакам пет јаболка и еден леб.“",
-            "gloss": "\"I want five apples and one bread.\"",
-            "source": "story:gen-s0-survive-story#5"
+            "text": "еден сок",
+            "gloss": "a juice (masculine)",
+            "source": "grammar:gender#0"
           },
           "blank": "еден",
           "options": [
@@ -668,20 +668,20 @@ export const course: Course = {
             "една",
             "едно"
           ],
-          "why": "леб ends in a consonant: masculine → еден."
+          "why": "сок ends in a consonant: masculine → еден."
         },
         {
           "kind": "blank",
           "line": {
-            "text": "Добар ден! Сакам едно кафе, ве молам.",
-            "gloss": "Good day! I want one coffee, please.",
-            "source": "scenario:gen-s0-survive#1"
+            "text": "Едно кафе, ве молам.",
+            "gloss": "One coffee, please.",
+            "source": "qa:ana-coffee#q3:a"
           },
-          "blank": "едно",
+          "blank": "Едно",
           "options": [
-            "едно",
-            "еден",
-            "една"
+            "Едно",
+            "Еден",
+            "Една"
           ],
           "why": "кафе ends in -е: neuter → едно."
         }
@@ -698,7 +698,7 @@ export const course: Course = {
       "depth": "produce",
       "title": "Counting things",
       "agenda": "Count things and ask the price",
-      "rule": "After a number bigger than one, the noun goes plural: пет јаболка, десет денари. “Two” has two forms: два for masculine nouns, две for feminine and neuter. To ask a price: Колку чини?",
+      "rule": "After a number bigger than one, the noun goes plural: пет јаболка, десет денари. “Two” has two forms: два for masculine nouns, две for feminine and neuter.",
       "recap": "Today you counted. “One” matches the noun (еден/една/едно); “two” is два or две; from three up, the number stays the same and the noun goes plural: пет јаболка, десет денари, седумдесет денари. To ask a price it's just Колку чини?, and you can point and add ова: Колку чини ова? Plurals get their own lesson in chapter 6; for now, learn јаболка and денари as the forms you hear after a number.",
       "library": {
         "rule": "Numbers work in two steps. “One” agrees with the noun's gender, as in the last lesson: еден, една, едно. “Two” still shows gender: два with masculine nouns, две with feminine and neuter ones (две кафиња). From three up the number never changes, and the noun takes its plural form: три пива, пет јаболка, десет денари. To ask a price, use Колку чини? (“How much does it cost?”); add ова (“this”) when pointing: Колку чини ова? People are counted with special forms such as двајца (“two people”), which you only need to recognize for now.",
@@ -715,14 +715,14 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "„Сакам пет јаболка и еден леб.“",
-          "gloss": "\"I want five apples and one bread.\"",
-          "source": "story:gen-s0-survive-story#5"
+          "text": "Пет јаболка.",
+          "gloss": "Five apples.",
+          "source": "qa:gen-s0-survive-story#q1:a"
         },
         {
-          "text": "„Десет денари“, вели продавачот.",
-          "gloss": "\"Ten denars,\" says the shopkeeper.",
-          "source": "story:gen-s0-survive-story#7"
+          "text": "Десет денари.",
+          "gloss": "Ten denars.",
+          "source": "qa:gen-s0-survive-story#q2:a"
         },
         {
           "text": "три пива",
@@ -730,9 +730,9 @@ export const course: Course = {
           "source": "grammar:numbers#2"
         },
         {
-          "text": "„Колку чини ова?“",
-          "gloss": "\"How much is this?\"",
-          "source": "story:gen-s0-survive-story#6"
+          "text": "две кафиња",
+          "gloss": "two coffees",
+          "source": "grammar:numbers#1"
         }
       ],
       "callbacks": [],
@@ -742,9 +742,9 @@ export const course: Course = {
           "front": "What happens to a noun after пет or десет?",
           "back": "It goes plural: пет јаболка, десет денари.",
           "example": {
-            "text": "„Десет денари“, вели продавачот.",
-            "gloss": "\"Ten denars,\" says the shopkeeper.",
-            "source": "story:gen-s0-survive-story#7"
+            "text": "Десет денари.",
+            "gloss": "Ten denars.",
+            "source": "qa:gen-s0-survive-story#q2:a"
           }
         },
         {
@@ -790,17 +790,17 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Колку чини?",
-            "gloss": "How much is it?",
-            "source": "qa:gen-s0-survive-story#q3:a"
+            "text": "Десет денари.",
+            "gloss": "Ten denars.",
+            "source": "qa:gen-s0-survive-story#q2:a"
           },
-          "blank": "Колку",
+          "blank": "денари",
           "options": [
-            "Колку",
-            "Каде",
-            "Што"
+            "денари",
+            "денар",
+            "пива"
           ],
-          "why": "Колку чини? means “How much is it?”"
+          "why": "After десет the noun goes plural: денари."
         }
       ],
       "confidence": "validated"
@@ -972,9 +972,9 @@ export const course: Course = {
           "source": "scenario:bar-order-a-drink#5"
         },
         {
-          "text": "Ана пие кафе. Кафето е добро.",
-          "gloss": "Ana drinks coffee. The coffee is good.",
-          "source": "story:ana-coffee#4"
+          "text": "Кафето е добро.",
+          "gloss": "The coffee is good.",
+          "source": "reader:cafe#4"
         },
         {
           "text": "Колку чини пивото?",
@@ -982,9 +982,9 @@ export const course: Course = {
           "source": "qa:gen-s1-cafe-order-story#q2:q"
         },
         {
-          "text": "„Што ќе сакате?“ прашува келнерот.",
-          "gloss": "\"What would you like?\" asks the waiter.",
-          "source": "story:gen-s1-cafe-order-story#2"
+          "text": "лебот",
+          "gloss": "the bread",
+          "source": "grammar:definite-articles#0"
         }
       ],
       "callbacks": [
@@ -1053,9 +1053,9 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Ана пие кафе. Кафето е добро.",
-            "gloss": "Ana drinks coffee. The coffee is good.",
-            "source": "story:ana-coffee#4"
+            "text": "Кафето е добро.",
+            "gloss": "The coffee is good.",
+            "source": "reader:cafe#4"
           },
           "blank": "Кафето",
           "options": [
@@ -1063,7 +1063,7 @@ export const course: Course = {
             "Кафе",
             "Кафиња"
           ],
-          "why": "It's the coffee Ana is drinking, a specific one: Кафето."
+          "why": "“The coffee”: кафе is neuter, so it takes -то."
         }
       ],
       "confidence": "validated"
@@ -1226,24 +1226,24 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "„Од Англија сум. Учам македонски.“",
-          "gloss": "\"I'm from England. I'm learning Macedonian.\"",
-          "source": "story:gen-s1-greet-intro-story#5"
-        },
-        {
           "text": "„Што работиш?“ прашува Ана.",
           "gloss": "\"What do you do?\" asks Ana.",
           "source": "story:gen-s1-greet-intro-story#6"
         },
         {
+          "text": "„Сѐ уште учам,“ вели Ана.",
+          "gloss": "\"I'm still learning,\" Ana says.",
+          "source": "story:gen-s0-repair-story#7"
+        },
+        {
+          "text": "Не, сѐ уште учи.",
+          "gloss": "No, she is still learning.",
+          "source": "qa:gen-s0-repair-story#q3:a"
+        },
+        {
           "text": "Ана пие кафе. Кафето е добро.",
           "gloss": "Ana drinks coffee. The coffee is good.",
           "source": "story:ana-coffee#4"
-        },
-        {
-          "text": "Ана оди по улицата.",
-          "gloss": "Ana walks along the street.",
-          "source": "story:gen-s0-greet-story#0"
         }
       ],
       "callbacks": [
@@ -1369,9 +1369,9 @@ export const course: Course = {
           "source": "story:gen-s1-greet-intro-story#2"
         },
         {
-          "text": "Нема проблем. Се гледаме!",
-          "gloss": "No problem. See you!",
-          "source": "scenario:gen-s0-greet#4"
+          "text": "Аха, разбирам! Како се вели „Germany“ на македонски?",
+          "gloss": "Ah, I understand! How do you say 'Germany' in Macedonian?",
+          "source": "scenario:gen-s0-repair#5"
         }
       ],
       "callbacks": [
@@ -1430,17 +1430,17 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Нема проблем. Се гледаме!",
-            "gloss": "No problem. See you!",
-            "source": "scenario:gen-s0-greet#4"
+            "text": "Аха, разбирам! Како се вели „Germany“ на македонски?",
+            "gloss": "Ah, I understand! How do you say 'Germany' in Macedonian?",
+            "source": "scenario:gen-s0-repair#5"
           },
-          "blank": "Се",
+          "blank": "се",
           "options": [
-            "Се",
-            "Го",
-            "Ми"
+            "се",
+            "го",
+            "ми"
           ],
-          "why": "„Се гледаме\" (see you) keeps its се right before the verb."
+          "why": "„Како се вели…?“ (how do you say…?) keeps се right before the verb."
         },
         {
           "kind": "blank",
@@ -1737,7 +1737,7 @@ export const course: Course = {
       "library": {
         "rule": "Macedonian has short object pronouns (direct-object clitics) that mean \"it,\" \"him,\" \"her,\" \"them\": го (masculine or neuter \"it/him\"), ја (feminine \"it/her\"), ги (\"them\" for plurals of any gender). They sit immediately before the verb, not after it: „ќе ги земам\" = \"I'll take them,\" „го испи кафето\" = \"he drank it up.\" They pick their form from the gender and number of the thing they replace. Often you'll hear the noun named AND the little word used together — this doubling is standard, especially with a definite (\"the\") object.",
         "why": [
-          "Word order feels backwards to English: the object word comes BEFORE the verb (ги земам = \"them I-take\"), never after. In a two-word verb like „ќе ги земам,\" it tucks in between ќе and the verb.",
+          "Word order feels backwards to English: the object word comes BEFORE the verb (ги земам = \"them I-take\"). In a two-word verb like „ќе ги земам,\" it tucks in between ќе and the verb. A command is the one exception: there it comes after (кажи го, “say it”), as chapter 7 shows.",
           "Choosing го, ја or ги depends on the thing you're replacing, not on \"you\": го for a he/masculine or neuter \"it,\" ја for a she/feminine \"it,\" ги for any plural \"them.\"",
           "Doubling looks odd — „го испи кафето\" names the coffee and still adds го. That's normal Macedonian, not a mistake or repetition error.",
           "These little words join the same cluster you met with ми and се: the order is fixed and they stay glued in front of the verb."
@@ -1753,16 +1753,6 @@ export const course: Course = {
           "text": "Добро, ќе ги земам. Повелете.",
           "gloss": "Good, I'll take them. Here you are.",
           "source": "scenario:gen-s1-market#7"
-        },
-        {
-          "text": "Нарачај едно кафе — кажи го гласно!",
-          "gloss": "Order one coffee — say it aloud!",
-          "source": "qa:ana-coffee#q3:q"
-        },
-        {
-          "text": "го испи кафето",
-          "gloss": "drank up the coffee (finished)",
-          "source": "grammar:verb-aspect#1"
         },
         {
           "text": "Ми го дава",
@@ -1786,7 +1776,7 @@ export const course: Course = {
         {
           "kind": "rule",
           "front": "Where do го, ја, ги go?",
-          "back": "Right before the verb, never after it.",
+          "back": "Right before the verb: ќе ги земам, Ми го дава.",
           "example": {
             "text": "Добро, ќе ги земам. Повелете.",
             "gloss": "Good, I'll take them. Here you are.",
@@ -1816,14 +1806,14 @@ export const course: Course = {
             "ја",
             "ги"
           ],
-          "why": "\"Them\" (plural) is ги, sitting before the verb."
+          "why": "“Them” (plural) is ги, sitting before the verb."
         },
         {
           "kind": "blank",
           "line": {
-            "text": "Нарачај едно кафе — кажи го гласно!",
-            "gloss": "Order one coffee — say it aloud!",
-            "source": "qa:ana-coffee#q3:q"
+            "text": "Ми го дава",
+            "gloss": "he gives it to me (to-me + it + gives)",
+            "source": "grammar:clitics#1"
           },
           "blank": "го",
           "options": [
@@ -1831,22 +1821,7 @@ export const course: Course = {
             "ја",
             "ги"
           ],
-          "why": "\"It\" (the coffee, masculine/neuter) is го, before the verb."
-        },
-        {
-          "kind": "blank",
-          "line": {
-            "text": "го испи кафето",
-            "gloss": "drank up the coffee (finished)",
-            "source": "grammar:verb-aspect#1"
-          },
-          "blank": "го",
-          "options": [
-            "го",
-            "ја",
-            "ги"
-          ],
-          "why": "The coffee is named and still doubled with го before the verb."
+          "why": "“It” is го, right before the verb: he gives it to me."
         }
       ],
       "confidence": "validated"
@@ -2310,7 +2285,7 @@ export const course: Course = {
         {
           "kind": "rule",
           "front": "Where do ми, ти, ѝ go?",
-          "back": "Right before the verb, never after it.",
+          "back": "Right before the verb. Only a command puts it after.",
           "example": {
             "text": "„Ми се допаѓа“, вели Марко.",
             "gloss": "\"I like it,\" says Marko.",
@@ -2954,11 +2929,6 @@ export const course: Course = {
           "source": "story:gen-s2-arrange-story#4"
         },
         {
-          "text": "Во шест часот. Каде да се видиме?",
-          "gloss": "At six o'clock. Where shall we meet?",
-          "source": "story:gen-s2-arrange-story#5"
-        },
-        {
           "text": "Во колку часот се гледаат Марко и Ана?",
           "gloss": "At what time do Marko and Ana meet?",
           "source": "qa:gen-s2-arrange-story#q1:q"
@@ -3019,9 +2989,9 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Во шест часот. Каде да се видиме?",
-            "gloss": "At six o'clock. Where shall we meet?",
-            "source": "story:gen-s2-arrange-story#5"
+            "text": "Во колку часот се гледаат Марко и Ана?",
+            "gloss": "At what time do Marko and Ana meet?",
+            "source": "qa:gen-s2-arrange-story#q1:q"
           },
           "blank": "Во",
           "options": [
@@ -3029,7 +2999,7 @@ export const course: Course = {
             "На",
             "До"
           ],
-          "why": "во is the little word for \"at\" with clock times."
+          "why": "“At” a time is во: во колку часот, во шест часот."
         }
       ],
       "confidence": "validated"
@@ -3717,9 +3687,10 @@ export const course: Course = {
             "3 new words: Не разбирам, Не знам, Можете ли да повторите?",
             "Say “not”: put не right before the verb",
             "Say it: today's words and examples, out loud",
-            "Read “Ана учи македонски”: spot today's pattern"
+            "Read “Ана учи македонски”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns",
+          "next": "Next: Practice: Saying “not”: не",
           "notes": [
             "story:gen-s0-repair-story#3",
             "story:gen-s0-repair-story#4",
@@ -3766,11 +3737,12 @@ export const course: Course = {
           ],
           "agenda": [
             "3 new words: Побавно, ве молам, Уште еднаш, ве молам, Како се вели … на македонски?",
-            "Practice day: more of this chapter's patterns",
+            "Practice: Saying “not”: не",
             "Say it: today's words and examples, out loud",
-            "Read “Ана учи македонски”: spot everything from this chapter"
+            "Read “Ана учи македонски”: spot everything from this chapter",
+            "Build a sentence: put the words in order"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns",
+          "next": "Next: Practice: Saying “not”: не",
           "notes": [
             "story:gen-s0-repair-story#6",
             "story:gen-s0-repair-story#7",
@@ -3818,9 +3790,10 @@ export const course: Course = {
           "speak": "gen-s0-repair",
           "agenda": [
             "3 new words: тој, таа, ние",
-            "Practice day: more of this chapter's patterns",
+            "Practice: Saying “not”: не",
             "Say it: today's words and examples, out loud",
             "Read “Ана учи македонски”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Keeping the conversation alive (repair kit)"
           ],
           "next": "Next: Review day: nothing new",
@@ -3856,7 +3829,8 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Read “Ана учи македонски”: spot everything from this chapter",
-            "First try at the conversation: Keeping the conversation alive (repair kit)"
+            "Build a sentence: put the words in order",
+            "Conversation: Keeping the conversation alive (repair kit)"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
           "notes": [
@@ -3909,6 +3883,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "3 new words: Што значи …?, Сѐ уште учам, Во ред",
             "Read “Ана учи македонски”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Keeping the conversation alive (repair kit)"
           ],
           "next": "Next: Put it together: use this chapter in your own words",
@@ -3953,6 +3928,7 @@ export const course: Course = {
             "Put it together: use this chapter in your own words",
             "1 new word: Аха",
             "Read “Ана учи македонски”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Keeping the conversation alive (repair kit)",
             "Write a few lines of your own"
           ],
@@ -4161,7 +4137,8 @@ export const course: Course = {
             "3 new words: што, каде, Здраво",
             "Ask what, where, how, how much: question words go first",
             "Say it: today's words and examples, out loud",
-            "Read “Ана и Марко”: spot today's pattern"
+            "Read “Ана и Марко”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Choose ти for friends, вие for strangers and elders",
           "notes": [
@@ -4214,7 +4191,8 @@ export const course: Course = {
             "3 new words: вие, Како си?, Добар ден",
             "Choose ти for friends, вие for strangers and elders",
             "Say it: today's words and examples, out loud",
-            "Read “Ана и Марко”: spot today's pattern"
+            "Read “Ана и Марко”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Ask yes/no questions: ли after the verb, or дали up front",
           "notes": [
@@ -4265,9 +4243,10 @@ export const course: Course = {
             "3 new words: Добро сум, фала, како, колку",
             "Ask yes/no questions: ли after the verb, or дали up front",
             "Say it: today's words and examples, out loud",
-            "Reread “Ана учи македонски” from an earlier chapter: find yes/no questions: ли or дали"
+            "Reread “Ана учи македонски” from an earlier chapter: find yes/no questions: ли or дали",
+            "Build a sentence: put the words in order"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns"
+          "next": "Next: Practice: Yes/no questions: ли or дали"
         },
         {
           "n": 4,
@@ -4312,9 +4291,10 @@ export const course: Course = {
           ],
           "agenda": [
             "3 new words: Како сте?, Фала, Ве молам",
-            "Practice day: more of this chapter's patterns",
+            "Practice: Yes/no questions: ли or дали",
             "Say it: today's words and examples, out loud",
-            "Read “Ана и Марко”: spot everything from this chapter"
+            "Read “Ана и Марко”: spot everything from this chapter",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -4347,6 +4327,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Read “Ана и Марко”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Greetings, politeness, yes/no"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -4402,6 +4383,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "3 new words: Да, Не, Догледање",
             "Read “Ана и Марко”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Greetings, politeness, yes/no"
           ],
           "next": "Next: Put it together: use this chapter in your own words",
@@ -4439,6 +4421,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "Read “Ана и Марко”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Greetings, politeness, yes/no",
             "Write a few lines of your own"
           ],
@@ -4701,7 +4684,8 @@ export const course: Course = {
             "3 new words: еден / една / едно, ова / тоа, Сакам …",
             "Match еден, една, едно to the noun's gender",
             "Say it: today's words and examples, out loud",
-            "Read “Ана во продавница”: spot today's pattern"
+            "Read “Ана во продавница”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Count things and ask the price",
           "notes": [
@@ -4754,9 +4738,10 @@ export const course: Course = {
             "3 new words: два, три, четири, пет, шест, седум, осум, девет, десет, Може ли …?",
             "Count things and ask the price",
             "Say it: today's words and examples, out loud",
-            "Read “Ана во продавница”: spot today's pattern"
+            "Read “Ана во продавница”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns",
+          "next": "Next: Practice: Counting things",
           "notes": [
             "story:gen-s0-survive-story#3",
             "story:gen-s0-survive-story#4",
@@ -4805,9 +4790,10 @@ export const course: Course = {
           ],
           "agenda": [
             "3 new words: Каде е …?, Колку чини?, Имате ли …?",
-            "Practice day: more of this chapter's patterns",
+            "Practice: Counting things",
             "Say it: today's words and examples, out loud",
-            "Read “Ана во продавница”: spot everything from this chapter"
+            "Read “Ана во продавница”: spot everything from this chapter",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new",
           "notes": [
@@ -4843,6 +4829,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Survival operators + numbers 1–10"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -4887,6 +4874,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "1 new word: денар / денари",
             "Read “Ана во продавница”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Survival operators + numbers 1–10"
           ],
           "next": "Next: Put it together: use this chapter in your own words",
@@ -4925,6 +4913,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "Reread “Ана и Марко” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "Conversation: Survival operators + numbers 1–10",
             "Write a few lines of your own"
           ],
@@ -5123,7 +5112,8 @@ export const course: Course = {
             "3 new words: имам, давам, Едно пиво, ве молам",
             "Change the verb ending to say who wants, has, or pays.",
             "Say it: today's words and examples, out loud",
-            "Read “Марко во кафето”: spot today's pattern"
+            "Read “Марко во кафето”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Practice: Verb endings: the -а verbs",
           "notes": [
@@ -5164,18 +5154,19 @@ export const course: Course = {
             ]
           },
           "build": [
-            "sent-пие",
             "sent-сака",
             "phrase-gen-s0-repair-v5",
             "phrase-v-edno-pivo",
             "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
             "3 new words: кафе, пиво, вода",
             "Practice: Verb endings: the -а verbs",
             "Say it: today's words and examples, out loud",
-            "Read “Марко во кафето”: spot today's pattern"
+            "Read “Марко во кафето”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Say “the”: add -от, -та or -то to the end of the noun",
           "notes": [
@@ -5220,16 +5211,17 @@ export const course: Course = {
           "build": [
             "phrase-gen-s1-cafe-order-v7",
             "phrase-gen-s0-repair-v5",
-            "sent-пие",
             "sent-сака",
             "phrase-v-edno-pivo",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
             "3 new words: чај, сок, Што ќе сакате?",
             "Say “the”: add -от, -та or -то to the end of the noun",
             "Say it: today's words and examples, out loud",
-            "Read “Марко во кафето”: spot today's pattern"
+            "Read “Марко во кафето”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new",
           "notes": [
@@ -5258,16 +5250,17 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-repair-v5",
-            "sent-пие",
             "sent-сака",
             "phrase-v-edno-pivo",
             "phrase-gen-s1-cafe-order-v7",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
             "Review day: nothing new",
             "Reread “Ана во продавница” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Café & bar: order and pay (the anchor)"
           ],
           "next": "Next: Say want to / can / must: stack да + verb (Сакам да платам).",
@@ -5310,10 +5303,10 @@ export const course: Course = {
           "build": [
             "phrase-v-smetka",
             "phrase-gen-s0-repair-v5",
-            "sent-пие",
             "sent-сака",
             "phrase-v-edno-pivo",
-            "phrase-gen-s1-cafe-order-v7"
+            "phrase-gen-s1-cafe-order-v7",
+            "phrase-gen-s0-repair-v1"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
@@ -5321,6 +5314,7 @@ export const course: Course = {
             "Say want to / can / must: stack да + verb (Сакам да платам).",
             "Say it: today's words and examples, out loud",
             "Reread “Ана учи македонски” from an earlier chapter: find want to, can: да + verb",
+            "Build a sentence: put the words in order",
             "Conversation: Café & bar: order and pay (the anchor)"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange"
@@ -5352,17 +5346,18 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-repair-v5",
-            "sent-пие",
             "sent-сака",
             "phrase-v-edno-pivo",
             "phrase-gen-s1-cafe-order-v7",
-            "phrase-v-smetka"
+            "phrase-v-smetka",
+            "phrase-gen-s0-repair-v1"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "1 new word: педесет / сто / сто и педесет",
             "Read “Марко во кафето”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Café & bar: order and pay (the anchor)"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -5389,17 +5384,18 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-repair-v5",
-            "sent-пие",
             "sent-сака",
             "phrase-v-edno-pivo",
             "phrase-gen-s1-cafe-order-v7",
-            "phrase-v-smetka"
+            "phrase-v-smetka",
+            "phrase-gen-s0-repair-v1"
           ],
           "speak": "gen-s1-cafe-order",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
             "Read “Ана и кафето”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Café & bar: order and pay (the anchor)",
             "Write a few lines of your own"
           ],
@@ -5607,7 +5603,8 @@ export const course: Course = {
             "3 new words: јадам, пијам, Јас сум …",
             "Two more verb groups: just swap the middle vowel to -е or -и.",
             "Say it: today's words and examples, out loud",
-            "Read “Во барот”: spot today's pattern"
+            "Read “Во барот”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Practice: The other verb groups: -е and -и verbs",
           "notes": [
@@ -5660,7 +5657,8 @@ export const course: Course = {
             "3 new words: знам, одам, Мило ми е",
             "Practice: The other verb groups: -е and -и verbs",
             "Say it: today's words and examples, out loud",
-            "Read “Во барот”: spot today's pattern"
+            "Read “Во барот”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Meet verbs that always travel with се, sitting right before the verb.",
           "notes": [
@@ -5711,9 +5709,10 @@ export const course: Course = {
             "3 new words: Како се викаш?, Јас се викам, Од каде си?",
             "Meet verbs that always travel with се, sitting right before the verb.",
             "Say it: today's words and examples, out loud",
-            "Read “Во барот”: spot today's pattern"
+            "Read “Во барот”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns",
+          "next": "Next: Practice: Verbs that come with се",
           "notes": [
             "qa:gen-s1-greet-intro-story#q1:a",
             "qa:gen-s1-greet-intro-story#q3:q"
@@ -5762,9 +5761,10 @@ export const course: Course = {
           ],
           "agenda": [
             "3 new words: Од … сум, Што работиш?, работам",
-            "Practice day: more of this chapter's patterns",
+            "Practice: Verbs that come with се",
             "Say it: today's words and examples, out loud",
-            "Read “Во барот”: spot everything from this chapter"
+            "Read “Во барот”: spot everything from this chapter",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -5799,6 +5799,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Марко во кафето” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Greetings & introductions"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -5854,6 +5855,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "3 new words: видам, Учам македонски, Зборувам малку",
             "Read “Во барот”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Greetings & introductions"
           ],
           "next": "Next: Put it together: use this chapter in your own words",
@@ -5909,6 +5911,7 @@ export const course: Course = {
             "Put it together: use this chapter in your own words",
             "3 new words: зборувам, Јас сум од, студент",
             "Reread “Ана и кафето” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "Conversation: Greetings & introductions",
             "Write a few lines of your own"
           ],
@@ -6130,7 +6133,8 @@ export const course: Course = {
             "3 new words: јаболка, едно кило, половина кило",
             "Talk about more than one: plural endings",
             "Say it: today's words and examples, out loud",
-            "Read “Ана на пазар”: spot today's pattern"
+            "Read “Ана на пазар”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Make the describing word match its noun: добар, добра, добро, добри.",
           "notes": [
@@ -6181,7 +6185,8 @@ export const course: Course = {
             "3 new words: евтин, скап, Колку чини килото?",
             "Make the describing word match its noun: добар, добра, добро, добри.",
             "Say it: today's words and examples, out loud",
-            "Reread “Ана и кафето” from an earlier chapter: find adjectives match their noun"
+            "Reread “Ана и кафето” from an earlier chapter: find adjectives match their noun",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Say “it” and “them”: го, ја, ги go right before the verb",
           "notes": [
@@ -6228,7 +6233,8 @@ export const course: Course = {
             "3 new words: леб, млеко, добар",
             "Say “it” and “them”: го, ја, ги go right before the verb",
             "Say it: today's words and examples, out loud",
-            "Read “Ана на пазар”"
+            "Read “Ана на пазар”",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -6261,6 +6267,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Ана во продавница” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Shopping at the market"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -6314,6 +6321,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "3 new words: сирење, Само тоа, фала, пазар",
             "Read “Ана на пазар”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Shopping at the market"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -6352,6 +6360,7 @@ export const course: Course = {
             "Put it together: use this chapter in your own words",
             "1 new word: благодарам",
             "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "Conversation: Shopping at the market",
             "Write a few lines of your own"
           ],
@@ -6600,7 +6609,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-купува-t2",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -6609,7 +6618,8 @@ export const course: Course = {
             "3 new words: во, на, лево",
             "Place little words во, на, со, од, до before a noun to say where.",
             "Say it: today's words and examples, out loud",
-            "Read “Ана бара центар”: spot today's pattern"
+            "Read “Ана бара центар”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
           "notes": [
@@ -6651,7 +6661,7 @@ export const course: Course = {
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-купува-t2",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
           ],
@@ -6659,7 +6669,8 @@ export const course: Course = {
             "3 new words: Свртете лево, десно, право",
             "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
             "Say it: today's words and examples, out loud",
-            "Read “Ана бара центар”: spot today's pattern"
+            "Read “Ана бара центар”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Build \"more\" and \"most\": stick по- or нај- on the front"
         },
@@ -6699,14 +6710,15 @@ export const course: Course = {
             "phrase-gen-s1-directions-v6",
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-купува-t2",
+            "sent-оди-t2",
             "phrase-gen-s1-directions-v11"
           ],
           "agenda": [
             "3 new words: близу / далеку, тука / таму, од",
             "Build \"more\" and \"most\": stick по- or нај- on the front",
             "Say it: today's words and examples, out loud",
-            "Reread “Ана учи македонски” from an earlier chapter: find more and most: по- and нај-"
+            "Reread “Ана учи македонски” from an earlier chapter: find more and most: по- and нај-",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -6732,7 +6744,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-купува-t2",
+            "sent-оди-t2",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s1-directions-v5",
             "phrase-gen-s1-directions-v6"
@@ -6741,6 +6753,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Во барот” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Directions & getting around"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -6785,7 +6798,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-купува-t2",
+            "sent-оди-t2",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s1-directions-v5",
             "phrase-gen-s1-directions-v6"
@@ -6795,6 +6808,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "3 new words: автобус, такси, билет",
             "Read “Ана бара центар”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Directions & getting around"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -6835,8 +6849,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s1-directions-v10",
             "phrase-gen-s0-greet-v4",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s1-directions-v5"
           ],
@@ -6846,6 +6860,7 @@ export const course: Course = {
             "Put it together: use this chapter in your own words",
             "3 new words: во центарот, улица, со",
             "Reread “Ана и кафето” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "Conversation: Directions & getting around",
             "Write a few lines of your own"
           ],
@@ -7051,15 +7066,16 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s0-greet-v2",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
             "3 new words: Ми се допаѓа, Не ми се допаѓа, Сакам да …",
             "Say to me, to you, to her — and build \"I like it\".",
             "Say it: today's words and examples, out loud",
-            "Read “Времето денес”: spot today's pattern"
+            "Read “Времето денес”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Practice: To me, to you: ми, ти, му",
           "notes": [
@@ -7101,15 +7117,16 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v5",
             "phrase-gen-s2-smalltalk-v6",
             "phrase-gen-s0-greet-v2",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-smalltalk-v1"
           ],
           "agenda": [
             "3 new words: Мислам дека …, Се согласувам, убаво / грозно",
             "Practice: To me, to you: ми, ти, му",
             "Say it: today's words and examples, out loud",
-            "Read “Времето денес”: spot today's pattern"
+            "Read “Времето денес”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Talk about the future: ќе before the verb, нема да for won't"
         },
@@ -7147,8 +7164,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-pasttime-v7",
             "phrase-gen-s0-greet-v2",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2"
           ],
@@ -7156,7 +7173,8 @@ export const course: Course = {
             "3 new words: Ќе …, Ќе се видиме, времето",
             "Talk about the future: ќе before the verb, нема да for won't",
             "Say it: today's words and examples, out loud",
-            "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
+            "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Practice: The future: ќе and нема да"
         },
@@ -7194,8 +7212,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-smalltalk-v9",
             "phrase-gen-s0-greet-v2",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2"
           ],
@@ -7203,7 +7221,8 @@ export const course: Course = {
             "3 new words: денес, и / ама / затоа, дека",
             "Practice: The future: ќе and нема да",
             "Say it: today's words and examples, out loud",
-            "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
+            "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -7224,8 +7243,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v2",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s2-smalltalk-v5"
@@ -7234,6 +7253,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Во барот” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Small talk, likes & opinions"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -7264,8 +7284,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v2",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s2-smalltalk-v5"
@@ -7275,6 +7295,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "1 new word: дожд",
             "Read “Времето денес”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Small talk, likes & opinions"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -7295,8 +7316,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v2",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s2-smalltalk-v5"
@@ -7306,6 +7327,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "Reread “Ана и Марко” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "Conversation: Small talk, likes & opinions",
             "Write a few lines of your own"
           ],
@@ -7461,8 +7483,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-pasttime-v1",
             "phrase-gen-s0-greet-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
           ],
@@ -7470,7 +7492,8 @@ export const course: Course = {
             "3 new words: вчера / денес / утре, бев, имав",
             "Talk about finished events: say I was, had, went, ate, watched.",
             "Say it: today's words and examples, out loud",
-            "Read “Денот на Марко”: spot today's pattern"
+            "Read “Денот на Марко”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Practice: What happened: the past tense"
         },
@@ -7512,8 +7535,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-pasttime-v8",
             "phrase-gen-s0-greet-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
             "phrase-gen-s0-repair-v1"
           ],
@@ -7521,7 +7544,8 @@ export const course: Course = {
             "3 new words: отидов, јадев, Што правеше?",
             "Practice: What happened: the past tense",
             "Say it: today's words and examples, out loud",
-            "Read “Денот на Марко”: spot today's pattern"
+            "Read “Денот на Марко”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Spot two forms of each verb: one ongoing, one one-time done."
         },
@@ -7539,8 +7563,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
             "phrase-gen-s2-pasttime-v8",
             "phrase-gen-s0-repair-v1"
@@ -7548,7 +7572,8 @@ export const course: Course = {
           "agenda": [
             "Spot two forms of each verb: one ongoing, one one-time done.",
             "Say it: today's words and examples, out loud",
-            "Read “Денот на Марко”"
+            "Read “Денот на Марко”",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -7568,8 +7593,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
             "phrase-gen-s2-pasttime-v8",
             "phrase-gen-s0-repair-v1"
@@ -7578,6 +7603,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Ана во продавница” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Your day: past & future"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange"
@@ -7603,8 +7629,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
             "phrase-gen-s2-pasttime-v8",
             "phrase-gen-s0-repair-v1"
@@ -7613,6 +7639,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "Read “Денот на Марко”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Your day: past & future"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -7633,8 +7660,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
             "phrase-gen-s2-pasttime-v8",
             "phrase-gen-s0-repair-v1"
@@ -7644,6 +7671,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "Reread “Ана на пазар” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "Conversation: Your day: past & future",
             "Write a few lines of your own"
           ],
@@ -7875,15 +7903,16 @@ export const course: Course = {
             "phrase-gen-s2-home-family-v9",
             "phrase-gen-s2-home-family-v1",
             "phrase-gen-s0-greet-v5",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
             "3 new words: мојот / мојата, мој, мајка / татко",
             "Say my and your to match the noun — plus the family shortcut",
             "Say it: today's words and examples, out loud",
-            "Read “Мојот живот”: spot today's pattern"
+            "Read “Мојот живот”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Spot two odd plurals: деца (children) and луѓе (people)"
         },
@@ -7919,17 +7948,18 @@ export const course: Course = {
             "phrase-gen-s2-home-family-v2",
             "phrase-gen-s2-home-family-v3",
             "phrase-gen-s0-greet-v5",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-home-family-v9"
           ],
           "agenda": [
             "3 new words: брат / сестра, жена / маж, дете / деца",
             "Spot two odd plurals: деца (children) and луѓе (people)",
             "Say it: today's words and examples, out loud",
-            "Read “Мојот живот”"
+            "Read “Мојот живот”",
+            "Build a sentence: put the words in order"
           ],
-          "next": "Next: Practice day: more of this chapter's patterns"
+          "next": "Next: Practice: Odd plurals: деца and луѓе"
         },
         {
           "n": 3,
@@ -7965,17 +7995,18 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v5",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-home-family-v9",
             "phrase-gen-s2-home-family-v1",
             "phrase-gen-s2-home-family-v2"
           ],
           "agenda": [
             "3 new words: Живеам во …, Работам како …, твој",
-            "Practice day: more of this chapter's patterns",
+            "Practice: Odd plurals: деца and луѓе",
             "Say it: today's words and examples, out loud",
-            "Read “Мојот живот”: spot everything from this chapter"
+            "Read “Мојот живот”: spot everything from this chapter",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -7995,8 +8026,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v5",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-home-family-v9",
             "phrase-gen-s2-home-family-v1",
             "phrase-gen-s2-home-family-v2"
@@ -8005,6 +8036,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Home, family & work"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange"
@@ -8045,8 +8077,8 @@ export const course: Course = {
             "phrase-gen-s2-home-family-v7",
             "phrase-gen-s2-home-family-v8",
             "phrase-gen-s0-greet-v5",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-home-family-v9"
           ],
           "speak": "gen-s2-home-family",
@@ -8054,6 +8086,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "3 new words: Имам брат и сестра, На колку години си?, човек",
             "Read “Мојот живот”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Home, family & work"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -8081,8 +8114,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v5",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-home-family-v9",
             "phrase-gen-s2-home-family-v1",
             "phrase-gen-s2-home-family-v2"
@@ -8093,6 +8126,7 @@ export const course: Course = {
             "Put it together: use this chapter in your own words",
             "1 new word: стан",
             "Reread “Ана и кафето” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "Conversation: Home, family & work",
             "Write a few lines of your own"
           ],
@@ -8243,8 +8277,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v8",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -8253,7 +8287,8 @@ export const course: Course = {
             "3 new words: Ало?, Дома ли е …?, Кога?",
             "Tell the time with во plus a number plus часот.",
             "Say it: today's words and examples, out loud",
-            "Read “Телефонски повик”: spot today's pattern"
+            "Read “Телефонски повик”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?"
         },
@@ -8292,15 +8327,16 @@ export const course: Course = {
             "phrase-gen-s2-arrange-v4",
             "phrase-gen-s2-arrange-v5",
             "phrase-gen-s0-greet-v8",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
             "3 new words: Во колку часот?, Каде да се видиме?, Ајде да …",
             "Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?",
             "Say it: today's words and examples, out loud",
-            "Read “Телефонски повик”: spot today's pattern"
+            "Read “Телефонски повик”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -8323,8 +8359,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v8",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-arrange-v4",
             "phrase-gen-s2-arrange-v5",
             "phrase-gen-s0-repair-v1"
@@ -8333,6 +8369,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Во барот” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Phone & arranging to meet"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -8376,8 +8413,8 @@ export const course: Course = {
             "phrase-gen-s2-arrange-v7",
             "phrase-gen-s2-arrange-v8",
             "phrase-gen-s0-greet-v8",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-arrange-v4"
           ],
           "speak": "gen-s2-arrange",
@@ -8385,6 +8422,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "3 new words: Важи. / Договорено, Оставете порака, порака",
             "Read “Телефонски повик”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Phone & arranging to meet"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -8427,8 +8465,8 @@ export const course: Course = {
             "phrase-gen-phone-v4",
             "phrase-gen-phone-v5",
             "phrase-gen-s0-greet-v8",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-arrange-v4"
           ],
           "speak": "gen-s2-arrange",
@@ -8437,6 +8475,7 @@ export const course: Course = {
             "Put it together: use this chapter in your own words",
             "3 new words: да оставам порака, нека ме повика, Пријатно",
             "Reread “Ана бара центар” from an earlier chapter: a refresher on what you learned there",
+            "Build a sentence: put the words in order",
             "Conversation: Phone & arranging to meet",
             "Write a few lines of your own"
           ],
@@ -8592,15 +8631,16 @@ export const course: Course = {
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2",
             "phrase-gen-s0-survive-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
             "3 new words: Има проблем, Не работи, Ова не е …",
             "Say there is / there isn't with има and нема (and double negatives).",
             "Say it: today's words and examples, out loud",
-            "Read “Проблем во кафулето”: spot today's pattern"
+            "Read “Проблем во кафулето”: spot today's pattern",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Recognize the \"have done\" past: сум plus an -л word for experiences."
         },
@@ -8636,15 +8676,16 @@ export const course: Course = {
             "phrase-gen-s2-problems-v4",
             "phrase-gen-s2-problems-v6",
             "phrase-gen-s0-survive-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-problems-v1"
           ],
           "agenda": [
             "3 new words: Можете ли да помогнете?, погрешно, Сакам да вратам",
             "Recognize the \"have done\" past: сум plus an -л word for experiences.",
             "Say it: today's words and examples, out loud",
-            "Read “Проблем во кафулето”"
+            "Read “Проблем во кафулето”",
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
         },
@@ -8665,8 +8706,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-survive-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2",
             "phrase-gen-s2-problems-v4"
@@ -8675,6 +8716,7 @@ export const course: Course = {
           "agenda": [
             "Review day: nothing new",
             "Reread “Времето денес” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "First try at the conversation: Problems & complaints (repair kit, leveled up)"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange"
@@ -8707,8 +8749,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-problems-v8",
             "phrase-gen-s0-survive-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2"
           ],
@@ -8717,6 +8759,7 @@ export const course: Course = {
             "Put it together: use this chapter in a real exchange",
             "2 new words: Извинете, ама …, Не разбирам зошто",
             "Read “Проблем во кафулето”: spot everything from this chapter",
+            "Build a sentence: put the words in order",
             "Conversation: Problems & complaints (repair kit, leveled up)"
           ],
           "next": "Next: Put it together: use this chapter in your own words"
@@ -8738,8 +8781,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-survive-v6",
-            "sent-доаѓа-t2",
             "sent-јаде",
+            "sent-оди-t2",
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2",
             "phrase-gen-s2-problems-v4"
@@ -8749,6 +8792,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "Reread “Ана бара центар” from an earlier chapter: find this chapter's patterns",
+            "Build a sentence: put the words in order",
             "Conversation: Problems & complaints (repair kit, leveled up)",
             "Write a few lines of your own"
           ],
