@@ -57,6 +57,9 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
 
   const taughtBefore = new Map<string, CourseWord>(); // every word taught by an earlier chapter
   const pointsBefore: string[] = []; // every point taught by an earlier chapter
+  const reusedAt = new Map<string, number>(); // story id → chapter order it was last brought back in
+  const lensAt = new Map<string, number>(); // point id → when it was last the lens of a refresher
+  let refresherCount = 0;
   const chapters: CourseChapter[] = [];
 
   for (const spineCh of SPINE) {
@@ -113,14 +116,23 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     const home = content.stories.find((s) => s.id === `gen-${chId}-story`) ?? content.stories[0];
     const storyPool = contents.filter((c) => c.chapter.order <= order).flatMap((c) => c.stories.map((s) => ({ s, order: c.chapter.order })));
     const hits = (s: MiniStory, ids: string[]) => s.body.map((_, i) => i).filter((i) => (lineTags[`story:${s.id}#${i}`] ?? []).some((t) => ids.includes(t)));
-    const usedReuse = new Set<string>();
+    const usedReuse = new Set<string>(); // stories already brought back in THIS chapter
+    const notRecent = (id: string) => (reusedAt.get(id) ?? -99) < order - 2; // not reused in the last two chapters
     const pickReuse = (lens: string[]): { s: MiniStory; lens: string[] } | undefined => {
       const earlier = storyPool.filter((x) => x.order < order && !usedReuse.has(x.s.id));
-      const score = (ids: string[]) => earlier.map((x) => ({ x, n: hits(x.s, ids).length })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n || a.x.order - b.x.order);
-      const best = score(lens)[0] ?? score(pointsBefore)[0];
-      if (!best) return undefined;
-      usedReuse.add(best.x.s.id);
-      return { s: best.x.s, lens: score(lens)[0] ? lens : pointsBefore };
+      const take = (s: MiniStory, l: string[]) => { usedReuse.add(s.id); reusedAt.set(s.id, order); return { s, lens: l }; };
+      // 1. An earlier story that uses THIS chapter's grammar (a not-recently-reused one wins a tie).
+      const onLens = earlier.map((x) => ({ x, n: hits(x.s, lens).length + (notRecent(x.s.id) ? 0.5 : 0) })).filter((r) => r.n >= 1).sort((a, b) => b.n - a.n || a.x.order - b.x.order)[0];
+      if (onLens) return take(onLens.x.s, lens);
+      // 2. Otherwise a refresher on ONE earlier point — the one revisited longest ago — in a story that
+      //    uses it, highlighting just those lines. Spaced recall of grammar, not a wall of highlights.
+      const due = [...pointsBefore].sort((a, b) => (lensAt.get(a) ?? -1) - (lensAt.get(b) ?? -1) || pointsBefore.indexOf(a) - pointsBefore.indexOf(b));
+      for (const p of due) {
+        const pick = earlier.filter((x) => notRecent(x.s.id)).map((x) => ({ x, n: hits(x.s, [p]).length })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n || a.x.order - b.x.order)[0]
+          ?? earlier.map((x) => ({ x, n: hits(x.s, [p]).length })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n)[0];
+        if (pick) { lensAt.set(p, refresherCount++); return take(pick.x.s, [p]); }
+      }
+      return undefined;
     };
 
     // ---- build candidates ----
@@ -141,8 +153,8 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
         const lens = [slot.point!.id];
         let s = home;
         if (home && i > 0 && hits(home, lens).length === 0) {
-          const alt = storyPool.filter((x) => x.s.id !== home.id).map((x) => ({ x, n: hits(x.s, lens).length })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n || b.x.order - a.x.order)[0];
-          if (alt) s = alt.x.s;
+          const alt = storyPool.filter((x) => x.s.id !== home.id).map((x) => ({ x, n: hits(x.s, lens).length - (usedReuse.has(x.s.id) ? 0.5 : 0) })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n || b.x.order - a.x.order)[0];
+          if (alt) { s = alt.x.s; usedReuse.add(s.id); reusedAt.set(s.id, order); }
         }
         if (s) story = { id: s.id, lens, highlight: hits(s, lens), ...(storyOrder(s) < order ? { reuse: true } : {}) };
       } else if (slot.role === "practice" || (slot.role === "use" && !sessions.some((x) => x.role === "use"))) {

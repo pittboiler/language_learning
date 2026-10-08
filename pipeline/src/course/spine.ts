@@ -142,8 +142,8 @@ export const SPINE: SpineChapter[] = [
       { id: "pt-possessives", title: "My, your: мој and мајка ми", grammarIds: ["possessives"], depth: "produce",
         scope: "Possessives мој/моја/мое/мои, твој, негов, нејзин, наш, ваш, usually with the article (мојот, мојата), and the family shortcut мајка ми, брат ми.",
         words: ["мојот / мојата", "мој", "твој"] },
-      { id: "pt-irregular-plurals", title: "Odd plurals: деца, браќа, луѓе", grammarIds: ["noun-plurals"], depth: "recognize",
-        scope: "Irregular plurals: дете → деца, брат → браќа, човек → луѓе, and the counting form for people (двајца)." },
+      { id: "pt-irregular-plurals", title: "Odd plurals: деца and луѓе", grammarIds: ["noun-plurals"], depth: "recognize",
+        scope: "Irregular plurals: дете → деца, човек → луѓе, and the counting form for people (двајца)." },
     ],
   },
   {

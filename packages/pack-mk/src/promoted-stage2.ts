@@ -1586,8 +1586,8 @@ export const promotedStories: MiniStory[] = [
       },
       {
         "id": "q2",
-        "question": "Како работи мајката на Ана?",
-        "questionGloss": "What does Ana's mother work as?",
+        "question": "Што работи мајката на Ана?",
+        "questionGloss": "What does Ana's mother do?",
         "answer": "Како доктор.",
         "answerGloss": "As a doctor.",
         "answerTranslit": "Kako doktor."

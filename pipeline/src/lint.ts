@@ -328,3 +328,22 @@ export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
   }
   return issues;
 }
+
+// --- Mixed-script lint ----------------------------------------------------------------------------
+// The mirror of the translit lint: a TARGET-language word must not smuggle in a Latin look-alike (e.g.
+// "сè" typed with Latin è instead of Cyrillic ѐ). It renders fine, but breaks word matching, familiarity
+// keys and the "no new language" corpus check. Any word mixing a non-Latin script with Latin letters is flagged.
+export interface ScriptMixIssue { location: string; word: string; value: string }
+
+export function lintScriptMix(pack: LanguagePack): ScriptMixIssue[] {
+  const out: ScriptMixIssue[] = [];
+  const check = (location: string, value: string | undefined) => {
+    for (const w of (value ?? "").split(/[^\p{L}]+/u)) {
+      if (/\p{Script=Latin}/u.test(w) && /[^\p{Script=Latin}\p{Script=Common}\p{Script=Inherited}]/u.test(w)) out.push({ location, word: w, value: value! });
+    }
+  };
+  for (const l of lineCatalog(pack)) check(l.source, l.text);
+  for (const v of pack.vocab) check(`vocab ${v.id}`, v.answer);
+  for (const g of pack.infoGapTasks ?? []) for (const r of [g.roleA, g.roleB]) for (const t of r.targetPhrases) check(`infogap ${g.id}`, t.text);
+  return out;
+}

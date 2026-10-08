@@ -931,7 +931,7 @@ export const course: Course = {
           "why": "-аат marks \"they\"; тие is plural."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-the",
@@ -1060,7 +1060,7 @@ export const course: Course = {
           "why": "It's the coffee Ana is drinking, a specific one: Кафето."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-da",
@@ -1189,7 +1189,7 @@ export const course: Course = {
           "why": "Морам да одам = I have to go; the helper sets the meaning."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-verbs-e-i",
@@ -1324,7 +1324,7 @@ export const course: Course = {
           "why": "The he/she form of this -е verb is \"пие\"."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-se",
@@ -1452,7 +1452,7 @@ export const course: Course = {
           "why": "Asking a name uses се викаш, with се in front of the verb."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-plurals",
@@ -1581,7 +1581,7 @@ export const course: Course = {
           "why": "From two up the noun is plural: денар → денари."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-adjectives",
@@ -1714,7 +1714,7 @@ export const course: Course = {
           "why": "идеја is feminine, so the ending is -а."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-go-ja-gi",
@@ -1843,7 +1843,7 @@ export const course: Course = {
           "why": "The coffee is named and still doubled with го before the verb."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-prepositions",
@@ -1977,7 +1977,7 @@ export const course: Course = {
           "why": "до means \"next to\" — Marko sits next to her."
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-commands",
@@ -2110,7 +2110,7 @@ export const course: Course = {
           "why": "After немој да you use a normal verb for the single person: \"don't go.\""
         }
       ],
-      "confidence": "unreviewed"
+      "confidence": "validated"
     },
     {
       "id": "pt-more-most",
@@ -2236,6 +2236,1123 @@ export const course: Course = {
             "во"
           ],
           "why": "\"Than\" in a comparison is од."
+        }
+      ],
+      "confidence": "validated"
+    },
+    {
+      "id": "pt-mi-ti-mu",
+      "chapterId": "s2-smalltalk",
+      "order": 19,
+      "grammarIds": [
+        "clitics"
+      ],
+      "depth": "produce",
+      "heavy": true,
+      "title": "To me, to you: ми, ти, му",
+      "agenda": "Say to me, to you, to her — and build \"I like it\".",
+      "rule": "The little words ми (to me), ти (to you), му/ѝ (to him/her) sit right before the verb: „Ми се допаѓа“ — \"it pleases me\", i.e. I like it. To say someone likes something, the thing is the subject and the person gets ми, ти, ѝ…",
+      "recap": "Macedonian doesn't really say \"I like\" — it says the thing pleases you: „Ми се допаѓа“ is literally \"to-me it-pleases\". Swap the little word to change who: ти (to you), ѝ (to her), as in „Дали на Ана ѝ се допаѓа дождот?“. These words huddle before the verb and don't move. You've been using one since the first meetings: „Мило ми е“ is the same ми — \"it is dear to me\" — and „Одлично ти оди“ is \"it goes great for you\".",
+      "library": {
+        "rule": "These short \"to-whom\" pronouns answer the question \"to/for whom?\": ми (to me), ти (to you), му (to him), ѝ (to her), ни (to us), ви (to you plural/polite), им (to them). They are unstressed and lean on the verb, sitting just in front of it. With the liking construction, Macedonian flips the English picture: instead of a person liking a thing, the thing pleases the person. So „Ти се допаѓа ли кафето овде?“ asks whether the coffee here pleases you. The person is marked with ми/ти/ѝ…, and the thing is the subject. When you name the person fully you can double it: „на Ана ѝ се допаѓа“ — \"to Ana, to-her it pleases\". The same ми appears in set phrases like „Мило ми е“ (it is dear to me = nice to meet you) and „Кажи ми“ (tell me).",
+        "why": [
+          "Word order: the little word clusters right before the verb in a fixed order — to-whom first, then the \"self\"/\"it\" word, then the verb: „Ми се допаѓа“. You can't split them or put them after the verb.",
+          "Doubling looks odd to English speakers: „на Ана ѝ се допаѓа“ names Ana and still keeps ѝ. Both point to the same person; the short word is not optional once a full person is mentioned.",
+          "Think \"it pleases me\", not \"I like it\". The thing is the subject, so the verb agrees with the thing, and you stay the receiver marked by ми/ти/ѝ."
+        ],
+        "mistakes": [
+          "Not placing the little word after the verb, but right before it, because these words lean on the verb and never stand alone.",
+          "Not treating yourself as the subject of \"like\": the thing does the pleasing, so you say the equivalent of \"to-me it pleases\" in „Ми се допаѓа“.",
+          "Not mixing up ти (to you) with ти the subject \"you\" — here ти means \"to you\", as in „Одлично ти оди“."
+        ]
+      },
+      "examples": [
+        {
+          "text": "„Ми се допаѓа“, вели Марко.",
+          "gloss": "\"I like it,\" says Marko.",
+          "source": "story:gen-s2-smalltalk-story#2"
+        },
+        {
+          "text": "Дали на Ана ѝ се допаѓа дождот?",
+          "gloss": "Does Ana like the rain?",
+          "source": "qa:gen-s2-smalltalk-story#q2:q"
+        },
+        {
+          "text": "Да, многу ми се допаѓа. Убаво е.",
+          "gloss": "Yes, I like it a lot. It's nice.",
+          "source": "scenario:gen-s2-smalltalk#1"
+        },
+        {
+          "text": "„Јас сум Ана. Мило ми е.“",
+          "gloss": "\"I am Ana. Nice to meet you.\"",
+          "source": "story:gen-s1-greet-intro-story#3"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "„Јас сум Ана. Мило ми е.“",
+          "gloss": "\"I am Ana. Nice to meet you.\"",
+          "source": "story:gen-s1-greet-intro-story#3"
+        },
+        {
+          "text": "Браво! Одлично ти оди.",
+          "gloss": "Well done! You're doing great.",
+          "source": "scenario:bar-small-talk#6"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "Where do ми, ти, ѝ go?",
+          "back": "Right before the verb, never after it.",
+          "example": {
+            "text": "„Ми се допаѓа“, вели Марко.",
+            "gloss": "\"I like it,\" says Marko.",
+            "source": "story:gen-s2-smalltalk-story#2"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How does Macedonian say \"I like it\"?",
+          "back": "\"It pleases me\" — the thing is subject, you get ми.",
+          "example": {
+            "text": "Ми се допаѓа",
+            "gloss": "I like it (to-me + self + pleases)",
+            "source": "grammar:clitics#0"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "„Ми се допаѓа“, вели Марко.",
+            "gloss": "\"I like it,\" says Marko.",
+            "source": "story:gen-s2-smalltalk-story#2"
+          },
+          "blank": "Ми",
+          "options": [
+            "Ми",
+            "Ти",
+            "Му"
+          ],
+          "why": "ми = to me, so \"it pleases me\"."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Не, не ѝ се допаѓа.",
+            "gloss": "No, she doesn't like it.",
+            "source": "qa:gen-s2-smalltalk-story#q2:a"
+          },
+          "blank": "ѝ",
+          "options": [
+            "ѝ",
+            "ми",
+            "ти"
+          ],
+          "why": "ѝ = to her, matching Ana."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Да, многу ми се допаѓа. Убаво е.",
+            "gloss": "Yes, I like it a lot. It's nice.",
+            "source": "scenario:gen-s2-smalltalk#1"
+          },
+          "blank": "ми",
+          "options": [
+            "ми",
+            "ти",
+            "ни"
+          ],
+          "why": "ми marks that it pleases me."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-future",
+      "chapterId": "s2-smalltalk",
+      "order": 20,
+      "grammarIds": [
+        "future-tense",
+        "negation"
+      ],
+      "depth": "produce",
+      "heavy": true,
+      "title": "The future: ќе and нема да",
+      "agenda": "Talk about the future: ќе before the verb, нема да for won't",
+      "rule": "To talk about the future, just put ќе in front of the present verb you already know: „ќе гледам филм“ = \"I'll watch a film.\" No new endings to learn. For \"won't,\" swap in нема да before the verb.",
+      "recap": "The future is the easy one: take any present-tense verb and drop ќе in front of it — „ќе одиме утре“, „ќе јадам подоцна“. Nothing else changes. For the negative \"won't,\" you don't just add не; you use нема да before the verb. You've actually been saying this since the café chapters: „Што ќе сакате?“ is the waiter asking what you'll have, and „ќе ги земам“ is \"I'll take them.\"",
+      "library": {
+        "rule": "Macedonian builds the future with a single little word: ќе placed right before the ordinary present-tense verb. There are no special future endings to memorise — if you know сакам, you know ќе сакам; if you know одиме, you know ќе одиме. So „ќе јадам подоцна“ is \"I'll eat later\" and „ќе одиме утре“ is \"we'll go tomorrow.\" To say the negative (\"won't\"), you do NOT keep ќе; instead you use нема да in front of the verb. Think of ќе and нема да as the positive and negative halves of the same future.",
+        "why": [
+          "ќе never changes — it stays the same for I, you, we, they. All the person information is already in the verb ending you learned earlier, so ќе just sits out front.",
+          "The negative future is a separate construction, not ќе plus не. English only changes \"will\" to \"won't,\" but Macedonian switches the whole marker to нема да.",
+          "If a small pronoun like го, ја, ги comes along, it slots between ќе and the verb: „ќе ги земам\" — \"I'll take them.\""
+        ],
+        "mistakes": [
+          "Not putting a future ending on the verb, but leaving the present verb as-is and adding ќе — the verb form doesn't change at all.",
+          "Not negating the future by sticking не in front of ќе, but replacing the whole thing with нема да before the verb.",
+          "Not translating \"will\" as a changed verb, but as one fixed extra word ќе that stays the same for every person."
+        ]
+      },
+      "examples": [
+        {
+          "text": "ќе гледам филм",
+          "gloss": "I'll watch a film",
+          "source": "grammar:future-tense#0"
+        },
+        {
+          "text": "ќе одиме утре",
+          "gloss": "we'll go tomorrow",
+          "source": "grammar:future-tense#1"
+        },
+        {
+          "text": "ќе јадам подоцна",
+          "gloss": "I'll eat later",
+          "source": "grammar:future-tense#2"
+        },
+        {
+          "text": "„Што ќе сакате?“ прашува келнерот.",
+          "gloss": "\"What would you like?\" asks the waiter.",
+          "source": "story:gen-s1-cafe-order-story#2"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "„Што ќе сакате?“ прашува келнерот.",
+          "gloss": "\"What would you like?\" asks the waiter.",
+          "source": "story:gen-s1-cafe-order-story#2"
+        },
+        {
+          "text": "Келнерот вели: Што ќе сакате?",
+          "gloss": "The waiter says: What would you like?",
+          "source": "reader:gen-s1-cafe-order-reader#1"
+        },
+        {
+          "text": "Добро, ќе ги земам. Повелете.",
+          "gloss": "Good, I'll take them. Here you are.",
+          "source": "scenario:gen-s1-market#7"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"will (do something)\" in Macedonian?",
+          "back": "Put ќе in front of the normal present-tense verb.",
+          "example": {
+            "text": "ќе гледам филм",
+            "gloss": "I'll watch a film",
+            "source": "grammar:future-tense#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How do you make the future negative (\"won't\")?",
+          "back": "Use нема да before the verb instead of ќе."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "ќе гледам филм",
+            "gloss": "I'll watch a film",
+            "source": "grammar:future-tense#0"
+          },
+          "blank": "ќе",
+          "options": [
+            "ќе",
+            "не",
+            "да"
+          ],
+          "why": "ќе before the present verb makes it future: \"I'll watch.\""
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "ќе одиме утре",
+            "gloss": "we'll go tomorrow",
+            "source": "grammar:future-tense#1"
+          },
+          "blank": "ќе",
+          "options": [
+            "ќе",
+            "ли",
+            "нема"
+          ],
+          "why": "The future marker ќе stays the same for \"we\" too."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "„Што ќе сакате?“ прашува келнерот.",
+            "gloss": "\"What would you like?\" asks the waiter.",
+            "source": "story:gen-s1-cafe-order-story#2"
+          },
+          "blank": "ќе",
+          "options": [
+            "ќе",
+            "да",
+            "ли"
+          ],
+          "why": "„Што ќе сакате?\" uses ќе for \"what will/would you like.\""
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-past",
+      "chapterId": "s2-pasttime",
+      "order": 21,
+      "grammarIds": [
+        "past-tense"
+      ],
+      "depth": "produce",
+      "heavy": true,
+      "title": "What happened: the past tense",
+      "agenda": "Talk about finished events: say I was, had, went, ate, watched.",
+      "rule": "For something over and done, the verb changes its ending. “I” always ends in -в: бев (I was), имав (I had), отидов (I went). Watch out: “you” and “he/she” share one form (беше, имаше, отиде), so context tells you who.",
+      "recap": "To talk about what already happened, you reshape the verb. “I” ends in -в: бев, имав, отидов, јадев. “You” and “he/she” share one form, and it comes in two shapes: most end in -ше (беше, имаше, јадеше, правеше), while some are just the short stem (отиде). You said Вчера бев на работа in this chapter's conversation, and Ана праша: „Што правеше?“ uses the -ше form. When a sentence has a name in it, like Марко беше дома, that tells you who.",
+      "library": {
+        "rule": "Macedonian has two simple past tenses, and at this stage you can treat them as one family. One describes a finished event (Отидов во кафуле, “I went to a café”); the other describes a state or something that was going on (Бев во паркот, “I was in the park”; Имав многу работа, “I had a lot of work”). They share the most useful ending: -в for “I” (бев, имав, отидов, јадев). For “you” and “he/she” there is one shared form: the ongoing kind ends in -ше (беше, имаше, јадеше, правеше), the finished kind is usually the short stem (отиде, гледа). “We” ends in -вме (гледавме), “you all” in -вте (гледавте), and “they” in -а (гледаа). (Technically these are the aorist and the imperfect; the next lesson shows why Macedonian keeps both.)",
+        "why": [
+          "Why do беше and отиде end differently if both mean “he/she …”? They're the two kinds of past: -ше forms describe states and ongoing actions (беше, имаше, јадеше), the short stem a single finished event (отиде). Both are shared by “you” and “he/she”.",
+          "English splits \"I was doing\" from \"I did\", but here one past form often covers both: \"Што правеше?\" can be \"What were you doing?\" or \"What did you do?\" depending on the moment.",
+          "The -в of \"I\" and the -вме of \"we\" are easy to hear — they both have that в sound. The \"they\" form instead doubles the vowel into -а, as in \"тие гледаа телевизија\"."
+        ],
+        "mistakes": [
+          "Not using the present ending when the action is finished, but the past ending — \"гледав\" for a film you already watched, not the \"I watch\" form, because the event is over.",
+          "Not adding anything to tell “you” from “he/she”: one form serves both (беше, отиде), and the rest of the sentence makes it clear.",
+          "Not mixing up who did it: with a name in the sentence like \"Марко беше дома\", the bare form is \"he\", so read the whole sentence before deciding."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Отидов во кафуле и јадев сендвич.",
+          "gloss": "I went to a café and ate a sandwich.",
+          "source": "scenario:gen-s2-pasttime#3"
+        },
+        {
+          "text": "„Бев во паркот и читав книга“, вели Марко.",
+          "gloss": "\"I was in the park and read a book,\" says Marko.",
+          "source": "story:gen-s2-pasttime-story#5"
+        },
+        {
+          "text": "Денес Марко отиде во паркот.",
+          "gloss": "Today Marko went to the park.",
+          "source": "story:gen-s2-pasttime-story#2"
+        }
+      ],
+      "callbacks": [],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you make the past \"I\" form?",
+          "back": "Add -в to the verb stem.",
+          "example": {
+            "text": "гледав филм",
+            "gloss": "I watched a film",
+            "source": "grammar:past-tense#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "What's different about the past \"you\" and \"he/she\" forms?",
+          "back": "They look exactly the same — context tells you who.",
+          "example": {
+            "text": "Каде отиде Марко денес?",
+            "gloss": "Where did Marko go today?",
+            "source": "qa:gen-s2-pasttime-story#q1:q"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Отидов во кафуле и јадев сендвич.",
+            "gloss": "I went to a café and ate a sandwich.",
+            "source": "scenario:gen-s2-pasttime#3"
+          },
+          "blank": "Отидов",
+          "options": [
+            "Отидов",
+            "отиде",
+            "бев"
+          ],
+          "why": "\"I went\" takes the -в ending for \"I\"."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "„Бев во паркот и читав книга“, вели Марко.",
+            "gloss": "\"I was in the park and read a book,\" says Marko.",
+            "source": "story:gen-s2-pasttime-story#5"
+          },
+          "blank": "читав",
+          "options": [
+            "читав",
+            "чита",
+            "бев"
+          ],
+          "why": "Marko is talking about himself in the past: “I read” is читав, with the -в of “I”."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Тој имаше многу работа.",
+            "gloss": "He had a lot of work.",
+            "source": "story:gen-s2-pasttime-story#1"
+          },
+          "blank": "имаше",
+          "options": [
+            "имаше",
+            "имав",
+            "беше"
+          ],
+          "why": "\"He had\" uses the bare form shared by you/he/she."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-aspect",
+      "chapterId": "s2-pasttime",
+      "order": 22,
+      "grammarIds": [
+        "verb-aspect"
+      ],
+      "depth": "recognize",
+      "title": "Two versions of a verb",
+      "agenda": "Spot two forms of each verb: one ongoing, one one-time done.",
+      "rule": "Most Macedonian verbs travel in pairs: one form for an action that's ongoing or repeated, another for a single, finished action. Compare \"пие кафе секое утро\" (every morning) with \"го испи кафето\" (drank it all up). For now, just notice the difference — you'll learn both halves as you go.",
+      "recap": "Every verb you meet really comes as a pair. One member is for habits and things in progress — \"пие кафе секое утро\", drinks coffee every morning. The other is for one finished action — \"го испи кафето\", drank the whole coffee. You already felt this in the past tense: an ongoing \"јадев сендвич\" (was eating) versus a done-and-dusted \"отидов\" (went). You're only noticing this for now, not building it yourself.",
+      "library": {
+        "rule": "Macedonian verbs usually come in two-member pairs (verb aspect: imperfective / perfective). One member describes an action as ongoing, repeated or habitual; the other presents it as a single, completed whole. English leans on extra words and tense to show this (\"was reading\" vs \"read it all\"), but Macedonian often has two related verb forms instead, such as пие / испие for \"drink\". You pick the ongoing form for habits and actions in progress, and the completed form for one finished action. At this stage you only need to recognise that both exist and roughly what each signals.",
+        "why": [
+          "English speakers expect one verb plus helper words; here the choice is baked into which member of the pair you use, so the same idea has two base verbs.",
+          "The completed form is natural for a single finished event (\"го испи кафето\"), while the ongoing form fits a repeated routine (\"пие кафе секое утро\") — the same scene, told two ways.",
+          "In the past tense this shows up clearly: a background, in-progress action like \"јадев\" versus a single completed move like \"отидов\"."
+        ],
+        "mistakes": [
+          "Not treating the two forms as unrelated words, but seeing them as two halves of one pair that share a meaning.",
+          "Not using the completed form for a habit like every-morning coffee, but the ongoing form, because the action repeats.",
+          "Not assuming English word-for-word mapping, but letting the Macedonian verb choice itself carry whether the action is finished."
+        ]
+      },
+      "examples": [
+        {
+          "text": "пие кафе секое утро",
+          "gloss": "drinks coffee every morning (ongoing)",
+          "source": "grammar:verb-aspect#0"
+        },
+        {
+          "text": "го испи кафето",
+          "gloss": "drank up the coffee (finished)",
+          "source": "grammar:verb-aspect#1"
+        },
+        {
+          "text": "Отидов во кафуле и јадев сендвич.",
+          "gloss": "I went to a café and ate a sandwich.",
+          "source": "scenario:gen-s2-pasttime#3"
+        }
+      ],
+      "callbacks": [],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "Why do many Macedonian verbs come in two forms?",
+          "back": "One form is for ongoing or repeated actions, the other for a single finished action.",
+          "example": {
+            "text": "пие кафе секое утро",
+            "gloss": "drinks coffee every morning (ongoing)",
+            "source": "grammar:verb-aspect#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "Which form fits \"drank it all up\"?",
+          "back": "The one-time finished form, as in \"го испи кафето\".",
+          "example": {
+            "text": "го испи кафето",
+            "gloss": "drank up the coffee (finished)",
+            "source": "grammar:verb-aspect#1"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "го испи кафето",
+            "gloss": "drank up the coffee (finished)",
+            "source": "grammar:verb-aspect#1"
+          },
+          "blank": "испи",
+          "options": [
+            "испи",
+            "пие",
+            "јадеше"
+          ],
+          "why": "A single finished action uses the completed form, not the ongoing \"пие\"."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-possessives",
+      "chapterId": "s2-home-family",
+      "order": 23,
+      "grammarIds": [
+        "possessives"
+      ],
+      "depth": "produce",
+      "title": "My, your: мој and мајка ми",
+      "agenda": "Say my and your to match the noun — plus the family shortcut",
+      "rule": "\"My\" and \"your\" match the gender of the thing and usually carry \"the\" on the end: \"мојот стол\" (my chair), \"мојата книга\" (my book). For relatives there's a shortcut — a little word after the noun: \"мајка ми\" (my mom).",
+      "recap": "\"My/your\" change shape to fit the noun and usually glue \"the\" onto themselves: \"мојот стол\", \"мојата книга\", \"моето пиво\", and \"твоето пиво\" for yours. The ending echoes the gender you already learned with \"еден/една/едно\", so it feels familiar. For family, there's an easier road: drop the \"мојот\" dance and just add a small word after the relative — \"мајка ми\" (my mom), heard again in \"Мојата мајка\" the long way too. Both are fine; the short form is how people actually talk about family.",
+      "library": {
+        "rule": "Words for \"my, your, his, her, our, their\" agree with the gender and number of the thing owned, and in everyday speech they usually carry the article: \"мојот\" (masculine), \"мојата\" (feminine), \"моето\" (neuter), with \"твој\" working the same way — \"твоето пиво\". The full set is мој/моја/мое/мои (my), твој (your, one person), негов (his), нејзин (her), наш (our), ваш (your, plural/polite), нивен (their). For close relatives there's a shortcut: instead of the full possessive, you put a small pronoun straight after the family word — \"мајка ми\" (my mom), \"брат ми\" (my brother), \"татко му\" (his dad). This short form [the short dative] is the natural, everyday way to talk about family.",
+        "why": [
+          "The ending matches the noun, not the owner: \"мојата\" in \"мојата мајка\" is feminine because \"мајка\" is feminine, no matter who's speaking.",
+          "The article is built into the possessive — you don't add \"the\" twice. \"мојот стол\" already means \"my chair\", nothing extra needed.",
+          "Both the long way (\"Мојата мајка\") and the short way (\"мајка ми\") are correct; the short form just sounds more natural for relatives and is shorter to say."
+        ],
+        "mistakes": [
+          "Not using one gender for all, but matching the noun: \"мојот стол\" for a masculine chair, \"мојата книга\" for a feminine book.",
+          "Not putting ми in front of the family word: it comes after, as in мајка ми.",
+          "Not leaving the possessive bare in normal speech, but attaching the article: \"мојата\" rather than the article-less form."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Мојата мајка работи како доктор.",
+          "gloss": "My mother works as a doctor.",
+          "source": "story:gen-s2-home-family-story#3"
+        },
+        {
+          "text": "Мојот татко е добар човек.",
+          "gloss": "My father is a good man.",
+          "source": "story:gen-s2-home-family-story#4"
+        },
+        {
+          "text": "твоето пиво",
+          "gloss": "your beer",
+          "source": "grammar:possessives#2"
+        },
+        {
+          "text": "мајка ми",
+          "gloss": "my mom (short form)",
+          "source": "grammar:possessives#3"
+        }
+      ],
+      "callbacks": [],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"my\" with a feminine noun like \"книга\"?",
+          "back": "Use the feminine form with \"the\" attached: \"мојата\".",
+          "example": {
+            "text": "мојата книга",
+            "gloss": "my book",
+            "source": "grammar:possessives#1"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "What's the quick way to say \"my mom\"?",
+          "back": "Family word first, small pronoun after: \"мајка ми\".",
+          "example": {
+            "text": "мајка ми",
+            "gloss": "my mom (short form)",
+            "source": "grammar:possessives#3"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Мојата мајка работи како доктор.",
+            "gloss": "My mother works as a doctor.",
+            "source": "story:gen-s2-home-family-story#3"
+          },
+          "blank": "Мојата",
+          "options": [
+            "Мојата",
+            "Мојот",
+            "Моето"
+          ],
+          "why": "\"мајка\" is feminine, so the possessive takes the feminine form."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "твоето пиво",
+            "gloss": "your beer",
+            "source": "grammar:possessives#2"
+          },
+          "blank": "твоето",
+          "options": [
+            "твоето",
+            "твојот",
+            "твојата"
+          ],
+          "why": "\"пиво\" is neuter, so \"your\" is the neuter form."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "мајка ми",
+            "gloss": "my mom (short form)",
+            "source": "grammar:possessives#3"
+          },
+          "blank": "ми",
+          "options": [
+            "ми",
+            "му",
+            "ти"
+          ],
+          "why": "The family shortcut for \"my\" is the little word \"ми\" after the noun."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-irregular-plurals",
+      "chapterId": "s2-home-family",
+      "order": 24,
+      "grammarIds": [
+        "noun-plurals"
+      ],
+      "depth": "recognize",
+      "title": "Odd plurals: деца and луѓе",
+      "agenda": "Spot two odd plurals: деца (children) and луѓе (people)",
+      "rule": "A few everyday words don't follow the usual plural rules. \"дете\" (child) becomes \"деца\", and \"човек\" (person) jumps to a whole new word, \"луѓе\" (people). Just recognise them for now.",
+      "recap": "Most plurals are tidy — swap the ending, like \"книга → книги\". But the words you use most about family and people break the pattern. You've already said \"Имам едно дете\" for one child; the plural of that is \"деца\". And \"човек\" (person), seen in \"Мојот татко е добар човек\", doesn't just add an ending — it becomes a different word, \"луѓе\" (people). For counting people you'll also meet a special form, as in \"двајца пријатели\" (two friends). No need to produce these yet — just know them when you hear them.",
+      "library": {
+        "rule": "A small group of common nouns have irregular plurals that you simply learn by heart. \"дете\" (child) → \"деца\" (children). \"човек\" (person) → \"луѓе\" (people) — a completely different word, not a changed ending. Brother has its own irregular plural too. On top of that, Macedonian uses a special counting form when counting people, which is why \"двајца пријатели\" means \"two friends\" rather than using the plain number you'd use for objects. At this stage you only need to recognise these; you'll practise making them later.",
+        "why": [
+          "\"човек\" and \"луѓе\" look nothing alike because they come from different roots — English does the same thing with person/people, so trust the pairing rather than hunting for an ending.",
+          "Macedonian has a separate way of counting people versus things: \"двајца\" is the people-counting form (as in \"двајца пријатели\"), kept apart from the number you'd use for cities or books.",
+          "\"дете → деца\" changes more than a usual plural — the whole shape shifts, so treat it as one word to memorise, like the regular \"село → села\" but less predictable."
+        ],
+        "mistakes": [
+          "Not forcing a normal plural ending onto \"човек\", but switching to the separate word \"луѓе\" — the two aren't built from the same stem.",
+          "Not treating \"дете\" like the regular \"книга → книги\" pattern, but learning \"деца\" as its own form.",
+          "Not counting people with the plain object-number, but using the people form seen in \"двајца пријатели\"."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Имам едно дете.",
+          "gloss": "I have one child.",
+          "source": "story:gen-s2-home-family-story#6"
+        },
+        {
+          "text": "двајца пријатели",
+          "gloss": "two friends",
+          "source": "grammar:numbers#3"
+        },
+        {
+          "text": "Мојот татко е добар човек.",
+          "gloss": "My father is a good man.",
+          "source": "story:gen-s2-home-family-story#4"
+        },
+        {
+          "text": "Имам брат и сестра.",
+          "gloss": "I have a brother and a sister.",
+          "source": "story:gen-s2-home-family-story#2"
+        }
+      ],
+      "callbacks": [],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "What's the plural of \"дете\" (child)?",
+          "back": "\"деца\" — an irregular plural to learn by heart.",
+          "example": {
+            "text": "Имам едно дете.",
+            "gloss": "I have one child.",
+            "source": "story:gen-s2-home-family-story#6"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "Person is \"човек\". What's \"people\"?",
+          "back": "\"луѓе\" — a whole new word, not a changed ending.",
+          "example": {
+            "text": "Мојот татко е добар човек.",
+            "gloss": "My father is a good man.",
+            "source": "story:gen-s2-home-family-story#4"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Имам едно дете.",
+            "gloss": "I have one child.",
+            "source": "story:gen-s2-home-family-story#6"
+          },
+          "blank": "дете",
+          "options": [
+            "дете",
+            "деца",
+            "луѓе"
+          ],
+          "why": "Singular \"one child\" uses \"дете\"; the plural \"деца\" is the odd form."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Мојот татко е добар човек.",
+            "gloss": "My father is a good man.",
+            "source": "story:gen-s2-home-family-story#4"
+          },
+          "blank": "човек",
+          "options": [
+            "човек",
+            "луѓе",
+            "деца"
+          ],
+          "why": "Singular \"a good man/person\" is \"човек\"; its plural is the separate word \"луѓе\"."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-time",
+      "chapterId": "s2-arrange",
+      "order": 25,
+      "grammarIds": [],
+      "depth": "produce",
+      "title": "Telling the time: во … часот",
+      "agenda": "Tell the time with во plus a number plus часот.",
+      "rule": "To say when something happens, use во, the number, then часот: \"Во шест часот.\" means \"At six o'clock.\" To ask, put колку in front: \"Во колку часот?\"",
+      "recap": "Clock times are built the same way every time: во, then the number, then часот — \"Во шест часот.\" The asking version just swaps the number for колку: \"Во колку часот?\" means \"At what time?\" You already know кога for \"when?\", and here the two often come together, as in \"Кога? Во колку часот?\" Notice часот keeps its ending on — it's \"the\" sitting on the end of час, which you've been doing since you learned how \"the\" attaches to words.",
+      "library": {
+        "rule": "Macedonian tells clock time with a small frame: во + a number + часот, where часот is literally \"the hour\" (час with the \"the\" ending stuck on, as endings always are in Macedonian). So \"Во шест часот.\" is \"At six o'clock.\" To ask what time, you keep the frame and replace the number with колку (\"how many/much\"): \"Во колку часот?\" — \"At what time?\" This often pairs with кога (\"when?\"), which is the broader question and can stand alone, as in \"Кога? Во колку часот?\"",
+        "why": [
+          "во here means \"at\" for clock time, even though you first met it meaning \"in\" or \"into\" a place. Same little word, two natural English translations.",
+          "часот carries the \"the\" ending even when English says just \"o'clock\" with no \"the\". It stays on every time you give a clock time.",
+          "кога asks \"when?\" in general, while во колку часот? zooms in on the exact clock time; both can appear together in one breath."
+        ],
+        "mistakes": [
+          "Not dropping the ending off час, but keeping it as часот — the \"the\" belongs on the end for clock times, as in \"Во шест часот.\"",
+          "Not using кога to ask the exact clock time, but using во колку часот? — кога is the general \"when\", во колку часот? is the precise hour.",
+          "Not borrowing a different little word for \"at\", but using во — for clock time Macedonian says \"Во шест часот.\""
+        ]
+      },
+      "examples": [
+        {
+          "text": "Во шест часот.",
+          "gloss": "At six o'clock.",
+          "source": "qa:gen-s2-arrange-story#q1:a"
+        },
+        {
+          "text": "Кога? Во колку часот?",
+          "gloss": "When? At what time?",
+          "source": "story:gen-s2-arrange-story#4"
+        },
+        {
+          "text": "Во шест часот. Каде да се видиме?",
+          "gloss": "At six o'clock. Where shall we meet?",
+          "source": "story:gen-s2-arrange-story#5"
+        },
+        {
+          "text": "Во колку часот се гледаат Марко и Ана?",
+          "gloss": "At what time do Marko and Ana meet?",
+          "source": "qa:gen-s2-arrange-story#q1:q"
+        }
+      ],
+      "callbacks": [],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"at six o'clock\"?",
+          "back": "во + the number + часот.",
+          "example": {
+            "text": "Во шест часот.",
+            "gloss": "At six o'clock.",
+            "source": "qa:gen-s2-arrange-story#q1:a"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How do you ask \"at what time?\"",
+          "back": "Use во колку часот? — the time frame with колку.",
+          "example": {
+            "text": "Кога? Во колку часот?",
+            "gloss": "When? At what time?",
+            "source": "story:gen-s2-arrange-story#4"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Во шест часот.",
+            "gloss": "At six o'clock.",
+            "source": "qa:gen-s2-arrange-story#q1:a"
+          },
+          "blank": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "Clock times end on часот — \"the hour\"."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Кога? Во колку часот?",
+            "gloss": "When? At what time?",
+            "source": "story:gen-s2-arrange-story#4"
+          },
+          "blank": "колку",
+          "options": [
+            "колку",
+            "кога",
+            "каде"
+          ],
+          "why": "колку fills the number slot to ask the exact time."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Во шест часот. Каде да се видиме?",
+            "gloss": "At six o'clock. Where shall we meet?",
+            "source": "story:gen-s2-arrange-story#5"
+          },
+          "blank": "Во",
+          "options": [
+            "Во",
+            "На",
+            "До"
+          ],
+          "why": "во is the little word for \"at\" with clock times."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-ajde-da",
+      "chapterId": "s2-arrange",
+      "order": 26,
+      "grammarIds": [
+        "da-modals"
+      ],
+      "depth": "produce",
+      "title": "Let's…: ајде да",
+      "agenda": "Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?",
+      "rule": "To say \"let's…\", start with Ајде да and add the verb: \"Ајде да се видиме денес\" — let's meet today. For planning questions, pop да after the question word: \"Каде да се видиме?\" — where shall we meet?",
+      "recap": "You've known Ајде since chapter 8 — \"Добра идеја! Ајде.\" meant \"let's go!\". Now you can finish the thought: Ајде да + a verb means \"let's do something\", like \"Ајде да се видиме денес\". The same little да turns a question word into a plan: \"Каде да се видиме?\" asks \"where shall we meet?\". It's the same да you already use after сакам and треба — here it just means \"let's\" or \"shall we\".",
+      "library": {
+        "rule": "Macedonian builds suggestions and plans from the same да you met with сакам, можам, морам and треба. For \"let's…\", say Ајде да followed by the present-tense verb, matched to \"we\": \"Ајде да се видиме денес\" (let's meet today). If the verb comes with се, that се stays — се видиме. For planning questions — the ones English does with \"shall we\" or \"should we\" — you drop ајде and put да straight after the question word: \"Каде да се видиме?\" (where shall we meet?), \"Во колку часот?\" sets the time. So one small word, да, carries both \"let's\" and \"shall we\".",
+        "why": [
+          "Ајде by itself is already a nudge — \"come on, let's go\". Adding да + verb just names the activity you're nudging toward.",
+          "The planning question has no ајде and no separate word for \"shall\": the да does that work, so \"Каде да се видиме?\" literally lines up as \"where to meet-we?\" but means \"where shall we meet?\".",
+          "It's the very same да + present verb you've been using after сакам and треба — you're not learning a new structure, just a new flavour of meaning (\"let's\", \"shall we\")."
+        ],
+        "mistakes": [
+          "Not hunting for a special \"to meet\" word — there's no infinitive; use да + the matched present verb, as in \"Ајде да се видиме\".",
+          "Not dropping the се that belongs to the verb — it stays put: се видиме, not the verb alone.",
+          "Not leaving ајде in the question — a planning question starts with the question word plus да: \"Каде да се видиме?\", not with ајде."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Ајде да се видиме денес.",
+          "gloss": "Let's meet today.",
+          "source": "story:gen-s2-arrange-story#3"
+        },
+        {
+          "text": "Во шест часот. Каде да се видиме?",
+          "gloss": "At six o'clock. Where shall we meet?",
+          "source": "story:gen-s2-arrange-story#5"
+        },
+        {
+          "text": "Може во седум. Каде да се видиме?",
+          "gloss": "How about at seven. Where shall we meet?",
+          "source": "scenario:gen-s2-arrange#4"
+        },
+        {
+          "text": "Ајде да се видиме денес. Во колку часот?",
+          "gloss": "Let's meet today. At what time?",
+          "source": "scenario:gen-s2-arrange#3"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Добра идеја! Ајде.",
+          "gloss": "Good idea! Let's go.",
+          "source": "scenario:gen-s2-smalltalk#6"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"let's…\"?",
+          "back": "Ајде да + the verb (matched to \"we\").",
+          "example": {
+            "text": "Ајде да се видиме денес.",
+            "gloss": "Let's meet today.",
+            "source": "story:gen-s2-arrange-story#3"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How do you ask \"where/when shall we…\"?",
+          "back": "Question word + да + verb, no ајде.",
+          "example": {
+            "text": "Во шест часот. Каде да се видиме?",
+            "gloss": "At six o'clock. Where shall we meet?",
+            "source": "story:gen-s2-arrange-story#5"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Ајде да се видиме денес.",
+            "gloss": "Let's meet today.",
+            "source": "story:gen-s2-arrange-story#3"
+          },
+          "blank": "Ајде",
+          "options": [
+            "Ајде",
+            "Може",
+            "Треба"
+          ],
+          "why": "Ајде да + verb is how you say \"let's…\"."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Во шест часот. Каде да се видиме?",
+            "gloss": "At six o'clock. Where shall we meet?",
+            "source": "story:gen-s2-arrange-story#5"
+          },
+          "blank": "да",
+          "options": [
+            "да",
+            "ли",
+            "ќе"
+          ],
+          "why": "да after the question word carries the \"shall we\" meaning."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Може во седум. Каде да се видиме?",
+            "gloss": "How about at seven. Where shall we meet?",
+            "source": "scenario:gen-s2-arrange#4"
+          },
+          "blank": "Каде",
+          "options": [
+            "Каде",
+            "Кога",
+            "Колку"
+          ],
+          "why": "Каде asks \"where\" shall we meet."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-ima-nema",
+      "chapterId": "s2-problems",
+      "order": 27,
+      "grammarIds": [
+        "negation"
+      ],
+      "depth": "produce",
+      "title": "There is, there isn't: има and нема",
+      "agenda": "Say there is / there isn't with има and нема (and double negatives).",
+      "rule": "Use има for \"there is / there's a…\" and нема for \"there isn't / there's no…\": „Има проблем“ vs „Нема проблем“. With нема-type words, Macedonian doubles the negative: „Немам ништо“ = I have nothing.",
+      "recap": "има means \"there is\" and нема means \"there isn't\" — two little words that cover a lot. You've been saying „Нема проблем“ since the very first chapters without thinking about it, and „Што има?“ for \"what's up?\" — now you can build your own: „Има проблем“, „нема вода“. Remember that Macedonian wants a double negative where English uses just one: „Немам ништо“ is \"I have nothing\", not \"I don't have nothing\". нема also doubles as \"doesn't have\".",
+      "library": {
+        "rule": "има and нема are the \"there is / there isn't\" pair, and they also mean \"has / doesn't have\". For a problem that exists, say „Има проблем“; to say none exists, „Нема проблем“ or „нема вода“. нема is simply the negative partner of има, so you never put не in front of it — нема already carries the \"no\". A key Macedonian habit: when the sentence is negative, every matching word goes negative too (this is the required \"double negative\"). So \"I have nothing\" is „Немам ништо“ — both the verb and \"nothing\" stay negative together, which to an English ear sounds like \"I don't have nothing\".",
+        "why": [
+          "нема is already не + има squashed together, so you don't add another не — it does the negating by itself.",
+          "English allows only one negative per sentence; Macedonian insists on matching them, so a negative verb takes a negative word alongside it, as in „Немам ништо“.",
+          "„Што има?“ literally uses this same има but lands as the friendly \"what's up?\" — the same word stretches from \"there is\" to \"what's going on\"."
+        ],
+        "mistakes": [
+          "Not putting не before нема, but letting нема stand alone — нема already means \"there isn't\".",
+          "Not using a single negative like English, but doubling it: „Немам ништо“, because Macedonian requires the negatives to agree.",
+          "Not translating “no problem” word by word: it's simply Нема проблем, literally “there's no problem”."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Извинете, ама има проблем.",
+          "gloss": "Sorry, but there's a problem.",
+          "source": "story:gen-s2-problems-story#1"
+        },
+        {
+          "text": "Добар ден! Има проблем. Кафето не е топло.",
+          "gloss": "Good day! There is a problem. The coffee is not hot.",
+          "source": "scenario:gen-s2-problems#1"
+        },
+        {
+          "text": "Немам ништо",
+          "gloss": "I have nothing",
+          "source": "grammar:negation#3"
+        },
+        {
+          "text": "„Денес нема дожд. Сакам да одам надвор!“ вели Марко.",
+          "gloss": "\"Today there's no rain. I want to go outside!\" says Marko.",
+          "source": "story:gen-s2-smalltalk-story#7"
+        }
+      ],
+      "callbacks": [
+        {
+          "text": "Нема проблем. Од каде сте?",
+          "gloss": "No problem. Where are you from?",
+          "source": "scenario:gen-s0-repair#2"
+        },
+        {
+          "text": "Таму има автобус за центарот.",
+          "gloss": "There is a bus to the centre there.",
+          "source": "story:gen-s1-directions-story#5"
+        },
+        {
+          "text": "Да, јас сум. Што има?",
+          "gloss": "Yes, it's me. What's up?",
+          "source": "scenario:gen-s2-arrange#2"
+        }
+      ],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "How do you say \"there is\" vs \"there isn't\"?",
+          "back": "има = there is; нема = there isn't (no extra не needed).",
+          "example": {
+            "text": "Извинете, ама има проблем.",
+            "gloss": "Sorry, but there's a problem.",
+            "source": "story:gen-s2-problems-story#1"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "How does Macedonian say \"I have nothing\"?",
+          "back": "With a double negative: both the verb and the \"nothing\" stay negative.",
+          "example": {
+            "text": "Немам ништо",
+            "gloss": "I have nothing",
+            "source": "grammar:negation#3"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Добар ден! Има проблем. Кафето не е топло.",
+            "gloss": "Good day! There is a problem. The coffee is not hot.",
+            "source": "scenario:gen-s2-problems#1"
+          },
+          "blank": "Има",
+          "options": [
+            "Има",
+            "Нема",
+            "Немам"
+          ],
+          "why": "The problem exists, so \"there is\" = Има."
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Немам ништо",
+            "gloss": "I have nothing",
+            "source": "grammar:negation#3"
+          },
+          "blank": "Немам",
+          "options": [
+            "Немам",
+            "Нема",
+            "Има"
+          ],
+          "why": "Negative verb pairs with ништо for the required double negative."
+        }
+      ],
+      "confidence": "unreviewed"
+    },
+    {
+      "id": "pt-perfect",
+      "chapterId": "s2-problems",
+      "order": 28,
+      "grammarIds": [
+        "perfect-tense"
+      ],
+      "depth": "recognize",
+      "title": "The “have done” past",
+      "agenda": "Recognize the \"have done\" past: сум plus an -л word for experiences.",
+      "rule": "For experiences and things you didn't see yourself, Macedonian uses сум plus a word ending in -л: \"Сум бил во Скопје\" — I've been to Skopje. In he/she/they, the сум drops away and just the -л word remains: \"Тој видел сѐ.\"",
+      "recap": "You now recognize a second kind of past. The plain past (like \"бев\", I was) is for things you witnessed; this new one, сум plus an -л word, is for experiences and things you heard about but didn't see. \"Дали си јадел баклава?\" asks \"Have you eaten baklava?\" — note the си before the -л word. The -л word shifts for man or woman: \"Сум бил\" for a man, \"Сум била\" for a woman. For now just spot it in the wild; you'll build it yourself later.",
+      "library": {
+        "rule": "This is a second past tense (the сум-perfect, built on an l-form). You take the present of сум and add a verb word ending in -л / -ла / -ло / -ле, and that ending agrees with the person speaking: \"Сум бил во Скопје\" (a man), \"Сум била во Скопје\" (a woman). With ти it's си: \"Дали си јадел баклава?\" With ние it's сме биле. The one twist: in he/she/they there is no сум at all — you just use the -л word on its own, as in \"Тој видел сѐ\" (he has seen everything). Use it for life experiences and for things you didn't witness directly, as opposed to the plain past which reports something you saw happen.",
+        "why": [
+          "English uses one word, \"have\", for everyone; Macedonian changes the helper by person (сум, си, сме) AND changes the -л word for man or woman — two things moving at once.",
+          "The missing helper in he/she/they trips people up: \"Тој видел сѐ\" has no сум, while \"Сум бил\" does. The third person stands alone.",
+          "Why two pasts at all? The plain past is for what you saw; this сум-plus-л past leans toward experiences and second-hand news. Both are real pasts, just different flavours.",
+          "Didn't chapter 2 say сум never starts a sentence? That rule is for сум meaning “am” (Добро сум). As the helper in this past, сум can come first: Сум бил во Скопје."
+        ],
+        "mistakes": [
+          "Not keeping сум in the he/she form, but dropping it — he/she/they use the bare -л word, as in \"Тој видел сѐ\".",
+          "Not using a man's -л word for a woman, but matching it: \"Сум бил\" for a man, \"Сум била\" for a woman.",
+          "Not reaching for this past to report something you actually witnessed — for what you saw happen, the plain past fits better."
+        ]
+      },
+      "examples": [
+        {
+          "text": "Сум бил во Скопје",
+          "gloss": "I've been to Skopje (m)",
+          "source": "grammar:perfect-tense#0"
+        },
+        {
+          "text": "Сум била во Скопје",
+          "gloss": "I've been to Skopje (f)",
+          "source": "grammar:perfect-tense#1"
+        },
+        {
+          "text": "Дали си јадел баклава?",
+          "gloss": "Have you eaten baklava?",
+          "source": "grammar:perfect-tense#2"
+        },
+        {
+          "text": "Тој видел сѐ",
+          "gloss": "He has seen everything",
+          "source": "grammar:perfect-tense#3"
+        }
+      ],
+      "callbacks": [],
+      "cards": [
+        {
+          "kind": "rule",
+          "front": "What two pieces build the \"have done\" past?",
+          "back": "сум (or си/сме…) plus a word ending in -л/-ла/-ло/-ле.",
+          "example": {
+            "text": "Сум бил во Скопје",
+            "gloss": "I've been to Skopje (m)",
+            "source": "grammar:perfect-tense#0"
+          }
+        },
+        {
+          "kind": "rule",
+          "front": "What happens to сум in he/she/they?",
+          "back": "It disappears — just the bare -л word is left.",
+          "example": {
+            "text": "Тој видел сѐ",
+            "gloss": "He has seen everything",
+            "source": "grammar:perfect-tense#3"
+          }
+        },
+        {
+          "kind": "blank",
+          "line": {
+            "text": "Дали си јадел баклава?",
+            "gloss": "Have you eaten baklava?",
+            "source": "grammar:perfect-tense#2"
+          },
+          "blank": "јадел",
+          "options": [
+            "јадел",
+            "бил",
+            "видел"
+          ],
+          "why": "After си, the -л word carries the meaning — here \"eaten\"."
         }
       ],
       "confidence": "unreviewed"
@@ -3581,40 +4698,10 @@ export const course: Course = {
           "story": {
             "id": "gen-s0-greet-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-question-words"
             ],
             "highlight": [
-              1,
-              2,
-              3,
-              4
+              1
             ],
             "reuse": true
           },
@@ -4578,16 +5665,16 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "ana-coffee",
             "lens": [
               "pt-verbs-e-i",
               "pt-se"
             ],
             "highlight": [
+              2,
+              3,
               4,
-              6,
-              7,
-              8
+              7
             ],
             "reuse": true
           },
@@ -4604,11 +5691,16 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "3 new words: зборувам, Јас сум од..., студент",
-            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
+            "Reread “Ана и кафето” from an earlier chapter: find this chapter's patterns",
             "Conversation: Greetings & introductions",
             "Write a few lines of your own"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "notes": [
+            "story:ana-coffee#4",
+            "story:ana-coffee#7",
+            "qa:ana-coffee#q2:a"
+          ]
         },
         {
           "n": 8,
@@ -4873,9 +5965,7 @@ export const course: Course = {
           ],
           "next": "Next: Say “it” and “them”: го, ја, ги go right before the verb",
           "notes": [
-            "story:ana-coffee#4",
-            "story:ana-coffee#7",
-            "qa:ana-coffee#q2:a"
+            "qa:ana-coffee#q3:q"
           ]
         },
         {
@@ -5018,14 +6108,12 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "ana-coffee",
+            "id": "gen-s0-repair-story",
             "lens": [
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi"
+              "pt-ne"
             ],
             "highlight": [
-              4
+              2
             ],
             "reuse": true
           },
@@ -5042,14 +6130,11 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "1 new word: благодарам",
-            "Reread “Ана и кафето” from an earlier chapter: find this chapter's patterns",
+            "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
             "Conversation: Shopping at the market",
             "Write a few lines of your own"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar",
-          "notes": [
-            "qa:ana-coffee#q3:q"
-          ]
+          "next": "Next: Checkpoint: this chapter's words and grammar"
         },
         {
           "n": 7,
@@ -5510,15 +6595,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "ana-coffee",
             "lens": [
               "pt-prepositions",
               "pt-commands",
               "pt-more-most"
             ],
             "highlight": [
-              0,
-              2,
+              1,
               3
             ],
             "reuse": true
@@ -5536,7 +6620,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "3 new words: во центарот, улица, со",
-            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns",
+            "Reread “Ана и кафето” from an earlier chapter: find this chapter's patterns",
             "Conversation: Directions & getting around",
             "Write a few lines of your own"
           ],
@@ -5746,7 +6830,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "New: To me, to you: ми, ти, му",
+            "Say to me, to you, to her — and build \"I like it\".",
             "3 new words: Ми се допаѓа., Не ми се допаѓа., Сакам да …",
             "Read “Времето денес”: spot today's pattern"
           ],
@@ -5799,7 +6883,7 @@ export const course: Course = {
             "3 new words: Мислам дека …, Се согласувам., убаво / грозно",
             "Read “Времето денес”: spot today's pattern"
           ],
-          "next": "Next: New: The future: ќе and нема да"
+          "next": "Next: Talk about the future: ќе before the verb, нема да for won't"
         },
         {
           "n": 3,
@@ -5841,7 +6925,7 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v2"
           ],
           "agenda": [
-            "New: The future: ќе and нема да",
+            "Talk about the future: ќе before the verb, нема да for won't",
             "3 new words: Ќе …, Ќе се видиме., времето",
             "Reread “Марко во кафето” from an earlier chapter: find the future: ќе and нема да"
           ],
@@ -5898,13 +6982,13 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s1-cafe-order-story",
+            "id": "gen-s1-greet-intro-story",
             "lens": [
               "pt-mi-ti-mu",
               "pt-future"
             ],
             "highlight": [
-              2
+              3
             ],
             "reuse": true
           },
@@ -5919,7 +7003,7 @@ export const course: Course = {
           "speak": "gen-s2-smalltalk",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Марко во кафето” from an earlier chapter: find this chapter's patterns",
+            "Reread “Во барот” from an earlier chapter: find this chapter's patterns",
             "First try at the conversation: Small talk, likes & opinions"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -5970,13 +7054,12 @@ export const course: Course = {
           "role": "use",
           "words": [],
           "story": {
-            "id": "gen-s1-greet-intro-story",
+            "id": "gen-s1-market-story",
             "lens": [
-              "pt-mi-ti-mu",
-              "pt-future"
+              "pt-yes-no"
             ],
             "highlight": [
-              3
+              2
             ],
             "reuse": true
           },
@@ -5992,7 +7075,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "Reread “Во барот” from an earlier chapter: find this chapter's patterns",
+            "Reread “Ана на пазар” from an earlier chapter: a refresher on what you learned there",
             "Conversation: Small talk, likes & opinions",
             "Write a few lines of your own"
           ],
@@ -6153,7 +7236,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "New: What happened: the past tense",
+            "Talk about finished events: say I was, had, went, ate, watched.",
             "3 new words: вчера / денес / утре, бев, имав",
             "Read “Денот на Марко”: spot today's pattern"
           ],
@@ -6207,7 +7290,7 @@ export const course: Course = {
             "3 new words: отидов, јадев, Што правеше?",
             "Read “Денот на Марко”: spot today's pattern"
           ],
-          "next": "Next: New: Two versions of a verb"
+          "next": "Next: Spot two forms of each verb: one ongoing, one one-time done."
         },
         {
           "n": 3,
@@ -6230,7 +7313,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "New: Two versions of a verb",
+            "Spot two forms of each verb: one ongoing, one one-time done.",
             "Read “Денот на Марко”"
           ],
           "next": "Next: Review day: nothing new"
@@ -6240,47 +7323,15 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-directions-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-sum"
             ],
             "highlight": [
               0,
               1,
-              2,
               3,
-              4,
-              5,
-              6,
-              7,
-              8
+              7
             ],
             "reuse": true
           },
@@ -6295,7 +7346,7 @@ export const course: Course = {
           "speak": "gen-s2-pasttime",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Ана бара центар” from an earlier chapter: a refresher on what you learned there",
             "First try at the conversation: Your day: past & future"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange"
@@ -6340,47 +7391,14 @@ export const course: Course = {
           "role": "use",
           "words": [],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s0-greet-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-ti-vie"
             ],
             "highlight": [
-              0,
               1,
               2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8
+              4
             ],
             "reuse": true
           },
@@ -6396,7 +7414,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "Reread “Ана во продавница” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Ана и Марко” from an earlier chapter: a refresher on what you learned there",
             "Conversation: Your day: past & future",
             "Write a few lines of your own"
           ],
@@ -6632,11 +7650,11 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "New: My, your: мој and мајка ми",
+            "Say my and your to match the noun — plus the family shortcut",
             "3 new words: мојот / мојата, мој, мајка / татко",
             "Read “Мојот живот”: spot today's pattern"
           ],
-          "next": "Next: New: Odd plurals: деца, браќа, луѓе"
+          "next": "Next: Spot two odd plurals: деца (children) and луѓе (people)"
         },
         {
           "n": 2,
@@ -6675,7 +7693,7 @@ export const course: Course = {
             "phrase-gen-s2-home-family-v9"
           ],
           "agenda": [
-            "New: Odd plurals: деца, браќа, луѓе",
+            "Spot two odd plurals: деца (children) and луѓе (people)",
             "3 new words: брат / сестра, жена / маж, дете / деца",
             "Read “Мојот живот”"
           ],
@@ -6735,45 +7753,10 @@ export const course: Course = {
           "story": {
             "id": "gen-s0-repair-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-gender"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8
+              1
             ],
             "reuse": true
           },
@@ -6855,45 +7838,12 @@ export const course: Course = {
           "story": {
             "id": "gen-s0-survive-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-numbers"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              3,
-              4,
               5,
               6,
-              7,
-              8
+              7
             ],
             "reuse": true
           },
@@ -7067,11 +8017,11 @@ export const course: Course = {
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "New: Telling the time: во … часот",
+            "Tell the time with во plus a number plus часот.",
             "3 new words: Ало?, Дома ли е …?, Кога?",
             "Read “Телефонски повик”: spot today's pattern"
           ],
-          "next": "Next: New: Let's…: ајде да"
+          "next": "Next: Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?"
         },
         {
           "n": 2,
@@ -7113,7 +8063,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "New: Let's…: ајде да",
+            "Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?",
             "3 new words: Во колку часот?, Каде да се видиме?, Ајде да …",
             "Read “Телефонски повик”: spot today's pattern"
           ],
@@ -7124,47 +8074,16 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s1-market-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-verbs-a"
             ],
             "highlight": [
-              0,
               1,
               2,
               3,
               4,
-              5,
-              6,
-              7,
-              8
+              6
             ],
             "reuse": true
           },
@@ -7179,7 +8098,7 @@ export const course: Course = {
           "speak": "gen-s2-arrange",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Ана на пазар” from an earlier chapter: a refresher on what you learned there",
             "First try at the conversation: Phone & arranging to meet"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
@@ -7257,47 +8176,15 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story",
+            "id": "gen-s1-cafe-order-story",
             "lens": [
-              "pt-ne",
-              "pt-yes-no",
-              "pt-question-words",
-              "pt-sum",
-              "pt-ti-vie",
-              "pt-gender",
-              "pt-numbers",
-              "pt-verbs-a",
-              "pt-the",
-              "pt-da",
-              "pt-verbs-e-i",
-              "pt-se",
-              "pt-plurals",
-              "pt-adjectives",
-              "pt-go-ja-gi",
-              "pt-prepositions",
-              "pt-commands",
-              "pt-more-most",
-              "pt-mi-ti-mu",
-              "pt-future",
-              "pt-past",
-              "pt-aspect",
-              "pt-possessives",
-              "pt-irregular-plurals",
-              "pt-time",
-              "pt-ajde-da",
-              "pt-ima-nema",
-              "pt-perfect"
+              "pt-the"
             ],
             "highlight": [
-              0,
-              1,
               2,
-              3,
               4,
-              5,
               6,
-              7,
-              8
+              7
             ],
             "reuse": true
           },
@@ -7314,7 +8201,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in your own words",
             "3 new words: да оставам порака, нека ме повика, Пријатно",
-            "Reread “Ана во продавница” from an earlier chapter: a refresher on what you learned there",
+            "Reread “Марко во кафето” from an earlier chapter: a refresher on what you learned there",
             "Conversation: Phone & arranging to meet",
             "Write a few lines of your own"
           ],
@@ -7474,11 +8361,11 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "New: There is, there isn't: има and нема",
+            "Say there is / there isn't with има and нема (and double negatives).",
             "3 new words: Има проблем., Не работи., Ова не е …",
             "Read “Проблем во кафулето”: spot today's pattern"
           ],
-          "next": "Next: New: The “have done” past"
+          "next": "Next: Recognize the \"have done\" past: сум plus an -л word for experiences."
         },
         {
           "n": 2,
@@ -7517,7 +8404,7 @@ export const course: Course = {
             "phrase-gen-s2-problems-v1"
           ],
           "agenda": [
-            "New: The “have done” past",
+            "Recognize the \"have done\" past: сум plus an -л word for experiences.",
             "3 new words: Можете ли да помогнете?, погрешно, Сакам да вратам.",
             "Read “Проблем во кафулето”"
           ],

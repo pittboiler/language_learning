@@ -2104,7 +2104,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
           "translit": "Kolku chini kiloto?"
         },
         {
-          "text": "Во ред, ќе земам. Колку е сè заедно?",
+          "text": "Во ред, ќе земам. Колку е сѐ заедно?",
           "gloss": "OK, I'll take it. How much is it all together?",
           "translit": "Vo red, kje zemam. Kolku e se zaedno?"
         }

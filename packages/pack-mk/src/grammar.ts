@@ -646,7 +646,7 @@ export const grammar: GrammarConcept[] = [
       "Сум бил во Скопје — I've been to Skopje (m)",
       "Сум била во Скопје — I've been to Skopje (f)",
       "Дали си јадел баклава? — Have you eaten baklava?",
-      "Тој видел сè — He has seen everything",
+      "Тој видел сѐ — He has seen everything",
     ],
     confidence: "authored",
     drills: [

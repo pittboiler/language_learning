@@ -1426,7 +1426,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
           "translit": "Sakam tri yabolka i eden leb."
         },
         {
-          "text": "Имате ли леб? Колку чини сè?",
+          "text": "Имате ли леб? Колку чини сѐ?",
           "gloss": "Do you have bread? How much is everything?",
           "translit": "Imate li leb? Kolku chini se?"
         },
