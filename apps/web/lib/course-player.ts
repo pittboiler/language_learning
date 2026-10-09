@@ -5,7 +5,7 @@
 // The blueprint fixes WHAT is taught WHEN. Only review content is decided here at runtime: which due
 // cards make the warm-up (with a guaranteed share from earlier chapters), what a failed checkpoint
 // re-drills, and what a stage review samples.
-import type { Course, CourseChapter, CourseSession, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem, SentenceItem } from "@ll/pack-schema";
+import type { Course, CourseChapter, CourseSession, CourseWord, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem, SentenceItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { CourseLogEntry, Progress } from "./store";
@@ -179,6 +179,24 @@ export function slotOfKey(course: Course): Map<string, CourseSlot> {
 /** Has the course taught this slot in a session before `current`? */
 export const taughtBefore = (slot: CourseSlot | undefined, current: CourseSlot): boolean =>
   !!slot && (slot.order < current.order || (slot.order === current.order && slot.n < current.n));
+
+/** A partner's published place in the course, as a slot (their current, not-yet-done session). */
+export const slotOfShare = (s: CoursePositionShare): CourseSlot => ({ order: s.chapterOrder, n: s.session });
+
+/** The course words BOTH partners have been taught (in sessions each has finished) — the partnered warm-up
+ *  draws only on these, so being ahead never pushes your words onto your partner, and words learned outside
+ *  the course (★ picks, story taps) stay in your own flashcards. */
+export function wordsTaughtToBoth(course: Course, a: CourseSlot, b: CourseSlot): CourseWord[] {
+  const slots = slotOfKey(course);
+  const out = new Map<string, CourseWord>();
+  for (const c of course.chapters) {
+    for (const w of [...c.sessions.flatMap((s) => s.words), ...c.words]) {
+      const s = slots.get(w.lexKey);
+      if (!out.has(w.lexKey) && taughtBefore(s, a) && taughtBefore(s, b)) out.set(w.lexKey, w);
+    }
+  }
+  return [...out.values()];
+}
 
 // ---- what the course has taught by a session: one answer for every screen and for the lint ----------
 export const cmpSlot = (a: CourseSlot, b: CourseSlot): number => a.order - b.order || a.n - b.n;

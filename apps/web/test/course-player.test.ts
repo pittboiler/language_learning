@@ -293,4 +293,18 @@ for (const c of course.chapters) {
   assert.deepEqual(own.map((x) => familiarity.deriveKeyForItem(x).lexKey).sort(), ["многу", "сега"], "★ and ＋Learn picks, not a word only tapped");
 }
 
+// The partnered warm-up pool: only words BOTH partners have been taught, in sessions each has finished.
+{
+  const ch1 = course.chapters.find((c) => c.order === 1)!;
+  const s1 = ch1.sessions[0]!.words.map((w) => w.lexKey);
+  const s2 = ch1.sessions[1]!.words.map((w) => w.lexKey);
+  assert.ok(s1.length && s2.length, "ch1 sessions 1–2 teach words");
+  // Me at ch1 s3 (finished s1–s2), partner at ch1 s2 (finished s1): only session 1's words are shared.
+  const both = cp.wordsTaughtToBoth(course, { order: 1, n: 3 }, cp.slotOfShare({ chapterId: ch1.chapterId, chapterOrder: 1, session: 2, points: [] })).map((w) => w.lexKey);
+  assert.deepEqual([...both].sort(), [...new Set(s1)].sort(), "the partner hasn't done session 2 yet");
+  assert.ok(!both.includes("видам"), "a chapter 5 word never reaches a chapter 1 pair");
+  // Nobody has finished a session yet → nothing to drill.
+  assert.equal(cp.wordsTaughtToBoth(course, { order: 1, n: 1 }, { order: 3, n: 1 }).length, 0);
+}
+
 console.log("course-player.test.ts: all assertions passed ✓");

@@ -54,8 +54,8 @@ async function main() {
   if (argv.includes("--course") && courseArg) {
     const [co, sn] = courseArg.split(":").map(Number);
     const bp = macedonian.course!;
-    const ch = bp.chapters[co! - 1]!;
-    const sessions = [...bp.chapters.slice(0, co! - 1).flatMap((c) => c.sessions), ...ch.sessions.filter((s) => s.n < sn!)];
+    const ch = bp.chapters.find((c) => c.order === co)!; // by order: chapter 0 (letters) sits at index 0
+    const sessions = [...bp.chapters.filter((c) => c.order < co!).flatMap((c) => c.sessions), ...ch.sessions.filter((s) => s.n < sn!)];
     course = { chapterId: ch.chapterId, chapterOrder: co!, session: sn!, points: sessions.filter((s) => s.role === "teach" && s.pointId).map((s) => s.pointId!) };
     for (const s of sessions) for (const w of s.words) courseEntries[w.lexKey] = { status: "learning", strength: 0.35 };
   }
