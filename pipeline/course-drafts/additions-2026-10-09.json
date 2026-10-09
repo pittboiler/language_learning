@@ -1,0 +1,16 @@
+{
+  "lineTags": {
+    "vocab:add-teens-a": ["pt-numbers"],
+    "vocab:add-teens-b": ["pt-numbers"],
+    "vocab:add-tens-a": ["pt-numbers"],
+    "vocab:add-tens-b": ["pt-numbers"],
+    "vocab:add-25": ["pt-numbers"],
+    "vocab:add-hundreds-a": ["pt-numbers"],
+    "vocab:add-hundreds-b": ["pt-numbers"],
+    "vocab:add-250": ["pt-numbers"],
+    "vocab:add-gi-zemam": ["pt-go-ja-gi", "pt-the", "pt-plurals", "pt-verbs-a"],
+    "vocab:add-vo-sabota": ["pt-prepositions"],
+    "vocab:add-mi-treba": ["pt-mi-ti-mu"],
+    "vocab:add-me-boli": ["pt-go-ja-gi"]
+  }
+}

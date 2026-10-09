@@ -749,7 +749,7 @@ function Today({ progress, persist, config, navigate }: {
             <Tag>New words · {step.words.length}</Tag>
             <NewWordsCard
               words={step.words}
-              noteFor={(k) => { const v = pack.vocab.find((x) => familiarity.deriveKeyForItem(x).lexKey === k); return v ? pack.course?.chunkNotes.find((n) => n.source === `vocab:${v.id}`)?.note : undefined; }}
+              noteFor={(k) => { const v = pack.vocab.find((x) => familiarity.deriveKeyForItem(x).lexKey === k); return v ? pack.course?.chunkNotes.find((n) => n.source === `vocab:${v.id}`)?.note ?? (v.meta?.wordNote as string | undefined) : undefined; }}
               onDone={() => done(captureWords(progress, step.words))}
               onMiss={flagWord}
               isStarred={(w) => { const e = progress.familiarity[w.lexKey]; return !!e && familiarity.isStarred(e); }}
