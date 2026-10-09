@@ -8,6 +8,7 @@
 import type { Course, CourseChapter, CourseSession, CourseWord, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem, SentenceItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
+import type { GrammarItem } from "@ll/core/partner/grammar-together";
 import type { CourseLogEntry, Progress } from "./store";
 
 /** The switch (DESIGN §11): on since the 2026-10-08 cutover. A learner can still switch back to the old
@@ -182,6 +183,48 @@ export const taughtBefore = (slot: CourseSlot | undefined, current: CourseSlot):
 
 /** A partner's published place in the course, as a slot (their current, not-yet-done session). */
 export const slotOfShare = (s: CoursePositionShare): CourseSlot => ({ order: s.chapterOrder, n: s.session });
+
+/** Where each story is first read (its own chapter's session, not a later reuse). */
+export function storySlots(course: Course): Map<string, CourseSlot> {
+  const m = new Map<string, CourseSlot>();
+  for (const c of course.chapters) for (const s of c.sessions) {
+    if (s.story && !s.story.reuse && !m.has(s.story.id)) m.set(s.story.id, { order: c.order, n: s.n });
+  }
+  return m;
+}
+
+/** The partnered grammar step for one point: the rule read aloud, then its rule questions and fill-in cards
+ *  interleaved, then gaps for the point in story lines BOTH partners have already read (from lineFocus).
+ *  Existing lines only. Fill-ins from the point's cards carry the card id, so the answerer's pick grades
+ *  their own grammar flashcard. */
+export function grammarTogetherItems(pack: LanguagePack, course: Course, pointId: string, a: CourseSlot, b: CourseSlot): GrammarItem[] {
+  const point = course.points.find((p) => p.id === pointId);
+  if (!point) return [];
+  const rules: GrammarItem[] = point.cards.flatMap((c): GrammarItem[] => (c.kind === "rule" ? [{ kind: "rule", question: c.front, answer: c.back }] : [])).slice(0, 2);
+  const blanks: GrammarItem[] = point.cards.flatMap((c, i): GrammarItem[] => c.kind !== "blank" ? [] : [{
+    kind: "blank", line: c.line.text, gloss: c.line.gloss, answer: c.blank, options: c.options, why: c.why, source: c.line.source, cardId: `pt:${point.id}:${i}`,
+  }]).slice(0, 4);
+  const used = new Set(blanks.map((x) => (x.kind === "blank" ? x.line : "")));
+  const slots = storySlots(course);
+  const extra: GrammarItem[] = [];
+  for (const [src, byPoint] of Object.entries(course.lineFocus ?? {})) {
+    const f = byPoint[pointId];
+    if (extra.length >= 2 || !f?.blank || !src.startsWith("story:")) continue;
+    const storyId = src.slice("story:".length, src.lastIndexOf("#"));
+    const slot = slots.get(storyId);
+    if (!taughtBefore(slot, a) || !taughtBefore(slot, b)) continue; // only lines you've both read
+    const line = pack.stories?.find((st) => st.id === storyId)?.body[Number(src.slice(src.lastIndexOf("#") + 1))];
+    if (!line || used.has(line.text)) continue;
+    used.add(line.text);
+    extra.push({ kind: "blank", line: line.text, gloss: line.gloss, answer: f.blank.word, options: f.blank.options, why: f.blank.why, source: src });
+  }
+  const mixed: GrammarItem[] = [];
+  for (let i = 0; i < Math.max(rules.length, blanks.length); i++) {
+    if (rules[i]) mixed.push(rules[i]!);
+    if (blanks[i]) mixed.push(blanks[i]!);
+  }
+  return [{ kind: "read" }, ...mixed, ...extra];
+}
 
 /** The course words BOTH partners have been taught (in sessions each has finished) — the partnered warm-up
  *  draws only on these, so being ahead never pushes your words onto your partner, and words learned outside

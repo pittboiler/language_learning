@@ -5,13 +5,20 @@
 // @ll/core/together. Language-agnostic. Turns come straight from the story body (no selection) — the point
 // is active, checked comprehension of a shared text, not spaced review.
 
-/** One line of the story as a turn: one partner READS + gives the meaning, the other CHECKS it. */
+/** One line of the story as a turn: one partner READS + gives the meaning, the other CHECKS it. After the
+ *  lines come a couple of comprehension questions (`kind: "qa"`), asked partner-to-partner: the checker reads
+ *  the question aloud and holds the answer; the reader answers out loud. Rows without `kind` are lines. */
 export interface StoryTurn {
   index: number;
-  text: string; // the target-language line (read aloud + paraphrased)
+  kind?: "line" | "qa";
+  text: string; // the target-language line (read aloud + paraphrased) — or, for qa, the question
   translit?: string;
-  gloss: string; // English meaning — held by the checker to validate against
-  reader: string; // userId whose turn it is (reads aloud, says what it means)
+  gloss: string; // English meaning — held by the checker to validate against (qa: the question in English)
+  /** qa: the expected answer (target language), its English and romanization — held by the checker. */
+  answer?: string;
+  answerGloss?: string;
+  answerTranslit?: string;
+  reader: string; // userId whose turn it is (reads aloud, says what it means / answers the question)
   checker: string; // userId who holds the gloss and taps got/missed
   result?: "got" | "missed"; // the checker's verdict; absent ⇒ not done yet
 }
@@ -34,20 +41,29 @@ export interface StoryLine {
   gloss: string;
 }
 
+/** A comprehension question the app feeds in (from MiniStory.qa). */
+export interface StoryQuestion {
+  question: string;
+  questionGloss: string;
+  answer: string;
+  answerGloss?: string;
+  answerTranslit?: string;
+}
+
 /** Build the session: every line becomes a turn, roles ALTERNATING by line so the reading passes back and
  *  forth. Members are sorted and roles derived from the sorted order + line index, so both partners' clients
  *  compute an IDENTICAL session (the dual-start convergence guarantee, mirroring @ll/core/live). */
-export function startStoryTogether(id: string, packId: string, storyId: string, memberA: string, memberB: string, lines: StoryLine[]): StorySession {
+export function startStoryTogether(id: string, packId: string, storyId: string, memberA: string, memberB: string, lines: StoryLine[], questions: StoryQuestion[] = []): StorySession {
   const members = [memberA, memberB].sort() as [string, string];
   const [a, b] = members;
-  const turns: StoryTurn[] = lines.map((l, index) => ({
-    index,
-    text: l.text,
-    translit: l.translit,
-    gloss: l.gloss,
-    reader: index % 2 === 0 ? a : b,
-    checker: index % 2 === 0 ? b : a,
-  }));
+  const role = (index: number) => ({ reader: index % 2 === 0 ? a : b, checker: index % 2 === 0 ? b : a });
+  const turns: StoryTurn[] = [
+    ...lines.map((l, index) => ({ index, kind: "line" as const, text: l.text, translit: l.translit, gloss: l.gloss, ...role(index) })),
+    ...questions.map((q, i) => {
+      const index = lines.length + i;
+      return { index, kind: "qa" as const, text: q.question, gloss: q.questionGloss, answer: q.answer, answerGloss: q.answerGloss, answerTranslit: q.answerTranslit, ...role(index) };
+    }),
+  ];
   return { id, packId, storyId, members, turnIndex: 0, turns, status: turns.length ? "active" : "complete" };
 }
 

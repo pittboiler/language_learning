@@ -49,4 +49,16 @@ const empty = startStoryTogether("st0", "mk", "story-0", A, B, []);
 assert.equal(empty.status, "complete");
 assert.equal(isComplete(empty), true);
 
+// --- comprehension questions follow the lines, roles still alternating ---
+const withQa = startStoryTogether("st-qa", "mk", "story-1", A, B, [{ text: "L0", gloss: "g0" }, { text: "L1", gloss: "g1" }], [{ question: "Q?", questionGloss: "Q (en)", answer: "Ans.", answerGloss: "Answer" }]);
+assert.equal(withQa.turns.length, 3);
+assert.equal(withQa.turns[2]!.kind, "qa");
+assert.equal(withQa.turns[2]!.answer, "Ans.");
+assert.equal(withQa.turns[2]!.reader, withQa.turns[0]!.reader, "roles keep alternating into the questions");
+let q = checkTurn(withQa, withQa.turns[0]!.checker, true);
+q = checkTurn(q, q.turns[1]!.checker, true);
+assert.equal(q.status, "active", "the lines are done but the question isn't");
+q = checkTurn(q, q.turns[2]!.checker, false);
+assert.equal(q.status, "complete");
+
 console.log("story-together.test.ts: all assertions passed");

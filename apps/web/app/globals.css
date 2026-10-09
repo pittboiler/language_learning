@@ -215,6 +215,11 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 .hint { color: var(--mut); font-size: 13px; border-left: 2px solid var(--line); padding: 2px 0 2px 8px; margin: 8px 0 0; }
 
 /* The just-drilled word, shown to both partners after a turn is marked. */
+.session-steps { display: flex; gap: 6px; flex-wrap: wrap; }
+.session-step { font-size: 12px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--mut); }
+.session-step.now { border-color: var(--accent); color: inherit; font-weight: 600; }
+.session-step.done { border-color: var(--ok); color: var(--ok); }
+.session-step.skipped { opacity: .6; }
 .last-turn { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border: 1px dashed var(--line); border-radius: 8px; padding: 6px 10px; }
 
 /* Build-a-sentence tiles: tap to place, or drag to position/reorder. touch-action:none is what lets a

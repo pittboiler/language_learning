@@ -29,7 +29,9 @@
     "./together": "./src/together/index.ts",
     "./story-together": "./src/story-together/index.ts",
     "./explain": "./src/explain/index.ts",
-    "./partner/joint": "./src/partner/joint.ts"
+    "./partner/joint": "./src/partner/joint.ts",
+    "./partner/session": "./src/partner/session.ts",
+    "./partner/grammar-together": "./src/partner/grammar-together.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.104.1",

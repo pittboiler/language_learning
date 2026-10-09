@@ -102,21 +102,36 @@ export function planJointSession(inp: JointInputs): JointPlan {
     : mine.size < theirs.size ? "partner-ahead"
     : "same";
 
-  // Story: the one (in chapters both have reached) with the most lines using the focus point; ties → the
-  // most recent chapter, so it's fresh for both.
+  // Story: a RE-READ — one you've both already read on your own (its session is behind both of you), so
+  // reading it together builds fluency rather than decoding something cold. Among those, the one with the
+  // most lines using the focus point, then the most recent. If neither of you has read one yet: the old rule
+  // (most focus lines in a chapter both have reached).
   let storyId: string | undefined;
   let storyLines: number[] = [];
+  const lineNo = (src: string) => Number(src.slice(src.lastIndexOf("#") + 1));
+  const focusLines = new Map<string, number[]>();
   if (focusPointId) {
-    const lineNo = (src: string) => Number(src.slice(src.lastIndexOf("#") + 1));
-    const byStory = new Map<string, number[]>();
     for (const [src, tags] of Object.entries(course.lineTags)) {
       if (!src.startsWith("story:") || !tags.includes(focusPointId)) continue;
       const id = src.slice("story:".length, src.lastIndexOf("#"));
-      byStory.set(id, [...(byStory.get(id) ?? []), lineNo(src)]);
+      focusLines.set(id, [...(focusLines.get(id) ?? []), lineNo(src)]);
     }
-    const chapterOfStory = (id: string) =>
-      course.chapters.find((c) => c.sessions.some((s) => s.story?.id === id && !s.story.reuse))?.order ?? Infinity;
-    const best = [...byStory.entries()]
+  }
+  // Where each story is first read (its own chapter's session, not a later reuse).
+  const storySlot = new Map<string, { order: number; n: number }>();
+  for (const c of course.chapters) for (const s of c.sessions) {
+    if (s.story && !s.story.reuse && !storySlot.has(s.story.id)) storySlot.set(s.story.id, { order: c.order, n: s.n });
+  }
+  const readBy = (slot: { order: number; n: number }, p: CoursePositionShare) => slot.order < p.chapterOrder || (slot.order === p.chapterOrder && slot.n < p.session);
+  const reread = [...storySlot.entries()]
+    .filter(([, slot]) => readBy(slot, me) && (!partner || readBy(slot, partner)))
+    .sort((a, b) => (focusLines.get(b[0])?.length ?? 0) - (focusLines.get(a[0])?.length ?? 0) || b[1].order - a[1].order || b[1].n - a[1].n)[0];
+  if (reread) {
+    storyId = reread[0];
+    storyLines = [...(focusLines.get(reread[0]) ?? [])].sort((x, y) => x - y);
+  } else if (focusPointId) {
+    const chapterOfStory = (id: string) => storySlot.get(id)?.order ?? Infinity;
+    const best = [...focusLines.entries()]
       .filter(([id]) => chapterOfStory(id) <= sharedChapterOrder)
       .sort((a, b) => b[1].length - a[1].length || chapterOfStory(b[0]) - chapterOfStory(a[0]))[0];
     if (best) { storyId = best[0]; storyLines = best[1].sort((x, y) => x - y); }
