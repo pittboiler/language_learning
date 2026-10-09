@@ -422,9 +422,12 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
     out.next = session.next;
     return out;
   }
-  // Which points does today recap? The one taught/practised, else everything this chapter has taught so far.
+  // Which points does today recap? What the agenda named: the point taught, or the point practised; on a
+  // review / put-it-together / checkpoint day, the chapter so far plus whatever the story asked you to spot.
   const taughtSoFar = chapter.pointIds.filter((id) => chapter.sessions.some((s) => s.n <= session.n && s.pointId === id));
-  const ids = session.pointId ? [session.pointId] : taughtSoFar;
+  const ids = session.role === "teach" && session.pointId ? [session.pointId]
+    : session.role === "practice" ? [practisedPoint(chapter, session)].filter((x): x is string => !!x)
+    : [...new Set([...taughtSoFar, ...(session.story?.lens ?? [])])];
   const story = session.story ? pack.stories?.find((s) => s.id === session.story!.id) : undefined;
   for (const id of ids) {
     const point = points.get(id);
@@ -467,20 +470,23 @@ export type UseItItem =
 
 /** A line without its quotation marks (tiles and speech shouldn't carry „ “). */
 export const bareLine = (text: string) => text.replace(/[„“”"«»]/g, "").replace(/\s+/g, " ").trim();
+/** English without the quote marks a story line's translation carries ("I'm well." → I'm well.), so a prompt
+ *  that quotes it doesn't double them. */
+export const bareGloss = (gloss: string) => gloss.replace(/^["“”„']+|["“”„']+$/g, "").trim();
 
 /** About four exercises on today's focus, easiest first (understand → complete → build → say), built only
  *  from the story's own lines that use the focus points, so they practise the lesson at hand. When the story
  *  has no such line, the points' own example lines and quick checks stand in. `seed` varies the picks
  *  from one reading of the same story to the next. */
 export function useItItems(course: Course, story: MiniStory, focus: string[], seed = 0): UseItItem[] {
-  const all = story.body.map((b, i) => ({ text: b.text, gloss: b.gloss, source: `story:${story.id}#${i}`, translit: b.translit }));
+  const all = story.body.map((b, i) => ({ text: b.text, gloss: bareGloss(b.gloss), source: `story:${story.id}#${i}`, translit: b.translit }));
   const onFocus = (src: string) => (course.lineTags[src] ?? []).some((t) => focus.includes(t));
   const rot = <T,>(a: T[]) => (a.length ? a.map((_, i) => a[(i + seed) % a.length]!) : a);
   const pts = focus.map((id) => course.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p);
   // The story's own lines on today's focus first; when it has fewer than three, the lesson's example lines
   // join them, so four exercises don't all lean on one sentence.
   const storyLines = rot(all.filter((l) => l.gloss && onFocus(l.source)));
-  const examples = pts.flatMap((p) => p.examples).filter((e) => e.gloss && !storyLines.some((l) => bareLine(l.text) === bareLine(e.text))).map((e) => ({ ...e, translit: undefined as string | undefined }));
+  const examples = pts.flatMap((p) => p.examples).filter((e) => e.gloss && !storyLines.some((l) => bareLine(l.text) === bareLine(e.text))).map((e) => ({ ...e, gloss: bareGloss(e.gloss), translit: undefined as string | undefined }));
   const lines = storyLines.length >= 3 ? storyLines : [...storyLines, ...rot(examples)];
   if (!lines.length) return [];
   const used = new Set<string>();
@@ -500,7 +506,7 @@ export function useItItems(course: Course, story: MiniStory, focus: string[], se
   if (c && cb) out.push({ kind: "complete", line: { text: c.text, gloss: c.gloss, source: c.source }, blank: cb.word, options: cb.options, why: cb.why });
   else {
     const card = rot(pts.flatMap((p) => p.cards).filter((x): x is Extract<GrammarCard, { kind: "blank" }> => x.kind === "blank"))[0];
-    if (card) out.push({ kind: "complete", line: card.line, blank: card.blank, options: card.options, why: card.why });
+    if (card) out.push({ kind: "complete", line: { ...card.line, gloss: bareGloss(card.line.gloss) }, blank: card.blank, options: card.options, why: card.why });
   }
 
   // 3. Build: a line of two to seven words.

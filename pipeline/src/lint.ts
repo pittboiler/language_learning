@@ -448,7 +448,7 @@ export function lintCourseSessions(pack: LanguagePack): SessionLintIssue[] {
       if (story && !ag.some((b) => b.includes(story.title))) add("error", "agenda", where, `story “${story.title}” isn't on the agenda`);
       if (scen && !ag.some((b) => b.includes(scen.title))) add("error", "agenda", where, `conversation “${scen.title}” isn't on the agenda`);
       if (!scen && has(/^(Conversation|First try)/)) add("error", "agenda", where, "the agenda promises a conversation the session doesn't have");
-      if (s.build.length && !has(/^Build/)) add("error", "agenda", where, "Build-a-sentence isn't on the agenda");
+      if (s.build.length && !has(/^Build a sentence/)) add("error", "agenda", where, "Build-a-sentence isn't on the agenda");
       if (has(/^First try/) && s.n !== firstSpeak) add("error", "agenda", where, `“First try at the conversation”, but session ${firstSpeak} already had it`);
       if (s.role === "practice") {
         const practised = s.pointId ?? c.pointIds.filter((id) => c.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1);

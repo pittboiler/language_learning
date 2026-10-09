@@ -21,10 +21,10 @@ export const chapters: Chapter[] = [
     "order": 1,
     "stage": 0,
     "stageTitle": "Decode & survive",
-    "title": "Keeping the conversation alive (repair kit)",
-    "shortTitle": "Repair kit",
+    "title": "First words: I am…, I don't understand",
+    "shortTitle": "First words",
     "cefr": "pre-A1",
-    "goal": "any first exchange that breaks down",
+    "goal": "say who you are, and keep going when you don't understand",
     "wordTags": [
       "question words"
     ]
@@ -34,10 +34,10 @@ export const chapters: Chapter[] = [
     "order": 2,
     "stage": 0,
     "stageTitle": "Decode & survive",
-    "title": "Greetings, politeness, yes/no",
-    "shortTitle": "Greetings & politeness",
+    "title": "Hello, how are you?",
+    "shortTitle": "Hello, how are you?",
     "cefr": "pre-A1",
-    "goal": "meeting and parting",
+    "goal": "greet people, ask simple questions, and choose casual ти or polite вие",
     "wordTags": [
       "pronouns",
       "this & that",
@@ -50,10 +50,10 @@ export const chapters: Chapter[] = [
     "order": 3,
     "stage": 0,
     "stageTitle": "Decode & survive",
-    "title": "Survival operators + numbers 1–10",
-    "shortTitle": "Survival words & numbers",
+    "title": "Numbers and a first purchase",
+    "shortTitle": "Numbers & prices",
     "cefr": "pre-A1",
-    "goal": "a first tiny transaction",
+    "goal": "count, point at things, and ask what they cost",
     "wordTags": [
       "numbers",
       "common adverbs"
@@ -64,10 +64,10 @@ export const chapters: Chapter[] = [
     "order": 4,
     "stage": 1,
     "stageTitle": "Core situations",
-    "title": "Café & bar: order and pay (the anchor)",
-    "shortTitle": "Café & bar",
+    "title": "At the café: order and pay",
+    "shortTitle": "At the café",
     "cefr": "A1",
-    "goal": "a relaxed bar/café in Skopje",
+    "goal": "order a drink, ask for the bill, and pay",
     "extraIds": [
       "bar-order-a-drink",
       "ana-coffee",
@@ -87,10 +87,10 @@ export const chapters: Chapter[] = [
     "order": 5,
     "stage": 1,
     "stageTitle": "Core situations",
-    "title": "Greetings & introductions",
-    "shortTitle": "Introductions",
+    "title": "Meeting someone new",
+    "shortTitle": "Meeting people",
     "cefr": "A1",
-    "goal": "meeting another patron at the bar / someone new",
+    "goal": "say your name, where you're from and what you do",
     "extraIds": [
       "bar-small-talk",
       "gen-introductions",
@@ -107,10 +107,10 @@ export const chapters: Chapter[] = [
     "order": 6,
     "stage": 1,
     "stageTitle": "Core situations",
-    "title": "Shopping at the market",
+    "title": "At the market",
     "shortTitle": "At the market",
     "cefr": "A1",
-    "goal": "a small shop / the pazar",
+    "goal": "buy fruit, bread and more, by the kilo",
     "extraIds": [
       "gen-shopping",
       "w-ask-price"
@@ -126,10 +126,10 @@ export const chapters: Chapter[] = [
     "order": 7,
     "stage": 1,
     "stageTitle": "Core situations",
-    "title": "Directions & getting around",
-    "shortTitle": "Directions",
+    "title": "Finding your way",
+    "shortTitle": "Finding your way",
     "cefr": "A1",
-    "goal": "a street in the city",
+    "goal": "ask for directions and follow them",
     "extraIds": [
       "gen-directions"
     ],
@@ -144,10 +144,10 @@ export const chapters: Chapter[] = [
     "order": 8,
     "stage": 2,
     "stageTitle": "Connect & sustain",
-    "title": "Small talk, likes & opinions",
-    "shortTitle": "Small talk & opinions",
+    "title": "Likes, opinions and plans",
+    "shortTitle": "Likes & plans",
     "cefr": "A2",
-    "goal": "lingering conversation after the basics are done",
+    "goal": "say what you like and think, and what you'll do",
     "wordTags": [
       "nature & weather",
       "conjunctions",
@@ -159,10 +159,10 @@ export const chapters: Chapter[] = [
     "order": 9,
     "stage": 2,
     "stageTitle": "Connect & sustain",
-    "title": "Your day: past & future",
-    "shortTitle": "Past & future",
+    "title": "What you did today",
+    "shortTitle": "What you did",
     "cefr": "A2",
-    "goal": "talking about your day and your plans",
+    "goal": "tell someone what you did",
     "wordTags": [
       "time & days"
     ]
@@ -172,10 +172,10 @@ export const chapters: Chapter[] = [
     "order": 10,
     "stage": 2,
     "stageTitle": "Connect & sustain",
-    "title": "Home, family & work",
-    "shortTitle": "Home, family & work",
+    "title": "Family, home and work",
+    "shortTitle": "Family & home",
     "cefr": "A2",
-    "goal": "telling someone about your life",
+    "goal": "tell someone about your family and your life",
     "wordTags": [
       "family & people",
       "home & everyday objects",
@@ -187,10 +187,10 @@ export const chapters: Chapter[] = [
     "order": 11,
     "stage": 2,
     "stageTitle": "Connect & sustain",
-    "title": "Phone & arranging to meet",
-    "shortTitle": "Phone & arranging",
+    "title": "Making plans on the phone",
+    "shortTitle": "Making plans",
     "cefr": "A2",
-    "goal": "a short phone call to make a plan",
+    "goal": "call someone and agree a time and place to meet",
     "extraIds": [
       "gen-phone"
     ],
@@ -203,10 +203,10 @@ export const chapters: Chapter[] = [
     "order": 12,
     "stage": 2,
     "stageTitle": "Connect & sustain",
-    "title": "Problems & complaints (repair kit, leveled up)",
-    "shortTitle": "Problems & complaints",
+    "title": "When things go wrong",
+    "shortTitle": "When things go wrong",
     "cefr": "A2",
-    "goal": "something went wrong (a shop, a café, a booking)",
+    "goal": "explain a problem and ask for it to be put right",
     "wordTags": [
       "body & health"
     ]

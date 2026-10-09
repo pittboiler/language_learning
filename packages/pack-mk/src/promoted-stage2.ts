@@ -849,7 +849,7 @@ export const promotedVocab: ReviewItem[] = [
 export const promotedScenarios: Scenario[] = [
   {
     "id": "gen-s2-smalltalk",
-    "title": "Small talk, likes & opinions",
+    "title": "Chatting about likes and plans",
     "goal": "Practise these functions: express-like, express-dislike, give-opinion, agree, connect-ideas. Use the taught chunks where natural: Ми се допаѓа.; Не ми се допаѓа.; Сакам да …; Мислам дека …; Се согласувам.; убаво / грозно. Recycle earlier material: s1-greet-intro, s1-cafe-order, s0-repair.",
     "setting": "lingering conversation after the basics are done",
     "requiredVocab": [
@@ -933,7 +933,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s2-pasttime",
-    "title": "Your day: past & future",
+    "title": "Telling someone about your day",
     "goal": "Practise these functions: narrate-past, state-plans, ask-what-happened. Use the taught chunks where natural: вчера / денес / утре; бев; имав; отидов; јадев; Ќе …. Recycle earlier material: s1-greet-intro, s2-smalltalk, s1-cafe-order.",
     "setting": "talking about your day and your plans",
     "requiredVocab": [
@@ -1026,7 +1026,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s2-home-family",
-    "title": "Home, family & work",
+    "title": "Talking about your family",
     "goal": "Practise these functions: describe-family, describe-home, describe-work, state-age. Use the taught chunks where natural: мајка / татко; брат / сестра; жена / маж; дете / деца; Живеам во …; Работам како …. Recycle earlier material: s1-greet-intro, s0-survive, s2-smalltalk.",
     "setting": "telling someone about your life",
     "requiredVocab": [
@@ -1118,7 +1118,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s2-arrange",
-    "title": "Phone & arranging to meet",
+    "title": "Arranging to meet by phone",
     "goal": "Practise these functions: open-a-call, ask-for-someone, propose-time, propose-place, confirm. Use the taught chunks where natural: Ало?; Дома ли е …?; Кога?; Во колку часот?; Каде да се видиме?; Ајде да …. Recycle earlier material: s0-survive, s1-directions, s2-pasttime.",
     "setting": "a short phone call to make a plan",
     "requiredVocab": [
@@ -1215,7 +1215,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s2-problems",
-    "title": "Problems & complaints (repair kit, leveled up)",
+    "title": "Sorting out a problem",
     "goal": "Practise these functions: report-a-problem, complain-politely, ask-for-help, resolve. Use the taught chunks where natural: Има проблем.; Не работи.; Ова не е …; Можете ли да помогнете?; погрешно; Сакам да вратам.. Recycle earlier material: s0-repair, s1-market, s2-smalltalk.",
     "setting": "something went wrong (a shop, a café, a booking)",
     "requiredVocab": [
@@ -1909,7 +1909,7 @@ export const promotedWritingTasks: WritingTask[] = [
 export const promotedInfoGapTasks: InfoGapTask[] = [
   {
     "id": "gen-s2-arrange-gap",
-    "title": "A call to make a plan (info-gap)",
+    "title": "A call to make a plan",
     "goal": "Arrange to meet — agree a time and a place. Each of you knows only half.",
     "setting": "A short phone call between two friends to plan a meeting.",
     "roleA": {
@@ -1991,7 +1991,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
   },
   {
     "id": "gen-s2-problems-gap",
-    "title": "Wrong coffee, please help (info-gap)",
+    "title": "Wrong coffee, please help",
     "goal": "Sort out the wrong order — the customer reports the problem, the waiter checks the bill and fixes it.",
     "setting": "A café: the customer got the wrong drink and the bill looks wrong too.",
     "roleA": {

@@ -839,7 +839,7 @@ export const promotedVocab: ReviewItem[] = [
 export const promotedScenarios: Scenario[] = [
   {
     "id": "gen-s1-cafe-order",
-    "title": "Café & bar: order and pay (the anchor)",
+    "title": "Ordering at the café",
     "goal": "Practise these functions: greet, order, ask-price, pay, toast. Use the taught chunks where natural: Едно пиво, ве молам.; кафе; пиво; вода; чај; сок. Recycle earlier material: s0-survive, s0-greet, s0-repair.",
     "setting": "a relaxed bar/café in Skopje",
     "requiredVocab": [
@@ -936,7 +936,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s1-greet-intro",
-    "title": "Greetings & introductions",
+    "title": "Meeting someone at the bar",
     "goal": "Practise these functions: introduce-self, ask-name, ask-origin, state-occupation, state-learning. Use the taught chunks where natural: Како се викаш?; Јас сум …; Мило ми е.; Од каде си?; Од … сум.; Што работиш?. Recycle earlier material: s0-greet, s0-repair, s1-cafe-order.",
     "setting": "meeting another patron at the bar / someone new",
     "requiredVocab": [
@@ -1038,7 +1038,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s1-market",
-    "title": "Shopping at the market",
+    "title": "Buying at the market",
     "goal": "Practise these functions: request-item, specify-quantity, ask-price, buy. Use the taught chunks where natural: Сакам …; едно кило; половина кило; Колку чини килото?; леб; млеко. Recycle earlier material: s0-survive, s1-cafe-order, s0-repair.",
     "setting": "a small shop / the pazar",
     "requiredVocab": [
@@ -1135,7 +1135,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s1-directions",
-    "title": "Directions & getting around",
+    "title": "Asking the way",
     "goal": "Practise these functions: ask-the-way, understand-directions, name-transport. Use the taught chunks where natural: Каде е …?; лево; десно; право; близу / далеку; тука / таму. Recycle earlier material: s0-survive, s0-repair, s1-cafe-order.",
     "setting": "a street in the city",
     "requiredVocab": [
@@ -1995,7 +1995,7 @@ export const promotedWritingTasks: WritingTask[] = [
 export const promotedInfoGapTasks: InfoGapTask[] = [
   {
     "id": "gen-s1-cafe-order-gap",
-    "title": "At the bar: order and pay (info-gap)",
+    "title": "At the bar: order and pay",
     "goal": "Order the drinks, agree the price, pay, and toast — each of you knows only half.",
     "setting": "A relaxed bar/café in Skopje on a warm evening.",
     "roleA": {
@@ -2082,7 +2082,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
   },
   {
     "id": "gen-s1-market-gap",
-    "title": "At the market (info-gap)",
+    "title": "At the market",
     "goal": "Buy the fruit and agree the total — each of you knows only half.",
     "setting": "A small fruit stall at the pazar (open-air market).",
     "roleA": {
@@ -2158,7 +2158,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
   },
   {
     "id": "gen-s1-directions-gap",
-    "title": "Where is the bus stop? (info-gap)",
+    "title": "Where is the bus stop?",
     "goal": "Find the bus stop and agree how to get there — each of you knows only half.",
     "setting": "A street in the city",
     "roleA": {
