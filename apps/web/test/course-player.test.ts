@@ -307,4 +307,19 @@ for (const c of course.chapters) {
   assert.equal(cp.wordsTaughtToBoth(course, { order: 1, n: 1 }, { order: 3, n: 1 }).length, 0);
 }
 
+// The partnered grammar step: rule read aloud first, then the point's questions and fill-ins (each fill-in
+// carrying the right answer among its options), then gaps from story lines both partners have read.
+{
+  const items = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 1, n: 3 }, { order: 1, n: 3 });
+  assert.equal(items[0]!.kind, "read");
+  assert.ok(items.some((x) => x.kind === "rule") && items.some((x) => x.kind === "blank"));
+  for (const x of items) if (x.kind === "blank") assert.ok([x.answer, ...x.options].includes(x.answer) && x.options.length >= 2, x.line);
+  const cardBlank = items.find((x) => x.kind === "blank" && x.cardId);
+  assert.ok(cardBlank && cardBlank.kind === "blank" && cp.blankCardItems(course.points.find((p) => p.id === "pt-sum")!).some((it) => it.id === cardBlank.cardId), "a card fill-in grades that card");
+  // Nobody has read a story yet → only the point's own cards, no extra gaps from story lines.
+  const early = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 1, n: 1 }, { order: 1, n: 1 });
+  assert.ok(early.every((x) => x.kind !== "blank" || !!x.cardId));
+  assert.ok(items.length >= early.length);
+}
+
 console.log("course-player.test.ts: all assertions passed ✓");

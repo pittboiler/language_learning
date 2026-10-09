@@ -68,4 +68,14 @@ assert.equal(plan.focusPointId, "p1");
 plan = planJointSession({ course, me: pos(1, 4, ["p1", "p2"]), partner: pos(1, 4, ["p1", "p2"]), drillCount: 6, titles, partnerActive: false });
 assert.deepEqual(plan.items.map((i) => i.kind), ["story", "speak"], "a partner who didn't practise gets a light plan");
 
+// 6. The story is a RE-READ: at chapter 2 session 1 neither of us has read st2 yet (it's today's story), so the
+//    plan picks st1 — read by both — even though st2 has more lines using the focus point.
+plan = planJointSession({ course, me: pos(2, 1, ["p1", "p2"]), partner: pos(2, 1, ["p1", "p2"]), drillCount: 3, titles });
+assert.equal(plan.focusPointId, "p2");
+assert.equal(plan.storyId, "st1", "a story both have already read");
+// …and once both are past st2's session, the one with more focus lines wins.
+plan = planJointSession({ course, me: pos(2, 2, ["p1", "p2", "p3"]), partner: pos(2, 2, ["p1"]), drillCount: 3, titles });
+assert.equal(plan.storyId, "st2");
+assert.deepEqual(plan.storyLines, [1, 3, 4]);
+
 console.log("joint.test.ts: all assertions passed ✓");
