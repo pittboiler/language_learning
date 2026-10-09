@@ -1,0 +1,76 @@
+{
+  "points": {
+    "pt-numbers": {
+      "agenda": "Count things and ask the price",
+      "rule": "After a number bigger than one, the noun goes plural: пет јаболка, десет денари. “Two” has two forms: два for masculine nouns, две for feminine and neuter.",
+      "recap": "Today you counted. “One” matches the noun (еден/една/едно); “two” is два or две; from three up, the number stays the same and the noun goes plural: пет јаболка, десет денари, седумдесет денари. To ask a price it's just Колку чини?, and you can point and add ова: Колку чини ова? Plurals get their own lesson in chapter 6; for now, learn јаболка and денари as the forms you hear after a number.",
+      "library": {
+        "rule": "Numbers work in two steps. “One” agrees with the noun's gender, as in the last lesson: еден, една, едно. “Two” still shows gender: два with masculine nouns, две with feminine and neuter ones (две кафиња). From three up the number never changes, and the noun takes its plural form: три пива, пет јаболка, десет денари. To ask a price, use Колку чини? (“How much does it cost?”); add ова (“this”) when pointing: Колку чини ова? People are counted with special forms such as двајца (“two people”), which you only need to recognize for now. Past ten it's a pattern, not a list. The teens are a small number plus an ending meaning “on ten”: единаесет, дванаесет … деветнаесет. The tens are a small number plus “ten”: дваесет, триесет, педесет … деведесет. The hundreds are сто, двесте, триста, then the number plus “hundreds”: четиристотини, петстотини … деветстотини; a thousand is илјада. In a number with more than one part, и goes just before the last part: дваесет и пет (25), сто и педесет (150), двесте и педесет (250).",
+        "why": [
+          "Why јаболка (“apples”) after пет? From two up, the noun takes its plural form, just as пиво becomes пива in три пива. Plurals come in chapter 6; numbers are where you meet them first.",
+          "Why два and две? “Two” is the one number after “one” that still matches gender: два for masculine, две for feminine and neuter.",
+          "колку is both “how much” and “how many”: Колку чини? asks a price, Колку јаболка сака Ана? asks a count.",
+          "Counting people has its own form, двајца (“two people”). Recognize it for now.",
+          "Why двесте and триста but четиристотини? Two hundred and three hundred are old forms that stuck; from four hundred on you say the number plus “hundreds”: четиристотини, петстотини.",
+          "Where does и go? Only before the last part of the number: дваесет и пет (25), сто и педесет (150), сто дваесет и пет (125), never between every part."
+        ],
+        "mistakes": [
+          "Not keeping the noun singular after a number: three beers is три пива, with the plural.",
+          "Not using два with feminine or neuter nouns: две кафиња.",
+          "Putting и between every part of a big number: 125 is сто дваесет и пет, with и only before the last part."
+        ]
+      },
+      "examples": [
+        "qa:gen-s0-survive-story#q1:a",
+        "qa:gen-s0-survive-story#q2:a",
+        "grammar:numbers#2",
+        "grammar:numbers#1"
+      ],
+      "callbacks": [],
+      "ruleCards": [
+        {
+          "front": "What happens to a noun after пет or десет?",
+          "back": "It goes plural: пет јаболка, десет денари.",
+          "example": "qa:gen-s0-survive-story#q2:a"
+        },
+        {
+          "front": "два or две?",
+          "back": "два with masculine nouns, две with feminine and neuter: две кафиња.",
+          "example": "grammar:numbers#1"
+        }
+      ],
+      "blankCards": [
+        {
+          "line": "grammar:numbers#1",
+          "blank": "две",
+          "options": [
+            "две",
+            "два",
+            "еден"
+          ],
+          "why": "кафе is neuter, so “two” is две."
+        },
+        {
+          "line": "grammar:numbers#2",
+          "blank": "пива",
+          "options": [
+            "пива",
+            "пиво",
+            "пивото"
+          ],
+          "why": "From two up the noun is plural: пива."
+        },
+        {
+          "line": "qa:gen-s0-survive-story#q2:a",
+          "blank": "денари",
+          "options": [
+            "денари",
+            "денар",
+            "пива"
+          ],
+          "why": "After десет the noun goes plural: денари."
+        }
+      ]
+    }
+  }
+}

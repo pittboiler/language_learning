@@ -701,16 +701,19 @@ export const course: Course = {
       "rule": "After a number bigger than one, the noun goes plural: пет јаболка, десет денари. “Two” has two forms: два for masculine nouns, две for feminine and neuter.",
       "recap": "Today you counted. “One” matches the noun (еден/една/едно); “two” is два or две; from three up, the number stays the same and the noun goes plural: пет јаболка, десет денари, седумдесет денари. To ask a price it's just Колку чини?, and you can point and add ова: Колку чини ова? Plurals get their own lesson in chapter 6; for now, learn јаболка and денари as the forms you hear after a number.",
       "library": {
-        "rule": "Numbers work in two steps. “One” agrees with the noun's gender, as in the last lesson: еден, една, едно. “Two” still shows gender: два with masculine nouns, две with feminine and neuter ones (две кафиња). From three up the number never changes, and the noun takes its plural form: три пива, пет јаболка, десет денари. To ask a price, use Колку чини? (“How much does it cost?”); add ова (“this”) when pointing: Колку чини ова? People are counted with special forms such as двајца (“two people”), which you only need to recognize for now.",
+        "rule": "Numbers work in two steps. “One” agrees with the noun's gender, as in the last lesson: еден, една, едно. “Two” still shows gender: два with masculine nouns, две with feminine and neuter ones (две кафиња). From three up the number never changes, and the noun takes its plural form: три пива, пет јаболка, десет денари. To ask a price, use Колку чини? (“How much does it cost?”); add ова (“this”) when pointing: Колку чини ова? People are counted with special forms such as двајца (“two people”), which you only need to recognize for now. Past ten it's a pattern, not a list. The teens are a small number plus an ending meaning “on ten”: единаесет, дванаесет … деветнаесет. The tens are a small number plus “ten”: дваесет, триесет, педесет … деведесет. The hundreds are сто, двесте, триста, then the number plus “hundreds”: четиристотини, петстотини … деветстотини; a thousand is илјада. In a number with more than one part, и goes just before the last part: дваесет и пет (25), сто и педесет (150), двесте и педесет (250).",
         "why": [
           "Why јаболка (“apples”) after пет? From two up, the noun takes its plural form, just as пиво becomes пива in три пива. Plurals come in chapter 6; numbers are where you meet them first.",
           "Why два and две? “Two” is the one number after “one” that still matches gender: два for masculine, две for feminine and neuter.",
           "колку is both “how much” and “how many”: Колку чини? asks a price, Колку јаболка сака Ана? asks a count.",
-          "Counting people has its own form, двајца (“two people”). Recognize it for now."
+          "Counting people has its own form, двајца (“two people”). Recognize it for now.",
+          "Why двесте and триста but четиристотини? Two hundred and three hundred are old forms that stuck; from four hundred on you say the number plus “hundreds”: четиристотини, петстотини.",
+          "Where does и go? Only before the last part of the number: дваесет и пет (25), сто и педесет (150), сто дваесет и пет (125), never between every part."
         ],
         "mistakes": [
           "Not keeping the noun singular after a number: three beers is три пива, with the plural.",
-          "Not using два with feminine or neuter nouns: две кафиња."
+          "Not using два with feminine or neuter nouns: две кафиња.",
+          "Putting и between every part of a big number: 125 is сто дваесет и пет, with и only before the last part."
         ]
       },
       "examples": [
@@ -4522,6 +4525,31 @@ export const course: Course = {
           "lexKey": "денар / денари",
           "display": "денар / денари",
           "gloss": "denar(s) (currency)"
+        },
+        {
+          "lexKey": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+          "display": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+          "gloss": "eleven, twelve, thirteen, fourteen, fifteen"
+        },
+        {
+          "lexKey": "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
+          "display": "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
+          "gloss": "sixteen, seventeen, eighteen, nineteen"
+        },
+        {
+          "lexKey": "дваесет, триесет, четириесет, педесет, шеесет",
+          "display": "дваесет, триесет, четириесет, педесет, шеесет",
+          "gloss": "twenty, thirty, forty, fifty, sixty"
+        },
+        {
+          "lexKey": "седумдесет, осумдесет, деведесет",
+          "display": "седумдесет, осумдесет, деведесет",
+          "gloss": "seventy, eighty, ninety"
+        },
+        {
+          "lexKey": "дваесет и пет",
+          "display": "дваесет и пет",
+          "gloss": "twenty-five"
         }
       ],
       "extraWords": [
@@ -4847,6 +4875,16 @@ export const course: Course = {
               "lexKey": "денар / денари",
               "display": "денар / денари",
               "gloss": "denar(s) (currency)"
+            },
+            {
+              "lexKey": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+              "display": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+              "gloss": "eleven, twelve, thirteen, fourteen, fifteen"
+            },
+            {
+              "lexKey": "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
+              "display": "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
+              "gloss": "sixteen, seventeen, eighteen, nineteen"
             }
           ],
           "story": {
@@ -4863,16 +4901,16 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-survive-v10",
+            "phrase-add-teens-a",
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-survive-v6",
             "phrase-gen-s0-survive-v9",
-            "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8"
+            "phrase-gen-s0-survive-v7"
           ],
           "speak": "gen-s0-survive",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "1 new word: денар / денари",
+            "3 new words: денар / денари, единаесет, дванаесет, тринаесет, четиринаесет, петнаесет, шеснаесет, седумнаесет, осумнаесет, деветнаесет",
             "Read “Ана во продавница”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: A first small purchase"
@@ -4887,7 +4925,23 @@ export const course: Course = {
         {
           "n": 6,
           "role": "use",
-          "words": [],
+          "words": [
+            {
+              "lexKey": "дваесет, триесет, четириесет, педесет, шеесет",
+              "display": "дваесет, триесет, четириесет, педесет, шеесет",
+              "gloss": "twenty, thirty, forty, fifty, sixty"
+            },
+            {
+              "lexKey": "седумдесет, осумдесет, деведесет",
+              "display": "седумдесет, осумдесет, деведесет",
+              "gloss": "seventy, eighty, ninety"
+            },
+            {
+              "lexKey": "дваесет и пет",
+              "display": "дваесет и пет",
+              "gloss": "twenty-five"
+            }
+          ],
           "story": {
             "id": "gen-s0-greet-story",
             "lens": [
@@ -4901,17 +4955,18 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
+            "phrase-add-tens-a",
+            "phrase-add-tens-b",
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-survive-v6",
             "phrase-gen-s0-survive-v9",
-            "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8",
-            "phrase-v-kolku-chini"
+            "phrase-gen-s0-survive-v7"
           ],
           "speak": "gen-s0-survive",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
+            "3 new words: дваесет, триесет, четириесет, педесет, шеесет, седумдесет, осумдесет, деведесет, дваесет и пет",
             "Reread “Ана и Марко” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: A first small purchase",
@@ -4947,7 +5002,12 @@ export const course: Course = {
           "каде е",
           "колку чини",
           "имате ли",
-          "денар / денари"
+          "денар / денари",
+          "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+          "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
+          "дваесет, триесет, четириесет, педесет, шеесет",
+          "седумдесет, осумдесет, деведесет",
+          "дваесет и пет"
         ],
         "pointIds": [
           "pt-gender",
@@ -5004,6 +5064,26 @@ export const course: Course = {
           "lexKey": "сок",
           "display": "сок",
           "gloss": "juice"
+        },
+        {
+          "lexKey": "сто, двесте, триста, четиристотини, петстотини",
+          "display": "сто, двесте, триста, четиристотини, петстотини",
+          "gloss": "a hundred, two hundred, three hundred, four hundred, five hundred"
+        },
+        {
+          "lexKey": "шестотини, седумстотини, осумстотини, деветстотини, илјада",
+          "display": "шестотини, седумстотини, осумстотини, деветстотини, илјада",
+          "gloss": "six hundred, seven hundred, eight hundred, nine hundred, a thousand"
+        },
+        {
+          "lexKey": "двесте и педесет денари",
+          "display": "двесте и педесет денари",
+          "gloss": "two hundred and fifty denars"
+        },
+        {
+          "lexKey": "би сакал / би сакала",
+          "display": "Би сакал / Би сакала …",
+          "gloss": "I'd like … (a man says сакал, a woman сакала)"
         },
         {
           "lexKey": "што ќе сакате",
@@ -5191,9 +5271,9 @@ export const course: Course = {
               "gloss": "juice"
             },
             {
-              "lexKey": "што ќе сакате",
-              "display": "Што ќе сакате?",
-              "gloss": "What would you like? (formal)"
+              "lexKey": "сто, двесте, триста, четиристотини, петстотини",
+              "display": "сто, двесте, триста, четиристотини, петстотини",
+              "gloss": "a hundred, two hundred, three hundred, four hundred, five hundred"
             }
           ],
           "story": {
@@ -5209,7 +5289,7 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s1-cafe-order-v7",
+            "phrase-add-hundreds-a",
             "phrase-gen-s0-repair-v5",
             "sent-сака",
             "phrase-v-edno-pivo",
@@ -5217,7 +5297,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "3 new words: чај, сок, Што ќе сакате?",
+            "3 new words: чај, сок, сто, двесте, триста, четиристотини, петстотини",
             "Say “the”: add -от, -та or -то to the end of the noun",
             "Say it: today's words and examples, out loud",
             "Read “Марко во кафето”: spot today's pattern, then a few quick exercises",
@@ -5252,7 +5332,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v5",
             "sent-сака",
             "phrase-v-edno-pivo",
-            "phrase-gen-s1-cafe-order-v7",
+            "phrase-add-hundreds-a",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
           ],
@@ -5275,19 +5355,19 @@ export const course: Course = {
           "pointId": "pt-da",
           "words": [
             {
-              "lexKey": "повелете",
-              "display": "Повелете",
-              "gloss": "Here you go / Go ahead"
+              "lexKey": "шестотини, седумстотини, осумстотини, деветстотини, илјада",
+              "display": "шестотини, седумстотини, осумстотини, деветстотини, илјада",
+              "gloss": "six hundred, seven hundred, eight hundred, nine hundred, a thousand"
             },
             {
-              "lexKey": "сметката, ве молам",
-              "display": "Сметката, ве молам.",
-              "gloss": "The bill, please."
+              "lexKey": "двесте и педесет денари",
+              "display": "двесте и педесет денари",
+              "gloss": "two hundred and fifty denars"
             },
             {
-              "lexKey": "наздравје",
-              "display": "Наздравје!",
-              "gloss": "Cheers!"
+              "lexKey": "би сакал / би сакала",
+              "display": "Би сакал / Би сакала …",
+              "gloss": "I'd like … (a man says сакал, a woman сакала)"
             }
           ],
           "story": {
@@ -5301,16 +5381,16 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-v-smetka",
+            "phrase-add-hundreds-b",
+            "phrase-add-250",
             "phrase-gen-s0-repair-v5",
             "sent-сака",
             "phrase-v-edno-pivo",
-            "phrase-gen-s1-cafe-order-v7",
-            "phrase-gen-s0-repair-v1"
+            "phrase-add-hundreds-a"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
-            "3 new words: Повелете, Сметката, ве молам, Наздравје!",
+            "3 new words: шестотини, седумстотини, осумстотини, деветстотини, илјада, двесте и педесет денари, Би сакал / Би сакала …",
             "Say want to / can / must: stack да + verb (Сакам да платам).",
             "Say it: today's words and examples, out loud",
             "Reread “Ана учи македонски” from an earlier chapter: find want to, can: да + verb, then a few quick exercises",
@@ -5324,9 +5404,19 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
-              "lexKey": "педесет / сто / сто и педесет",
-              "display": "педесет / сто / сто и педесет",
-              "gloss": "fifty / a hundred / a hundred and fifty (prices)"
+              "lexKey": "што ќе сакате",
+              "display": "Што ќе сакате?",
+              "gloss": "What would you like? (formal)"
+            },
+            {
+              "lexKey": "повелете",
+              "display": "Повелете",
+              "gloss": "Here you go / Go ahead"
+            },
+            {
+              "lexKey": "сметката, ве молам",
+              "display": "Сметката, ве молам.",
+              "gloss": "The bill, please."
             }
           ],
           "story": {
@@ -5345,17 +5435,17 @@ export const course: Course = {
             ]
           },
           "build": [
+            "phrase-gen-s1-cafe-order-v7",
+            "phrase-v-smetka",
             "phrase-gen-s0-repair-v5",
             "sent-сака",
             "phrase-v-edno-pivo",
-            "phrase-gen-s1-cafe-order-v7",
-            "phrase-v-smetka",
-            "phrase-gen-s0-repair-v1"
+            "phrase-add-hundreds-a"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "1 new word: педесет / сто / сто и педесет",
+            "3 new words: Што ќе сакате?, Повелете, Сметката, ве молам",
             "Read “Марко во кафето”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Ordering at the café"
@@ -5365,7 +5455,18 @@ export const course: Course = {
         {
           "n": 7,
           "role": "use",
-          "words": [],
+          "words": [
+            {
+              "lexKey": "наздравје",
+              "display": "Наздравје!",
+              "gloss": "Cheers!"
+            },
+            {
+              "lexKey": "педесет / сто / сто и педесет",
+              "display": "педесет / сто / сто и педесет",
+              "gloss": "fifty / a hundred / a hundred and fifty (prices)"
+            }
+          ],
           "story": {
             "id": "ana-coffee",
             "lens": [
@@ -5386,14 +5487,15 @@ export const course: Course = {
             "phrase-gen-s0-repair-v5",
             "sent-сака",
             "phrase-v-edno-pivo",
-            "phrase-gen-s1-cafe-order-v7",
-            "phrase-v-smetka",
-            "phrase-gen-s0-repair-v1"
+            "phrase-add-hundreds-a",
+            "phrase-add-hundreds-b",
+            "phrase-add-250"
           ],
           "speak": "gen-s1-cafe-order",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
+            "2 new words: Наздравје!, педесет / сто / сто и педесет",
             "Read “Ана и кафето”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Ordering at the café",
@@ -5428,6 +5530,10 @@ export const course: Course = {
           "вода",
           "чај",
           "сок",
+          "сто, двесте, триста, четиристотини, петстотини",
+          "шестотини, седумстотини, осумстотини, деветстотини, илјада",
+          "двесте и педесет денари",
+          "би сакал / би сакала",
           "што ќе сакате",
           "повелете",
           "сметката, ве молам",
@@ -6017,6 +6123,11 @@ export const course: Course = {
           "gloss": "good"
         },
         {
+          "lexKey": "ги земам јаболката",
+          "display": "Ги земам јаболката.",
+          "gloss": "I'll take the apples."
+        },
+        {
           "lexKey": "сирење",
           "display": "сирење",
           "gloss": "cheese"
@@ -6281,6 +6392,11 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
+              "lexKey": "ги земам јаболката",
+              "display": "Ги земам јаболката.",
+              "gloss": "I'll take the apples."
+            },
+            {
               "lexKey": "сирење",
               "display": "сирење",
               "gloss": "cheese"
@@ -6289,11 +6405,6 @@ export const course: Course = {
               "lexKey": "само тоа, фала",
               "display": "Само тоа, фала.",
               "gloss": "That's all, thanks."
-            },
-            {
-              "lexKey": "пазар",
-              "display": "пазар",
-              "gloss": "market"
             }
           ],
           "story": {
@@ -6309,17 +6420,17 @@ export const course: Course = {
             ]
           },
           "build": [
+            "phrase-add-gi-zemam",
             "phrase-gen-s1-market-v10",
             "phrase-gen-s0-repair-v10",
             "sent-јаде",
             "sent-пие",
-            "phrase-gen-s1-market-v2",
-            "phrase-gen-s1-market-v3"
+            "phrase-gen-s1-market-v2"
           ],
           "speak": "gen-s1-market",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "3 new words: сирење, Само тоа, фала, пазар",
+            "3 new words: Ги земам јаболката, сирење, Само тоа, фала",
             "Read “Ана на пазар”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Buying at the market"
@@ -6330,6 +6441,11 @@ export const course: Course = {
           "n": 6,
           "role": "use",
           "words": [
+            {
+              "lexKey": "пазар",
+              "display": "пазар",
+              "gloss": "market"
+            },
             {
               "lexKey": "благодарам",
               "display": "благодарам",
@@ -6358,7 +6474,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
-            "1 new word: благодарам",
+            "2 new words: пазар, благодарам",
             "Reread “Ана учи македонски” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Buying at the market",
@@ -6375,7 +6491,7 @@ export const course: Course = {
             "Checkpoint: this chapter's words and grammar",
             "Then the conversation once more"
           ],
-          "next": "Next: a new chapter, Finding your way"
+          "next": "Next: a stage review, then Finding your way"
         }
       ],
       "checkpoint": {
@@ -6389,6 +6505,7 @@ export const course: Course = {
           "леб",
           "млеко",
           "добар",
+          "ги земам јаболката",
           "сирење",
           "само тоа, фала",
           "пазар",
@@ -6875,7 +6992,7 @@ export const course: Course = {
             "Checkpoint: this chapter's words and grammar",
             "Then the conversation once more"
           ],
-          "next": "Next: a stage review, then Likes & plans"
+          "next": "Next: a new chapter, Likes & plans"
         }
       ],
       "checkpoint": {
@@ -7402,6 +7519,21 @@ export const course: Course = {
           "gloss": "I ate"
         },
         {
+          "lexKey": "понеделник, вторник, среда, четврток",
+          "display": "понеделник, вторник, среда, четврток",
+          "gloss": "Monday, Tuesday, Wednesday, Thursday"
+        },
+        {
+          "lexKey": "петок, сабота, недела",
+          "display": "петок, сабота, недела",
+          "gloss": "Friday, Saturday, Sunday"
+        },
+        {
+          "lexKey": "во сабота",
+          "display": "во сабота",
+          "gloss": "on Saturday"
+        },
+        {
           "lexKey": "што правеше",
           "display": "Што правеше?",
           "gloss": "What were you doing?"
@@ -7513,9 +7645,9 @@ export const course: Course = {
               "gloss": "I ate"
             },
             {
-              "lexKey": "што правеше",
-              "display": "Што правеше?",
-              "gloss": "What were you doing?"
+              "lexKey": "понеделник, вторник, среда, четврток",
+              "display": "понеделник, вторник, среда, четврток",
+              "gloss": "Monday, Tuesday, Wednesday, Thursday"
             }
           ],
           "story": {
@@ -7533,7 +7665,7 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s2-pasttime-v8",
+            "phrase-add-days-a",
             "phrase-gen-s0-greet-v6",
             "sent-јаде",
             "sent-оди-t2",
@@ -7541,7 +7673,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "3 new words: отидов, јадев, Што правеше?",
+            "3 new words: отидов, јадев, понеделник, вторник, среда, четврток",
             "Practice: What happened: the past tense",
             "Say it: today's words and examples, out loud",
             "Read “Денот на Марко”: spot today's pattern, then a few quick exercises",
@@ -7553,7 +7685,23 @@ export const course: Course = {
           "n": 3,
           "role": "teach",
           "pointId": "pt-aspect",
-          "words": [],
+          "words": [
+            {
+              "lexKey": "петок, сабота, недела",
+              "display": "петок, сабота, недела",
+              "gloss": "Friday, Saturday, Sunday"
+            },
+            {
+              "lexKey": "во сабота",
+              "display": "во сабота",
+              "gloss": "on Saturday"
+            },
+            {
+              "lexKey": "што правеше",
+              "display": "Што правеше?",
+              "gloss": "What were you doing?"
+            }
+          ],
           "story": {
             "id": "gen-s2-pasttime-story",
             "lens": [
@@ -7562,14 +7710,15 @@ export const course: Course = {
             "highlight": []
           },
           "build": [
+            "phrase-add-days-b",
+            "phrase-add-vo-sabota",
             "phrase-gen-s0-greet-v6",
             "sent-јаде",
             "sent-оди-t2",
-            "phrase-gen-s2-pasttime-v1",
-            "phrase-gen-s2-pasttime-v8",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s2-pasttime-v1"
           ],
           "agenda": [
+            "3 new words: петок, сабота, недела, во сабота, Што правеше?",
             "Spot two forms of each verb: one ongoing, one one-time done.",
             "Say it: today's words and examples, out loud",
             "Read “Денот на Марко”, then a few quick exercises",
@@ -7596,8 +7745,8 @@ export const course: Course = {
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
-            "phrase-gen-s2-pasttime-v8",
-            "phrase-gen-s0-repair-v1"
+            "phrase-add-days-a",
+            "phrase-add-days-b"
           ],
           "speak": "gen-s2-pasttime",
           "agenda": [
@@ -7632,8 +7781,8 @@ export const course: Course = {
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
-            "phrase-gen-s2-pasttime-v8",
-            "phrase-gen-s0-repair-v1"
+            "phrase-add-days-a",
+            "phrase-add-days-b"
           ],
           "speak": "gen-s2-pasttime",
           "agenda": [
@@ -7663,8 +7812,8 @@ export const course: Course = {
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-pasttime-v1",
-            "phrase-gen-s2-pasttime-v8",
-            "phrase-gen-s0-repair-v1"
+            "phrase-add-days-a",
+            "phrase-add-days-b"
           ],
           "speak": "gen-s2-pasttime",
           "writing": true,
@@ -7696,6 +7845,9 @@ export const course: Course = {
           "имав",
           "отидов",
           "јадев",
+          "понеделник, вторник, среда, четврток",
+          "петок, сабота, недела",
+          "во сабота",
           "што правеше"
         ],
         "pointIds": [
@@ -8554,6 +8706,16 @@ export const course: Course = {
           "gloss": "I'd like to return (this)."
         },
         {
+          "lexKey": "ми треба помош",
+          "display": "Ми треба помош.",
+          "gloss": "I need help."
+        },
+        {
+          "lexKey": "ме боли глава",
+          "display": "Ме боли глава.",
+          "gloss": "I have a headache."
+        },
+        {
           "lexKey": "извинете, ама",
           "display": "Извинете, ама …",
           "gloss": "Sorry, but …"
@@ -8726,14 +8888,19 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
+              "lexKey": "ми треба помош",
+              "display": "Ми треба помош.",
+              "gloss": "I need help."
+            },
+            {
+              "lexKey": "ме боли глава",
+              "display": "Ме боли глава.",
+              "gloss": "I have a headache."
+            },
+            {
               "lexKey": "извинете, ама",
               "display": "Извинете, ама …",
               "gloss": "Sorry, but …"
-            },
-            {
-              "lexKey": "не разбирам зошто",
-              "display": "Не разбирам зошто.",
-              "gloss": "I don't understand why."
             }
           ],
           "story": {
@@ -8747,17 +8914,17 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s2-problems-v8",
+            "phrase-add-mi-treba",
+            "phrase-add-me-boli",
             "phrase-gen-s0-survive-v6",
             "sent-јаде",
             "sent-оди-t2",
-            "phrase-gen-s2-problems-v1",
-            "phrase-gen-s2-problems-v2"
+            "phrase-gen-s2-problems-v1"
           ],
           "speak": "gen-s2-problems",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "2 new words: Извинете, ама …, Не разбирам зошто",
+            "3 new words: Ми треба помош, Ме боли глава, Извинете, ама …",
             "Read “Проблем во кафулето”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Sorting out a problem"
@@ -8767,7 +8934,13 @@ export const course: Course = {
         {
           "n": 5,
           "role": "use",
-          "words": [],
+          "words": [
+            {
+              "lexKey": "не разбирам зошто",
+              "display": "Не разбирам зошто.",
+              "gloss": "I don't understand why."
+            }
+          ],
           "story": {
             "id": "gen-s1-directions-story",
             "lens": [
@@ -8780,17 +8953,18 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
+            "phrase-gen-s2-problems-v8",
             "phrase-gen-s0-survive-v6",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-problems-v1",
-            "phrase-gen-s2-problems-v2",
-            "phrase-gen-s2-problems-v4"
+            "phrase-gen-s2-problems-v2"
           ],
           "speak": "gen-s2-problems",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in your own words",
+            "1 new word: Не разбирам зошто",
             "Reread “Ана бара центар” from an earlier chapter: find this chapter's patterns, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Sorting out a problem",
@@ -8818,6 +8992,8 @@ export const course: Course = {
           "можете ли да помогнете",
           "погрешно",
           "сакам да вратам",
+          "ми треба помош",
+          "ме боли глава",
           "извинете, ама",
           "не разбирам зошто"
         ],
@@ -8879,7 +9055,12 @@ export const course: Course = {
         "каде е",
         "колку чини",
         "имате ли",
-        "денар / денари"
+        "денар / денари",
+        "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+        "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
+        "дваесет, триесет, четириесет, педесет, шеесет",
+        "седумдесет, осумдесет, деведесет",
+        "дваесет и пет"
       ],
       "pointIds": [
         "pt-sum",
@@ -8897,12 +9078,11 @@ export const course: Course = {
       ]
     },
     {
-      "afterChapterId": "s1-directions",
+      "afterChapterId": "s1-market",
       "chapterIds": [
         "s1-cafe-order",
         "s1-greet-intro",
-        "s1-market",
-        "s1-directions"
+        "s1-market"
       ],
       "wordKeys": [
         "имам",
@@ -8913,6 +9093,10 @@ export const course: Course = {
         "вода",
         "чај",
         "сок",
+        "сто, двесте, триста, четиристотини, петстотини",
+        "шестотини, седумстотини, осумстотини, деветстотини, илјада",
+        "двесте и педесет денари",
+        "би сакал / би сакала",
         "што ќе сакате",
         "повелете",
         "сметката, ве молам",
@@ -8945,10 +9129,39 @@ export const course: Course = {
         "леб",
         "млеко",
         "добар",
+        "ги земам јаболката",
         "сирење",
         "само тоа, фала",
         "пазар",
-        "благодарам",
+        "благодарам"
+      ],
+      "pointIds": [
+        "pt-verbs-a",
+        "pt-the",
+        "pt-da",
+        "pt-verbs-e-i",
+        "pt-se",
+        "pt-plurals",
+        "pt-adjectives",
+        "pt-go-ja-gi"
+      ],
+      "scenarioIds": [
+        "gen-s1-cafe-order",
+        "gen-s1-greet-intro",
+        "gen-s1-market"
+      ]
+    },
+    {
+      "afterChapterId": "s2-problems",
+      "chapterIds": [
+        "s1-directions",
+        "s2-smalltalk",
+        "s2-pasttime",
+        "s2-home-family",
+        "s2-arrange",
+        "s2-problems"
+      ],
+      "wordKeys": [
         "во",
         "на",
         "лево",
@@ -8963,38 +9176,7 @@ export const course: Course = {
         "билет",
         "во центарот",
         "улица",
-        "со"
-      ],
-      "pointIds": [
-        "pt-verbs-a",
-        "pt-the",
-        "pt-da",
-        "pt-verbs-e-i",
-        "pt-se",
-        "pt-plurals",
-        "pt-adjectives",
-        "pt-go-ja-gi",
-        "pt-prepositions",
-        "pt-commands",
-        "pt-more-most"
-      ],
-      "scenarioIds": [
-        "gen-s1-cafe-order",
-        "gen-s1-greet-intro",
-        "gen-s1-market",
-        "gen-s1-directions"
-      ]
-    },
-    {
-      "afterChapterId": "s2-problems",
-      "chapterIds": [
-        "s2-smalltalk",
-        "s2-pasttime",
-        "s2-home-family",
-        "s2-arrange",
-        "s2-problems"
-      ],
-      "wordKeys": [
+        "со",
         "ми се допаѓа",
         "не ми се допаѓа",
         "сакам да",
@@ -9013,6 +9195,9 @@ export const course: Course = {
         "имав",
         "отидов",
         "јадев",
+        "понеделник, вторник, среда, четврток",
+        "петок, сабота, недела",
+        "во сабота",
         "што правеше",
         "мојот / мојата",
         "мој",
@@ -9045,10 +9230,15 @@ export const course: Course = {
         "можете ли да помогнете",
         "погрешно",
         "сакам да вратам",
+        "ми треба помош",
+        "ме боли глава",
         "извинете, ама",
         "не разбирам зошто"
       ],
       "pointIds": [
+        "pt-prepositions",
+        "pt-commands",
+        "pt-more-most",
         "pt-mi-ti-mu",
         "pt-future",
         "pt-past",
@@ -9061,6 +9251,7 @@ export const course: Course = {
         "pt-perfect"
       ],
       "scenarioIds": [
+        "gen-s1-directions",
         "gen-s2-smalltalk",
         "gen-s2-pasttime",
         "gen-s2-home-family",
@@ -11414,6 +11605,45 @@ export const course: Course = {
     "sentence:sent-треба-t4": [
       "pt-mi-ti-mu",
       "pt-sum"
+    ],
+    "vocab:add-teens-a": [
+      "pt-numbers"
+    ],
+    "vocab:add-teens-b": [
+      "pt-numbers"
+    ],
+    "vocab:add-tens-a": [
+      "pt-numbers"
+    ],
+    "vocab:add-tens-b": [
+      "pt-numbers"
+    ],
+    "vocab:add-25": [
+      "pt-numbers"
+    ],
+    "vocab:add-hundreds-a": [
+      "pt-numbers"
+    ],
+    "vocab:add-hundreds-b": [
+      "pt-numbers"
+    ],
+    "vocab:add-250": [
+      "pt-numbers"
+    ],
+    "vocab:add-gi-zemam": [
+      "pt-go-ja-gi",
+      "pt-the",
+      "pt-plurals",
+      "pt-verbs-a"
+    ],
+    "vocab:add-vo-sabota": [
+      "pt-prepositions"
+    ],
+    "vocab:add-mi-treba": [
+      "pt-mi-ti-mu"
+    ],
+    "vocab:add-me-boli": [
+      "pt-go-ja-gi"
     ]
   },
   "chunkNotes": [
@@ -23195,5 +23425,761 @@ export const course: Course = {
         ]
       }
     }
-  }
+  },
+  "exams": [
+    {
+      "id": "midterm",
+      "afterChapterId": "s1-market",
+      "title": "Midterm · A morning in Skopje",
+      "intro": "Halfway. This checks you can get through an ordinary morning: meet someone, order, shop, and keep going when you don't catch something. It's open book: each task starts with a prep screen with the grammar and words you'll need, and you can take as long as you like there. Say or write it your own way; there's no one right answer. Whatever happens, the course carries on, and you'll get a short list of what to look at again.",
+      "canDos": [
+        {
+          "id": "m-repair",
+          "text": "Keep going when you don't understand: ask someone to repeat, slow down, or explain a word",
+          "chapterIds": [
+            "s0-repair"
+          ],
+          "pointIds": [
+            "pt-ne"
+          ]
+        },
+        {
+          "id": "m-greet",
+          "text": "Greet someone, ask how they are and say goodbye, casually (ти) or politely (вие)",
+          "chapterIds": [
+            "s0-greet"
+          ],
+          "pointIds": [
+            "pt-sum",
+            "pt-ti-vie"
+          ]
+        },
+        {
+          "id": "m-ask",
+          "text": "Ask what, where and how much, and yes/no questions with ли",
+          "chapterIds": [
+            "s0-greet"
+          ],
+          "pointIds": [
+            "pt-question-words",
+            "pt-yes-no"
+          ]
+        },
+        {
+          "id": "m-buy",
+          "text": "Buy something small: ask if they have it and what it costs, and understand the price",
+          "chapterIds": [
+            "s0-survive"
+          ],
+          "pointIds": [
+            "pt-gender",
+            "pt-numbers"
+          ]
+        },
+        {
+          "id": "m-cafe",
+          "text": "Order at a café and pay, saying what you want",
+          "chapterIds": [
+            "s1-cafe-order"
+          ],
+          "pointIds": [
+            "pt-verbs-a",
+            "pt-the",
+            "pt-da"
+          ]
+        },
+        {
+          "id": "m-intro",
+          "text": "Introduce yourself: your name, where you're from, what you do, and that you're learning Macedonian",
+          "chapterIds": [
+            "s1-greet-intro"
+          ],
+          "pointIds": [
+            "pt-sum",
+            "pt-verbs-e-i",
+            "pt-se"
+          ]
+        },
+        {
+          "id": "m-market",
+          "text": "Shop at the market: how much of something, more than one, cheap or expensive, and “I'll take them”",
+          "chapterIds": [
+            "s1-market"
+          ],
+          "pointIds": [
+            "pt-plurals",
+            "pt-adjectives",
+            "pt-go-ja-gi"
+          ]
+        }
+      ],
+      "tasks": [
+        {
+          "id": "m-s-meet",
+          "mode": "speak",
+          "title": "Meet someone at the café",
+          "scene": "You sit down at a café in Skopje next to someone your age. Start a conversation.",
+          "steps": [
+            "Say hello and ask how they are",
+            "Say your name and ask theirs",
+            "Say where you're from and that you're learning Macedonian",
+            "Say what you do (your job, or that you're a student)"
+          ],
+          "canDoIds": [
+            "m-greet",
+            "m-intro"
+          ],
+          "pointIds": [
+            "pt-sum",
+            "pt-se",
+            "pt-ti-vie",
+            "pt-verbs-e-i"
+          ],
+          "model": [
+            {
+              "text": "Здраво! Јас сум Ана. А ти?",
+              "gloss": "Hi! I am Ana. And you?",
+              "source": "scenario:gen-s1-greet-intro#1"
+            },
+            {
+              "text": "Мило ми е! Од каде си?",
+              "gloss": "Nice to meet you! Where are you from?",
+              "source": "scenario:gen-s1-greet-intro#3"
+            },
+            {
+              "text": "Од Лондон сум. Учам македонски.",
+              "gloss": "I'm from London. I'm learning Macedonian.",
+              "source": "scenario:gen-s1-greet-intro#5"
+            },
+            {
+              "text": "Јас сум учителка.",
+              "gloss": "I am a teacher.",
+              "source": "scenario:gen-s1-greet-intro#7"
+            }
+          ]
+        },
+        {
+          "id": "m-s-order",
+          "mode": "speak",
+          "title": "Order and pay",
+          "scene": "The waiter comes over. You're with a friend, and you want something to drink for both of you.",
+          "steps": [
+            "Greet the waiter and order two drinks, politely",
+            "Ask how much it is",
+            "You didn't catch the price: say so, and ask them to repeat it more slowly",
+            "Ask for the bill"
+          ],
+          "canDoIds": [
+            "m-cafe",
+            "m-repair",
+            "m-ask",
+            "m-buy"
+          ],
+          "pointIds": [
+            "pt-gender",
+            "pt-numbers",
+            "pt-the",
+            "pt-ne"
+          ],
+          "model": [
+            {
+              "text": "Добар ден! Едно кафе, ве молам.",
+              "gloss": "Good day! One coffee, please.",
+              "source": "scenario:gen-s1-cafe-order#1"
+            },
+            {
+              "text": "Едно кафе и една вода. Колку чини?",
+              "gloss": "One coffee and one water. How much is it?",
+              "source": "scenario:gen-s1-cafe-order#3"
+            },
+            {
+              "text": "Извинете. Не разбирам. Побавно, ве молам.",
+              "gloss": "Sorry. I don't understand. Slower, please.",
+              "source": "scenario:gen-s0-repair#1"
+            },
+            {
+              "text": "Можете ли да повторите? Уште еднаш, ве молам.",
+              "gloss": "Can you repeat? Once more, please.",
+              "source": "scenario:gen-s0-repair#3"
+            },
+            {
+              "text": "Повелете. Сметката, ве молам.",
+              "gloss": "Here you are. The bill, please.",
+              "source": "scenario:gen-s1-cafe-order#5"
+            }
+          ]
+        },
+        {
+          "id": "m-s-market",
+          "mode": "speak",
+          "title": "At the market",
+          "scene": "At the green market you want apples, and maybe some bread.",
+          "steps": [
+            "Greet the seller and say what you want",
+            "Ask for a kilo of apples",
+            "Ask how much a kilo is, and say whether that's cheap or expensive",
+            "Say you'll take them"
+          ],
+          "canDoIds": [
+            "m-market",
+            "m-buy",
+            "m-ask"
+          ],
+          "pointIds": [
+            "pt-plurals",
+            "pt-adjectives",
+            "pt-go-ja-gi",
+            "pt-numbers"
+          ],
+          "model": [
+            {
+              "text": "Добар ден! Сакам јаболка, ве молам.",
+              "gloss": "Good day! I want apples, please.",
+              "source": "scenario:gen-s1-market#1"
+            },
+            {
+              "text": "Едно кило, ве молам.",
+              "gloss": "One kilo, please.",
+              "source": "scenario:gen-s1-market#3"
+            },
+            {
+              "text": "Колку чини килото?",
+              "gloss": "How much is a kilo?",
+              "source": "scenario:gen-s1-market#5"
+            },
+            {
+              "text": "Добро, ќе ги земам. Повелете.",
+              "gloss": "Good, I'll take them. Here you are.",
+              "source": "scenario:gen-s1-market#7"
+            }
+          ]
+        },
+        {
+          "id": "m-w-intro",
+          "mode": "write",
+          "title": "Introduce yourself in writing",
+          "scene": "Write a short message introducing yourself to a new Macedonian friend.",
+          "steps": [
+            "Hello, and your name",
+            "Where you're from",
+            "What you do",
+            "That you're learning Macedonian, and one thing you don't know or understand yet (with не)"
+          ],
+          "canDoIds": [
+            "m-intro",
+            "m-greet",
+            "m-repair"
+          ],
+          "pointIds": [
+            "pt-sum",
+            "pt-ne",
+            "pt-verbs-e-i",
+            "pt-se"
+          ],
+          "model": [
+            {
+              "text": "Здраво! Јас сум Ана. А ти?",
+              "gloss": "Hi! I am Ana. And you?",
+              "source": "scenario:gen-s1-greet-intro#1"
+            },
+            {
+              "text": "Од Лондон сум. Учам македонски.",
+              "gloss": "I'm from London. I'm learning Macedonian.",
+              "source": "scenario:gen-s1-greet-intro#5"
+            },
+            {
+              "text": "Јас сум учителка.",
+              "gloss": "I am a teacher.",
+              "source": "scenario:gen-s1-greet-intro#7"
+            },
+            {
+              "text": "Сѐ уште учам.",
+              "gloss": "I'm still learning.",
+              "source": "vocab:gen-s0-repair-v8"
+            }
+          ]
+        },
+        {
+          "id": "m-w-list",
+          "mode": "write",
+          "title": "A shopping list, and a question",
+          "scene": "Write your list for the market: three things and how much of each. Then write one question for the seller.",
+          "steps": [
+            "Three things, each with an amount (one kilo, two …)",
+            "The right form after a number bigger than one (the plural)",
+            "One question for the seller, with колку or ли"
+          ],
+          "canDoIds": [
+            "m-market",
+            "m-buy",
+            "m-ask"
+          ],
+          "pointIds": [
+            "pt-numbers",
+            "pt-plurals",
+            "pt-gender",
+            "pt-yes-no"
+          ],
+          "model": [
+            {
+              "text": "Едно кило, ве молам.",
+              "gloss": "One kilo, please.",
+              "source": "scenario:gen-s1-market#3"
+            },
+            {
+              "text": "Колку чини килото?",
+              "gloss": "How much is a kilo?",
+              "source": "scenario:gen-s1-market#5"
+            },
+            {
+              "text": "Имате ли вода? Колку чини?",
+              "gloss": "Do you have water? How much is it?",
+              "source": "scenario:gen-s0-survive#3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "final",
+      "afterChapterId": "s2-problems",
+      "title": "Final · A week in Macedonia",
+      "intro": "The whole course. This checks you can make plans, find your way, talk about yourself and your days, and sort out a problem, as well as the everyday basics from the first half. Open book again: prep as long as you like, with the grammar and words for each task one tap away. The last speaking task is a short talk you prepare in advance, so notes are fine. Afterwards you'll see what you can do, and what's worth another look.",
+      "canDos": [
+        {
+          "id": "f-way",
+          "text": "Ask for and follow directions, and say which way to go",
+          "chapterIds": [
+            "s1-directions"
+          ],
+          "pointIds": [
+            "pt-prepositions",
+            "pt-commands",
+            "pt-more-most"
+          ]
+        },
+        {
+          "id": "f-likes",
+          "text": "Say what you like and what you think, agree, and talk about plans",
+          "chapterIds": [
+            "s2-smalltalk"
+          ],
+          "pointIds": [
+            "pt-mi-ti-mu",
+            "pt-future"
+          ]
+        },
+        {
+          "id": "f-past",
+          "text": "Say what you did, and ask someone about their day",
+          "chapterIds": [
+            "s2-pasttime"
+          ],
+          "pointIds": [
+            "pt-past",
+            "pt-aspect"
+          ]
+        },
+        {
+          "id": "f-family",
+          "text": "Talk about your family, your home, your work and your age",
+          "chapterIds": [
+            "s2-home-family"
+          ],
+          "pointIds": [
+            "pt-possessives",
+            "pt-irregular-plurals"
+          ]
+        },
+        {
+          "id": "f-plans",
+          "text": "Make a plan by phone: a day, a time and a place, and confirm it",
+          "chapterIds": [
+            "s2-arrange"
+          ],
+          "pointIds": [
+            "pt-time",
+            "pt-ajde-da"
+          ]
+        },
+        {
+          "id": "f-problem",
+          "text": "Report a problem, complain politely, and get it put right",
+          "chapterIds": [
+            "s2-problems"
+          ],
+          "pointIds": [
+            "pt-ima-nema",
+            "pt-ti-vie"
+          ]
+        },
+        {
+          "id": "f-basics",
+          "text": "Still handle the basics from the first half: greeting, asking, ordering, introducing yourself",
+          "chapterIds": [
+            "s0-greet",
+            "s1-cafe-order",
+            "s1-greet-intro"
+          ],
+          "pointIds": [
+            "pt-sum",
+            "pt-ne",
+            "pt-yes-no"
+          ]
+        }
+      ],
+      "tasks": [
+        {
+          "id": "f-s-phone",
+          "mode": "speak",
+          "title": "Plans for Saturday",
+          "scene": "You phone a friend to meet up at the weekend.",
+          "steps": [
+            "Open the call and ask for your friend",
+            "Ask what they did yesterday",
+            "Suggest meeting on Saturday, and a time",
+            "Suggest a place, and confirm the plan"
+          ],
+          "canDoIds": [
+            "f-plans",
+            "f-past",
+            "f-basics"
+          ],
+          "pointIds": [
+            "pt-time",
+            "pt-ajde-da",
+            "pt-past"
+          ],
+          "model": [
+            {
+              "text": "Ало, здраво! Дома ли е Ана?",
+              "gloss": "Hello, hi! Is Ana home?",
+              "source": "scenario:gen-s2-arrange#1"
+            },
+            {
+              "text": "А ти, што правеше вчера?",
+              "gloss": "And you, what did you do yesterday?",
+              "source": "scenario:gen-s2-pasttime#5"
+            },
+            {
+              "text": "во сабота",
+              "gloss": "on Saturday",
+              "source": "vocab:add-vo-sabota"
+            },
+            {
+              "text": "Ајде да се видиме денес. Во колку часот?",
+              "gloss": "Let's meet today. At what time?",
+              "source": "scenario:gen-s2-arrange#3"
+            },
+            {
+              "text": "Ајде во кафулето на плоштадот.",
+              "gloss": "Let's meet at the cafe on the square.",
+              "source": "scenario:gen-s2-arrange#5"
+            },
+            {
+              "text": "Во ред, во седум. Чао!",
+              "gloss": "Alright, at seven. Bye!",
+              "source": "scenario:gen-s2-arrange#7"
+            }
+          ]
+        },
+        {
+          "id": "f-s-way",
+          "mode": "speak",
+          "title": "Finding the bus station",
+          "scene": "You're on a street in the city and need the bus station.",
+          "steps": [
+            "Stop someone politely and ask where it is",
+            "Check whether it's left or right, near or far",
+            "Ask whether you can go by bus",
+            "Thank them"
+          ],
+          "canDoIds": [
+            "f-way",
+            "f-basics"
+          ],
+          "pointIds": [
+            "pt-prepositions",
+            "pt-yes-no",
+            "pt-ti-vie"
+          ],
+          "model": [
+            {
+              "text": "Извинете! Каде е автобуската станица?",
+              "gloss": "Excuse me! Where is the bus station?",
+              "source": "scenario:gen-s1-directions#0"
+            },
+            {
+              "text": "Лево? Дали е близу?",
+              "gloss": "Left? Is it near?",
+              "source": "scenario:gen-s1-directions#2"
+            },
+            {
+              "text": "Може со автобус или со трамвај?",
+              "gloss": "Can I go by bus or by tram?",
+              "source": "scenario:gen-s1-directions#4"
+            },
+            {
+              "text": "Ви благодарам! Пријатно!",
+              "gloss": "Thank you! Have a nice day!",
+              "source": "scenario:gen-s1-directions#6"
+            }
+          ]
+        },
+        {
+          "id": "f-s-problem",
+          "mode": "speak",
+          "title": "Something's wrong",
+          "scene": "At a café your coffee arrives cold, and then the bill is wrong.",
+          "steps": [
+            "Say there's a problem, and what it is",
+            "Say the bill is wrong",
+            "Ask for help, or say you want to send the coffee back",
+            "Thank them once it's sorted"
+          ],
+          "canDoIds": [
+            "f-problem",
+            "f-basics"
+          ],
+          "pointIds": [
+            "pt-ima-nema",
+            "pt-ne",
+            "pt-da"
+          ],
+          "model": [
+            {
+              "text": "Добар ден! Има проблем. Кафето не е топло.",
+              "gloss": "Good day! There is a problem. The coffee is not hot.",
+              "source": "scenario:gen-s2-problems#1"
+            },
+            {
+              "text": "Ова не е тоа што нарачав. Сметката е погрешна.",
+              "gloss": "This is not what I ordered. The bill is wrong.",
+              "source": "scenario:gen-s2-problems#3"
+            },
+            {
+              "text": "Може ли да помогнете? Сакам да вратам кафето.",
+              "gloss": "Can you help? I want to return the coffee.",
+              "source": "scenario:gen-s2-problems#5"
+            },
+            {
+              "text": "Благодарам многу! Сега е во ред.",
+              "gloss": "Thank you very much! Now it's fine.",
+              "source": "scenario:gen-s2-problems#7"
+            }
+          ]
+        },
+        {
+          "id": "f-s-me",
+          "mode": "speak",
+          "title": "About me (prepared)",
+          "scene": "A one-minute talk about yourself. Prepare it first; notes are fine.",
+          "steps": [
+            "How old you are and where you live",
+            "Your family",
+            "What you did yesterday",
+            "What you'll do tomorrow, and something you like"
+          ],
+          "canDoIds": [
+            "f-family",
+            "f-past",
+            "f-likes"
+          ],
+          "pointIds": [
+            "pt-possessives",
+            "pt-past",
+            "pt-future",
+            "pt-mi-ti-mu"
+          ],
+          "model": [
+            {
+              "text": "Здраво! Имам триесет години.",
+              "gloss": "Hi! I am thirty years old.",
+              "source": "scenario:gen-s2-home-family#1"
+            },
+            {
+              "text": "Живеам во Скопје, во голем стан.",
+              "gloss": "I live in Skopje, in a big apartment.",
+              "source": "scenario:gen-s2-home-family#3"
+            },
+            {
+              "text": "Да, имам жена и едно дете.",
+              "gloss": "Yes, I have a wife and one child.",
+              "source": "scenario:gen-s2-home-family#5"
+            },
+            {
+              "text": "Отидов во кафуле и јадев сендвич.",
+              "gloss": "I went to a café and ate a sandwich.",
+              "source": "scenario:gen-s2-pasttime#3"
+            },
+            {
+              "text": "Утре ќе одам на кафе со пријател.",
+              "gloss": "Tomorrow I will go for coffee with a friend.",
+              "source": "scenario:gen-s2-pasttime#7"
+            },
+            {
+              "text": "Да, многу ми се допаѓа. Убаво е.",
+              "gloss": "Yes, I like it a lot. It's nice.",
+              "source": "scenario:gen-s2-smalltalk#1"
+            }
+          ]
+        },
+        {
+          "id": "f-w-day",
+          "mode": "write",
+          "title": "Yesterday and tomorrow",
+          "scene": "Text a friend about your days.",
+          "steps": [
+            "Two things you did yesterday",
+            "One thing you'll do tomorrow (with ќе)",
+            "Ask what they did"
+          ],
+          "canDoIds": [
+            "f-past",
+            "f-likes"
+          ],
+          "pointIds": [
+            "pt-past",
+            "pt-future"
+          ],
+          "model": [
+            {
+              "text": "Здраво! Добро сум. Вчера бев на работа.",
+              "gloss": "Hi! I'm good. Yesterday I was at work.",
+              "source": "scenario:gen-s2-pasttime#1"
+            },
+            {
+              "text": "Отидов во кафуле и јадев сендвич.",
+              "gloss": "I went to a café and ate a sandwich.",
+              "source": "scenario:gen-s2-pasttime#3"
+            },
+            {
+              "text": "Утре ќе одам на кафе со пријател.",
+              "gloss": "Tomorrow I will go for coffee with a friend.",
+              "source": "scenario:gen-s2-pasttime#7"
+            },
+            {
+              "text": "А ти, што правеше вчера?",
+              "gloss": "And you, what did you do yesterday?",
+              "source": "scenario:gen-s2-pasttime#5"
+            }
+          ]
+        },
+        {
+          "id": "f-w-family",
+          "mode": "write",
+          "title": "My family and my home",
+          "scene": "A short paragraph for a pen pal.",
+          "steps": [
+            "Who's in your family (my …)",
+            "Where you live, and what it's like",
+            "What you do"
+          ],
+          "canDoIds": [
+            "f-family"
+          ],
+          "pointIds": [
+            "pt-possessives",
+            "pt-adjectives"
+          ],
+          "model": [
+            {
+              "text": "Имам брат и сестра.",
+              "gloss": "I have a brother and a sister.",
+              "source": "vocab:gen-s2-home-family-v7"
+            },
+            {
+              "text": "Живеам во Скопје, во голем стан.",
+              "gloss": "I live in Skopje, in a big apartment.",
+              "source": "scenario:gen-s2-home-family#3"
+            },
+            {
+              "text": "Работам како учител.",
+              "gloss": "I work as a teacher.",
+              "source": "scenario:gen-s2-home-family#7"
+            }
+          ]
+        },
+        {
+          "id": "f-w-invite",
+          "mode": "write",
+          "title": "An invitation",
+          "scene": "Invite a friend to meet up.",
+          "steps": [
+            "Suggest a day and a time",
+            "Suggest a place",
+            "Say what you'll do together (let's …)"
+          ],
+          "canDoIds": [
+            "f-plans"
+          ],
+          "pointIds": [
+            "pt-time",
+            "pt-ajde-da",
+            "pt-future"
+          ],
+          "model": [
+            {
+              "text": "во сабота",
+              "gloss": "on Saturday",
+              "source": "vocab:add-vo-sabota"
+            },
+            {
+              "text": "Ајде да се видиме денес. Во колку часот?",
+              "gloss": "Let's meet today. At what time?",
+              "source": "scenario:gen-s2-arrange#3"
+            },
+            {
+              "text": "Ајде во кафулето на плоштадот.",
+              "gloss": "Let's meet at the cafe on the square.",
+              "source": "scenario:gen-s2-arrange#5"
+            }
+          ]
+        },
+        {
+          "id": "f-w-complaint",
+          "mode": "write",
+          "title": "A polite complaint",
+          "scene": "Write to a shop: something you bought there doesn't work.",
+          "steps": [
+            "Say there's a problem with what you bought",
+            "Say what's wrong (it doesn't work)",
+            "Say what you'd like: to return it, or help",
+            "Keep it polite (the вие forms)"
+          ],
+          "canDoIds": [
+            "f-problem",
+            "f-basics"
+          ],
+          "pointIds": [
+            "pt-ima-nema",
+            "pt-ti-vie",
+            "pt-da"
+          ],
+          "model": [
+            {
+              "text": "Има проблем.",
+              "gloss": "There's a problem.",
+              "source": "vocab:gen-s2-problems-v1"
+            },
+            {
+              "text": "Не работи.",
+              "gloss": "It doesn't work.",
+              "source": "vocab:gen-s2-problems-v2"
+            },
+            {
+              "text": "Сакам да вратам.",
+              "gloss": "I want to return (it).",
+              "source": "vocab:gen-s2-problems-v6"
+            },
+            {
+              "text": "Можете ли да помогнете?",
+              "gloss": "Can you help?",
+              "source": "vocab:gen-s2-problems-v4"
+            }
+          ]
+        }
+      ]
+    }
+  ]
 };

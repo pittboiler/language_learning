@@ -8,7 +8,7 @@
 // Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import type { Chapter, ConjugationSet, CourseSession, DialogueTurn, GlyphLesson, GrammarConcept, GrammarPoint, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, CourseExam, CourseSession, ExamTask, DialogueTurn, GlyphLesson, GrammarConcept, GrammarPoint, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -20,10 +20,11 @@ import type { ChapterStatus } from "@ll/core/chapters";
 import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID, packList } from "../lib/packs";
-import { getStore, emptyProgress, type Progress } from "../lib/store";
+import { getStore, emptyProgress, type ExamAttempt, type Progress } from "../lib/store";
 import { REVIEW_DAY_ITEMS, WARMUP_ITEMS, isReviewDay, localDay, markStorySeen, planNewWords, storyDone } from "../lib/daily";
 import { captureWord, properNounLike, buildLineGlosses, toggleStar, starMany } from "../lib/capture";
 import * as cp from "../lib/course-player";
+import { combineResults, selfCheckGrade, type CanDoResult, type ExamGrade } from "@ll/core/exam/results";
 import { courseSteps, pickConjVerb, reviewPool, rotate, shuffle, type StoryLens, type TodayStep } from "../lib/today-plan";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
@@ -725,6 +726,10 @@ function Today({ progress, persist, config, navigate }: {
           />
         )}
 
+        {step.kind === "exam" && (
+          <ExamView key={idx} exam={step.exam} progress={progress} persist={persist} onFinish={(p) => done(p)} onLater={() => done()} />
+        )}
+
         {step.kind === "stage" && (
           <StageReview
             key={idx}
@@ -766,7 +771,7 @@ function Today({ progress, persist, config, navigate }: {
             <Tag>New words · {step.words.length}</Tag>
             <NewWordsCard
               words={step.words}
-              noteFor={(k) => { const v = pack.vocab.find((x) => familiarity.deriveKeyForItem(x).lexKey === k); return v ? pack.course?.chunkNotes.find((n) => n.source === `vocab:${v.id}`)?.note : undefined; }}
+              noteFor={(k) => { const v = pack.vocab.find((x) => familiarity.deriveKeyForItem(x).lexKey === k); return v ? pack.course?.chunkNotes.find((n) => n.source === `vocab:${v.id}`)?.note ?? (v.meta?.wordNote as string | undefined) : undefined; }}
               onDone={() => done(captureWords(progress, step.words))}
               onMiss={flagWord}
               isStarred={(w) => { const e = progress.familiarity[w.lexKey]; return !!e && familiarity.isStarred(e); }}
@@ -837,9 +842,12 @@ function Today({ progress, persist, config, navigate }: {
         )}
       </div>
 
-      <div className="row" style={{ marginTop: 14 }}>
-        <button className="ghost small" onClick={() => done()}>Skip this step →</button>
-      </div>
+      {/* The exam has its own skips (per task, and "take it later") — a generic skip would drop it unsaved. */}
+      {step.kind !== "exam" && (
+        <div className="row" style={{ marginTop: 14 }}>
+          <button className="ghost small" onClick={() => done()}>Skip this step →</button>
+        </div>
+      )}
     </section>
   );
 }
@@ -1327,6 +1335,7 @@ function CourseRecap({ pos, since, until, progress, persist, missed, onReviewMis
         </>
       ) : <h3 style={{ marginTop: 4 }}>Today&apos;s recap</h3>}
       {pos.kind === "stage-review" && <p className="lead">{notes ? "A stage review: a sample of every chapter in the stage." : "Stage review done — everything you missed is back in your reviews."}</p>}
+      {pos.kind === "exam" && <p className="lead">{notes ? `${pos.exam.title}: your results are in Progress → The course.` : `${pos.exam.title} done. Your results are saved in Progress → The course, where you can retake it any time.`}</p>}
 
       {rc.points.map(({ point, fresh, lines }) => (
         <div className="fb" key={point.id} style={{ marginBottom: 12 }}>
@@ -1511,7 +1520,7 @@ function TodayHeader({ progress }: { progress: Progress }) {
           <span className="muted small">
             {pos.kind === "session" && ch
               ? <>Chapter {ch.order} · <b>{ch.shortTitle}</b> · session {pos.session.n} of {pos.chapter.sessions.length}{pos.session.role === "review" ? " · review day" : pos.session.role === "checkpoint" ? " · checkpoint" : ""}</>
-              : pos.kind === "stage-review" ? <>Stage review · everything so far</> : "Course complete"}
+              : pos.kind === "stage-review" ? <>Stage review · everything so far</> : pos.kind === "exam" ? <><b>{pos.exam.title}</b> · open book</> : "Course complete"}
           </span>
         </div>
         <span className="streak-chip" title="Day streak">🔥 {streak} day{streak === 1 ? "" : "s"}</span>
@@ -3733,12 +3742,12 @@ function ProgressDash({ progress, persist, navigate, dueCount }: { progress: Pro
 // ---------- Lesson notes: a finished session's recap, reopened later (Progress → The course, Library → My notes) ----------
 // Rebuilt from the blueprint plus the small record kept when the session ended (Progress.courseLog). Sessions
 // finished before records were kept still open, just without a date or the items missed.
-type NoteAt = { chapterId: string; n: number; stage?: boolean };
+type NoteAt = { chapterId: string; n: number; stage?: boolean; exam?: boolean };
 let pendingNotesFocus: NoteAt | null = null;
 const noteDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : undefined);
 function noteTitle(pack: LanguagePack, at: NoteAt): string {
   const ch = pack.chapters?.find((c) => c.id === at.chapterId);
-  return at.stage ? `Stage review after ${ch?.shortTitle ?? at.chapterId}` : `Chapter ${ch?.order ?? ""} · ${ch?.shortTitle ?? ""} · session ${at.n}`;
+  return at.exam ? (pack.course?.exams?.find((e) => e.afterChapterId === at.chapterId)?.title ?? "Exam") : at.stage ? `Stage review after ${ch?.shortTitle ?? at.chapterId}` : `Chapter ${ch?.order ?? ""} · ${ch?.shortTitle ?? ""} · session ${at.n}`;
 }
 
 function LessonNotes({ at, progress, persist, navigate, onBack, backLabel }: {
@@ -3838,10 +3847,29 @@ function CourseMap({ progress, persist, navigate }: { progress: Progress; persis
   const play = usePlay();
   const ov = useMemo(() => cp.courseOverview(pack, pack.course!, progress), [pack, progress]);
   const [open, setOpen] = useState<string | null>(() => ov.current?.chapterId ?? null);
-  const [view, setView] = useState<{ kind: "notes"; at: NoteAt } | { kind: "glance"; chapterId: string } | null>(null);
+  const [view, setView] = useState<{ kind: "notes"; at: NoteAt } | { kind: "glance"; chapterId: string } | { kind: "exam" | "exam-results"; examId: string } | null>(null);
   if (view?.kind === "notes") return <LessonNotes at={view.at} progress={progress} persist={persist} navigate={navigate} onBack={() => setView(null)} backLabel="The course" />;
   if (view?.kind === "glance") return <ChapterGlance chapterId={view.chapterId} progress={progress} navigate={navigate} onBack={() => setView(null)} backLabel="The course" />;
-  const here = ov.chapters.find((c) => c.state === "current" || c.stageReview?.state === "current");
+  // Exams can be taken again (or for the first time, if set aside) from here; that never moves the course.
+  const examOf = (id: string) => pack.course?.exams?.find((e) => e.id === id);
+  if (view?.kind === "exam" && examOf(view.examId)) {
+    return (
+      <div style={{ marginTop: 22 }}>
+        <button className="ghost small" onClick={() => setView(null)}>← The course</button>
+        <div style={{ marginTop: 10 }}><ExamView exam={examOf(view.examId)!} progress={progress} persist={persist} onFinish={(p) => { persist(p); setView(null); }} /></div>
+      </div>
+    );
+  }
+  if (view?.kind === "exam-results" && examOf(view.examId)) {
+    const last = progress.exams?.[view.examId]?.at(-1);
+    return (
+      <div style={{ marginTop: 22 }}>
+        <button className="ghost small" onClick={() => setView(null)}>← The course</button>
+        {last ? <div style={{ marginTop: 10 }}><p className="muted small">Taken {new Date(last.at).toLocaleDateString()}</p><ExamResults exam={examOf(view.examId)!} results={last.results} answers={last.tasks} progress={progress} persist={persist} onDone={() => setView(null)} doneLabel="Back to the course" /></div> : <p className="muted">Not taken yet.</p>}
+      </div>
+    );
+  }
+  const here = ov.chapters.find((c) => c.state === "current" || c.stageReview?.state === "current" || c.exam?.state === "current");
   return (
     <>
       <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 22 }}>
@@ -3887,6 +3915,22 @@ function CourseMap({ progress, persist, navigate }: { progress: Progress; persis
                         {ch.stageReview.state === "done" && <button className="ghost small" onClick={() => setView({ kind: "notes", at: { chapterId: ch.chapterId, n: 0, stage: true } })}>Notes</button>}
                       </li>
                     )}
+                    {ch.exam && (() => {
+                      const ex = examOf(ch.exam.id);
+                      const last = progress.exams?.[ch.exam.id]?.at(-1);
+                      const metN = ex && last ? ex.canDos.filter((c) => last.results[c.id] === "met").length : 0;
+                      return (
+                        <li className={`session-row ${ch.exam.state}`}>
+                          <span className="sess-n">{ch.exam.state === "current" ? "▶" : last ? "✓" : "✎"}</span>
+                          <span className="sess-text">{ch.exam.title}
+                            {last && ex ? <span className="muted small"> · last time {metN} of {ex.canDos.length} ✓</span> : ch.exam.state === "done" ? <span className="muted small"> · not taken yet</span> : null}
+                            {ch.exam.state === "current" ? <span className="muted small"> · next up in Today</span> : null}
+                          </span>
+                          {last && <button className="ghost small" onClick={() => setView({ kind: "exam-results", examId: ch.exam!.id })}>Results</button>}
+                          {ch.exam.state === "done" && <button className="ghost small" onClick={() => setView({ kind: "exam", examId: ch.exam!.id })}>{last ? "Retake" : "Take it"}</button>}
+                        </li>
+                      );
+                    })()}
                   </ol>
                   {ch.words.length > 0 && (
                     <details>
@@ -3912,6 +3956,323 @@ function CourseMap({ progress, persist, navigate }: { progress: Progress; persis
       </div>
       {here && <p className="muted small">You&apos;re on <b>{here.title}</b>. Today picks up at the ▶ session.</p>}
     </>
+  );
+}
+
+// ---------- midterm / final (course.exams) ----------
+// Open book: every task opens on a prep screen (the steps, the grammar inline, the chapters' words) for as long
+// as the learner likes; then they speak (recorded → both speech engines → marked) or write (marked). Speech the
+// engines can't hear — or no mic — becomes a self-check against the model answer. Not a gate: the results end
+// with a review list, and the course moves on either way.
+type ExamAnswer = { response: string; grade?: ExamGrade; selfCheck?: boolean; skipped?: boolean };
+const RESULT_MARK: Record<CanDoResult, string> = { met: "✓", partly: "◐", "not-yet": "✗" };
+const RESULT_LABEL: Record<CanDoResult, string> = { met: "you can do this", partly: "nearly", "not-yet": "not yet" };
+const STEP_MARK: Record<"yes" | "partly" | "no", string> = { yes: "✓", partly: "◐", no: "✗" };
+
+function ExamView({ exam, progress, persist, onFinish, onLater }: {
+  exam: CourseExam; progress: Progress; persist: (p: Progress) => void;
+  /** Called with the progress to keep (attempt saved) when the learner is done with the results. */
+  onFinish: (p: Progress) => void;
+  /** Today only: set the exam aside for now (the course still moves on; take it later from Progress). */
+  onLater?: () => void;
+}) {
+  const [at, setAt] = useState<"intro" | number | "results">("intro");
+  const [answers, setAnswers] = useState<Record<string, ExamAnswer>>({});
+  const tasks = exam.tasks;
+  if (at === "intro") {
+    return (
+      <div>
+        <div className="gram-kicker">Open book</div>
+        <h3 style={{ margin: "4px 0 6px" }}>{exam.title}</h3>
+        <p style={{ margin: "0 0 10px" }}>{exam.intro}</p>
+        <div className="fb">
+          <div className="muted small" style={{ marginBottom: 4 }}>By now you should be able to:</div>
+          <ul style={{ margin: 0, paddingLeft: 18 }}>{exam.canDos.map((c) => <li key={c.id} className="small" style={{ margin: "3px 0" }}>{c.text}</li>)}</ul>
+        </div>
+        <p className="muted small">{tasks.filter((t) => t.mode === "speak").length} speaking tasks, then {tasks.filter((t) => t.mode === "write").length} writing tasks · about {tasks.length * 4} minutes · any task can be skipped</p>
+        <div className="row">
+          <button className="btn" onClick={() => setAt(0)}>Start →</button>
+          {onLater && <button className="ghost small" onClick={onLater}>Take it later (from Progress)</button>}
+        </div>
+      </div>
+    );
+  }
+  if (at === "results") {
+    const results = combineResults(Object.values(answers).flatMap((a) => (a.grade ? [a.grade] : [])));
+    return <ExamResults exam={exam} results={results} answers={answers} progress={progress} persist={persist}
+      onDone={(p) => {
+        const attempt: ExamAttempt = { at: new Date().toISOString(), results, tasks: answers };
+        onFinish({ ...p, exams: { ...p.exams, [exam.id]: [...(p.exams?.[exam.id] ?? []), attempt] } });
+      }} />;
+  }
+  const task = tasks[at]!;
+  const next = () => setAt(at + 1 < tasks.length ? at + 1 : "results");
+  return (
+    <ExamTaskView key={task.id} exam={exam} task={task} index={at} total={tasks.length}
+      onAnswered={(a) => setAnswers((x) => ({ ...x, [task.id]: a }))} onNext={next} />
+  );
+}
+
+function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
+  exam: CourseExam; task: ExamTask; index: number; total: number;
+  onAnswered: (a: ExamAnswer) => void; onNext: () => void;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const [phase, setPhase] = useState<"prep" | "do" | "marking" | "result" | "self">("prep");
+  const [selfWhy, setSelfWhy] = useState<"unclear" | "chosen">("chosen"); // why we're self-checking
+  const [text, setText] = useState("");
+  const [heard, setHeard] = useState<{ scribe?: string; google?: string } | null>(null);
+  const [recording, setRecording] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const [grade, setGrade] = useState<ExamGrade | null>(null);
+  const [self, setSelf] = useState<("yes" | "partly" | "no" | undefined)[]>(() => task.steps.map(() => undefined));
+  const rec = useRef(makeRecorder());
+  const points = task.pointIds.map((id) => pack.course?.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p);
+  const chapterIds = [...new Set(exam.canDos.filter((c) => task.canDoIds.includes(c.id)).flatMap((c) => c.chapterIds))];
+  const words = (pack.course?.chapters ?? []).filter((c) => chapterIds.includes(c.chapterId)).flatMap((c) => c.words);
+  const speak = task.mode === "speak";
+
+  const reference = (
+    <>
+      {points.length > 0 && (
+        <details className="exam-ref">
+          <summary className="small">Grammar for this task · {points.map((p) => p.title).join(" · ")}</summary>
+          {points.map((p) => (
+            <div key={p.id} style={{ marginTop: 8 }}>
+              <div className="small"><b>{p.title}</b></div>
+              <p className="small" style={{ margin: "2px 0 4px" }}>{p.rule}</p>
+              <div className="gram-ex-list">
+                {p.examples.slice(0, 2).map((e) => (
+                  <div className="gram-ex" key={e.source}><button className="gram-play" onClick={() => play(e.text)} aria-label={`Play ${e.text}`}>▶</button><span className="mk">{e.text}</span><span className="en">{e.gloss}</span></div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </details>
+      )}
+      {words.length > 0 && (
+        <details className="exam-ref">
+          <summary className="small">Words from {chapterIds.length > 1 ? "these chapters" : "this chapter"} · {words.length}</summary>
+          <div className="word-grid">
+            {words.map((w) => (
+              <span key={w.lexKey} className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
+                <button className="gram-play" onClick={() => play(w.display)} aria-label={`Play ${w.display}`}>▶</button>
+                <span><b className="target">{w.display}</b> <span className="muted small">{w.gloss}</span></span>
+              </span>
+            ))}
+          </div>
+        </details>
+      )}
+    </>
+  );
+  const steps = (marks?: ("yes" | "partly" | "no" | undefined)[]) => (
+    <ol style={{ margin: "4px 0 8px", paddingLeft: 20 }}>
+      {task.steps.map((s, i) => <li key={i} className="small" style={{ margin: "3px 0" }}>{marks?.[i] ? `${STEP_MARK[marks[i]!]} ` : ""}{s}</li>)}
+    </ol>
+  );
+  const head = (
+    <>
+      <div className="pbar"><div style={{ width: `${(index / total) * 100}%` }} /></div>
+      <div className="muted small" style={{ marginBottom: 6 }}>{exam.title} · task {index + 1} of {total} · {speak ? "speaking" : "writing"}</div>
+      <div className="gram-title">{task.title}</div>
+      <p style={{ margin: "4px 0 6px" }}>{task.scene}</p>
+    </>
+  );
+
+  const mark = async (body: { response?: string; transcripts?: { scribe?: string; google?: string } }) => {
+    setPhase("marking"); setErr("");
+    try {
+      const g = await api.gradeExam({ examId: exam.id, taskId: task.id, ...body }, pack.id);
+      if (g.error) throw new Error(g.error);
+      if (g.unclear) { setSelfWhy("unclear"); setPhase("self"); return; }
+      setGrade(g);
+      onAnswered({ response: body.response ?? body.transcripts?.scribe ?? body.transcripts?.google ?? "", grade: g });
+      setPhase("result");
+    } catch (e) {
+      setErr((e as { message?: string }).message ?? "Couldn't mark that.");
+      setPhase("self"); // marking failed: the learner checks themselves rather than losing the task
+    }
+  };
+  const startRec = async () => { setErr(""); try { await rec.current.start(); setRecording(true); } catch { setErr("No microphone available — check yourself against the model answer instead."); setPhase("self"); } };
+  const stopRec = async () => {
+    setRecording(false); setBusy(true);
+    try {
+      const out = await api.asr(await rec.current.stop(), pack.id);
+      setHeard({ scribe: out.eleven?.text, google: out.google?.text });
+    } catch { setErr("Couldn't process the recording — try again, or check yourself."); }
+    finally { setBusy(false); }
+  };
+  const model = (
+    <div className="fb" style={{ marginTop: 10 }}>
+      <div className="muted small" style={{ marginBottom: 4 }}>One way to say it (yours can be different)</div>
+      <div className="gram-ex-list">
+        {task.model.map((m) => (
+          <div className="gram-ex" key={m.source}><button className="gram-play" onClick={() => play(m.text)} aria-label={`Play ${m.text}`}>▶</button><span className="mk">{m.text}</span><span className="en">{m.gloss}</span></div>
+        ))}
+      </div>
+    </div>
+  );
+
+  if (phase === "prep") {
+    return (
+      <div>
+        {head}
+        <div className="fb">
+          <div className="gram-kicker">Prepare · open book</div>
+          <div className="muted small" style={{ marginTop: 4 }}>{speak ? "Say" : "Write"}, in order:</div>
+          {steps()}
+          {reference}
+          <p className="muted small" style={{ margin: "8px 0 0" }}>Take as long as you like. {speak ? "When you record, it's fine to glance at notes." : "The grammar and words stay open while you write."}</p>
+        </div>
+        <div className="row" style={{ marginTop: 10 }}>
+          <button className="btn" onClick={() => setPhase("do")}>I&apos;m ready →</button>
+          <button className="ghost small" onClick={() => { onAnswered({ response: "", skipped: true }); onNext(); }}>Skip this task</button>
+        </div>
+      </div>
+    );
+  }
+  if (phase === "do") {
+    return (
+      <div>
+        {head}
+        {steps()}
+        {speak ? (
+          <div className="fb">
+            {!heard ? (
+              <>
+                <div className="muted small">Record yourself doing the whole thing, start to finish.</div>
+                <div className="row" style={{ marginTop: 8 }}>
+                  {recording ? <button className="rec" onClick={() => void stopRec()}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={() => void startRec()}>{busy ? "Listening back…" : "● Record"}</button>}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="muted small">We heard:</div>
+                <div className="target" style={{ margin: "6px 0" }}>{heard.scribe || heard.google || "(nothing clear)"}</div>
+                <div className="row">
+                  <button className="btn" onClick={() => void mark({ transcripts: heard })}>Mark it →</button>
+                  <button className="ghost small" onClick={() => setHeard(null)}>Record again</button>
+                </div>
+              </>
+            )}
+            <button className="linklike small" style={{ marginTop: 8 }} onClick={() => setPhase("self")}>Can&apos;t record? Check yourself against a model answer</button>
+          </div>
+        ) : (
+          <div className="fb">
+            <textarea className="exam-text" rows={6} value={text} onChange={(e) => setText(e.target.value)} placeholder="Write in Macedonian (Cyrillic or Latin letters both fine)…" />
+            <div className="row" style={{ marginTop: 8 }}>
+              <button className="btn" disabled={!text.trim()} onClick={() => void mark({ response: text })}>Mark it →</button>
+            </div>
+          </div>
+        )}
+        {err ? <div className="err">{err}</div> : null}
+        {reference}
+      </div>
+    );
+  }
+  if (phase === "marking") return <div>{head}<p className="muted">Marking your answer… (this takes a few seconds)</p></div>;
+  if (phase === "self") {
+    const ready = self.every((s) => !!s);
+    return (
+      <div>
+        {head}
+        {err ? <div className="err">{err}</div> : <p className="small">{selfWhy === "unclear" ? "We couldn't hear that clearly, so check yourself: c" : "C"}ompare what you {speak ? "said" : "wrote"} with the model, step by step.</p>}
+        {model}
+        <div className="fb" style={{ marginTop: 10 }}>
+          {task.steps.map((s, i) => (
+            <div key={i} className="row" style={{ justifyContent: "space-between", gap: 8, margin: "4px 0" }}>
+              <span className="small" style={{ flex: 1 }}>{s}</span>
+              <span className="row" style={{ gap: 4, flexWrap: "nowrap" }}>
+                {(["yes", "partly", "no"] as const).map((v) => (
+                  <button key={v} className={`ghost small${self[i] === v ? " active" : ""}`} onClick={() => setSelf((x) => x.map((y, j) => (j === i ? v : y)))}>{v === "yes" ? "Got it" : v === "partly" ? "Partly" : "Missed"}</button>
+                ))}
+              </span>
+            </div>
+          ))}
+        </div>
+        <div className="row" style={{ marginTop: 10 }}>
+          <button className="btn" disabled={!ready} onClick={() => { onAnswered({ response: text || heard?.scribe || heard?.google || "", grade: selfCheckGrade(self as ("yes" | "partly" | "no")[], task.canDoIds), selfCheck: true }); onNext(); }}>{index + 1 < total ? "Next task →" : "See your results →"}</button>
+        </div>
+      </div>
+    );
+  }
+  // result
+  const g = grade!;
+  return (
+    <div>
+      {head}
+      <div className="fb">
+        {g.summary && <p style={{ margin: "0 0 6px" }}>{g.summary}</p>}
+        {steps(g.steps.map((s) => s.done))}
+        {g.corrections.length > 0 && (
+          <>
+            <div className="muted small">Worth fixing</div>
+            <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+              {g.corrections.map((c, i) => <li key={i} className="small" style={{ margin: "4px 0" }}><s className="muted">{c.wrote}</s> → <b className="target">{c.better}</b> <span className="muted">— {c.why}</span></li>)}
+            </ul>
+          </>
+        )}
+      </div>
+      {model}
+      <div className="row" style={{ marginTop: 10 }}>
+        <button className="btn" onClick={onNext}>{index + 1 < total ? "Next task →" : "See your results →"}</button>
+      </div>
+    </div>
+  );
+}
+
+// The exam's results: each can-do (✓ you can do this / ◐ nearly / ✗ not yet), then what to look at again —
+// the grammar behind anything not yet met, which "Add to my reviews" sends back into the flashcards.
+function ExamResults({ exam, results, answers, progress, persist, onDone, doneLabel = "Finish →" }: {
+  exam: CourseExam; results: Record<string, CanDoResult>; answers: Record<string, ExamAnswer>; progress: Progress; persist: (p: Progress) => void;
+  onDone: (p: Progress) => void; doneLabel?: string;
+}) {
+  const pack = usePack();
+  const [added, setAdded] = useState(false);
+  const notes = (id: string) => Object.values(answers).flatMap((a) => a.grade?.canDos.filter((c) => c.id === id && c.note).map((c) => c.note) ?? []);
+  const assessed = exam.canDos.filter((c) => results[c.id]);
+  const met = assessed.filter((c) => results[c.id] === "met").length;
+  const toReview = [...new Set(exam.canDos.filter((c) => results[c.id] && results[c.id] !== "met").flatMap((c) => c.pointIds))]
+    .map((id) => pack.course?.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p);
+  const addToReviews = () => {
+    // A missed point's grammar cards come back soon: graded "again", so they're due in the next review.
+    let p = progress;
+    for (const pt of toReview) for (const card of cp.blankCardItems(pt)) p = gradeItem(p, card, false);
+    persist(p);
+    setAdded(true);
+  };
+  const skipped = Object.values(answers).filter((a) => a.skipped).length;
+  return (
+    <div>
+      <div className="gram-kicker">Results</div>
+      <h3 style={{ margin: "4px 0 2px" }}>{exam.title}</h3>
+      <p className="lead" style={{ marginTop: 0 }}>{assessed.length ? `You can do ${met} of ${assessed.length} things this checks${met === assessed.length ? " 🎉" : ""}.` : "Nothing was marked this time."}{skipped ? ` (${skipped} task${skipped > 1 ? "s" : ""} skipped.)` : ""}</p>
+      <ul style={{ listStyle: "none", padding: 0, margin: "0 0 10px" }}>
+        {exam.canDos.map((c) => {
+          const r = results[c.id];
+          return (
+            <li key={c.id} className="fb" style={{ margin: "6px 0", padding: "8px 10px" }}>
+              <div className="small"><b>{r ? RESULT_MARK[r] : "–"} {c.text}</b> <span className="muted">· {r ? RESULT_LABEL[r] : "not checked this time"}</span></div>
+              {notes(c.id).slice(0, 2).map((n, i) => <div key={i} className="muted small" style={{ marginTop: 2 }}>{n}</div>)}
+            </li>
+          );
+        })}
+      </ul>
+      {toReview.length > 0 && (
+        <div className="fb">
+          <div className="gram-kicker">Worth another look</div>
+          <ul style={{ margin: "6px 0", paddingLeft: 18 }}>
+            {toReview.map((p) => <li key={p.id} className="small">{p.title} <span className="muted">— Library → Grammar</span></li>)}
+          </ul>
+          <button className="ghost small" disabled={added} onClick={addToReviews}>{added ? "✓ Added — they'll come up in your next review" : "Add these to my reviews"}</button>
+        </div>
+      )}
+      <div className="row" style={{ marginTop: 12 }}>
+        <button className="btn" onClick={() => onDone(progress)}>{doneLabel}</button>
+      </div>
+    </div>
   );
 }
 

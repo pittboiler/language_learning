@@ -196,7 +196,7 @@ export const SPINE: SpineChapter[] = [
 ];
 
 /** Cumulative stage reviews (DESIGN §4a) — one session after each of these chapters. */
-export const STAGE_REVIEW_AFTER = ["s0-survive", "s1-directions", "s2-problems"];
+export const STAGE_REVIEW_AFTER = ["s0-survive", "s1-market", "s2-problems"];
 
 /** Flattened, in spine order, with each point's chapter. */
 export const spinePoints = (): (SpinePoint & { chapterId: string; order: number; chapterOrder: number })[] =>

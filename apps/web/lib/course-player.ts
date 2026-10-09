@@ -10,6 +10,7 @@ import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { GrammarItem } from "@ll/core/partner/grammar-together";
 import type { CourseLogEntry, Progress } from "./store";
+import type { CourseExam } from "@ll/pack-schema";
 
 /** The switch (DESIGN §11): on since the 2026-10-08 cutover. A learner can still switch back to the old
  *  runtime planner from Settings (`progress.settings.courseV2 = false`). */
@@ -26,6 +27,8 @@ export interface CourseState {
   retry?: boolean;
   /** A stage review is owed after this chapter (set when a stage-ending checkpoint is passed). */
   stageReviewAfter?: string;
+  /** The exam after this chapter is next (after its stage review, when there is one). */
+  examAfter?: string;
   /** The whole course is finished. */
   finished?: boolean;
   /** The blueprint structure this position was made on (Course.version). A different one re-places the
@@ -36,7 +39,11 @@ export interface CourseState {
 export type CoursePosition =
   | { kind: "session"; chapter: CourseChapter; session: CourseSession; retry: boolean }
   | { kind: "stage-review"; afterChapterId: string }
+  | { kind: "exam"; afterChapterId: string; exam: CourseExam }
   | { kind: "finished" };
+
+/** The exam (midterm / final) that follows a chapter, if any. */
+export const examAfterChapter = (course: Course, chapterId: string): CourseExam | undefined => course.exams?.find((e) => e.afterChapterId === chapterId);
 
 export const initialState = (course: Course): CourseState => ({ chapterId: course.chapters[0]!.chapterId, session: 1, v: course.version });
 
@@ -47,6 +54,7 @@ const current = (course: Course, state: CourseState | undefined): CourseState =>
 export function position(course: Course, state: CourseState | undefined): CoursePosition {
   const s = current(course, state);
   if (s.finished) return { kind: "finished" };
+  if (s.examAfter) { const exam = examAfterChapter(course, s.examAfter); if (exam) return { kind: "exam", afterChapterId: s.examAfter, exam }; }
   if (s.stageReviewAfter) return { kind: "stage-review", afterChapterId: s.stageReviewAfter };
   const chapter = course.chapters.find((c) => c.chapterId === s.chapterId) ?? course.chapters[0]!;
   const session = chapter.sessions[Math.min(Math.max(1, s.session), chapter.sessions.length) - 1]!;
@@ -54,7 +62,8 @@ export function position(course: Course, state: CourseState | undefined): Course
 }
 
 /** Advance after a finished session. A checkpoint only moves on when passed (else: retry, with a review
- *  first); a passed stage-ending checkpoint owes a stage review; a stage review leads to the next chapter. */
+ *  first); a passed stage-ending checkpoint owes a stage review; then the chapter's exam, if it has one
+ *  (taken or set aside — exams don't gate); then the next chapter. */
 export function advance(course: Course, state: CourseState | undefined, outcome: { checkpointPassed?: boolean }): CourseState {
   const v = course.version;
   const s = { ...current(course, state), v };
@@ -62,12 +71,15 @@ export function advance(course: Course, state: CourseState | undefined, outcome:
   const idx = course.chapters.findIndex((c) => c.chapterId === s.chapterId);
   const next = course.chapters[idx + 1];
   const toNextChapter = (): CourseState => (next ? { chapterId: next.chapterId, session: 1, v } : { chapterId: s.chapterId, session: s.session, finished: true, v });
-  if (s.stageReviewAfter) return toNextChapter();
+  const toExam = (chapterId: string): CourseState => ({ chapterId: s.chapterId, session: s.session, examAfter: chapterId, v });
+  if (s.examAfter) return toNextChapter();
+  if (s.stageReviewAfter) return examAfterChapter(course, s.stageReviewAfter) ? toExam(s.stageReviewAfter) : toNextChapter();
   const chapter = course.chapters[idx]!;
   const session = chapter.sessions[s.session - 1];
   if (session?.role === "checkpoint") {
     if (!outcome.checkpointPassed) return { ...s, retry: true };
     if (course.stageReviews.some((r) => r.afterChapterId === chapter.chapterId)) return { chapterId: s.chapterId, session: s.session, stageReviewAfter: chapter.chapterId, v };
+    if (examAfterChapter(course, chapter.chapterId)) return toExam(chapter.chapterId);
     return toNextChapter();
   }
   return { chapterId: s.chapterId, session: Math.min(s.session + 1, chapter.sessions.length), v };
@@ -369,6 +381,10 @@ export interface Agenda { title: string; items: string[] }
 /** The brief agenda that opens a session: where we are, then the blueprint's bullets for today. */
 export function sessionAgenda(pack: LanguagePack, course: Course, pos: CoursePosition): Agenda | undefined {
   if (pos.kind === "finished") return undefined;
+  if (pos.kind === "exam") {
+    const speak = pos.exam.tasks.filter((t) => t.mode === "speak").length, write = pos.exam.tasks.length - speak;
+    return { title: pos.exam.title, items: [`Open book: a prep screen before every task, as long as you like`, `${speak} speaking task${speak === 1 ? "" : "s"}, then ${write} writing task${write === 1 ? "" : "s"}`, "Your results: what you can do, and what to look at again"] };
+  }
   if (pos.kind === "stage-review") {
     const r = course.stageReviews.find((x) => x.afterChapterId === pos.afterChapterId);
     const titles = (r?.chapterIds ?? []).map((id) => pack.chapters?.find((c) => c.id === id)?.shortTitle).filter(Boolean);
@@ -410,7 +426,7 @@ export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosi
     const at = new Date(e.createdAt);
     return at >= since && (!until || at <= until) && familiarity.isStudied(e) && e.status !== "ignored" && !lexKey.startsWith("grammar:");
   };
-  if (pos.kind === "stage-review") {
+  if (pos.kind === "stage-review" || pos.kind === "exam") {
     out.next = "Next: a new chapter";
     return out;
   }
@@ -526,7 +542,7 @@ export function useItItems(course: Course, story: MiniStory, focus: string[], se
 export function explainContext(course: Course, p: Progress): { chapter: number; taught: string[]; later: { title: string; chapter: number }[] } {
   const pos = position(course, p.course);
   const orderOf = (chapterId: string) => course.chapters.find((c) => c.chapterId === chapterId)?.order ?? 0;
-  const chapter = pos.kind === "session" ? pos.chapter.order : pos.kind === "stage-review" ? orderOf(pos.afterChapterId) : Math.max(...course.chapters.map((c) => c.order));
+  const chapter = pos.kind === "session" ? pos.chapter.order : pos.kind === "stage-review" || pos.kind === "exam" ? orderOf(pos.afterChapterId) : Math.max(...course.chapters.map((c) => c.order));
   return {
     chapter,
     taught: course.points.filter((pt) => p.seenGrammar?.[pt.id]).map((pt) => pt.title),
@@ -539,7 +555,7 @@ export function explainContext(course: Course, p: Progress): { chapter: number; 
 export function currentSlot(course: Course, p: Progress): CourseSlot {
   const pos = position(course, p.course);
   if (pos.kind === "session") return { order: pos.chapter.order, n: pos.session.n };
-  if (pos.kind === "stage-review") return { order: course.chapters.find((c) => c.chapterId === pos.afterChapterId)?.order ?? 0, n: 999 };
+  if (pos.kind === "stage-review" || pos.kind === "exam") return { order: course.chapters.find((c) => c.chapterId === pos.afterChapterId)?.order ?? 0, n: 999 };
   return { order: 999, n: 999 };
 }
 
@@ -602,11 +618,14 @@ export function logEntry(pos: CoursePosition, startedAt: Date, at: Date, missed:
   const base = { startedAt: startedAt.toISOString(), at: at.toISOString(), ...(missed.length ? { missed: missed.slice(0, 20) } : {}) };
   return pos.kind === "stage-review"
     ? { chapterId: pos.afterChapterId, n: 0, stage: true, ...base }
-    : { chapterId: pos.chapter.chapterId, n: pos.session.n, ...base };
+    : pos.kind === "exam"
+      ? { chapterId: pos.afterChapterId, n: 0, exam: true, ...base }
+      : { chapterId: pos.chapter.chapterId, n: pos.session.n, ...base };
 }
 
 /** The session a record (or a chapter/session pair) points at, for rebuilding its recap. */
-export function positionOf(course: Course, at: { chapterId: string; n: number; stage?: boolean }): CoursePosition | undefined {
+export function positionOf(course: Course, at: { chapterId: string; n: number; stage?: boolean; exam?: boolean }): CoursePosition | undefined {
+  if (at.exam) { const exam = examAfterChapter(course, at.chapterId); return exam ? { kind: "exam", afterChapterId: at.chapterId, exam } : undefined; }
   if (at.stage) return course.stageReviews.some((r) => r.afterChapterId === at.chapterId) ? { kind: "stage-review", afterChapterId: at.chapterId } : undefined;
   const chapter = course.chapters.find((c) => c.chapterId === at.chapterId);
   const session = chapter?.sessions.find((x) => x.n === at.n);
@@ -644,13 +663,15 @@ export interface ChapterOverview {
   words: { lexKey: string; display: string; gloss: string; learned: boolean }[];
   /** A stage review follows this chapter. */
   stageReview?: { state: MapState; log?: CourseLogEntry };
+  /** An exam follows this chapter (after its stage review). */
+  exam?: { id: string; title: string; state: MapState };
 }
 export interface CourseOverview {
   chapters: ChapterOverview[];
   /** Curriculum sessions (chapters 1+) finished and in total. */
   done: number;
   total: number;
-  current?: { chapterId: string; n: number; stage?: boolean };
+  current?: { chapterId: string; n: number; stage?: boolean; exam?: boolean };
 }
 
 /** The whole course as the learner's map: every chapter and session marked done / today / upcoming from
@@ -664,10 +685,12 @@ export function courseOverview(pack: LanguagePack, course: Course, p: Progress):
   const learned = (k: string) => { const e = p.familiarity[k]; return !!e && familiarity.isStudied(e) && e.status !== "ignored"; };
   const chapters = course.chapters.map((c, ci): ChapterOverview => {
     const ch = pack.chapters?.find((x) => x.id === c.chapterId);
-    const state: MapState = pos.kind === "finished" || ci < idx ? "done" : ci > idx ? "upcoming" : pos.kind === "stage-review" ? "done" : "current";
+    const state: MapState = pos.kind === "finished" || ci < idx ? "done" : ci > idx ? "upcoming" : pos.kind === "stage-review" || pos.kind === "exam" ? "done" : "current";
     const sessionState = (n: number): MapState => (state !== "current" ? state : n < cur.session ? "done" : n === cur.session ? "current" : "upcoming");
     const hasStage = course.stageReviews.some((r) => r.afterChapterId === c.chapterId);
-    const stageState: MapState = pos.kind === "stage-review" && pos.afterChapterId === c.chapterId ? "current" : pos.kind === "finished" || ci < idx ? "done" : "upcoming";
+    const stageState: MapState = pos.kind === "stage-review" && pos.afterChapterId === c.chapterId ? "current" : pos.kind === "finished" || ci < idx || (pos.kind === "exam" && pos.afterChapterId === c.chapterId) ? "done" : "upcoming";
+    const exam = examAfterChapter(course, c.chapterId);
+    const examState: MapState = pos.kind === "exam" && pos.afterChapterId === c.chapterId ? "current" : pos.kind === "finished" || ci < idx ? "done" : "upcoming";
     return {
       chapterId: c.chapterId,
       order: c.order,
@@ -678,6 +701,7 @@ export function courseOverview(pack: LanguagePack, course: Course, p: Progress):
       points: c.pointIds.map((id) => ({ id, title: course.points.find((x) => x.id === id)?.title ?? id, taught: !!p.seenGrammar?.[id] })),
       words: c.words.map((w) => ({ lexKey: w.lexKey, display: w.display, gloss: w.gloss, learned: learned(w.lexKey) })),
       ...(hasStage ? { stageReview: { state: stageState, log: logOf(c.chapterId, 0, true) } } : {}),
+      ...(exam ? { exam: { id: exam.id, title: exam.title, state: examState } } : {}),
     };
   });
   const curriculum = chapters.filter((c) => c.order > 0).flatMap((c) => c.sessions);
@@ -685,7 +709,7 @@ export function courseOverview(pack: LanguagePack, course: Course, p: Progress):
     chapters,
     done: curriculum.filter((s) => s.state === "done").length,
     total: curriculum.length,
-    current: pos.kind === "session" ? { chapterId: pos.chapter.chapterId, n: pos.session.n } : pos.kind === "stage-review" ? { chapterId: pos.afterChapterId, n: 0, stage: true } : undefined,
+    current: pos.kind === "session" ? { chapterId: pos.chapter.chapterId, n: pos.session.n } : pos.kind === "stage-review" ? { chapterId: pos.afterChapterId, n: 0, stage: true } : pos.kind === "exam" ? { chapterId: pos.afterChapterId, n: 0, exam: true } : undefined,
   };
 }
 
@@ -693,6 +717,7 @@ export function courseOverview(pack: LanguagePack, course: Course, p: Progress):
 export function afterCheckpoint(pack: LanguagePack, course: Course, state: CourseState | undefined): string {
   const next = position(course, advance(course, state, { checkpointPassed: true }));
   if (next.kind === "stage-review") return "a stage review of everything so far";
+  if (next.kind === "exam") return `the ${next.exam.id === "final" ? "final" : "midterm"}`;
   if (next.kind === "finished") return "the end of the course";
   const ch = pack.chapters?.find((c) => c.id === next.chapter.chapterId);
   return `chapter ${ch?.order ?? next.chapter.order}${ch ? `, ${ch.shortTitle}` : ""}`;
@@ -709,7 +734,7 @@ export function positionShare(pack: LanguagePack, p: Progress): CoursePositionSh
   return {
     chapterId: ch.chapterId,
     chapterOrder: ch.order,
-    session: state.stageReviewAfter ? ch.sessions.length + 1 : state.session,
+    session: state.examAfter ? ch.sessions.length + 2 : state.stageReviewAfter ? ch.sessions.length + 1 : state.session,
     points: course.points.filter((pt) => p.seenGrammar?.[pt.id]).map((pt) => pt.id),
   };
 }

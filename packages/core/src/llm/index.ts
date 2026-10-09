@@ -9,17 +9,21 @@ import Anthropic from "@anthropic-ai/sdk";
  *   tiers (Haiku) make gender-agreement errors in low-resource languages; Sonnet is clean.
  * - `offline`: Opus 4.8 — one-time content generation + validation (correctness-critical).
  * - `mechanical`: Haiku 4.5 — live calls that produce NO novel target language (routing, scoring).
+ * - `grade`: Opus 5.5 — judgment calls on a learner's free answer (exam marking): a few calls per exam,
+ *   so the strongest model is worth its latency there.
  */
 export const MODELS = {
   live: "claude-sonnet-4-6",
   offline: "claude-opus-4-8",
   mechanical: "claude-haiku-4-5",
+  grade: "claude-opus-5-5",
 } as const;
 
 export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 
 /** USD per 1M tokens, per model (for the dev cost meter). */
 const PRICING: Record<string, { in: number; out: number }> = {
+  "claude-opus-5-5": { in: 4, out: 20 },
   "claude-opus-4-8": { in: 5, out: 25 },
   "claude-sonnet-4-6": { in: 3, out: 15 },
   "claude-haiku-4-5": { in: 1, out: 5 },
@@ -54,8 +58,11 @@ export interface StructuredCallOpts {
   /** Adaptive thinking — on for offline correctness work; omit for fast live turns. */
   thinking?: boolean;
   /** Sampling temperature. Omit for the API default (1); set 0 for reproducible outputs (e.g. a word
-   *  gloss two users must see identically). */
+   *  gloss two users must see identically). Not accepted by Opus 5.5 — leave unset for `MODELS.grade`. */
   temperature?: number;
+  /** Server-side refusal fallback: if a safety classifier declines, the API re-runs the same request on
+   *  `MODELS.offline` within the same call (so a learner's exam answer never comes back unmarked). */
+  fallback?: boolean;
 }
 
 export interface StructuredResult<T> {
@@ -85,10 +92,12 @@ export async function structuredCall<T>(opts: StructuredCallOpts): Promise<Struc
   if (opts.temperature !== undefined) params.temperature = opts.temperature;
   if (opts.thinking) params.thinking = { type: "adaptive" };
 
-  const msg = await getClient().messages.create(params);
+  const msg = opts.fallback
+    ? await getClient().beta.messages.create({ ...params, betas: ["server-side-fallback-2026-06-01"], fallbacks: [{ model: MODELS.offline }] })
+    : await getClient().messages.create(params);
   if (msg.stop_reason === "refusal") throw new Error("LLM refused the request");
   if (msg.stop_reason === "max_tokens") throw new Error("Response truncated (max_tokens) — raise maxTokens");
-  const textBlock = msg.content.find((b): b is Anthropic.TextBlock => b.type === "text");
+  const textBlock = (msg.content as { type: string; text?: string }[]).find((b): b is { type: "text"; text: string } => b.type === "text");
   if (!textBlock) throw new Error(`No text block in LLM response (stop_reason=${msg.stop_reason})`);
   let data: T;
   try {
@@ -96,5 +105,5 @@ export async function structuredCall<T>(opts: StructuredCallOpts): Promise<Struc
   } catch {
     throw new Error(`Failed to parse structured output: ${textBlock.text.slice(0, 200)}`);
   }
-  return { data, ms: Date.now() - t, usage: msg.usage, costUsd: priceUsd(opts.model, msg.usage), stopReason: msg.stop_reason };
+  return { data, ms: Date.now() - t, usage: msg.usage as Anthropic.Usage, costUsd: priceUsd(msg.model, msg.usage), stopReason: msg.stop_reason };
 }
