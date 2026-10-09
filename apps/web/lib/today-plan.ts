@@ -2,7 +2,7 @@
 // the lesson, Say it, the story, Build, the conversation…) and its agenda, from the blueprint and the
 // learner's progress. page.tsx renders the steps; test/today-plan.test.ts walks the whole course checking
 // that every agenda names exactly the steps its session plays.
-import type { Chapter, ConjugationSet, CourseSession, GrammarConcept, GrammarPoint, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, CourseExam, CourseSession, GrammarConcept, GrammarPoint, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import * as sentenceScope from "@ll/core/sentences";
 import * as cp from "./course-player";
@@ -53,6 +53,7 @@ export type TodayStep =
   | { kind: "stage"; afterChapterId: string; items: ReviewItem[]; scenario?: Scenario }
   | { kind: "speak"; scenario: Scenario; focus?: string[] }
   | { kind: "build"; ids?: string[]; chapterOrder?: number }
+  | { kind: "exam"; exam: CourseExam }
   | { kind: "writing"; prompt: string };
 
 // The daily conjugation drill picks the first verb not yet drilled (marked seen on completion), so a new
@@ -119,6 +120,8 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
   const points = cp.pointsById(course);
   const vocabByKey = new Map(pack.vocab.map((v) => [familiarity.deriveKeyForItem(v).lexKey, v]));
   if (pos.kind === "finished") return out;
+  // A midterm / final: the whole session is the exam (it has its own intro, prep screens and results).
+  if (pos.kind === "exam") return [{ kind: "exam", exam: pos.exam }];
   if (pos.kind === "stage-review") {
     const c = cp.stageReviewContent(pack, course, pos.afterChapterId, progress);
     const own = cp.ownWordsDue(pack, progress, now, 4).filter((o) => !c.items.some((w) => familiarity.deriveKeyForItem(w).lexKey === familiarity.deriveKeyForItem(o).lexKey));

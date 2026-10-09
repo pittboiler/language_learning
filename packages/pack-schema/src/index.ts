@@ -417,10 +417,49 @@ export interface LineFocus {
   blank?: { word: string; options: string[]; why: string };
 }
 
+/** One thing a learner should be able to do by an exam ("Order at a café and pay"). */
+export interface ExamCanDo {
+  id: string;
+  text: string;
+  /** The chapters it comes from (their words are offered on the prep screen). */
+  chapterIds: string[];
+  /** The grammar it leans on (linked on the prep screen; missed → these points come back for review). */
+  pointIds: string[];
+}
+
+/** An open-book exam task: a situation, the things to get across (in order), and a model answer built from
+ *  existing lines (shown after — and used for "check yourself" when speech can't be heard clearly). */
+export interface ExamTask {
+  id: string;
+  mode: "speak" | "write";
+  title: string;
+  /** The situation, in English. */
+  scene: string;
+  /** What to say / write, one thing per line. */
+  steps: string[];
+  canDoIds: string[];
+  pointIds: string[];
+  model: LineRef[];
+}
+
+/** A midterm or final after a chapter. Not a gate: whatever the result, the course moves on, and the
+ *  learner leaves with a review list. Lives outside the chapters, so adding one never changes the course
+ *  structure (`version`). */
+export interface CourseExam {
+  id: string;
+  afterChapterId: string;
+  title: string;
+  intro: string;
+  canDos: ExamCanDo[];
+  tasks: ExamTask[];
+}
+
 export interface Course {
   /** Changes only when the chapter/session STRUCTURE changes (not wording) — a learner whose saved
    *  position was made on another structure is re-placed. */
   version?: string;
+  /** Midterm / final, each after a chapter (and after its stage review, when there is one). */
+  exams?: CourseExam[];
   points: GrammarPoint[];
   chapters: CourseChapter[];
   stageReviews: StageReview[];

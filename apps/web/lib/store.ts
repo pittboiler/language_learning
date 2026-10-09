@@ -20,7 +20,9 @@ export interface Progress {
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
   settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean; courseV2?: boolean };
   /** Position in the course blueprint (lib/course-player.ts) — only used when the new course is on. */
-  course?: { chapterId: string; session: number; retry?: boolean; stageReviewAfter?: string; finished?: boolean; v?: string };
+  course?: { chapterId: string; session: number; retry?: boolean; stageReviewAfter?: string; examAfter?: string; finished?: boolean; v?: string };
+  /** Midterm / final attempts, by exam id (newest last). Exams don't gate the course; these feed Progress. */
+  exams?: Record<string, ExamAttempt[]>;
   /** Finished course sessions, oldest first. Lesson notes (Progress, Library → My notes) rebuild each recap
    *  from the blueprint plus this small record, so it stays tiny: about 100 entries over the whole course. */
   courseLog?: CourseLogEntry[];
@@ -58,10 +60,19 @@ export interface Progress {
 
 /** One finished course session: which one, when, and what the learner slipped on. A stage review is logged
  *  with the chapter it follows and n = 0. */
+/** One go at an exam: each can-do's result, and every task's answer with its marking. */
+export interface ExamAttempt {
+  at: string;
+  results: Record<string, "met" | "partly" | "not-yet">;
+  tasks: Record<string, { response: string; grade?: import("@ll/core/exam/results").ExamGrade; selfCheck?: boolean; skipped?: boolean }>;
+}
+
 export interface CourseLogEntry {
   chapterId: string;
   n: number;
   stage?: boolean;
+  /** An exam (midterm / final) taken after this chapter. */
+  exam?: boolean;
   startedAt: string;
   at: string;
   missed?: { answer: string; gloss: string }[];

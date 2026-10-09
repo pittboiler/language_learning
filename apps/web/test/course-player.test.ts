@@ -58,11 +58,63 @@ const after = cp.advance(course, owed, {});
 const nextId = course.chapters[course.chapters.indexOf(endCh) + 1]!.chapterId;
 assert.deepEqual(after, { chapterId: nextId, session: 1, v: course.version });
 
-// 5. The last chapter's checkpoint (also a stage end) → stage review → finished.
+// 5. The last chapter's checkpoint (also a stage end) → stage review → the final → finished.
 const last = course.chapters.at(-1)!;
-const fin = cp.advance(course, cp.advance(course, { chapterId: last.chapterId, session: last.sessions.length, v: course.version }, { checkpointPassed: true }), {});
+const finalOwed = cp.advance(course, cp.advance(course, { chapterId: last.chapterId, session: last.sessions.length, v: course.version }, { checkpointPassed: true }), {});
+const finalPos = cp.position(course, finalOwed);
+assert.equal(finalPos.kind, "exam");
+assert.equal(finalPos.kind === "exam" && finalPos.exam.id, "final");
+const fin = cp.advance(course, finalOwed, {});
 assert.equal(fin.finished, true);
 assert.equal(cp.position(course, fin).kind, "finished");
+
+// 5b. The midterm sits after chapter 6: checkpoint → stage review (chapters 4–6) → midterm → chapter 7.
+// Exams live outside the chapters, so they never change the course structure (the saved-place version).
+{
+  const ch6 = course.chapters.find((c) => c.order === 6)!;
+  assert.equal(ch6.chapterId, "s1-market");
+  const review = cp.advance(course, { chapterId: ch6.chapterId, session: ch6.sessions.length, v: course.version }, { checkpointPassed: true });
+  assert.equal(cp.position(course, review).kind, "stage-review");
+  const mid = cp.advance(course, review, {});
+  const midPos = cp.position(course, mid);
+  assert.ok(midPos.kind === "exam" && midPos.exam.id === "midterm", "the midterm follows the stage review");
+  assert.equal(cp.sessionAgenda(macedonian, course, midPos)?.title, midPos.kind === "exam" ? midPos.exam.title : "");
+  assert.deepEqual(cp.currentSlot(course, prog({ course: mid })), { order: 6, n: 999 }, "chapter 6 counts as fully taught at the exam");
+  assert.equal(cp.positionShare(macedonian, prog({ course: mid, settings: { courseV2: true } }))?.session, ch6.sessions.length + 2);
+  const ch7 = cp.advance(course, mid, {});
+  assert.deepEqual(ch7, { chapterId: course.chapters.find((c) => c.order === 7)!.chapterId, session: 1, v: course.version }, "taken or set aside, the course moves on");
+  const ov = cp.courseOverview(macedonian, course, prog({ course: mid }));
+  assert.equal(ov.chapters.find((c) => c.order === 6)!.exam?.state, "current");
+  assert.equal(ov.chapters.find((c) => c.order === 12)!.exam?.state, "upcoming");
+  assert.equal(cp.positionOf(course, { chapterId: "s1-market", n: 0, exam: true })?.kind, "exam");
+}
+
+// 5c. Every exam is well-formed: its can-dos, points and chapters exist, every task's can-dos are its exam's,
+// and every model line still matches the line it quotes (so its cached audio plays).
+{
+  const lineText = new Map<string, string>();
+  for (const sc of macedonian.scenarios) sc.script.forEach((t, i) => lineText.set(`scenario:${sc.id}#${i}`, t.text));
+  for (const v of macedonian.vocab) lineText.set(`vocab:${v.id}`, v.answer);
+  const chapterIds = new Set(course.chapters.map((c) => c.chapterId));
+  const pointIds = new Set(course.points.map((p) => p.id));
+  assert.deepEqual((course.exams ?? []).map((e) => e.id), ["midterm", "final"]);
+  for (const e of course.exams ?? []) {
+    assert.ok(chapterIds.has(e.afterChapterId), e.id);
+    const canDo = new Set(e.canDos.map((c) => c.id));
+    for (const c of e.canDos) {
+      assert.ok(c.chapterIds.every((id) => chapterIds.has(id)), `${e.id}/${c.id} chapters`);
+      assert.ok(c.pointIds.every((id) => pointIds.has(id)), `${e.id}/${c.id} points`);
+    }
+    assert.ok(e.tasks.some((t) => t.mode === "speak") && e.tasks.some((t) => t.mode === "write"), `${e.id}: speaking and writing`);
+    for (const t of e.tasks) {
+      assert.ok(t.canDoIds.length && t.canDoIds.every((id) => canDo.has(id)), `${t.id} can-dos`);
+      assert.ok(t.pointIds.every((id) => pointIds.has(id)), `${t.id} points`);
+      for (const m of t.model) assert.equal(lineText.get(m.source)?.trim(), m.text.trim(), `${t.id} model ${m.source}`);
+    }
+    // Every can-do is assessed by at least one task.
+    for (const c of e.canDos) assert.ok(e.tasks.some((t) => t.canDoIds.includes(c.id)), `${e.id}/${c.id} is assessed`);
+  }
+}
 
 // 6. Point cards become graded drills with a blank and their options.
 const yesNo = course.points.find((p) => p.id === "pt-yes-no")!;

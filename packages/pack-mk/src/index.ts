@@ -2,6 +2,7 @@ import type { GrammarConcept, LanguagePack, ReviewItem } from "@ll/pack-schema";
 import { alphabet } from "./alphabet.js";
 import { chapters } from "./chapters.js";
 import { course } from "./course.js";
+import { exams } from "./exams.js";
 import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
 import { conjugations } from "./conjugations.js";
@@ -77,7 +78,8 @@ export const macedonian: LanguagePack = {
   sentences,
   chapters,
   hints,
-  course,
+  // The midterm + final sit beside the generated blueprint (they're hand-authored, outside its structure).
+  course: { ...course, exams },
 };
 
 export default macedonian;

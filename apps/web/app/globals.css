@@ -214,6 +214,11 @@ input.text { flex: 1; min-width: 180px; background: var(--bg); border: 1px solid
 /* A revealed hint — deliberately quiet, it's a nudge and not the answer. */
 .hint { color: var(--mut); font-size: 13px; border-left: 2px solid var(--line); padding: 2px 0 2px 8px; margin: 8px 0 0; }
 
+/* Exams: the open-book reference panels and the writing box. */
+.exam-ref { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin-top: 8px; }
+.exam-ref summary { cursor: pointer; }
+.exam-text { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 10px; font: inherit; font-size: 16px; resize: vertical; }
+
 /* The just-drilled word, shown to both partners after a turn is marked. */
 .last-turn { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; border: 1px dashed var(--line); border-radius: 8px; padding: 6px 10px; }
 
