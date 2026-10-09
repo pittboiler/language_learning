@@ -272,9 +272,10 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     }
     if (s.role === "teach" || s.role === "practice") a.push("Say it: today's words and examples, out loud");
     const lensHere = s.story ? s.story.lens.every((id) => ch.pointIds.includes(id)) : false;
+    // The story step ends with a few quick exercises on its lines ("Use it"), so the bullet says so.
     if (s.story) a.push(s.story.reuse
-      ? `Reread “${storyTitle(s.story.id)}” from an earlier chapter: ${lensHere ? `find ${s.story.lens.length > 1 ? "this chapter's patterns" : pointName(s.story.lens[0]!).toLowerCase()}` : "a refresher on what you learned there"}`
-      : `Read “${storyTitle(s.story.id)}”${s.story.highlight.length ? `: spot ${s.story.lens.length > 1 ? "everything from this chapter" : "today's pattern"}` : ""}`);
+      ? `Reread “${storyTitle(s.story.id)}” from an earlier chapter: ${lensHere ? `find ${s.story.lens.length > 1 ? "this chapter's patterns" : pointName(s.story.lens[0]!).toLowerCase()}` : "a refresher on what you learned there"}, then a few quick exercises`
+      : `Read “${storyTitle(s.story.id)}”${s.story.highlight.length ? `: spot ${s.story.lens.length > 1 ? "everything from this chapter" : "today's pattern"}` : ""}, then a few quick exercises`);
     if (s.build.length) a.push("Build a sentence: put the words in order");
     const firstTry = s.role === "review" && ch.sessions.find((x) => x.speak)?.n === s.n;
     if (s.speak) a.push(`${firstTry ? "First try at the conversation" : "Conversation"}: ${scenTitle(s.speak)}`);

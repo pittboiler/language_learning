@@ -191,7 +191,7 @@ for (const c of course.chapters) {
   const firstSpeak = c.sessions.find((x) => x.speak)?.n;
   for (const x of c.sessions) {
     if (x.letters) continue;
-    if (x.build.length) assert.ok(x.agenda.some((b) => b.startsWith("Build")), `ch${c.order} s${x.n} lists Build`);
+    if (x.build.length) assert.ok(x.agenda.some((b) => b.startsWith("Build a sentence")), `ch${c.order} s${x.n} lists Build`);
     if (x.agenda.some((b) => b.startsWith("First try"))) assert.equal(x.n, firstSpeak, `ch${c.order} s${x.n}: "First try" only on the first conversation`);
     if (x.role === "practice") assert.ok(x.agenda.some((b) => b.startsWith("Practice: ")), `ch${c.order} s${x.n} names its point`);
   }

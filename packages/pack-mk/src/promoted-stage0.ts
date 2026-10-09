@@ -689,7 +689,7 @@ export const promotedVocab: ReviewItem[] = [
 export const promotedScenarios: Scenario[] = [
   {
     "id": "gen-s0-repair",
-    "title": "Keeping the conversation alive (repair kit)",
+    "title": "When you don't understand",
     "goal": "Practise these functions: clarify, ask-to-repeat, ask-to-slow-down, elicit-a-word, backchannel, signal-non-understanding. Use the taught chunks where natural: Не разбирам.; Извинете.; Можете ли да повторите?; Побавно, ве молам.; Уште еднаш, ве молам.; Како се вели … на македонски?.",
     "setting": "any first exchange that breaks down",
     "requiredVocab": [
@@ -791,7 +791,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s0-greet",
-    "title": "Greetings, politeness, yes/no",
+    "title": "Saying hello",
     "goal": "Practise these functions: greet, thank, affirm, decline, take-leave. Use the taught chunks where natural: Здраво; Добар ден; Добро утро; Како си?; Како сте?; Добро сум, фала.. Recycle earlier material: s0-repair.",
     "setting": "meeting and parting",
     "requiredVocab": [
@@ -875,7 +875,7 @@ export const promotedScenarios: Scenario[] = [
   },
   {
     "id": "gen-s0-survive",
-    "title": "Survival operators + numbers 1–10",
+    "title": "A first small purchase",
     "goal": "Practise these functions: request, locate, ask-price, quantify, point. Use the taught chunks where natural: Сакам …; Може ли …?; Каде е …?; Колку чини?; Имате ли …?; еден / една / едно. Recycle earlier material: s0-greet, s0-repair.",
     "setting": "a first tiny transaction",
     "requiredVocab": [
@@ -1321,7 +1321,7 @@ export const promotedStories: MiniStory[] = [
 export const promotedInfoGapTasks: InfoGapTask[] = [
   {
     "id": "gen-s0-repair-gap",
-    "title": "Lost and asking for help (repair kit)",
+    "title": "Lost and asking for help",
     "goal": "The tourist gets the directions — but the local speaks fast, so you must keep the conversation alive with repair phrases until you both understand.",
     "setting": "A street corner. A tourist stops a local to ask the way, but the first exchange breaks down because it goes too fast.",
     "roleA": {
@@ -1403,7 +1403,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
   },
   {
     "id": "gen-s0-survive-gap",
-    "title": "At the little shop (info-gap)",
+    "title": "At the little shop",
     "goal": "Buy what you need and agree the total — each of you knows only half.",
     "setting": "A first tiny transaction at a small corner shop (kiosk).",
     "roleA": {

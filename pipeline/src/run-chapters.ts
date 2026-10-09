@@ -24,21 +24,22 @@ interface CurriculumFile {
 }
 const curriculum: CurriculumFile = JSON.parse(readFileSync(CURRICULUM, "utf8"));
 
-// Short labels for chips/headings, where the full unit title ("Café & bar: order and pay (the anchor)")
-// is too long. Also the display order key for the Library.
-const SHORT: Record<string, string> = {
-  "s0-repair": "Repair kit",
-  "s0-greet": "Greetings & politeness",
-  "s0-survive": "Survival words & numbers",
-  "s1-cafe-order": "Café & bar",
-  "s1-greet-intro": "Introductions",
-  "s1-market": "At the market",
-  "s1-directions": "Directions",
-  "s2-smalltalk": "Small talk & opinions",
-  "s2-pasttime": "Past & future",
-  "s2-home-family": "Home, family & work",
-  "s2-arrange": "Phone & arranging",
-  "s2-problems": "Problems & complaints",
+// What learners see. The curriculum's unit titles are authoring names ("Survival operators + numbers 1–10",
+// "(the anchor)"); chapters are named for what you can do by the end, in plain words (2026-10-09). `short`
+// is for chips and headings, `title` for the chapter page, `goal` the one-line "by the end you can…".
+const NAMES: Record<string, { short: string; title: string; goal: string }> = {
+  "s0-repair": { short: "First words", title: "First words: I am…, I don't understand", goal: "say who you are, and keep going when you don't understand" },
+  "s0-greet": { short: "Hello, how are you?", title: "Hello, how are you?", goal: "greet people, ask simple questions, and choose casual ти or polite вие" },
+  "s0-survive": { short: "Numbers & prices", title: "Numbers and a first purchase", goal: "count, point at things, and ask what they cost" },
+  "s1-cafe-order": { short: "At the café", title: "At the café: order and pay", goal: "order a drink, ask for the bill, and pay" },
+  "s1-greet-intro": { short: "Meeting people", title: "Meeting someone new", goal: "say your name, where you're from and what you do" },
+  "s1-market": { short: "At the market", title: "At the market", goal: "buy fruit, bread and more, by the kilo" },
+  "s1-directions": { short: "Finding your way", title: "Finding your way", goal: "ask for directions and follow them" },
+  "s2-smalltalk": { short: "Likes & plans", title: "Likes, opinions and plans", goal: "say what you like and think, and what you'll do" },
+  "s2-pasttime": { short: "What you did", title: "What you did today", goal: "tell someone what you did" },
+  "s2-home-family": { short: "Family & home", title: "Family, home and work", goal: "tell someone about your family and your life" },
+  "s2-arrange": { short: "Making plans", title: "Making plans on the phone", goal: "call someone and agree a time and place to meet" },
+  "s2-problems": { short: "When things go wrong", title: "When things go wrong", goal: "explain a problem and ask for it to be put right" },
 };
 
 // The hand-authored core word list (packages/pack-mk/src/words.ts) is tagged semantically, not by unit.
@@ -91,10 +92,10 @@ const units: Chapter[] = curriculum.sequence.map((id, i) => {
     order: i + 1,
     stage: unit.stage,
     stageTitle: stage?.name ?? `Stage ${unit.stage}`,
-    title: unit.title,
-    shortTitle: SHORT[id] ?? unit.title,
+    title: NAMES[id]?.title ?? unit.title,
+    shortTitle: NAMES[id]?.short ?? unit.title,
     cefr: unit.cefr,
-    goal: unit.situation,
+    goal: NAMES[id]?.goal ?? unit.situation,
     ...(EXTRA_IDS[id] ? { extraIds: EXTRA_IDS[id] } : {}),
     ...(WORD_TAGS[id] ? { wordTags: WORD_TAGS[id] } : {}),
   };
