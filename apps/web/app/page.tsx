@@ -64,6 +64,13 @@ function usePlay() {
   const rate = useContext(SlowContext);
   return useCallback((text: string, _speed?: number) => api.playTts(text, rate, pack.id).catch(() => {}), [pack.id, rate]);
 }
+/** A mic recorder that lets go of the mic when its view goes away mid-recording (a skip, the next step,
+ *  leaving the exam), not only when Stop is pressed — otherwise the tab keeps the mic. */
+function useRecorder() {
+  const rec = useRef(makeRecorder());
+  useEffect(() => { const r = rec.current; return () => r.release(); }, []);
+  return rec;
+}
 /** Resolve the effective playback rate from settings — slow on ⇒ the chosen slow rate (default 0.75). */
 const effectiveRate = (s?: { slow?: boolean; slowRate?: number }) => (s?.slow ? s.slowRate ?? 0.75 : 1);
 
@@ -2444,7 +2451,7 @@ function PartnerTurn({ turn, autoplay, onContinue, focusWords }: { turn: Dialogu
 function LearnerTurn({ turn, config, onDone, onMiss, focusWords }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void; onMiss?: (turn: DialogueTurn) => void; focusWords?: string[] }) {
   const pack = usePack();
   const play = usePlay();
-  const rec = useRef(makeRecorder());
+  const rec = useRecorder();
   const [recording, setRecording] = useState(false);
   const [spin, setSpin] = useState("");
   const [err, setErr] = useState("");
@@ -2570,7 +2577,7 @@ function Completion({ scenarioId, config, onComplete }: { scenarioId: string; co
   const [spin, setSpin] = useState("");
   const [err, setErr] = useState("");
   const [input, setInput] = useState("");
-  const rec = useRef(makeRecorder());
+  const rec = useRecorder();
   const [recording, setRecording] = useState(false);
 
   const send = async (text: string) => {
@@ -4028,7 +4035,7 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   const [err, setErr] = useState("");
   const [grade, setGrade] = useState<ExamGrade | null>(null);
   const [self, setSelf] = useState<("yes" | "partly" | "no" | undefined)[]>(() => task.steps.map(() => undefined));
-  const rec = useRef(makeRecorder());
+  const rec = useRecorder();
   const points = task.pointIds.map((id) => pack.course?.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p);
   const chapterIds = [...new Set(exam.canDos.filter((c) => task.canDoIds.includes(c.id)).flatMap((c) => c.chapterIds))];
   const words = (pack.course?.chapters ?? []).filter((c) => chapterIds.includes(c.chapterId)).flatMap((c) => c.words);
@@ -4157,7 +4164,7 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
                 </div>
               </>
             )}
-            <button className="linklike small" style={{ marginTop: 8 }} onClick={() => setPhase("self")}>Can&apos;t record? Check yourself against a model answer</button>
+            <button className="linklike small" style={{ marginTop: 8 }} onClick={() => { rec.current.release(); setRecording(false); setPhase("self"); }}>Can&apos;t record? Check yourself against a model answer</button>
           </div>
         ) : (
           <div className="fb">
@@ -4943,7 +4950,7 @@ function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId, s
   const [busy, setBusy] = useState(false);
   const [tip, setTip] = useState(""); // short coaching tip for my last line, fetched off the critical path
   const [err, setErr] = useState(""); // surface start/sync failures instead of a dead click
-  const rec = useRef(makeRecorder());
+  const rec = useRecorder();
 
   const refresh = useCallback(async () => {
     if (sid === "new") return;
@@ -5733,7 +5740,7 @@ function FamiliarityCollab({ store, partnershipId, packId, myId, partnerId, diff
   const [inbox, setInbox] = useState<PartnerArtifact[]>([]);
   const [recKey, setRecKey] = useState<string | null>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
-  const rec = useRef(makeRecorder());
+  const rec = useRecorder();
 
   const loadInbox = useCallback(async () => {
     try {
@@ -5888,7 +5895,7 @@ function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessionId }: 
   const [recIdx, setRecIdx] = useState<number | null>(null);
   const [busyIdx, setBusyIdx] = useState<number | null>(null);
   const [err, setErr] = useState(""); // surface start failures instead of a dead click
-  const rec = useRef(makeRecorder());
+  const rec = useRecorder();
 
   const refresh = useCallback(async () => {
     if (sessionId === "new") return;
