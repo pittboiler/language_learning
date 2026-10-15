@@ -799,16 +799,8 @@ const DATIVE = new Map<string, Person>([["ми", "1sg"], ["му", "3sg"], ["ѝ",
 
 /** Words that mark a person: the subject pronouns, the to-whom pronouns (ми се допаѓа practises "me" too) and
  *  every verb-table form (сум's included), minus се, which is mostly the reflexive (се викам), not "they are". */
-// The past forms the course teaches (chapter 9) — the verb tables are present tense only. беше ("you were" and
-// "he/she was") is left out: it can't tell the two apart.
-const PAST: [string, Person][] = [
-  ["бев", "1sg"], ["бевме", "1pl"], ["бевте", "2pl"], ["беа", "3pl"],
-  ["имав", "1sg"], ["имавме", "1pl"], ["имавте", "2pl"], ["имаа", "3pl"],
-  ["отидов", "1sg"], ["отидовме", "1pl"], ["отидовте", "2pl"], ["отидоа", "3pl"],
-  ["јадев", "1sg"], ["јадевме", "1pl"], ["јадевте", "2pl"], ["јадеа", "3pl"],
-];
 export function personMarkers(pack: LanguagePack): Map<string, Person> {
-  const m = new Map<string, Person>([...SUBJECTS, ...DATIVE, ...PAST]);
+  const m = new Map<string, Person>([...SUBJECTS, ...DATIVE]);
   for (const v of pack.conjugations ?? []) for (const [p, f] of Object.entries(v.forms)) for (const t of wordTokens(f)) if (t !== "се" && !m.has(t)) m.set(t, p as Person);
   return m;
 }
@@ -867,7 +859,9 @@ const PREPOSITIONS = new Set(["во", "на", "од", "до", "со", "кај", 
  *  agree. `seed` turns the line and the person from one reading to the next. */
 export function switchPersonItem(pack: LanguagePack, story: MiniStory, verbs: Set<string>, names: (word: string) => boolean, seed = 0): Extract<UseItItem, { kind: "switch" }> | undefined {
   const forms = new Map<string, { lemma: string; person: Person }>();
-  for (const v of pack.conjugations ?? []) if (verbs.has(v.lemma)) for (const [p, f] of Object.entries(v.forms)) { const t = familiarity.normalize(f); if (t !== "се" && t !== "си" && !forms.has(t)) forms.set(t, { lemma: v.lemma, person: p as Person }); }
+  // A form two persons share (past беше: "you were" and "he/she was") is read as he/she, so a line like
+  // „Кафето беше добро“ is treated as having a noun subject and left alone.
+  for (const v of pack.conjugations ?? []) if (verbs.has(v.lemma)) for (const [p, f] of Object.entries(v.forms)) { const t = familiarity.normalize(f); if (t !== "се" && t !== "си" && (!forms.has(t) || (p === "3sg" && forms.get(t)!.lemma === v.lemma))) forms.set(t, { lemma: v.lemma, person: p as Person }); }
   const candidates = story.body.flatMap((b, i) => {
     const text = bareLine(b.text);
     if (!singleUtterance(b.text)) return [];

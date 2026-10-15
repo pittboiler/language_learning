@@ -25,7 +25,7 @@ import { REVIEW_DAY_ITEMS, WARMUP_ITEMS, isReviewDay, localDay, markStorySeen, p
 import { captureWord, properNounLike, buildLineGlosses, toggleStar, starMany } from "../lib/capture";
 import * as cp from "../lib/course-player";
 import { combineResults, selfCheckGrade, type CanDoResult, type ExamGrade } from "@ll/core/exam/results";
-import { courseSteps, drillableVerbs, pickConjVerb, reviewPool, rotate, shuffle, type StoryLens, type TodayStep } from "../lib/today-plan";
+import { courseSteps, drillableVerbs, pickConjVerb, switchableVerbs, reviewPool, rotate, shuffle, type StoryLens, type TodayStep } from "../lib/today-plan";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
@@ -371,6 +371,11 @@ function Today({ progress, persist, config, navigate, replay }: {
   // The plan is built once per mount (and when letters finish) so steps don't shift under the user mid-session.
   // planVersion bumps when the learner starts the next course session straight away (new course only).
   const [planVersion, setPlanVersion] = useState(0);
+  // …as it was when this session's plan was made (the course moves on as soon as the session completes,
+  // which can be on a last step's end screen — the header should still name the session you're in).
+  const planned = useMemo(() => planCourse,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [planVersion]);
   const v2 = cp.courseV2On(pack, progress);
   const steps = useMemo<TodayStep[]>(() => {
     if (cp.courseV2On(pack, progress)) return courseSteps(pack, { ...progress, course: planCourse });
@@ -544,20 +549,22 @@ function Today({ progress, persist, config, navigate, replay }: {
   // A checkpoint passed during THIS session (the course only moves past a checkpoint on a pass).
   const checkpointPassed = useRef(false);
   const advancedFor = useRef(-1);
+  // Finish the session: advance the blueprint exactly once (the learner may start the next one straight away,
+  // so this can't key on the calendar day), log it for lesson notes, mark the day done — in ONE save, on top
+  // of whatever the last step changed (`base`). Called when the plan runs out, or as soon as a last step's
+  // own end screen appears (a checkpoint's result, the writing summary), so the lesson counts as done there.
+  const completeSession = (base: Progress = progress) => {
+    if (replay || !v2 || advancedFor.current === planVersion) return; // a replay never moves the course on
+    advancedFor.current = planVersion;
+    const course = cp.advance(pack.course!, base.course, { checkpointPassed: checkpointPassed.current });
+    // Keep a small record of the session so its recap can be reopened later as lesson notes.
+    const entry = playedPos ? cp.logEntry(playedPos, startedAt, new Date(), missed.map((m) => ({ answer: m.answer, gloss: m.gloss }))) : undefined;
+    persist(bumpStreak({ ...base, lastSessionDay: localDay(), sessions: (base.sessions ?? 0) + 1, course, ...(entry ? { courseLog: [...(base.courseLog ?? []), entry] } : {}) }));
+  };
   useEffect(() => {
     if (steps.length === 0 || idx < steps.length) return;
-    if (replay) return; // a replay never moves the course on
-    if (v2) {
-      // New course: every finished session advances the blueprint exactly once (the learner may start the
-      // next one straight away, so this can't key on the calendar day).
-      if (advancedFor.current === planVersion) return;
-      advancedFor.current = planVersion;
-      const course = cp.advance(pack.course!, progress.course, { checkpointPassed: checkpointPassed.current });
-      // Keep a small record of the session so its recap can be reopened later as lesson notes.
-      const entry = playedPos ? cp.logEntry(playedPos, startedAt, new Date(), missed.map((m) => ({ answer: m.answer, gloss: m.gloss }))) : undefined;
-      persist({ ...progress, lastSessionDay: localDay(), sessions: (progress.sessions ?? 0) + 1, course, ...(entry ? { courseLog: [...(progress.courseLog ?? []), entry] } : {}) });
-      return;
-    }
+    if (replay) return;
+    if (v2) { completeSession(); return; }
     if (progress.lastSessionDay !== localDay()) {
       persist({ ...progress, lastSessionDay: localDay(), sessions: (progress.sessions ?? 0) + 1 });
     }
@@ -578,17 +585,18 @@ function Today({ progress, persist, config, navigate, replay }: {
   if (phase === "gate")
     return (
       <section className="view">
-        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+        <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <p className="lead">First, the alphabet. Macedonian uses Cyrillic — review all {pack.alphabet.length} letters (I&apos;ll quiz you on the {focusLetters(pack).length} trickiest), then today&apos;s session opens up right here.</p>
         <Letters progress={progress} persist={persist} onDone={() => setPhase("flow")} />
       </section>
     );
   // Already finished today's session (and this is a fresh mount, so idx is back at 0): show the wrap-up
   // screen rather than replaying step 1. "Practice more anyway" drops back into the full flow on demand.
-  if (completedToday && !practiceMore && idx < steps.length)
+  // (Only at step 0: a lesson now completes on its last step's own end screen, which must stay up.)
+  if (completedToday && !practiceMore && idx === 0 && advancedFor.current !== planVersion)
     return (
       <section className="view">
-        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+        <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>Done for today 🎉</h3>
         <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
         <div className="row" style={{ marginTop: 4 }}>
@@ -603,7 +611,7 @@ function Today({ progress, persist, config, navigate, replay }: {
   if (steps.length === 0)
     return (
       <section className="view">
-        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+        <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <p className="lead">You&apos;re all caught up for today. 🎉 Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
       </section>
@@ -611,7 +619,7 @@ function Today({ progress, persist, config, navigate, replay }: {
   if (idx >= steps.length && v2 && playedPos && recap !== "review")
     return (
       <section className="view">
-        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+        <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <CourseRecap
           pos={playedPos}
           since={startedAt}
@@ -628,7 +636,7 @@ function Today({ progress, persist, config, navigate, replay }: {
   if (idx >= steps.length && v2 && recap === "review" && missed.length)
     return (
       <section className="view">
-        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+        <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>One more pass</h3>
         <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
         <SessionRecap items={missed} onDone={() => { setMissed([]); setRecap("done"); }} />
@@ -639,7 +647,7 @@ function Today({ progress, persist, config, navigate, replay }: {
     if (missed.length > 0 && recap === "offer")
       return (
         <section className="view">
-          <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+          <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
           <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
           <p className="lead">Nice work — you finished today&apos;s session.</p>
           <div className="fb" style={{ marginTop: 4 }}>
@@ -657,7 +665,7 @@ function Today({ progress, persist, config, navigate, replay }: {
     if (missed.length > 0 && recap === "review")
       return (
         <section className="view">
-          <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+          <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
           <h3 style={{ marginTop: 4 }}>One more pass</h3>
           <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
           <SessionRecap items={missed} onDone={() => setRecap("done")} />
@@ -665,7 +673,7 @@ function Today({ progress, persist, config, navigate, replay }: {
       );
     return (
       <section className="view">
-        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+        <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
         <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
         <div className="row" style={{ marginTop: 4 }}>
@@ -680,7 +688,7 @@ function Today({ progress, persist, config, navigate, replay }: {
   const step = steps[idx]!;
   return (
     <section className="view">
-      <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
+      <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
       <div className="pbar"><div style={{ width: `${(idx / steps.length) * 100}%` }} /></div>
       <div className="muted small" style={{ marginBottom: 14 }}>
         Step {idx + 1} of {steps.length} · ~{est} min
@@ -716,8 +724,11 @@ function Today({ progress, persist, config, navigate, replay }: {
             persist={persist}
             config={config}
             onMiss={flag}
-            nextLabel={v2 && pack.course ? cp.afterCheckpoint(pack, pack.course, progress.course) : undefined}
-            onDone={(p) => { if (p.chapters?.[step.chapter.id]?.passedAt && p.chapters[step.chapter.id]!.passedAt !== progress.chapters?.[step.chapter.id]?.passedAt) checkpointPassed.current = true; done(p); }}
+            nextLabel={v2 && pack.course ? cp.afterCheckpoint(pack, pack.course, planned) : undefined}
+            // The result screen is the end of the lesson: record the pass (or not) and complete the session there.
+            onFinished={(p, passed) => { checkpointPassed.current = passed; if (idx === steps.length - 1 && v2 && !replay) completeSession(p); else persist(p); }}
+            doneLabel={idx === steps.length - 1 ? "Go to summary →" : undefined}
+            onDone={() => done()}
           />
         )}
 
@@ -853,7 +864,9 @@ function Today({ progress, persist, config, navigate, replay }: {
           <div>
             <Tag>Write it</Tag>
             {step.set
-              ? <WritingLines set={step.set} config={config} onMiss={flag} onDone={() => done()} />
+              ? <WritingLines set={step.set} config={config} onMiss={flag} onDone={() => done()}
+                  onFinished={idx === steps.length - 1 ? () => completeSession() : undefined}
+                  doneLabel={idx === steps.length - 1 ? "Go to summary →" : undefined} />
               : <WritingCapstone prompt={step.prompt} config={config} onDone={() => done()} />}
           </div>
         )}
@@ -889,9 +902,13 @@ function Today({ progress, persist, config, navigate, replay }: {
 // course doesn't quietly move on from a chapter the learner can't yet use.
 const CHECKPOINT_PASS = 0.7;
 
-function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenario, progress, persist, config, onMiss, onDone, nextLabel }: {
+function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenario, progress, persist, config, onMiss, onDone, onFinished, doneLabel, nextLabel }: {
   /** New course: what a pass leads to (the next chapter, a stage review, or the end). */
   nextLabel?: string;
+  /** Called once, when the result screen appears: the progress with the pass recorded (if passed). */
+  onFinished?: (p: Progress, passed: boolean) => void;
+  /** The result screen's button (default "Carry on →"). */
+  doneLabel?: string;
   chapter: Chapter;
   items: ReviewItem[];
   /** The person round (cp.checkpointPersons): "Switch the person" on the chapter's stories, then lines to say. */
@@ -905,6 +922,7 @@ function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenario, prog
   onDone: (p: Progress) => void;
 }) {
   const [phase, setPhase] = useState<"drill" | "persons" | "say" | "speak" | "result">("drill");
+  const finished = useRef(false);
   const [score, setScore] = useState({ got: 0, total: 0 });
   const [spoke, setSpoke] = useState(false);
   const recallOk = score.total === 0 || score.got / score.total >= CHECKPOINT_PASS;
@@ -914,6 +932,16 @@ function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenario, prog
   const afterPersons = () => setPhase(sayLines.length ? "say" : scenario ? "speak" : "result");
   // A switch missed counts against the recall score, like a word or a card.
   const missedSwitch = useRef(new Set<string>());
+
+  // Reaching the result IS finishing: record it once, there — not on the button (a learner who stops on the
+  // result screen has still done the lesson).
+  useEffect(() => {
+    if (phase !== "result" || finished.current) return;
+    finished.current = true;
+    const p = passed ? { ...progress, chapters: chapterSpine.passCheckpoint(progress.chapters, chapter.id) as Progress["chapters"] } : progress;
+    if (onFinished) onFinished(p, passed); else persist(p);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   const finishDrill = useCallback((results: WarmResult[]) => {
     setScore({ got: results.filter((r) => r.ok).length, total: results.length });
@@ -980,13 +1008,13 @@ function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenario, prog
       ) : (
         <>
           <p className="lead" style={{ margin: 0 }}>{score.got}/{score.total} recalled{scenario && !spoke ? " · conversation not done" : ""} — not quite yet.</p>
-          <p className="muted small">No harm done: <b>{chapter.shortTitle}</b> stays with you and the checkpoint comes round again next session. The rest of today&apos;s session carries on as usual.</p>
+          <p className="muted small">No harm done: this lesson still counts. <b>{chapter.shortTitle}</b> stays with you, and the checkpoint comes round again next session, after a short review of the words you found hardest.</p>
         </>
       )}
       <div className="row" style={{ marginTop: 10 }}>
         {/* The pass rides out with the same Progress the parent persists, so it can't be lost to a race
             between an effect-write and the step advance. */}
-        <button className="btn" onClick={() => onDone(passed ? { ...progress, chapters: chapterSpine.passCheckpoint(progress.chapters, chapter.id) as Progress["chapters"] } : progress)}>Carry on →</button>
+        <button className="btn" onClick={() => onDone(progress)}>{doneLabel ?? "Carry on →"}</button>
       </div>
     </div>
   );
@@ -3273,7 +3301,7 @@ function TodayStoryStep({ story, progress, persist, config, onDone, onMiss, dayI
   const useIt = useMemo(() => {
     if (!pack.course || !lens) return [];
     const items = cp.useItItems(pack.course, story, lens.points, dayIndex);
-    const sw = cp.switchPersonItem(pack, story, drillableVerbs(pack, progress), (w) => properNounLike(w, pack), dayIndex);
+    const sw = cp.switchPersonItem(pack, story, switchableVerbs(pack, progress), (w) => properNounLike(w, pack), dayIndex);
     return sw ? [...items.slice(0, 2), sw, ...items.slice(2)] : items;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pack, story, lens, dayIndex, progress.seenGrammar, progress.course]);
@@ -3733,7 +3761,12 @@ function WritingCapstone({ prompt, config, onDone }: { prompt: string; config: a
 // or Cyrillic), otherwise by the tutor against the model. The model answer always follows, and misses join the
 // session's recap. The last screen lays every line out: what you wrote beside the model.
 type WrittenLine = { wrote: string; ok: boolean; tutor?: api.WriteResponse };
-function WritingLines({ set, config, onMiss, onDone }: { set: CourseWriting; config: api.Config | null; onMiss?: (item: ReviewItem) => void; onDone: () => void }) {
+function WritingLines({ set, config, onMiss, onDone, onFinished, doneLabel }: {
+  set: CourseWriting; config: api.Config | null; onMiss?: (item: ReviewItem) => void; onDone: () => void;
+  /** Called once when the summary screen appears (the session's last step: the lesson is done there). */
+  onFinished?: () => void;
+  doneLabel?: string;
+}) {
   const pack = usePack();
   const play = usePlay();
   const [i, setI] = useState(0);
@@ -3746,6 +3779,8 @@ function WritingLines({ set, config, onMiss, onDone }: { set: CourseWriting; con
   const tutorOn = !!config?.engines.anthropic;
   const line = set.lines[i];
   const result = results[i];
+  const finished = useRef(false);
+  useEffect(() => { if (!line && !finished.current) { finished.current = true; onFinished?.(); } }, [line, onFinished]);
   const record = (r: WrittenLine) => {
     setResults((rs) => { const next = [...rs]; next[i] = r; return next; });
     if (!r.ok && line) onMiss?.({ id: `write-${set.chapterId}-${i}`, kind: "phrase", prompt: line.prompt, answer: line.answer, translit: romanize(line.answer), gloss: line.prompt, i1Level: 0, tags: [] });
@@ -3789,7 +3824,7 @@ function WritingLines({ set, config, onMiss, onDone }: { set: CourseWriting; con
             {model(l.answer)}
           </div>
         ))}
-        <div className="row" style={{ marginTop: 12 }}><button className="btn" onClick={onDone}>Done →</button></div>
+        <div className="row" style={{ marginTop: 12 }}><button className="btn" onClick={onDone}>{doneLabel ?? "Done →"}</button></div>
       </div>
     );
   }

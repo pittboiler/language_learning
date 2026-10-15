@@ -74,9 +74,23 @@ export function drillableVerbs(pack: LanguagePack, progress: Progress): Set<stri
   return new Set((pack.conjugations ?? []).filter((v) => groups.has(v.group) && !NOT_DRILLABLE.has(v.lemma) && (!taught || taught.has(v.lemma))).map((v) => v.lemma));
 }
 
+/** The verbs "Switch the person" may use: the drillable ones, plus a past-tense table once every one of its
+ *  forms has been taught (the past is taught form by form: бев, then бевме / бевте / беа). */
+export function switchableVerbs(pack: LanguagePack, progress: Progress): Set<string> {
+  const out = drillableVerbs(pack, progress);
+  if (!pack.course) return out;
+  const forms = cp.formSlots(pack, pack.course);
+  const at = cp.currentSlot(pack.course, progress);
+  for (const v of pack.conjugations ?? []) {
+    if (v.group !== "past") continue;
+    if (Object.values(v.forms).flatMap(cp.wordTokens).every((t) => { const s = forms.get(t); return !!s && cp.cmpSlot(s, at) <= 0; })) out.add(v.lemma);
+  }
+  return out;
+}
+
 // On the course, only verbs it has taught by now (`allowed`), so the drill never springs доаѓа or спие on you.
 export const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Set<string>, allowed?: Set<string>): ConjugationSet | undefined => {
-  const all = (pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && (!groups || groups.has(v.group)) && (!allowed || allowed.has(v.lemma)));
+  const all = (pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && v.group !== "past" && (!groups || groups.has(v.group)) && (!allowed || allowed.has(v.lemma)));
   if (!all.length) return undefined;
   const seen = new Set(progress.seenConjugations ?? []);
   return all.find((v) => !seen.has(v.lemma)) ?? all[(progress.seenConjugations?.length ?? 0) % all.length];
@@ -179,7 +193,7 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
     // person, then the conversation.
     const cards = cc.pointIds.map((id) => points.get(id)).filter((p): p is GrammarPoint => !!p).flatMap((p) => cp.blankCardItems(p));
     const items = [...shuffle(words), ...cards];
-    const persons = cp.checkpointPersons(pack, cc, drillableVerbs(pack, progress), (w) => properNounLike(w, pack));
+    const persons = cp.checkpointPersons(pack, cc, switchableVerbs(pack, progress), (w) => properNounLike(w, pack));
     if (items.length) out.push({ kind: "checkpoint", chapter, items, scenario: pack.scenarios.find((x) => x.id === cc.checkpoint.scenarioId), persons });
     return out;
   }

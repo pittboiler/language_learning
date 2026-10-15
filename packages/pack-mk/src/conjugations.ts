@@ -49,6 +49,41 @@ export const conjugations: ConjugationSet[] = [
     "conceptId": "verb-conjugation",
     "confidence": "unreviewed"
   },
+  // 2026-10-15: the past tense (chapter 9) for every person, so "Switch the person" can retell a past line
+  // (Бев во Скопје → Тие беа во Скопје). Group "past": never in the warm-up drill (you / he-she share a form,
+  // which a match game can't show), never expanded by a verb-group lesson — each form is known when taught.
+  {
+    "lemma": "бев",
+    "gloss": "was / were (past of сум)",
+    "group": "past",
+    "forms": { "1sg": "бев", "2sg": "беше", "3sg": "беше", "1pl": "бевме", "2pl": "бевте", "3pl": "беа" },
+    "conceptId": "past-tense",
+    "confidence": "validated"
+  },
+  {
+    "lemma": "имав",
+    "gloss": "had (past of имам)",
+    "group": "past",
+    "forms": { "1sg": "имав", "2sg": "имаше", "3sg": "имаше", "1pl": "имавме", "2pl": "имавте", "3pl": "имаа" },
+    "conceptId": "past-tense",
+    "confidence": "validated"
+  },
+  {
+    "lemma": "отидов",
+    "gloss": "went (past of одам)",
+    "group": "past",
+    "forms": { "1sg": "отидов", "2sg": "отиде", "3sg": "отиде", "1pl": "отидовме", "2pl": "отидовте", "3pl": "отидоа" },
+    "conceptId": "past-tense",
+    "confidence": "validated"
+  },
+  {
+    "lemma": "јадев",
+    "gloss": "ate (past of јадам)",
+    "group": "past",
+    "forms": { "1sg": "јадев", "2sg": "јадеше", "3sg": "јадеше", "1pl": "јадевме", "2pl": "јадевте", "3pl": "јадеа" },
+    "conceptId": "past-tense",
+    "confidence": "validated"
+  },
   {
     // 2026-10-14: “not have / there isn't”, so chapter 12 practises немам … немаат for every person (it's an
     // ordinary -а verb: не + има).

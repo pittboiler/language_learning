@@ -274,6 +274,21 @@ Questions: *Дали Марко е во Скопје?* → Да, во Скопј
 - **Lint `persons`** is now an error: every chapter shows each person at least twice in what's read and has
   the learner produce it at least once.
 
+### Done 2026-10-15
+- **A fuller checkpoint** (every word and grammar card of the chapter; "Switch the person" on its stories; a line
+  to say for every other person; the conversation), and **"Do again"** for any finished lesson.
+- **The lesson completes on the checkpoint's result screen** (and on the writing summary when it's the session's
+  last step), with "Go to summary →" instead of "Carry on →". Saves now go out one at a time with
+  always-increasing times: the pass and the session's advance used to race, and the older save could win.
+- **Chapters 3–12 audited** against everything above:
+  - writing in chapters 3, 5 and 7 now covers every person;
+  - writing prompts say who "you" is ("To the seller", "To Ana");
+  - past-tense tables (бев / имав / отидов / јадев, all six persons) let "Switch the person" work on chapter 9's
+    past lines once those forms are taught. They're kept out of the warm-up drill, because you and he/she
+    share a form there.
+- Left as is, on purpose: the exams' writing tasks stay "what to get across" (they ask for your own details,
+  which can't be set lines).
+
 ### Still to do
 1. **Jake's review** of the new Macedonian: all of it, chapter by chapter, with the sessions each piece plays
    in, is in `pipeline/output/variety-review-mk.md`.

@@ -113,7 +113,8 @@ function revive(p: Progress): Progress {
 const KEY = "ll-mk-p2";
 
 /** localStorage-backed Store (default until Supabase creds are present). */
-export function localStore(): Store {
+export function localStore(): Store & { mirror(stamped: Progress): void } {
+  const mirror = (stamped: Progress) => { if (typeof localStorage !== "undefined") localStorage.setItem(KEY, JSON.stringify(stamped)); };
   return {
     async load() {
       if (typeof localStorage === "undefined") return emptyProgress();
@@ -125,10 +126,18 @@ export function localStore(): Store {
       }
     },
     async save(p) {
-      if (typeof localStorage === "undefined") return;
-      localStorage.setItem(KEY, JSON.stringify({ ...p, savedAt: Date.now() }));
+      mirror({ ...p, savedAt: nextStamp() });
     },
+    mirror,
   };
+}
+
+/** A save time that always moves forward, even for two saves in the same millisecond — a tie used to let an
+ *  older remote copy win on load (finishing a checkpoint saved twice in one tick and the pass "didn't stick"). */
+let lastStamp = 0;
+function nextStamp(): number {
+  lastStamp = Math.max(Date.now(), lastStamp + 1);
+  return lastStamp;
 }
 
 /**
@@ -139,13 +148,25 @@ export function supabaseStore(): Store {
   const sb = supabase()!;
   const local = localStore();
 
-  const save: Store["save"] = async (p) => {
-    const stamped = { ...p, savedAt: Date.now() };
+  // Upserts go out ONE AT A TIME, in order, and a burst collapses to its latest: two saves fired together
+  // (a checkpoint's pass, then the session's advance) used to race, and when the older landed last the
+  // row kept it — the session looked unfinished on the next load.
+  let pending: Progress | null = null;
+  let queue: Promise<void> = Promise.resolve();
+  const save: Store["save"] = (p) => {
+    const stamped = { ...p, savedAt: nextStamp() };
     // Mirror to localStorage synchronously (fast optimistic reads / offline resilience) BEFORE the
     // network round-trip — so even if the upsert never lands (app closed right after), the mirror holds it.
-    void local.save(stamped);
-    const id = await uid();
-    await sb.from("user_state").upsert({ user_id: id, data: stamped, updated_at: new Date().toISOString() });
+    local.mirror(stamped);
+    pending = stamped;
+    queue = queue.then(async () => {
+      const next = pending;
+      if (!next) return;
+      pending = null;
+      const id = await uid();
+      await sb.from("user_state").upsert({ user_id: id, data: next, updated_at: new Date().toISOString() });
+    }).catch(() => { /* the mirror holds it; the next save or load heals the row */ });
+    return queue;
   };
 
   return {
