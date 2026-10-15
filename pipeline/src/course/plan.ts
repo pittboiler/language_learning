@@ -19,6 +19,12 @@ const MAX_AUTO_EXTRA = 2;
 const BUILD_CANDIDATES = 6;
 /** Most set-phrase notes a session surfaces for the first time (DESIGN §3: spread them out). */
 export const NOTES_PER_SESSION = 3;
+/** Most times a chapter reads the same story while it has anything else to read (DESIGN-story-variety §2a). */
+export const MAX_STORY_READS = 2;
+/** A chapter's extra story is first read only once this share of its words is taught (names count as known). */
+export const FIRST_READ_KNOWN = 0.85;
+/** A reread comes from the last few chapters: close enough to be a refresher, not chapter 1 in chapter 10. */
+export const REREAD_WINDOW = 3;
 
 const toWord = (v: ReviewItem): CourseWord => ({ lexKey: deriveKeyForItem(v).lexKey, display: v.answer.trim(), gloss: v.gloss });
 
@@ -113,7 +119,9 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     const unitRest = dedupe(unit, new Set([...pw, ...required].map((w) => w.lexKey)));
     const tries: { extra: number; reviewAfter: number }[] = [];
     for (let extra = 0; extra <= MAX_AUTO_EXTRA; extra++) {
-      for (let r = Math.min(1, spineCh.points.length - 1); r < spineCh.points.length; r++) tries.push({ extra: fixedExtra + extra, reviewAfter: r });
+      for (let r = Math.min(1, spineCh.points.length - 1); r < spineCh.points.length; r++) {
+        if (spineCh.reviewAfter === undefined || r === spineCh.reviewAfter) tries.push({ extra: fixedExtra + extra, reviewAfter: r });
+      }
     }
     // Fewest sessions first; for the same length, the earliest review that works.
     tries.sort((a, b) => a.extra - b.extra || a.reviewAfter - b.reviewAfter);
@@ -122,19 +130,21 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     for (const t of tries) {
       const l = assignWords(skeleton(spineCh.points, t.extra, t.reviewAfter), pointWords, required, unitRest, optional);
       if (ok(l)) { layout = l; break; }
-      if (t === tries.at(-1)) layout = assignWords(skeleton(spineCh.points, fixedExtra + MAX_AUTO_EXTRA, Math.min(1, spineCh.points.length - 1)), pointWords, required, unitRest, optional);
+      if (t === tries.at(-1)) layout = assignWords(skeleton(spineCh.points, fixedExtra + MAX_AUTO_EXTRA, spineCh.reviewAfter ?? Math.min(1, spineCh.points.length - 1)), pointWords, required, unitRest, optional);
     }
     const { slots, sessionWords, leftover } = layout;
     const taught = sessionWords.flat();
 
     // ---- stories ----
     const home = content.stories.find((s) => s.id === `gen-${chId}-story`) ?? content.stories[0];
+    // The chapter's own stories: the home story first, then its extra stories (variations, the café story…).
+    const own = home ? [home, ...content.stories.filter((s) => s.id !== home.id)] : content.stories;
     const storyPool = contents.filter((c) => c.chapter.order <= order).flatMap((c) => c.stories.map((s) => ({ s, order: c.chapter.order })));
     const hits = (s: MiniStory, ids: string[]) => s.body.map((_, i) => i).filter((i) => (lineTags[`story:${s.id}#${i}`] ?? []).some((t) => ids.includes(t)));
     const usedReuse = new Set<string>(); // stories already brought back in THIS chapter
     const notRecent = (id: string) => (reusedAt.get(id) ?? -99) < order - 2; // not reused in the last two chapters
     const pickReuse = (lens: string[]): { s: MiniStory; lens: string[] } | undefined => {
-      const earlier = storyPool.filter((x) => x.order < order && !usedReuse.has(x.s.id));
+      const earlier = storyPool.filter((x) => x.order < order && x.order >= order - REREAD_WINDOW && !usedReuse.has(x.s.id));
       const take = (s: MiniStory, l: string[]) => { usedReuse.add(s.id); reusedAt.set(s.id, order); return { s, lens: l }; };
       // 1. An earlier story that uses THIS chapter's grammar (a not-recently-reused one wins a tie).
       const onLens = earlier.map((x) => ({ x, n: hits(x.s, lens).length + (notRecent(x.s.id) ? 0.5 : 0) })).filter((r) => r.n >= 1).sort((a, b) => b.n - a.n || a.x.order - b.x.order)[0];
@@ -157,31 +167,58 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     const chapterPointIds = spineCh.points.map((p) => p.id);
     const sessions: CourseSession[] = [];
     let speakFrom = -1;
+    // The chapter's conversations: its main one, then its second versions (gen-<chapter>-convo-…), written so
+    // the learner says the persons the first one misses. They take turns; the first try and the checkpoint are
+    // the main one (DESIGN-story-variety §2c).
+    const convos = scen ? [scen, ...content.scenarios.filter((x) => x.id.startsWith(`gen-${chId}-convo`))] : [];
+    let speakCount = 0;
     const requiredKeys = new Set(required.map((w) => w.lexKey));
     slots.forEach((slot, i) => {
       const pointsSoFar = [...pointsBefore, ...chapterPointIds.slice(0, chapterPointIds.indexOf(lastPointUpTo(slots, i) ?? "") + 1)];
       const chapterSoFar = chapterPointIds.filter((id) => pointsSoFar.includes(id));
       const taughtUpTo = new Set([...taughtBefore.keys(), ...sessionWords.slice(0, i + 1).flat().map((w) => w.lexKey)]);
 
+      // ---- the story (DESIGN-story-variety §2a): the chapter's own stories take turns, each read at most
+      // MAX_STORY_READS times while there's anything else to read; an extra story waits until it's readable.
+      // A review day rereads an earlier chapter's story with fresh eyes (as do the slots the chapter's own
+      // stories can't fill). Back-to-back reads are fine (Jake, 2026-10-14).
+      const knownNow = knownInSet(pack, knownForms(pack, points, taughtUpTo, pointsSoFar), pointsSoFar.some((id) => spineOf.get(id)?.grammarIds.includes("definite-articles")), names);
+      const readable = (st: MiniStory) => {
+        const toks = st.body.flatMap((b) => tokens(b.text));
+        return !toks.length || toks.filter(knownNow).length / toks.length >= FIRST_READ_KNOWN;
+      };
+      const reads = (id: string) => sessions.filter((x) => x.story?.id === id).length;
+      const ownOpen = own.filter((st) => (reads(st.id) ? reads(st.id) < MAX_STORY_READS : st.id === home?.id || readable(st)));
+      const ownStory = (lens: string[], byHits: boolean): MiniStory | undefined =>
+        [...ownOpen].sort((x, y) => (byHits ? hits(y, lens).length - hits(x, lens).length : 0) || reads(x.id) - reads(y.id) || hits(y, lens).length - hits(x, lens).length || own.indexOf(x) - own.indexOf(y))[0];
+      // When every own story has had its reads: the least-read one that's readable (chapter 1 has nothing earlier).
+      const ownFallback = (lens: string[]) => [...own].filter((st) => reads(st.id) || st.id === home?.id || readable(st))
+        .sort((x, y) => reads(x.id) - reads(y.id) || Number(y.id === home?.id) - Number(x.id === home?.id) || hits(y, lens).length - hits(x, lens).length)[0];
+      const asOwn = (st: MiniStory, lens: string[]) => ({ id: st.id, lens, highlight: hits(st, lens) });
       let story: CourseSession["story"];
       if (slot.role === "teach" || (slot.role === "practice" && slot.point)) {
+        // Teaching a point: the own story that shows it best; else an earlier story that shows it; else any own one.
         const lens = [slot.point!.id];
-        let s = home;
-        if (home && i > 0 && hits(home, lens).length === 0) {
-          const alt = storyPool.filter((x) => x.s.id !== home.id).map((x) => ({ x, n: hits(x.s, lens).length - (usedReuse.has(x.s.id) ? 0.5 : 0) })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n || b.x.order - a.x.order)[0];
-          if (alt) { s = alt.x.s; usedReuse.add(s.id); reusedAt.set(s.id, order); }
+        const mine = ownStory(lens, true);
+        if (mine && hits(mine, lens).length) story = asOwn(mine, lens);
+        else {
+          const alt = storyPool.filter((x) => x.order < order).map((x) => ({ x, n: hits(x.s, lens).length - (usedReuse.has(x.s.id) ? 0.5 : 0) })).filter((r) => r.n > 0).sort((a, b) => b.n - a.n || b.x.order - a.x.order)[0];
+          if (alt) { usedReuse.add(alt.x.s.id); reusedAt.set(alt.x.s.id, order); story = { id: alt.x.s.id, lens, highlight: hits(alt.x.s, lens), reuse: true }; }
+          else { const st = mine ?? ownFallback(lens); if (st) story = asOwn(st, lens); }
         }
-        if (s) story = { id: s.id, lens, highlight: hits(s, lens), ...(storyOrder(s) < order ? { reuse: true } : {}) };
-      } else if (slot.role === "practice" || (slot.role === "use" && !sessions.some((x) => x.role === "use"))) {
-        if (home) story = { id: home.id, lens: chapterSoFar, highlight: hits(home, chapterSoFar) };
-      } else if (slot.role === "use" && content.stories.some((x) => x.id !== home?.id && !sessions.some((y) => y.story?.id === x.id))) {
-        // A chapter's own second story (e.g. the hand-authored café one) gets read in the chapter itself.
-        const other = content.stories.find((x) => x.id !== home?.id && !sessions.some((y) => y.story?.id === x.id))!;
-        story = { id: other.id, lens: chapterSoFar, highlight: hits(other, chapterSoFar) };
-      } else if (slot.role === "review" || slot.role === "use") {
+      } else if (slot.role === "review" && order > 1) {
         const r = pickReuse(chapterSoFar);
+        const st = r ? undefined : ownStory(chapterSoFar, false) ?? ownFallback(chapterSoFar);
         if (r) story = { id: r.s.id, lens: r.lens, highlight: hits(r.s, r.lens), reuse: true };
-        else if (home) story = { id: home.id, lens: chapterSoFar, highlight: hits(home, chapterSoFar) };
+        else if (st) story = asOwn(st, chapterSoFar);
+      } else if (slot.role !== "checkpoint") {
+        // Practice, use (and chapter 1's review): the least-read own story; once they're all read twice, an
+        // earlier chapter's story (or, with none, the least-read own one again).
+        const st = ownStory(chapterSoFar, false);
+        const r = st ? undefined : pickReuse(chapterSoFar);
+        const fb = st ?? (r ? undefined : ownFallback(chapterSoFar));
+        if (st || fb) story = asOwn((st ?? fb)!, chapterSoFar);
+        else if (r) story = { id: r.s.id, lens: r.lens, highlight: hits(r.s, r.lens), reuse: true };
       }
 
       // Speak once every required word was taught in an EARLIER session (not minutes ago), from the review on.
@@ -189,9 +226,16 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       const ready = [...requiredKeys].every((k) => reqBefore.has(k));
       const speakable = slot.role === "review" || slot.role === "use" || (slot.role === "practice" && !slot.point);
       if (speakFrom === -1 && ready && speakable && scen) speakFrom = i;
-      const speak = speakFrom !== -1 && i >= speakFrom && slot.role !== "checkpoint" ? scen?.id : undefined;
+      let speak: string | undefined;
+      if (scen && speakFrom !== -1 && i >= speakFrom && slot.role !== "checkpoint") {
+        // A second version only once everything the learner has to say in it is taught; until then the main one
+        // plays and the second version keeps its turn.
+        const turn = convos[speakCount % convos.length]!;
+        const sayable = turn.script.filter((t) => t.speaker === "learner").every((t) => tokens(t.text).every(knownNow));
+        speak = sayable ? turn.id : scen.id;
+        if (sayable || speakCount === 0) speakCount++;
+      }
 
-      const knownNow = knownInSet(pack, knownForms(pack, points, taughtUpTo, pointsSoFar), pointsSoFar.some((id) => spineOf.get(id)?.grammarIds.includes("definite-articles")), names);
       const build = slot.role === "checkpoint" ? [] : buildCandidates(pack, {
         order, taughtUpTo, pointsSoFar, current: slot.point?.id, conceptPoints, words: sessionWords[i]!,
         chapterWords: taught, earlierWords: [...taughtBefore.values()], known: knownNow, lineTags,
@@ -266,7 +310,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       a.push(s.role === "teach" ? pt?.agenda ?? `New: ${pointName(s.pointId!)}` : practised ? `Practice: ${pointName(practised)}` : "Practice day: more of this chapter's patterns");
     } else {
       if (s.role === "review") a.push("Review day: nothing new");
-      if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in your own words" : "Put it together: use this chapter in a real exchange");
+      if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in a real exchange, then in writing" : "Put it together: use this chapter in a real exchange");
       if (s.role === "checkpoint") a.push("Checkpoint: this chapter's words and grammar", "Then the conversation once more");
       if (wordsLine) a.push(wordsLine);
     }
@@ -279,7 +323,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     if (s.build.length) a.push("Build a sentence: put the words in order");
     const firstTry = s.role === "review" && ch.sessions.find((x) => x.speak)?.n === s.n;
     if (s.speak) a.push(`${firstTry ? "First try at the conversation" : "Conversation"}: ${scenTitle(s.speak)}`);
-    if (s.writing) a.push("Write a few lines of your own");
+    if (s.writing) a.push("Write it: short lines from English into Macedonian, one at a time");
     s.agenda = a;
   }
   const chapterTitle = (id: string) => pack.chapters?.find((c) => c.id === id)?.shortTitle ?? id;
@@ -309,10 +353,6 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     from = to + 1;
   }
   return { chapters, stageReviews, version: structureVersion(chapters) };
-
-  function storyOrder(s: MiniStory): number {
-    return contents.find((c) => c.stories.some((x) => x.id === s.id))?.chapter.order ?? 0;
-  }
 }
 
 /** Fill a chapter's sessions with words, three at most each. A session teaching (or practising) a point

@@ -204,7 +204,7 @@ const rc = cp.sessionRecap(macedonian, course, s1, prog({ familiarity: { маж�
 assert.equal(rc.points.length, 1);
 assert.equal(rc.points[0]!.point.id, "pt-ne");
 assert.ok(rc.points[0]!.fresh);
-assert.ok(rc.points[0]!.lines.some((l) => l.text.includes("не разбирам")), "quotes today's story line with не");
+assert.ok(rc.points[0]!.lines.some((l) => cp.wordTokens(l.text).includes("не")), "quotes today's story line with не");
 assert.ok(rc.words.some((w) => w.lexKey === "мажот"), "a word tapped during the session is in the recap");
 assert.ok(!rc.words.some((w) => w.lexKey === "фала"), "an older word isn't");
 assert.ok(course.chapters[1]!.sessions[1]!.words.every((w) => rc.words.some((x) => x.lexKey === w.lexKey)), "all the session's words");
@@ -372,6 +372,67 @@ for (const c of course.chapters) {
   const early = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 1, n: 1 }, { order: 1, n: 1 });
   assert.ok(early.every((x) => x.kind !== "blank" || !!x.cardId));
   assert.ok(items.length >= early.length);
+}
+
+// 12. Writing, line by line: every chapter's writing session has its lines (each with an English prompt and
+// a model answer), and a line written in Latin letters — the usual ways of typing ќ, ч, ш, ј — or in Cyrillic
+// counts as the model answer without asking the tutor; a different form doesn't.
+{
+  for (const c of course.chapters) {
+    if (!c.sessions.some((s) => s.writing)) continue;
+    const w = cp.writingFor(course, c.chapterId);
+    assert.ok(w && w.lines.length >= 5, `${c.chapterId} has writing lines`);
+    for (const l of w!.lines) assert.ok(l.prompt.trim() && /\p{Script=Cyrillic}/u.test(l.answer), `${c.chapterId}: “${l.prompt}”`);
+  }
+  const line = { prompt: "Do you like the weather today?", answer: "Ти се допаѓа ли времето денес?" };
+  for (const typed of ["Ti se dopagja li vremeto denes?", "ti se dopaga li vremeto denes", "Ти се допаѓа ли времето денес", "TI SE DOPAǴA LI VREMETO DENES"]) assert.ok(cp.writtenMatches(typed, line), typed);
+  assert.ok(cp.writtenMatches("kje odime", { prompt: "", answer: "Ќе одиме." }) && cp.writtenMatches("ke odime", { prompt: "", answer: "Ќе одиме." }));
+  assert.ok(cp.writtenMatches("ne sum Marko", { prompt: "", answer: "Јас не сум Марко!", also: ["Не сум Марко!"] }), "an equally right alternative");
+  assert.ok(!cp.writtenMatches("Ti se dopagja li vremeto?", line), "a missing word goes to the tutor");
+  assert.ok(!cp.writtenMatches("sakas kafe", { prompt: "", answer: "Сакам кафе." }), "another person's form isn't a match");
+  assert.ok(!cp.writtenMatches("  ", line));
+}
+
+// 13. Every person, in context (DESIGN-story-variety §2). "Say it" takes turns through all six persons within a
+// chapter's first three sessions; "Switch the person" retells a story line about someone else with a clean
+// three-way choice, never on a line where something else would have to change too; and every chapter's
+// second conversation is played, after the first try on the main one, with the checkpoint on the main one.
+{
+  assert.deepEqual(new Set([1, 2, 3].flatMap(cp.personPair)), new Set(cp.PERSONS), "three sessions say every person");
+  const all = new Set((macedonian.conjugations ?? []).map((v) => v.lemma));
+  const names = (w: string) => /^\p{Lu}/u.test(w) && ["Ана", "Марко", "Вера", "Ема", "Петар", "Скопје", "Битола", "Охрид", "Сара", "Иван"].includes(w);
+  let switched = 0;
+  for (const story of macedonian.stories ?? []) for (let seed = 0; seed < 4; seed++) {
+    const it = cp.switchPersonItem(macedonian, story, all, names, seed);
+    if (!it) continue;
+    switched++;
+    assert.ok(it.shown.includes("___") && !it.filled.includes("___"), `${story.id}: ${it.shown}`);
+    assert.equal(it.options.length, 3, `${story.id}: three choices`);
+    assert.ok(it.options.includes(it.blank) && new Set(it.options).size === 3, `${story.id}: ${it.options}`);
+    assert.ok(cp.singleUtterance(story.body[Number(it.line.source.split("#")[1])]!.text), `${story.id}: one utterance`);
+    assert.ok(!cp.wordTokens(it.line.text).some((t) => t === "да" || t === "ајде"), `${story.id}: no да-clauses`);
+    if (cp.wordTokens(it.line.text).includes("како")) assert.equal(it.person.endsWith("pl"), (macedonian.conjugations ?? []).some((v) => Object.entries(v.forms).some(([p, f]) => p.endsWith("pl") && cp.wordTokens(it.line.text).includes(f))), `${story.id}: “како …” keeps its number`);
+  }
+  assert.ok(switched >= 30, `switch-the-person finds lines in most stories (${switched})`);
+  // Tense-fixed example: „Ти не си Марко?“ about ние → „Ние не ___ Марко?“ can't happen (a name after сум keeps the number).
+  const repairA = macedonian.stories!.find((s) => s.id === "gen-s0-repair-story-a")!;
+  for (let seed = 0; seed < 8; seed++) {
+    const it = cp.switchPersonItem(macedonian, repairA, all, names, seed);
+    if (it && /Марко[?!.]*$/.test(it.line.text) && cp.wordTokens(it.line.text).some((t) => ["сум", "си", "е"].includes(t))) assert.ok(!it.person.endsWith("pl"), `${it.shown}: a name after сум stays singular`);
+  }
+  // "Say it" in other persons: from a build sentence once verbs are taught, with "you" made unambiguous.
+  const ch4 = course.chapters.find((c) => c.chapterId === "s1-cafe-order")!;
+  const s2 = ch4.sessions.find((s) => s.n === 2)!;
+  const say = cp.personSayLines(macedonian, ch4, s2, new Set(["сака", "има", "дава", "е"]));
+  assert.equal(say.length, 2);
+  for (const l of say) assert.ok(!/^You\b(?! all| \(one friend\))/.test(l.gloss), `“you” is spelled out: ${l.gloss}`);
+  // Conversations: the main one first and at the checkpoint, the second version in rotation.
+  for (const c of course.chapters.filter((x) => x.pointIds.length)) {
+    const spoken = c.sessions.map((s) => s.speak).filter((x): x is string => !!x);
+    assert.equal(spoken[0], `gen-${c.chapterId}`, `${c.chapterId}: the first try is the main conversation`);
+    assert.ok(spoken.includes(`gen-${c.chapterId}-convo-b`), `${c.chapterId}: its second conversation is played`);
+    assert.equal(c.checkpoint.scenarioId, `gen-${c.chapterId}`);
+  }
 }
 
 console.log("course-player.test.ts: all assertions passed ✓");

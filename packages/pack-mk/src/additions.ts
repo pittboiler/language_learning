@@ -139,4 +139,56 @@ export const level1Additions: ReviewItem[] = [
     takeaway: "Ме боли … is “my … hurts”, literally “… hurts me”: Ме боли глава.",
     meta: { wordNote: "Ме боли … is “my … hurts”, literally “… hurts me”: Ме боли глава, my head hurts." },
   }),
+
+  // ---- 2026-10-14 (DESIGN-story-variety §2e): every person, once its grammar is taught ----
+  // Chapter 8: “to you all” and “to them”, so likes are practised for every person (ми, ти, му, ѝ, ни, ви, им).
+  item({
+    id: "add-vi-se-dopagja", kind: "phrase", tags: ["s2-smalltalk"],
+    answer: "Ви се допаѓа ли?", translit: "Vi se dopagja li?",
+    gloss: "Do you all like it? (also polite: Do you like it?)",
+    breakdown: [{ part: "Ви", gloss: "to you all" }, { part: "се допаѓа", gloss: "is pleasing" }, { part: "ли", gloss: "(yes/no question)" }],
+    takeaway: "ви is “to you all” (and polite “to you”): Ви се допаѓа ли? Ни се допаѓа — we like it.",
+    meta: { wordNote: "ви is “to you all” (or polite “to you”). The whole set: ми, ти, му, ѝ, ни, ви, им." },
+  }),
+  item({
+    id: "add-im-se-dopagja", kind: "phrase", tags: ["s2-smalltalk"],
+    answer: "Им се допаѓа.", translit: "Im se dopagja.",
+    gloss: "They like it.",
+    breakdown: [{ part: "Им", gloss: "to them" }, { part: "се допаѓа", gloss: "is pleasing" }],
+    takeaway: "им is “to them”: Им се допаѓа — they like it (it pleases them).",
+    meta: { wordNote: "им is “to them”: Им се допаѓа, “it pleases them”." },
+  }),
+  // Chapter 9: the past for we / you all / they (the chapter's lesson gave I / you / he-she).
+  item({
+    id: "add-past-bevme", kind: "vocab", tags: ["s2-pasttime"],
+    answer: "бевме / бевте / беа", translit: "bevme / bevte / bea",
+    gloss: "we were / you all were / they were",
+    breakdown: parts("бевме, бевте, беа", "we were, you all were, they were"),
+    takeaway: "The past of сум: бев, беше, беше, бевме, бевте, беа.",
+    meta: { wordNote: "The past of сум for every person: бев, беше, беше, бевме, бевте, беа." },
+  }),
+  item({
+    id: "add-past-imavme", kind: "vocab", tags: ["s2-pasttime"],
+    answer: "имавме / имавте / имаа", translit: "imavme / imavte / imaa",
+    gloss: "we had / you all had / they had",
+    breakdown: parts("имавме, имавте, имаа", "we had, you all had, they had"),
+    takeaway: "имав, имаше, имаше, имавме, имавте, имаа: -ме we, -те you all, -а they.",
+    meta: { wordNote: "All six: имав, имаше, имаше, имавме, имавте, имаа. The endings -ме (we), -те (you all), -а (they) work for every past verb." },
+  }),
+  item({
+    id: "add-past-otidovme", kind: "vocab", tags: ["s2-pasttime"],
+    answer: "отидовме / отидовте / отидоа", translit: "otidovme / otidovte / otidoa",
+    gloss: "we went / you all went / they went",
+    breakdown: parts("отидовме, отидовте, отидоа", "we went, you all went, they went"),
+    takeaway: "отидов, отиде, отиде, отидовме, отидовте, отидоа.",
+    meta: { wordNote: "All six: отидов, отиде, отиде, отидовме, отидовте, отидоа." },
+  }),
+  item({
+    id: "add-past-jadevme", kind: "vocab", tags: ["s2-pasttime"],
+    answer: "јадевме / јадевте / јадеа", translit: "yadevme / yadevte / yadea",
+    gloss: "we ate / you all ate / they ate",
+    breakdown: parts("јадевме, јадевте, јадеа", "we ate, you all ate, they ate"),
+    takeaway: "јадев, јадеше, јадеше, јадевме, јадевте, јадеа.",
+    meta: { wordNote: "All six: јадев, јадеше, јадеше, јадевме, јадевте, јадеа." },
+  }),
 ];

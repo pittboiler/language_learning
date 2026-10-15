@@ -10,7 +10,8 @@ import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { GrammarItem } from "@ll/core/partner/grammar-together";
 import type { CourseLogEntry, Progress } from "./store";
-import type { CourseExam } from "@ll/pack-schema";
+import type { CourseExam, CourseWriting, WritingLine } from "@ll/pack-schema";
+import { romanize } from "./romanize";
 
 /** The switch (DESIGN §11): on since the 2026-10-08 cutover. A learner can still switch back to the old
  *  runtime planner from Settings (`progress.settings.courseV2 = false`). */
@@ -375,6 +376,22 @@ export const needsTeaching = (progress: Progress, lexKey: string): boolean => {
   return status !== "known" && status !== "ignored";
 };
 
+/** Most catch-up words a session takes on top of its own (see catchUpWords). */
+export const CATCH_UP_MAX = 3;
+
+/** Words from sessions already behind the learner that they've never met: words added to the course after
+ *  they'd gone by (a content update, e.g. вие / тие joining chapter 1), or a new-words step they skipped.
+ *  Taught at the start of the next session, a few at a time, so changing the course never leaves a gap. */
+export function catchUpWords(course: Course, p: Progress, max = CATCH_UP_MAX): CourseWord[] {
+  const at = currentSlot(course, p);
+  const out: CourseWord[] = [];
+  for (const c of course.chapters) for (const s of c.sessions) {
+    if (cmpSlot({ order: c.order, n: s.n }, at) >= 0) continue;
+    for (const w of s.words) if (!p.familiarity[w.lexKey] && !out.some((x) => x.lexKey === w.lexKey)) out.push(w);
+  }
+  return out.slice(0, max);
+}
+
 // ---- agenda + recap (DESIGN §5) ---------------------------------------------------------------------
 export interface Agenda { title: string; items: string[] }
 
@@ -482,7 +499,9 @@ export type UseItItem =
   /** Put the line's words back in order. */
   | { kind: "build"; line: LineRef }
   /** Say the line, with speech feedback (skippable). */
-  | { kind: "say"; line: LineRef & { translit?: string } };
+  | { kind: "say"; line: LineRef & { translit?: string } }
+  /** The line told about someone else: its verb blanked, pick the form for the new person (see switchPersonItem). */
+  | { kind: "switch"; line: LineRef; person: Person; shown: string; filled: string; blank: string; options: string[]; why: string };
 
 /** A line without its quotation marks (tiles and speech shouldn't carry „ “). */
 export const bareLine = (text: string) => text.replace(/[„“”"«»]/g, "").replace(/\s+/g, " ").trim();
@@ -646,7 +665,7 @@ export function sessionHeadline(course: Course, chapter: CourseChapter, s: Cours
     case "teach": return withWords(`New: ${title(s.pointId) ?? "grammar"}`);
     case "practice": return withWords(`Practice: ${title(practisedPoint(chapter, s)) ?? "this chapter's grammar"}`);
     case "review": return s.speak ? "Review day · the conversation" : "Review day";
-    case "use": return withWords(s.writing ? "Put it together · write your own lines" : "Put it together");
+    case "use": return withWords(s.writing ? "Put it together · write it in Macedonian" : "Put it together");
     default: return "Checkpoint: this chapter's words and grammar";
   }
 }
@@ -736,5 +755,192 @@ export function positionShare(pack: LanguagePack, p: Progress): CoursePositionSh
     chapterOrder: ch.order,
     session: state.examAfter ? ch.sessions.length + 2 : state.stageReviewAfter ? ch.sessions.length + 1 : state.session,
     points: course.points.filter((pt) => p.seenGrammar?.[pt.id]).map((pt) => pt.id),
+  };
+}
+
+// ---------- Writing, line by line ----------
+
+/** A chapter's writing exercise (played in its session marked `writing`). */
+export function writingFor(course: Course, chapterId: string): CourseWriting | undefined {
+  return course.writing?.find((w) => w.chapterId === chapterId);
+}
+
+/** A written line reduced to its letters, whatever the script: Cyrillic is romanized, and the usual ways of
+ *  typing Macedonian in Latin letters (ч as č / ch / c, ќ as ḱ / kj / k, ј as j / y…) collapse to one
+ *  spelling. Loose on purpose: it only decides "this is the model answer, no need to ask the tutor". */
+export function writingKey(text: string): string {
+  return romanize(text.normalize("NFC")).normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().replace(/[^a-z]/g, "")
+    .replace(/y/g, "j").replace(/dzh|dj/g, "dz").replace(/([kgln])j/g, "$1")
+    .replace(/ch|ts/g, "c").replace(/sh/g, "s").replace(/zh/g, "z");
+}
+
+/** Is a written attempt the line's model answer (or one of its equally right alternatives)? */
+export function writtenMatches(typed: string, line: WritingLine): boolean {
+  const k = writingKey(typed);
+  return !!k && [line.answer, ...(line.also ?? [])].some((a) => writingKey(a) === k);
+}
+
+// ---------- Persons: every form, in context (DESIGN-story-variety §2; Jake: "it's the core LESSON that must
+// be repeated, not the EXERCISE") ----------
+
+export const PERSONS = ["1sg", "2sg", "3sg", "1pl", "2pl", "3pl"] as const;
+export type Person = (typeof PERSONS)[number];
+export const PRONOUN: Record<Person, { mk: string; en: string }> = {
+  "1sg": { mk: "јас", en: "I" }, "2sg": { mk: "ти", en: "you (one friend)" }, "3sg": { mk: "таа", en: "she" },
+  "1pl": { mk: "ние", en: "we" }, "2pl": { mk: "вие", en: "you all" }, "3pl": { mk: "тие", en: "they" },
+};
+/** The order persons take turns in a chapter's sessions: the plurals first, the ones a single scene rarely needs. */
+export const PERSON_TURNS: Person[] = ["1pl", "2pl", "3pl", "2sg", "1sg", "3sg"];
+/** The two persons a session's "Say it" adds (session n of its chapter): every person within three sessions. */
+export const personPair = (n: number): Person[] => { const i = ((Math.max(1, n) - 1) * 2) % 6; return [PERSON_TURNS[i]!, PERSON_TURNS[i + 1]!]; };
+
+const SUBJECTS = new Map<string, Person>([["јас", "1sg"], ["ти", "2sg"], ["тој", "3sg"], ["таа", "3sg"], ["тоа", "3sg"], ["ние", "1pl"], ["вие", "2pl"], ["тие", "3pl"]]);
+const DATIVE = new Map<string, Person>([["ми", "1sg"], ["му", "3sg"], ["ѝ", "3sg"], ["ни", "1pl"], ["ви", "2pl"], ["им", "3pl"]]);
+
+/** Words that mark a person: the subject pronouns, the to-whom pronouns (ми се допаѓа practises "me" too) and
+ *  every verb-table form (сум's included), minus се, which is mostly the reflexive (се викам), not "they are". */
+// The past forms the course teaches (chapter 9) — the verb tables are present tense only. беше ("you were" and
+// "he/she was") is left out: it can't tell the two apart.
+const PAST: [string, Person][] = [
+  ["бев", "1sg"], ["бевме", "1pl"], ["бевте", "2pl"], ["беа", "3pl"],
+  ["имав", "1sg"], ["имавме", "1pl"], ["имавте", "2pl"], ["имаа", "3pl"],
+  ["отидов", "1sg"], ["отидовме", "1pl"], ["отидовте", "2pl"], ["отидоа", "3pl"],
+  ["јадев", "1sg"], ["јадевме", "1pl"], ["јадевте", "2pl"], ["јадеа", "3pl"],
+];
+export function personMarkers(pack: LanguagePack): Map<string, Person> {
+  const m = new Map<string, Person>([...SUBJECTS, ...DATIVE, ...PAST]);
+  for (const v of pack.conjugations ?? []) for (const [p, f] of Object.entries(v.forms)) for (const t of wordTokens(f)) if (t !== "се" && !m.has(t)) m.set(t, p as Person);
+  return m;
+}
+
+/** A known English line with "you" made unambiguous ("You want beer." → "You all want beer."). */
+const youFor = (en: string, p: string) => {
+  const who = p === "2pl" ? "You all" : p === "2sg" ? "You (one friend)" : "";
+  return who ? en.replace(/^You('re)?\b/, (_m, re: string | undefined) => (re ? `${who} are` : who)) : en;
+};
+
+/** One utterance: a story line that's a single sentence said by one person, with no narration around a quote
+ *  ("„…“ прашува келнерот", "Ана вели: „…“") — the only kind it's fair to say aloud or to retell about someone else. */
+export const singleUtterance = (raw: string): boolean => {
+  const text = bareLine(raw);
+  return !/\S\s*[„:]/.test(raw) && !/[“”]\s*[,\p{L}]/u.test(raw) && !/[?!.…]\s+\S/.test(text);
+};
+/** A story line's English without its narration: the quoted words when there are any, no (asides). */
+export const spokenGloss = (gloss: string): string => {
+  const q = /["“]([^"”]+)["”]/.exec(gloss)?.[1];
+  return bareGloss((q ?? gloss).replace(/\s*\([^)]*\)\s*/g, " ")).trim();
+};
+
+/** "Say it" in two more persons (personPair): one of the session's build sentences (taking turns) in those
+ *  persons when it has a verb taught by now, else a line from the chapter's stories that uses them. `verbs`:
+ *  the lemmas taught by now. */
+export function personSayLines(pack: LanguagePack, chapter: CourseChapter, s: CourseSession, verbs: Set<string>): { text: string; gloss: string; focus: string[] }[] {
+  const pair = personPair(s.n);
+  const items = s.build.map((id) => pack.sentences?.find((x) => x.id === id)).filter((it): it is SentenceItem => !!it?.verbLemma && verbs.has(it.verbLemma) && pair.every((p) => it.variants.some((v) => v.person === p)));
+  const item = items[(s.n - 1) % Math.max(1, items.length)];
+  if (item) {
+    const verb = pack.conjugations?.find((v) => v.lemma === item.verbLemma);
+    return pair.map((p) => { const v = item.variants.find((x) => x.person === p)!; const form = verb?.forms[p]; return { text: v.mk, gloss: youFor(v.en, p), focus: form ? v.mk.split(/\s+/).map((w) => w.replace(/[.,!?…]+$/, "")).filter((w) => familiarity.normalize(w) === familiarity.normalize(form)) : [] }; });
+  }
+  // No verb sentence yet (chapters 1–3, сум): a short line from the chapter's stories read so far.
+  const markers = personMarkers(pack);
+  const read = new Set(chapter.sessions.filter((x) => x.n <= s.n && x.story).map((x) => x.story!.id));
+  const lines = [...read].flatMap((id) => pack.stories?.find((st) => st.id === id)?.body ?? []).filter((b) => singleUtterance(b.text)).map((b) => ({ text: bareLine(b.text), gloss: spokenGloss(b.gloss) }));
+  return pair.flatMap((p) => {
+    const hit = lines.filter((l) => wordTokens(l.text).some((t) => markers.get(t) === p) && l.text.split(" ").length <= 8).sort((a, b) => a.text.length - b.text.length)[0];
+    return hit ? [{ ...hit, focus: hit.text.split(/\s+/).map((w) => w.replace(/[.,!?…]+$/, "")).filter((w) => markers.get(familiarity.normalize(w)) === p) }] : [];
+  });
+}
+
+/** Lines whose person can't be switched cleanly: да + a second verb (both would change), ајде да, an impersonal
+ *  "it is" after a to-whom pronoun (Мило ми е), and yes/no-answer lines. */
+const UNSWITCHABLE = new Set(["да", "ајде", "нека"]);
+/** After a form of сум, what may follow when the number changes (a place or a how, not a noun that would agree). */
+const SUM_SAFE_AFTER = new Set(["во", "на", "од", "тука", "таму", "добро", "близу", "далеку", "дома", "кај", "со", "не"]);
+const KEEP_NUMBER = new Set(["како", "заедно", "сите"]);
+const PREPOSITIONS = new Set(["во", "на", "од", "до", "со", "кај", "за", "по", "пред", "зад"]);
+
+/** "Switch the person": a line from today's story told about someone else, its verb blanked, with three forms
+ *  of that verb to choose from (DESIGN-story-variety §2b). Built from the verb tables — no new language. Only
+ *  lines with exactly one verb the learner has been taught (`verbs`: lemmas), whose subject (when it's said) is
+ *  a pronoun or a name right before the verb; сум only switches number when nothing after it would have to
+ *  agree. `seed` turns the line and the person from one reading to the next. */
+export function switchPersonItem(pack: LanguagePack, story: MiniStory, verbs: Set<string>, names: (word: string) => boolean, seed = 0): Extract<UseItItem, { kind: "switch" }> | undefined {
+  const forms = new Map<string, { lemma: string; person: Person }>();
+  for (const v of pack.conjugations ?? []) if (verbs.has(v.lemma)) for (const [p, f] of Object.entries(v.forms)) { const t = familiarity.normalize(f); if (t !== "се" && t !== "си" && !forms.has(t)) forms.set(t, { lemma: v.lemma, person: p as Person }); }
+  const candidates = story.body.flatMap((b, i) => {
+    const text = bareLine(b.text);
+    if (!singleUtterance(b.text)) return [];
+    const words = [...text.matchAll(/[\p{L}]+/gu)].map((m) => ({ w: m[0], at: m.index!, t: familiarity.normalize(m[0]) }));
+    if (words.some((x) => UNSWITCHABLE.has(x.t))) return [];
+    const verbAt = words.map((x, k) => (forms.has(x.t) ? k : -1)).filter((k) => k >= 0);
+    if (verbAt.length !== 1) return [];
+    const v = verbAt[0]!;
+    const { lemma, person } = forms.get(words[v]!.t)!;
+    if (lemma === "е" && v > 0 && DATIVE.has(words[v - 1]!.t)) return []; // Мило ми е: "it is"
+    // The subject: a pronoun or a name just before the verb (skipping не / ќе and short object pronouns).
+    // (A comma ends the search: in „Не, не сум Марко“ the first Не is "No", not part of the verb.)
+    const commaAfter = (j: number) => j >= 0 && text.slice(words[j]!.at + words[j]!.w.length, words[j + 1]!.at).includes(",");
+    let k = v - 1;
+    while (k >= 0 && !commaAfter(k) && ["не", "ќе", "го", "ја", "ги", "ми", "му", "ѝ", "ни", "ви", "им", "се", "ме", "те", "ве"].includes(words[k]!.t)) k--;
+    // A name after a preposition (Од Англија сум) is where, not who.
+    const subj = k >= 0 && (SUBJECTS.has(words[k]!.t) || (names(words[k]!.w) && !(k > 0 && PREPOSITIONS.has(words[k - 1]!.t)))) ? k : -1;
+    if (subj > 0 && words[subj - 1]!.t === "и") return []; // "Марко и Петар …": a joined subject
+    // Someone addressed by name ("Марко, Петар, каде сте?!") fixes who "you" is.
+    if (words.some((x) => names(x.w) && new RegExp(`(^|,\\s*)${x.w}\\s*,|,\\s*${x.w}\\s*[!?.]*$`, "u").test(text))) return [];
+    // Not said: a he/she/they form may have a noun subject (Кафето е добро) that wouldn't change with it, so only
+    // the I / you / we forms (which never have one) are switched without a stated subject.
+    if (subj === -1 && (person === "3sg" || person === "3pl")) return [];
+    // Where a pronoun would go if one is needed: only when the verb (with its не / ќе / object pronouns) opens
+    // its clause — „Добро, одиме…“ yes, „Добро сме“ no (Добро се reads fine).
+    const clauseStart = k === -1 || commaAfter(k) ? k + 1 : -1;
+    return [{ i, text, gloss: bareGloss(b.gloss), words, v, subj, chain: clauseStart, lemma, person }];
+  });
+  if (!candidates.length) return undefined;
+  const c = candidates[seed % candidates.length]!;
+  const table = pack.conjugations!.find((x) => x.lemma === c.lemma)!;
+  const after = c.words.slice(c.v + 1);
+  // Keep the number when something else would have to change with it: what follows a form of сум (Таа е Ема),
+  // "as a …" (работам како учителка), "together", or се with the verb (се видиме is "see each other").
+  const keepNumber = (c.lemma === "е" && after.length > 0 && !SUM_SAFE_AFTER.has(after[0]!.t))
+    || c.words.some((x) => KEEP_NUMBER.has(x.t)) || (c.v > 0 && c.words[c.v - 1]!.t === "се");
+  const plural = (p: Person) => p.endsWith("pl");
+  const targets = PERSON_TURNS.filter((p) => p !== c.person && (!keepNumber || plural(p) === plural(c.person)) && familiarity.normalize(table.forms[p] ?? "") !== c.words[c.v]!.t);
+  if (!targets.length) return undefined;
+  const person = targets[(seed + c.i) % targets.length]!;
+  const form = table.forms[person]!;
+  const pron = PRONOUN[person];
+  // Rebuild the line: the verb blanked (and filled), the subject swapped for the new pronoun when it was said —
+  // or, for he / she / they with none said, put in front of the verb (else „Добро, оди…“ reads as a command).
+  const insertAt = c.subj === -1 && c.chain >= 0 && (person === "3sg" || person === "3pl") ? c.chain : -1;
+  const startOf = (k: number) => k === 0 || /[.!?]\s*$/.test(c.text.slice(0, c.words[k]!.at));
+  const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
+  const rebuild = (verb: string) => {
+    let out = "";
+    let pos = 0;
+    c.words.forEach((x, k) => {
+      if (k !== c.v && k !== c.subj && k !== insertAt) return;
+      out += c.text.slice(pos, x.at);
+      if (k === insertAt) {
+        out += `${startOf(k) ? cap(pron.mk) : pron.mk} `;
+        if (k !== c.v) { out += startOf(k) && !names(x.w) ? x.w.charAt(0).toLowerCase() + x.w.slice(1) : x.w; pos = x.at + x.w.length; return; }
+      }
+      const rep = k === c.v ? verb : pron.mk;
+      out += startOf(k) && k !== insertAt ? cap(rep) : rep;
+      pos = x.at + x.w.length;
+    });
+    return out + c.text.slice(pos);
+  };
+  const others = PERSONS.filter((p) => p !== person).map((p) => table.forms[p]!).filter((f, k, all) => f !== form && all.indexOf(f) === k);
+  const options = [form, table.forms[c.person]!, ...others.filter((f) => f !== table.forms[c.person])].filter((f, k, all) => all.indexOf(f) === k).slice(0, 3);
+  return {
+    kind: "switch",
+    line: { text: c.text, gloss: c.gloss, source: `story:${story.id}#${c.i}` },
+    person,
+    shown: rebuild("___"),
+    filled: rebuild(form),
+    blank: form,
+    options,
+    why: `${pron.mk} (${pron.en}) → ${form}. All six: ${PERSONS.map((p) => `${PRONOUN[p].mk} ${table.forms[p]}`).join(" · ")}`,
   };
 }

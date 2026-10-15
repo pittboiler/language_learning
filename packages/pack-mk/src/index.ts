@@ -3,6 +3,7 @@ import { alphabet } from "./alphabet.js";
 import { chapters } from "./chapters.js";
 import { course } from "./course.js";
 import { exams } from "./exams.js";
+import { courseWriting } from "./writing-lines.js";
 import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
 import { conjugations } from "./conjugations.js";
@@ -14,6 +15,8 @@ import { vocab } from "./vocab.js";
 import { readers } from "./readers.js";
 import { writingTasks } from "./writing.js";
 import { stories } from "./stories.js";
+import { varietyStories } from "./stories-variety.js";
+import { scenarioBriefs, varietyConversations } from "./conversations-variety.js";
 import { infoGapTasks } from "./infogap.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
 import { smallTalk } from "./scenarios/small-talk.js";
@@ -68,9 +71,11 @@ export const macedonian: LanguagePack = {
   phonology,
   grammar: mergeGrammar(grammar, stage1.promotedGrammar),
   vocab: withBreakdowns([...vocab, ...coreWords, ...level1Additions, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]),
-  scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios],
+  // Plain-English briefs on the chapters' main conversations (their goal is the generator's brief).
+  scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios, ...varietyConversations]
+    .map((s) => (scenarioBriefs[s.id] && !s.brief ? { ...s, brief: scenarioBriefs[s.id] } : s)),
   readers: [...readers, ...stage1.promotedReaders],
-  stories: [...stories, ...stage0.promotedStories, ...stage1.promotedStories, ...stage2.promotedStories],
+  stories: [...stories, ...varietyStories, ...stage0.promotedStories, ...stage1.promotedStories, ...stage2.promotedStories],
   srsSeed: withBreakdowns(vocab.slice(0, 6)),
   writingTasks: [...writingTasks, ...stage1.promotedWritingTasks, ...stage2.promotedWritingTasks],
   infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],
@@ -78,8 +83,9 @@ export const macedonian: LanguagePack = {
   sentences,
   chapters,
   hints,
-  // The midterm + final sit beside the generated blueprint (they're hand-authored, outside its structure).
-  course: { ...course, exams },
+  // The midterm + final and each chapter's writing lines sit beside the generated blueprint (they're
+  // hand-authored, outside its structure).
+  course: { ...course, exams, writing: courseWriting },
 };
 
 export default macedonian;

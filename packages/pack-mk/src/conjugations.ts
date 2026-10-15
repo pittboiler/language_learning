@@ -50,6 +50,23 @@ export const conjugations: ConjugationSet[] = [
     "confidence": "unreviewed"
   },
   {
+    // 2026-10-14: “not have / there isn't”, so chapter 12 practises немам … немаат for every person (it's an
+    // ordinary -а verb: не + има).
+    "lemma": "нема",
+    "gloss": "not have",
+    "group": "a",
+    "forms": {
+      "1sg": "немам",
+      "2sg": "немаш",
+      "3sg": "нема",
+      "1pl": "немаме",
+      "2pl": "немате",
+      "3pl": "немаат"
+    },
+    "conceptId": "verb-conjugation",
+    "confidence": "validated"
+  },
+  {
     "lemma": "е",
     "gloss": "be",
     "group": "irregular",

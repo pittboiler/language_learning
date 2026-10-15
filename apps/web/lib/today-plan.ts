@@ -2,7 +2,7 @@
 // the lesson, Say it, the story, Build, the conversation…) and its agenda, from the blueprint and the
 // learner's progress. page.tsx renders the steps; test/today-plan.test.ts walks the whole course checking
 // that every agenda names exactly the steps its session plays.
-import type { Chapter, ConjugationSet, CourseExam, CourseSession, GrammarConcept, GrammarPoint, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, CourseExam, CourseSession, CourseWriting, GrammarConcept, GrammarPoint, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import * as sentenceScope from "@ll/core/sentences";
 import * as cp from "./course-player";
@@ -54,13 +54,25 @@ export type TodayStep =
   | { kind: "speak"; scenario: Scenario; focus?: string[] }
   | { kind: "build"; ids?: string[]; chapterOrder?: number }
   | { kind: "exam"; exam: CourseExam }
-  | { kind: "writing"; prompt: string };
+  | { kind: "writing"; prompt: string; set?: CourseWriting };
 
 // The daily conjugation drill picks the first verb not yet drilled (marked seen on completion), so a new
 // verb comes up each day; once every verb has been seen it cycles.
 // Verbs never drilled as a six-person table: треба is taught as impersonal (треба да…, ми треба), and чини
 // only exists in the 3rd person — "требам" / "чинам" would contradict the lessons.
 export const NOT_DRILLABLE = new Set(["треба", "чини"]);
+/** The verbs whose six forms are fair game by now: the verb group's point has been taught (сум from chapter 1,
+ *  -а verbs from chapter 4, -е/-и from chapter 5) and the course has taught the verb itself. Shared by the
+ *  warm-up drill and "Switch the person". */
+export function drillableVerbs(pack: LanguagePack, progress: Progress): Set<string> {
+  const groups = new Set<string>();
+  if (progress.seenGrammar?.["pt-verbs-a"]) groups.add("a");
+  if (progress.seenGrammar?.["pt-verbs-e-i"]) { groups.add("e"); groups.add("i"); }
+  if (progress.seenGrammar?.["pt-sum"]) groups.add("irregular");
+  const taught = pack.course ? cp.taughtVerbs(pack, pack.course, progress) : undefined;
+  return new Set((pack.conjugations ?? []).filter((v) => groups.has(v.group) && !NOT_DRILLABLE.has(v.lemma) && (!taught || taught.has(v.lemma))).map((v) => v.lemma));
+}
+
 // On the course, only verbs it has taught by now (`allowed`), so the drill never springs доаѓа or спие on you.
 export const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Set<string>, allowed?: Set<string>): ConjugationSet | undefined => {
   const all = (pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && (!groups || groups.has(v.group)) && (!allowed || allowed.has(v.lemma)));
@@ -82,6 +94,10 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
   const retry = pos.kind === "session" && pos.retry;
   const own = warm?.own ?? 0;
   const n = (warm?.items.length ?? 0) - own;
+  // Words added to a session the learner had already passed come first (cp.catchUpWords), and the agenda says why.
+  const taughtNow = new Set(steps.flatMap((x) => (x.kind === "newwords" ? x.words.map((w) => w.lexKey) : [])));
+  const catchUp = cp.catchUpWords(pack.course!, progress).filter((w) => taughtNow.has(w.lexKey));
+  const catchLine = catchUp.length ? `Catch-up: ${catchUp.length} word${catchUp.length > 1 ? "s" : ""} added to a session you'd already done: ${catchUp.map((w) => w.display.replace(/\.+$/, "")).join(", ")}` : undefined;
   const warmLine = n || own
     ? `Warm-up: ${n ? `${n} card${n > 1 ? "s" : ""} from earlier sessions` : ""}${n && own ? " + " : ""}${own ? `${own} of your own picked words (★ / ＋ Learn)` : ""}`
     : "Warm-up: a quick verb drill";
@@ -90,7 +106,8 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
   const items = agenda.items
     .filter((b) => steps.some((x) => x.kind === "build") || !b.startsWith("Build a sentence"))
     .filter((b) => steps.some((x) => x.kind === "sayit") || !b.startsWith("Say it:"));
-  return [{ kind: "agenda", agenda: { ...agenda, items: warm && !retry ? [warmLine, ...items] : items } }, ...steps];
+  const head = [...(warm && !retry ? [warmLine] : []), ...(catchLine ? [catchLine] : [])];
+  return [{ kind: "agenda", agenda: { ...agenda, items: [...head, ...items] } }, ...steps];
 }
 
 // The lens for a session's story: a banner naming what to spot, the lines that use today's focus, and the
@@ -144,7 +161,10 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
     return out;
   }
 
+  // Catch-up words ride on top of the session's own, so a day that already brings new words takes fewer.
+  const catchUp = cp.catchUpWords(course, progress, s.words.length ? 2 : cp.CATCH_UP_MAX).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }));
   if (s.role === "checkpoint") {
+    if (catchUp.length) out.push({ kind: "newwords", words: catchUp });
     const words = cc.words.filter((w) => studied(w.lexKey)).map((w) => vocabByKey.get(w.lexKey)).filter((v): v is ReviewItem => !!v);
     // A retry is preceded by a targeted review of the chapter's weakest words.
     if (pos.retry) {
@@ -159,19 +179,17 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
 
   const review = s.role === "review";
   const warm = cp.pickWarmup({ pool, progress, now, current: { order, n: s.n }, slotOf, size: review ? cp.REVIEW_ITEMS : cp.WARMUP_ITEMS, share: review ? cp.EARLIER_SHARE.review : cp.EARLIER_SHARE.normal });
-  // The conjugation drill only drills verb groups whose point has been TAUGHT (in an earlier session):
-  // -а verbs from chapter 4, -е/-и verbs from chapter 5, сум once its point is done.
-  const groups = new Set<string>();
-  if (progress.seenGrammar?.["pt-verbs-a"]) groups.add("a");
-  if (progress.seenGrammar?.["pt-verbs-e-i"]) { groups.add("e"); groups.add("i"); }
-  if (progress.seenGrammar?.["pt-sum"] && groups.size) groups.add("irregular");
-  const conjVerb = groups.size ? pickConjVerb(pack, progress, groups, cp.taughtVerbs(pack, course, progress)) : undefined;
+  // The conjugation drill only drills verbs whose group's point has been TAUGHT (in an earlier session): сум
+  // from chapter 1 (before 2026-10-14 it waited for chapter 4, so сме / сте / се went undrilled for three
+  // chapters), -а verbs from chapter 4, -е/-и from 5 (drillableVerbs).
+  const verbs = drillableVerbs(pack, progress);
+  const conjVerb = verbs.size ? pickConjVerb(pack, progress, undefined, verbs) : undefined;
   // Review days also bring back the words you picked yourself (★ saved, ＋ Learn); other days stay on the course.
   const keyOf = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
   const own = review ? cp.ownWordsDue(pack, progress, now, 4).filter((o) => !warm.some((w) => keyOf(w) === keyOf(o))) : [];
   if (warm.length || own.length || conjVerb) out.push({ kind: "warmup", items: [...warm, ...own], conjVerb, own: own.length });
 
-  const words = s.words.filter((w) => cp.needsTeaching(progress, w.lexKey)).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }));
+  const words = [...catchUp, ...s.words.filter((w) => cp.needsTeaching(progress, w.lexKey) && !catchUp.some((c) => c.lexKey === w.lexKey)).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }))];
   if (words.length) out.push({ kind: "newwords", words });
 
   const pointId = s.pointId ?? (s.role === "practice" ? cc.pointIds.filter((id) => cc.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1) : undefined);
@@ -187,7 +205,9 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
     const examples = point?.examples ?? [];
     const fromPoint = [...examples.filter((e) => !e.source.startsWith("grammar:")), ...examples.filter((e) => e.source.startsWith("grammar:"))].slice(0, 2)
       .map((e) => ({ text: e.text.replace(/^[„“"]+|[“”"]+$/g, ""), gloss: e.gloss, focus: cp.focusWords(course, e.source, [point!.id]) }));
-    const lines = [...fromWords, ...fromPoint].filter((l, i, all) => all.findIndex((x) => x.text === l.text) === i).slice(0, 4);
+    // …and two more persons, taking turns across the chapter's sessions (cp.personPair), so every form gets said.
+    const persons = cp.personSayLines(pack, cc, s, drillableVerbs(pack, progress));
+    const lines = [...fromWords, ...fromPoint.slice(0, persons.length ? 1 : 2), ...persons].filter((l, i, all) => all.findIndex((x) => x.text === l.text) === i).slice(0, 5);
     if (lines.length) out.push({ kind: "sayit", lines });
   }
 
@@ -199,6 +219,8 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
   if (canBuild) out.push({ kind: "build", ids: s.build, chapterOrder: order });
   const scen = s.speak ? pack.scenarios.find((x) => x.id === s.speak) : undefined;
   if (scen) out.push({ kind: "speak", scenario: scen, focus: cp.sessionFocus(cc, s) });
-  if (s.writing) out.push({ kind: "writing", prompt: scen?.goal ?? "Write a few lines using this chapter\u2019s words." });
+  // The chapter's writing lines when it has them (English → the target language, one at a time); else a free
+  // prompt. Never the conversation's goal: that's a brief for the content generator, not for the learner.
+  if (s.writing) out.push({ kind: "writing", prompt: "Write a few lines using this chapter\u2019s words.", set: cp.writingFor(course, cc.chapterId) });
   return out;
 }

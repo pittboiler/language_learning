@@ -359,7 +359,7 @@ export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
 // tomorrow's grammar. "error" counts against the lint; "note" is worth a look but isn't a defect (a glossed
 // word the learner hasn't met yet, a story line that's a set phrase for a session or two).
 export interface SessionLintIssue {
-  kind: "lesson-later-grammar" | "build-untaught" | "agenda" | "lesson-untaught-words" | "table-untaught-words" | "reading-later-grammar";
+  kind: "lesson-later-grammar" | "build-untaught" | "agenda" | "lesson-untaught-words" | "table-untaught-words" | "reading-later-grammar" | "writing-untaught" | "persons";
   level: "error" | "note";
   where: string;
   detail: string;
@@ -454,10 +454,70 @@ export function lintCourseSessions(pack: LanguagePack): SessionLintIssue[] {
         const practised = s.pointId ?? c.pointIds.filter((id) => c.sessions.some((x) => x.n < s.n && x.pointId === id)).at(-1);
         if (practised && !ag.some((b) => b.includes(title(practised)))) add("error", "agenda", where, `practises “${title(practised)}” but the agenda doesn't say so`);
       }
+
+      // The writing lines: the learner PRODUCES these, so every word must be taught by now (an English word
+      // quoted inside a line — "How do you say “friend”…" — is left as it is). A taught adjective may take
+      // any agreeing ending once agreement is taught: that's the rule being practised (скап → скапо).
+      if (s.writing) {
+        const w = cp.writingFor(course, c.chapterId);
+        if (!w) add("error", "writing-untaught", where, "a writing session with no writing lines");
+        if (!has(/^Write it:/)) add("error", "agenda", where, "writing isn't on the agenda");
+        const agreement = course.points.find((p) => p.grammarIds.includes("adjective-agreement"));
+        const agreeing = (t: string) => {
+          const at2 = agreement && ps.get(agreement.id);
+          if (!at2 || cp.cmpSlot(at2, at) > 0 || !/[аои]$/.test(t)) return false;
+          const stem = t.slice(0, -1);
+          return known(stem, at) || known(`${stem.slice(0, -1)}а${stem.slice(-1)}`, at); // добр-и ← добар
+        };
+        for (const l of w?.lines ?? []) for (const text of [l.answer, ...(l.also ?? [])]) {
+          const bad = unknownWords(text, at).filter((t) => !/^\p{Script=Latin}+$/u.test(t) && !agreeing(t));
+          if (bad.length) add("error", "writing-untaught", where, `“${text}” uses ${bad.join(", ")} before they're taught`);
+        }
+      }
     }
+  }
+  for (const w of course.writing ?? []) {
+    const c = course.chapters.find((x) => x.chapterId === w.chapterId);
+    if (!c?.sessions.some((s) => s.writing)) add("error", "writing-untaught", w.chapterId, "writing lines for a chapter with no writing session");
+  }
+
+  // 3. Every person, in every chapter (DESIGN-story-variety §2a; Jake: "it's the core LESSON that must be
+  //    repeated, not the EXERCISE"). Once сум is taught all six persons are in play, so each chapter should
+  //    show each one at least twice in what's read (stories, their questions, conversations) and have the
+  //    learner produce it at least once (their conversation turns, the writing lines).
+  const personOf = cp.personMarkers(pack);
+  const sumAt = ps.get("pt-sum");
+  for (const c of course.chapters) {
+    if (!sumAt || c.order < sumAt.order || c.sessions.some((s) => s.letters)) continue;
+    const read: string[] = [];
+    const said: string[] = [];
+    for (const s of c.sessions) {
+      const story = s.story ? pack.stories?.find((x) => x.id === s.story!.id) : undefined;
+      if (story) read.push(...story.body.map((b) => b.text), ...story.qa.flatMap((q) => [q.question, q.answer]));
+      const scen = s.speak ? pack.scenarios.find((x) => x.id === s.speak) : undefined;
+      scen?.script.forEach((t) => (t.speaker === "learner" ? said : read).push(t.text));
+    }
+    said.push(...(cp.writingFor(course, c.chapterId)?.lines.map((l) => l.answer) ?? []));
+    // се counts as "they are" only with a plural subject next to it (тие се, Вера и Ана се, Каде се Марко и Вера?);
+    // otherwise it's the reflexive (се викам).
+    const plural3 = (w: string[], k: number) => w[k - 1] === "тие" || (w[k - 2] === "и" && /^\p{Lu}/u.test(w[k - 1] ?? "")) || (w[k + 2] === "и" && /^\p{Lu}/u.test(w[k + 1] ?? ""));
+    const count = (lines: string[]) => {
+      const n: Record<string, number> = {};
+      for (const l of lines) {
+        const w = (l.match(/[\p{Script=Cyrillic}]+/gu) ?? []);
+        const lw = w.map((x) => x.toLowerCase());
+        lw.forEach((t, k) => { const p = t === "се" ? (plural3(w.map((x, j) => (j === k - 1 || j === k + 1) && /^\p{Lu}/u.test(x) ? x : lw[j]!), k) ? "3pl" : undefined) : personOf.get(cp.wordTokens(t)[0] ?? ""); if (p) n[p] = (n[p] ?? 0) + 1; });
+      }
+      return n;
+    };
+    const r = count(read), w = count(said);
+    const thin = PERSONS.filter((p) => (r[p] ?? 0) < 2 || !w[p]);
+    if (thin.length) add("error", "persons", `ch${c.order} ${c.chapterId}`, PERSONS.map((p) => `${p} ${r[p] ?? 0}/${w[p] ?? 0}`).join(" · ") + ` (read/said) — thin: ${thin.join(", ")}`);
   }
   return out;
 }
+
+const PERSONS = cp.PERSONS;
 
 // --- Mixed-script lint ----------------------------------------------------------------------------
 // The mirror of the translit lint: a TARGET-language word must not smuggle in a Latin look-alike (e.g.
@@ -475,5 +535,6 @@ export function lintScriptMix(pack: LanguagePack): ScriptMixIssue[] {
   for (const l of lineCatalog(pack)) check(l.source, l.text);
   for (const v of pack.vocab) check(`vocab ${v.id}`, v.answer);
   for (const g of pack.infoGapTasks ?? []) for (const r of [g.roleA, g.roleB]) for (const t of r.targetPhrases) check(`infogap ${g.id}`, t.text);
+  for (const w of pack.course?.writing ?? []) w.lines.forEach((l, i) => [l.answer, ...(l.also ?? [])].forEach((t) => check(`writing ${w.chapterId}#${i}`, t)));
   return out;
 }

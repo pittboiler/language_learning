@@ -66,10 +66,19 @@ const WRITING_SCHEMA: Record<string, unknown> = {
   required: ["corrected", "correctedTranslit", "isCorrect", "issues", "overall", "encouragement"],
 };
 
-/** Correct a learner's written attempt at a task, explaining the key fixes. Live tier (Sonnet 4.6). */
-export async function correct(attempt: string, task: string, ctx: WritingContext): Promise<WritingCorrectionResult> {
+/** Correct a learner's written attempt at a task, explaining the key fixes. Live tier (Sonnet 4.6).
+ *  `reference`: a model answer, when the task is one set line to write (the course's writing exercises) —
+ *  the tutor judges against what the English asks for, not against the model's exact wording. */
+export async function correct(attempt: string, task: string, ctx: WritingContext, reference?: string): Promise<WritingCorrectionResult> {
   const user = [
     `TASK (what they were asked to write, in English): ${task}`,
+    ...(reference
+      ? [
+          "",
+          `A model answer (one right way to write it): ${reference}`,
+          "Any other correct way to say the same thing is also correct (another word order, a dropped pronoun, a synonym) — set isCorrect=true for it. It must say what the English says, in the same person, number and formality. When it isn't right, give the model answer (or the closest correct version of what they wrote) as 'corrected'.",
+        ]
+      : []),
     "",
     `Learner's written attempt: ${attempt}`,
     "",

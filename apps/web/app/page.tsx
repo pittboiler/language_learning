@@ -8,7 +8,7 @@
 // Reference) / Progress (stats + Flashcards) / Partnered. "Today" sequences one session in a building order:
 // warm-up review → new words → new grammar → story → speak. See DESIGN notes for the rationale.
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import type { Chapter, ConjugationSet, CourseExam, CourseSession, ExamTask, DialogueTurn, GlyphLesson, GrammarConcept, GrammarPoint, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, CourseExam, CourseSession, CourseWriting, ExamTask, DialogueTurn, GlyphLesson, GrammarConcept, GrammarPoint, InfoGapTask, LanguagePack, MiniStory, ReviewItem, Scenario, SentenceItem, SentenceVariant } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -25,7 +25,7 @@ import { REVIEW_DAY_ITEMS, WARMUP_ITEMS, isReviewDay, localDay, markStorySeen, p
 import { captureWord, properNounLike, buildLineGlosses, toggleStar, starMany } from "../lib/capture";
 import * as cp from "../lib/course-player";
 import { combineResults, selfCheckGrade, type CanDoResult, type ExamGrade } from "@ll/core/exam/results";
-import { courseSteps, pickConjVerb, reviewPool, rotate, shuffle, type StoryLens, type TodayStep } from "../lib/today-plan";
+import { courseSteps, drillableVerbs, pickConjVerb, reviewPool, rotate, shuffle, type StoryLens, type TodayStep } from "../lib/today-plan";
 import * as partner from "@ll/core/partner";
 import type { Partnership, VisibilitySettings, ActivityRecord } from "@ll/core/partner";
 import { getPartnerStore, subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, type PartnerArtifact, type PublishedState } from "../lib/partner-store";
@@ -835,15 +835,18 @@ function Today({ progress, persist, config, navigate }: {
 
         {step.kind === "writing" && (
           <div>
-            <Tag>Write it — unit capstone</Tag>
-            <WritingCapstone prompt={step.prompt} config={config} onDone={() => done()} />
+            <Tag>Write it</Tag>
+            {step.set
+              ? <WritingLines set={step.set} config={config} onMiss={flag} onDone={() => done()} />
+              : <WritingCapstone prompt={step.prompt} config={config} onDone={() => done()} />}
           </div>
         )}
 
         {step.kind === "speak" && (
           <div>
             <Tag>Speak · {step.scenario.title}</Tag>
-            <p className="muted small">{step.scenario.goal} — use what you just read, out loud.</p>
+            {/* The brief, never a generated scenario's goal (that's the generator's brief: "Practise these functions…"). */}
+            <p className="muted small">{(step.scenario.brief ?? (/^Practise these functions/.test(step.scenario.goal) ? "Your lines are below." : step.scenario.goal)).replace(/([^.!?])$/, "$1.")} Use what you just read, out loud.</p>
             <ScenarioView progress={progress} persist={persist} config={config} lettersDone scenarioId={step.scenario.id} hidePicker bare askable restartIfDone onComplete={() => done()} onMiss={flagTurn} focusPoints={step.focus} />
           </div>
         )}
@@ -1276,7 +1279,7 @@ function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string; gloss
 function AgendaCard({ agenda, onStart, pointId, onOpenPoint, onSkipChapter }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void; onSkipChapter?: () => void }) {
   const [confirmSkip, setConfirmSkip] = useState(false);
   // The grammar line follows the warm-up and new-words lines (the agenda runs in the lesson's order).
-  const pointLine = agenda.items.findIndex((b) => !/^(Warm-up:|\d+ new words?:)/.test(b));
+  const pointLine = agenda.items.findIndex((b) => !/^(Warm-up:|Catch-up:|\d+ new words?:)/.test(b));
   return (
     <div className="fb">
       <div className="gram-kicker">Today's plan</div>
@@ -3211,7 +3214,15 @@ function TodayStoryStep({ story, progress, persist, config, onDone, onMiss, dayI
   const pack = usePack();
   const [phase, setPhase] = useState<"read" | "qa">("read");
   // The course: a few exercises on today's focus, from the story's own lines. Otherwise the story's questions.
-  const useIt = useMemo(() => (pack.course && lens ? cp.useItItems(pack.course, story, lens.points, dayIndex) : []), [pack, story, lens, dayIndex]);
+  // …plus "Switch the person": one of the story's lines told about someone else (any verb taught by now), so
+  // every reading drills a different person in a familiar sentence.
+  const useIt = useMemo(() => {
+    if (!pack.course || !lens) return [];
+    const items = cp.useItItems(pack.course, story, lens.points, dayIndex);
+    const sw = cp.switchPersonItem(pack, story, drillableVerbs(pack, progress), (w) => properNounLike(w, pack), dayIndex);
+    return sw ? [...items.slice(0, 2), sw, ...items.slice(2)] : items;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pack, story, lens, dayIndex, progress.seenGrammar, progress.course]);
   const hasQA = useIt.length > 0 || story.qa.length > 0;
   // Seed the story's vocab when moving on so the exercises reuse words now marked as met.
   const toQA = () => { persist(seedStoryVocab(progress, story)); setPhase("qa"); };
@@ -3248,13 +3259,17 @@ function UseIt({ items, config, onMiss, onRestart, onDone }: {
   const [picked, setPicked] = useState<string | null>(null);
   const [finished, setFinished] = useState(false);
   const it = items[i];
-  const options = useMemo(() => (it && (it.kind === "understand" || it.kind === "complete") ? shuffle(it.options) : []), [it]);
+  const options = useMemo(() => (it && (it.kind === "understand" || it.kind === "complete" || it.kind === "switch") ? shuffle(it.options) : []), [it]);
   const asCard = (l: { text: string; gloss: string; source: string }): ReviewItem => ({ id: `use-${l.source}`, kind: "phrase", prompt: l.gloss, answer: l.text, gloss: l.gloss, i1Level: 0, tags: [] });
   const next = () => { setPicked(null); setFinished(false); if (i + 1 < items.length) setI(i + 1); else onDone?.(); };
   if (!it) return null;
-  const answer = it.kind === "understand" ? it.line.gloss : it.kind === "complete" ? it.blank : "";
-  const choose = (o: string) => { if (picked) return; setPicked(o); setFinished(true); if (o !== answer) onMiss?.(asCard(it.line)); };
-  const head = { understand: "What does it mean?", complete: "Complete the line", build: "Build the line", say: "Say it" }[it.kind];
+  const answer = it.kind === "understand" ? it.line.gloss : it.kind === "complete" || it.kind === "switch" ? it.blank : "";
+  const choose = (o: string) => {
+    if (picked) return;
+    setPicked(o); setFinished(true);
+    if (o !== answer) onMiss?.(it.kind === "switch" ? { ...asCard(it.line), id: `use-switch-${it.line.source}-${it.person}`, prompt: `${cp.PRONOUN[it.person].en}: ${it.shown}`, answer: it.filled } : asCard(it.line));
+  };
+  const head = { understand: "What does it mean?", complete: "Complete the line", build: "Build the line", say: "Say it", switch: "Switch the person" }[it.kind];
   return (
     <div>
       <p className="lead" style={{ marginBottom: 6 }}>Use it: today&apos;s focus, in the story&apos;s own lines.</p>
@@ -3277,6 +3292,16 @@ function UseIt({ items, config, onMiss, onRestart, onDone }: {
             {picked && <div className="why">{picked === answer ? "✓ " : "✗ "}{it.why}</div>}
           </>
         )}
+        {it.kind === "switch" && (
+          <>
+            <div className="row" style={{ margin: "8px 0 2px" }}><button className="spk" onClick={() => play(it.line.text)}>🔊</button><span className="target">{it.line.text}</span></div>
+            <div className="muted small" style={{ marginBottom: 6 }}>{it.line.gloss}</div>
+            <div className="lead" style={{ margin: "4px 0" }}>Now about <b>{cp.PRONOUN[it.person].mk}</b> ({cp.PRONOUN[it.person].en}):</div>
+            <div style={{ margin: "2px 0 6px" }}><b className="target">{picked ? it.filled : it.shown}</b>{picked && <button className="spk" style={{ marginLeft: 6 }} onClick={() => play(it.filled)}>🔊</button>}</div>
+            <div>{options.map((o) => <button key={o} className={picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt"} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
+            {picked && <div className="why">{picked === answer ? "✓ " : "✗ "}{it.why}</div>}
+          </>
+        )}
         {it.kind === "build" && (
           <>
             {/* The builder's own Next / Got it moves on: no second button here. */}
@@ -3290,7 +3315,7 @@ function UseIt({ items, config, onMiss, onRestart, onDone }: {
             <LearnerTurn key={it.line.source} turn={{ speaker: "learner", text: it.line.text, translit: it.line.translit, gloss: it.line.gloss }} config={config} onDone={next} />
           </>
         )}
-        {finished && (it.kind === "understand" || it.kind === "complete") && (
+        {finished && (it.kind === "understand" || it.kind === "complete" || it.kind === "switch") && (
           <div className="row" style={{ marginTop: 12 }}>
             <button className="btn" onClick={next}>{i + 1 < items.length ? "Next →" : "Done →"}</button>
           </div>
@@ -3643,6 +3668,125 @@ function WritingCapstone({ prompt, config, onDone }: { prompt: string; config: a
       <div className="row" style={{ marginTop: 12 }}>
         <button className={result ? "btn" : "ghost small"} onClick={onDone}>{result ? "Done \u2192" : "Skip \u2192"}</button>
       </div>
+    </div>
+  );
+}
+
+// The course's writing exercise: a scene, then English lines to write in the target language one at a time —
+// nothing to guess. Each line is checked as it's written: on sight when it's the model answer (Latin letters
+// or Cyrillic), otherwise by the tutor against the model. The model answer always follows, and misses join the
+// session's recap. The last screen lays every line out: what you wrote beside the model.
+type WrittenLine = { wrote: string; ok: boolean; tutor?: api.WriteResponse };
+function WritingLines({ set, config, onMiss, onDone }: { set: CourseWriting; config: api.Config | null; onMiss?: (item: ReviewItem) => void; onDone: () => void }) {
+  const pack = usePack();
+  const play = usePlay();
+  const [i, setI] = useState(0);
+  const [text, setText] = useState("");
+  const [hint, setHint] = useState(false);
+  const [compare, setCompare] = useState(false); // no tutor: the learner compares with the model themselves
+  const [spin, setSpin] = useState(false);
+  const [err, setErr] = useState("");
+  const [results, setResults] = useState<(WrittenLine | undefined)[]>([]);
+  const tutorOn = !!config?.engines.anthropic;
+  const line = set.lines[i];
+  const result = results[i];
+  const record = (r: WrittenLine) => {
+    setResults((rs) => { const next = [...rs]; next[i] = r; return next; });
+    if (!r.ok && line) onMiss?.({ id: `write-${set.chapterId}-${i}`, kind: "phrase", prompt: line.prompt, answer: line.answer, translit: romanize(line.answer), gloss: line.prompt, i1Level: 0, tags: [] });
+  };
+  const check = async () => {
+    const wrote = text.trim();
+    if (!line || !wrote || spin) return;
+    if (cp.writtenMatches(wrote, line)) return record({ wrote, ok: true });
+    if (!tutorOn) return setCompare(true);
+    setErr(""); setSpin(true);
+    try {
+      const r = await api.writeCorrect(wrote, "", pack.id, `Scene: ${set.scene}\nWrite this line in ${pack.name}: "${line.prompt}"`, line.answer);
+      if (r.error) throw new Error(r.error);
+      record({ wrote, ok: r.isCorrect, tutor: r });
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : String(e));
+    } finally {
+      setSpin(false);
+    }
+  };
+  const next = () => { setI(i + 1); setText(""); setHint(false); setCompare(false); setErr(""); };
+  const model = (answer: string) => (
+    <div className="row" style={{ alignItems: "baseline", gap: 6 }}>
+      <button className="spk" onClick={() => play(answer)}>🔊</button>
+      <span className="target" style={{ fontSize: 18 }}>{answer}</span>
+      <span className="translit"> · {romanize(answer)}</span>
+    </div>
+  );
+
+  // The last screen: every line, what you wrote and the model.
+  if (!line) {
+    const right = results.filter((r) => r?.ok).length;
+    return (
+      <div className="fb">
+        <div className="gram-kicker">Your lines</div>
+        <p className="lead" style={{ marginTop: 4 }}>{right} of {set.lines.length} right first time. Read the model lines aloud once before you move on.</p>
+        {set.lines.map((l, k) => (
+          <div className="line" key={k} style={{ margin: "10px 0" }}>
+            <div className="muted small">{k + 1}. {l.prompt}</div>
+            {results[k]?.wrote && <div className="small">{results[k]!.ok ? "✓" : "✗"} You wrote: {results[k]!.wrote}</div>}
+            {model(l.answer)}
+          </div>
+        ))}
+        <div className="row" style={{ marginTop: 12 }}><button className="btn" onClick={onDone}>Done →</button></div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fb">
+      {i === 0 && !result && <p className="lead" style={{ marginTop: 0 }}>{set.scene} Write each line in {pack.name}, one at a time — <b>Latin letters are fine</b>.</p>}
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
+        <div className="gram-kicker">Line {i + 1} of {set.lines.length}</div>
+        {line.hint && !result && !hint && <button className="linklike small" onClick={() => setHint(true)}>Hint</button>}
+      </div>
+      <p className="lead" style={{ margin: "6px 0" }}><b>{line.prompt}</b></p>
+      {hint && !result && <div className="why" style={{ marginBottom: 6 }}>{line.hint}</div>}
+      {!result ? (
+        <>
+          <textarea className="text" style={{ width: "100%", minHeight: 52 }} placeholder={`In ${pack.name} — e.g. "sakam kafe"`} value={text} autoFocus
+            onChange={(e) => { setText(e.target.value); setCompare(false); }} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void check(); } }} />
+          {err && <div className="err">{err}</div>}
+          {compare && (
+            <div className="fb" style={{ marginTop: 8 }}>
+              <div className="muted small">Compare yours with the model answer:</div>
+              {model(line.answer)}
+              <div className="row" style={{ marginTop: 8 }}>
+                <button className="btn small" onClick={() => record({ wrote: text.trim(), ok: true })}>Mine says the same</button>
+                <button className="ghost small" onClick={() => record({ wrote: text.trim(), ok: false })}>Not quite</button>
+              </div>
+            </div>
+          )}
+          <div className="row" style={{ marginTop: 10 }}>
+            <button className="btn" onClick={check} disabled={spin || !text.trim()}>{spin ? "Checking\u2026" : "Check"}</button>
+            <button className="ghost small" onClick={() => record({ wrote: "", ok: false })}>Show me</button>
+          </div>
+        </>
+      ) : (
+        <div style={{ marginTop: 4 }}>
+          {result.wrote && <div className="small" style={{ marginBottom: 6 }}>You wrote: {result.wrote}</div>}
+          {result.ok ? (
+            <div className="line"><b>{"\u2713"} {result.tutor?.overall ?? "Right."}</b></div>
+          ) : result.tutor ? (
+            <>
+              <div className="line">{result.tutor.overall}</div>
+              {result.tutor.issues.map((it, k) => (
+                <div className="line" key={k}><span className="pill wrong">{it.original}</span> {"\u2192"} <span className="pill correct">{it.fix}</span><div className="why">{it.why}</div></div>
+              ))}
+            </>
+          ) : null}
+          <div className="muted small" style={{ marginTop: 8 }}>{result.ok && cp.writingKey(result.wrote) !== cp.writingKey(line.answer) ? "The model answer, another way to say it:" : "The model answer:"}</div>
+          {model(line.answer)}
+          <div className="row" style={{ marginTop: 12 }}>
+            <button className="btn" onClick={next}>{i + 1 < set.lines.length ? "Next line \u2192" : "See all your lines \u2192"}</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

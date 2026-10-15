@@ -18,12 +18,12 @@ let progress: Progress = { familiarity: {}, scenarios: {}, settings: { courseV2:
 /** The step an agenda bullet promises (undefined: a headline bullet, like "Review day: nothing new"). */
 function promised(b: string, s: CourseSession): TodayStep["kind"] | undefined {
   if (/^Warm-up:/.test(b)) return "warmup";
-  if (/^\d+ new words?:/.test(b)) return "newwords";
+  if (/^\d+ new words?:|^Catch-up:/.test(b)) return "newwords";
   if (/^Say it:|^Say example words out loud/.test(b)) return "sayit";
   if (/^(Read|Reread) “/.test(b)) return "story";
   if (/^Build a sentence/.test(b)) return "build";
   if (/^(Conversation|First try at the conversation):/.test(b)) return "speak";
-  if (/^Write a few lines/.test(b)) return "writing";
+  if (/^Write it:/.test(b)) return "writing";
   if (/^Checkpoint:/.test(b)) return s.letters ? "letters" : "checkpoint";
   if (/^Then the conversation once more/.test(b)) return "checkpoint";
   if (s.letters && b.startsWith(`${s.letters.title}:`)) return "letters";
@@ -53,7 +53,7 @@ for (const ch of course.chapters) {
       last = at;
       covered.add(at);
       const step = played[at]!;
-      if (step.kind === "newwords") for (const w of step.words) assert.ok(b.includes(s.words.find((x) => x.lexKey === w.lexKey)!.display.replace(/\.+$/, "")), `${where}: new word ${w.lexKey} isn't named`);
+      if (step.kind === "newwords") for (const w of step.words) assert.ok(agenda.items.some((x) => /^(\d+ new words?|Catch-up):/.test(x) && x.includes((s.words.find((y) => y.lexKey === w.lexKey)?.display ?? w.lexKey).replace(/\.+$/, ""))), `${where}: new word ${w.lexKey} isn't named`);
       if (step.kind === "story") assert.ok(b.includes(step.story.title), `${where}: the agenda names another story`);
       if (step.kind === "speak") assert.ok(b.includes(step.scenario.title), `${where}: the agenda names another conversation`);
       if (step.kind === "point") assert.equal(step.mode, s.role === "teach" ? "teach" : "practice", `${where}: the lesson's mode`);
@@ -88,4 +88,22 @@ for (const ch of course.chapters) {
   }
 }
 assert.equal(sessions, course.chapters.reduce((n, c) => n + c.sessions.length, 0));
+
+// Catch-up: a learner who finished chapter 1 before вие / тие joined its session 6 is taught them at the start
+// of the checkpoint (the agenda says why), and not again once met.
+{
+  const ch1 = course.chapters.find((c) => c.chapterId === "s0-repair")!;
+  const at6 = ch1.sessions.find((s) => s.words.some((w) => w.lexKey === "вие"))!;
+  assert.ok(at6.words.some((w) => w.lexKey === "тие"), "вие and тие are taught together in chapter 1");
+  const fam: Progress["familiarity"] = {};
+  for (const s of ch1.sessions.filter((x) => x.n < 8)) for (const w of s.words) if (w.lexKey !== "вие" && w.lexKey !== "тие") fam[w.lexKey] = familiarity.capture({ lexKey: w.lexKey, kind: "word", display: w.display, gloss: w.gloss }, past);
+  const before = { familiarity: fam, scenarios: {}, settings: { courseV2: true }, letters, seenGrammar: { "pt-sum": true, "pt-ne": true }, course: { chapterId: "s0-repair", session: 8, v: course.version } } as unknown as Progress;
+  const steps = courseSteps(pack, before);
+  const nw = steps.find((x): x is Extract<TodayStep, { kind: "newwords" }> => x.kind === "newwords");
+  assert.deepEqual(nw?.words.map((w) => w.lexKey), ["вие", "тие"], "the checkpoint opens by teaching the two words");
+  assert.ok(steps.findIndex((x) => x.kind === "newwords") < steps.findIndex((x) => x.kind === "checkpoint"));
+  assert.ok((steps[0] as Extract<TodayStep, { kind: "agenda" }>).agenda.items.some((b) => b.startsWith("Catch-up: 2 words") && b.includes("вие") && b.includes("тие")));
+  for (const k of ["вие", "тие"]) fam[k] = familiarity.capture({ lexKey: k, kind: "word", display: k, gloss: k }, past);
+  assert.ok(!courseSteps(pack, { ...before, familiarity: fam }).some((x) => x.kind === "newwords"), "once met, nothing to catch up");
+}
 console.log(`today-plan.test.ts: ${sessions} sessions — every agenda matches its session and every recap its lesson ✓`);

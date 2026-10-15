@@ -128,12 +128,12 @@ export interface WriteResponse {
   error?: string;
 }
 
-export async function writeCorrect(attempt: string, taskId: string, packId?: string, prompt?: string): Promise<WriteResponse> {
+export async function writeCorrect(attempt: string, taskId: string, packId?: string, prompt?: string, reference?: string): Promise<WriteResponse> {
   return (
     await fetch("/api/write", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ attempt, taskId, packId, prompt }),
+      body: JSON.stringify({ attempt, taskId, packId, prompt, reference }),
     })
   ).json();
 }

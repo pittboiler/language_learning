@@ -113,7 +113,10 @@ export interface Criterion {
 export interface Scenario {
   id: string;
   title: string;
+  /** What the conversation asks of the learner (or, for generated ones, the brief the generator was given). */
   goal: string;
+  /** The learner-facing version, in plain English: who you're talking to and what you'll say. */
+  brief?: string;
   setting: string;
   /** Situational theme for Library grouping (e.g. "Café & bar"). Optional; ungrouped if absent. */
   theme?: string;
@@ -454,12 +457,37 @@ export interface CourseExam {
   tasks: ExamTask[];
 }
 
+/** One line of a writing exercise: the English to put into the target language, and a model answer. */
+export interface WritingLine {
+  /** What to write, in English. Says who's speaking or who's addressed when it matters ("To the waiter",
+   *  "To two friends"), so the learner never has to guess which "you" is wanted. */
+  prompt: string;
+  /** The model answer, in the target language. Every word is taught by the session the exercise is in. */
+  answer: string;
+  /** Other answers that are just as right (word order, a dropped pronoun): accepted on sight. */
+  also?: string[];
+  /** A nudge on the grammar the line turns on, shown when asked for. */
+  hint?: string;
+}
+
+/** A chapter's writing exercise: a scene, then English lines written in the target language one at a time
+ *  and checked one at a time. Lives outside the chapters (like the exams), so editing it never changes the
+ *  course structure (`version`). */
+export interface CourseWriting {
+  chapterId: string;
+  /** One or two sentences setting the scene, in English. */
+  scene: string;
+  lines: WritingLine[];
+}
+
 export interface Course {
   /** Changes only when the chapter/session STRUCTURE changes (not wording) — a learner whose saved
    *  position was made on another structure is re-placed. */
   version?: string;
   /** Midterm / final, each after a chapter (and after its stage review, when there is one). */
   exams?: CourseExam[];
+  /** Each chapter's writing exercise (played in its session marked `writing`). */
+  writing?: CourseWriting[];
   points: GrammarPoint[];
   chapters: CourseChapter[];
   stageReviews: StageReview[];

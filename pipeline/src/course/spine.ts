@@ -27,6 +27,9 @@ export interface SpineChapter {
   letterSessions?: { title: string; glyphs: string[]; note?: string }[];
   /** Hand-tuned extra practice sessions for a cumbersome chapter (beyond what the formula gives). */
   extraSessions?: number;
+  /** Pin the mid-chapter review after this point (0-based) instead of the earliest that fits — to keep a
+   *  chapter's structure when its word list shrinks (a structure change re-places every learner). */
+  reviewAfter?: number;
   /** Words the chapter currently carries that should NOT be taught in it (moved to the Library). */
   dropWords?: string[];
 }
@@ -57,7 +60,9 @@ export const SPINE: SpineChapter[] = [
     points: [
       { id: "pt-sum", title: "Am / is / are: сум", grammarIds: ["to-be"], depth: "produce",
         scope: "Present tense of сум (сум, си, е, сме, сте, се) with the subject pronouns јас, ти, тој, таа, тоа, ние, вие, тие; сум can't start a sentence (Добро сум, Јас сум…).",
-        words: ["јас", "ти", "тој", "таа", "ние"] },
+        // All eight pronouns, so every form of сум gets practised (2026-10-14, Jake: "we are / you all are / they
+        // are" were never practised; вие waited for chapter 2 and тие was never taught).
+        words: ["јас", "ти", "тој", "таа", "ние", "вие", "тие"] },
       { id: "pt-ne", title: "Saying “not”: не", grammarIds: ["negation"], depth: "produce",
         scope: "не placed directly before the verb (or before a form of сум) to negate it: Не разбирам, Не знам, не е, не сакам.",
         words: ["Не разбирам.", "Не знам."] },
@@ -65,7 +70,12 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s0-greet",
-    dropWords: ["Добро утро", "Пријатно", "тие"],
+    dropWords: ["Добро утро", "Пријатно"],
+    // Keeps the chapter's layout (teach ×3, practice, review…) now that вие is taught in chapter 1: fewer words
+    // would let the planner drop the practice session or move the review, which changes the course structure
+    // and re-places every learner.
+    extraSessions: 1,
+    reviewAfter: 2,
     points: [
       { id: "pt-question-words", title: "Question words", grammarIds: ["questions"], depth: "produce",
         scope: "Wh-question words that open a question: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much), чиј (whose).",
