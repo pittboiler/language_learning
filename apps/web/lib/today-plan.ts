@@ -6,6 +6,7 @@ import type { Chapter, ConjugationSet, CourseExam, CourseSession, CourseWriting,
 import * as familiarity from "@ll/core/familiarity";
 import * as sentenceScope from "@ll/core/sentences";
 import * as cp from "./course-player";
+import { properNounLike } from "./capture";
 import type { Progress } from "./store";
 
 // The SRS review pool for a pack: vocab phrases + grammar drills (tagged with their concept name).
@@ -41,7 +42,7 @@ export interface StoryLens {
 // One step of Today's session, as page.tsx renders it.
 export type TodayStep =
   | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet; own?: number }
-  | { kind: "checkpoint"; chapter: Chapter; items: ReviewItem[]; scenario?: Scenario }
+  | { kind: "checkpoint"; chapter: Chapter; items: ReviewItem[]; scenario?: Scenario; persons?: ReturnType<typeof cp.checkpointPersons> }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
@@ -103,9 +104,11 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
     : "Warm-up: a quick verb drill";
   // Build-a-sentence only runs when something is buildable right now (and Say it when there's a line to
   // say); don't promise either otherwise.
+  const check = steps.find((x): x is Extract<TodayStep, { kind: "checkpoint" }> => x.kind === "checkpoint");
   const items = agenda.items
     .filter((b) => steps.some((x) => x.kind === "build") || !b.startsWith("Build a sentence"))
-    .filter((b) => steps.some((x) => x.kind === "sayit") || !b.startsWith("Say it:"));
+    .filter((b) => steps.some((x) => x.kind === "sayit") || !b.startsWith("Say it:"))
+    .filter((b) => !check || ((check.persons?.switches.length ?? 0) > 0 || !b.startsWith("Switch the person:")) && ((check.persons?.say.length ?? 0) > 0 || !b.startsWith("Out loud:")));
   const head = [...(warm && !retry ? [warmLine] : []), ...(catchLine ? [catchLine] : [])];
   return [{ kind: "agenda", agenda: { ...agenda, items: [...head, ...items] } }, ...steps];
 }
@@ -171,9 +174,13 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
       const weakest = [...words].sort((a, b) => (progress.familiarity[familiarity.deriveKeyForItem(a).lexKey]?.strength ?? 0) - (progress.familiarity[familiarity.deriveKeyForItem(b).lexKey]?.strength ?? 0)).slice(0, 8);
       if (weakest.length) out.push({ kind: "warmup", items: weakest });
     }
-    const cards = cc.pointIds.map((id) => points.get(id)).filter((p): p is GrammarPoint => !!p).flatMap((p) => cp.blankCardItems(p).slice(0, 1));
-    const items = [...shuffle(words).slice(0, 8), ...cards];
-    if (items.length) out.push({ kind: "checkpoint", chapter, items, scenario: pack.scenarios.find((x) => x.id === cc.checkpoint.scenarioId) });
+    // The chapter's last session takes in the whole chapter (Jake, 2026-10-15: it "felt very light"): every word
+    // and every grammar card, then "Switch the person" on its stories and a line to say for every other
+    // person, then the conversation.
+    const cards = cc.pointIds.map((id) => points.get(id)).filter((p): p is GrammarPoint => !!p).flatMap((p) => cp.blankCardItems(p));
+    const items = [...shuffle(words), ...cards];
+    const persons = cp.checkpointPersons(pack, cc, drillableVerbs(pack, progress), (w) => properNounLike(w, pack));
+    if (items.length) out.push({ kind: "checkpoint", chapter, items, scenario: pack.scenarios.find((x) => x.id === cc.checkpoint.scenarioId), persons });
     return out;
   }
 

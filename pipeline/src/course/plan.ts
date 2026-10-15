@@ -311,7 +311,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     } else {
       if (s.role === "review") a.push("Review day: nothing new");
       if (s.role === "use") a.push(s.writing ? "Put it together: use this chapter in a real exchange, then in writing" : "Put it together: use this chapter in a real exchange");
-      if (s.role === "checkpoint") a.push("Checkpoint: this chapter's words and grammar", "Then the conversation once more");
+      if (s.role === "checkpoint") a.push("Checkpoint: every word and grammar card from this chapter", "Switch the person: this chapter's stories, told about someone else", "Out loud: a line for each of the other persons", "Then the conversation once more");
       if (wordsLine) a.push(wordsLine);
     }
     if (s.role === "teach" || s.role === "practice") a.push("Say it: today's words and examples, out loud");

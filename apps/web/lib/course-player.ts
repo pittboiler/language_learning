@@ -666,7 +666,7 @@ export function sessionHeadline(course: Course, chapter: CourseChapter, s: Cours
     case "practice": return withWords(`Practice: ${title(practisedPoint(chapter, s)) ?? "this chapter's grammar"}`);
     case "review": return s.speak ? "Review day · the conversation" : "Review day";
     case "use": return withWords(s.writing ? "Put it together · write it in Macedonian" : "Put it together");
-    default: return "Checkpoint: this chapter's words and grammar";
+    default: return "Checkpoint: the whole chapter — every word and card, every person, the conversation";
   }
 }
 
@@ -943,4 +943,30 @@ export function switchPersonItem(pack: LanguagePack, story: MiniStory, verbs: Se
     options,
     why: `${pron.mk} (${pron.en}) → ${form}. All six: ${PERSONS.map((p) => `${PRONOUN[p].mk} ${table.forms[p]}`).join(" · ")}`,
   };
+}
+
+/** The chapter checkpoint's person round: "Switch the person" on the chapter's own stories, one line per
+ *  person (up to `max`), then a line to say aloud for each person the round didn't reach — so the chapter's
+ *  last session works every person taught, in its own sentences. */
+export function checkpointPersons(pack: LanguagePack, chapter: CourseChapter, verbs: Set<string>, names: (word: string) => boolean, max = 4): {
+  switches: Extract<UseItItem, { kind: "switch" }>[];
+  say: { text: string; gloss: string; focus: string[] }[];
+} {
+  const stories = [...new Set(chapter.sessions.filter((s) => s.story && !s.story.reuse).map((s) => s.story!.id))]
+    .map((id) => pack.stories?.find((st) => st.id === id)).filter((st): st is MiniStory => !!st);
+  const switches: Extract<UseItItem, { kind: "switch" }>[] = [];
+  for (let seed = 0; seed < 12 && switches.length < max; seed++) {
+    for (const st of stories) {
+      const it = switchPersonItem(pack, st, verbs, names, seed);
+      if (it && !switches.some((x) => x.person === it.person || x.line.source === it.line.source)) switches.push(it);
+      if (switches.length >= max) break;
+    }
+  }
+  const markers = personMarkers(pack);
+  const lines = stories.flatMap((st) => st.body).filter((b) => singleUtterance(b.text)).map((b) => ({ text: bareLine(b.text), gloss: spokenGloss(b.gloss) }));
+  const say = PERSON_TURNS.filter((p) => !switches.some((x) => x.person === p)).flatMap((p) => {
+    const hit = lines.filter((l) => wordTokens(l.text).some((t) => markers.get(t) === p) && l.text.split(" ").length <= 8).sort((a, b) => a.text.length - b.text.length)[0];
+    return hit ? [{ ...hit, focus: hit.text.split(/\s+/).map((w) => w.replace(/[.,!?…]+$/, "")).filter((w) => markers.get(familiarity.normalize(w)) === p) }] : [];
+  }).filter((l, i, all) => all.findIndex((x) => x.text === l.text) === i);
+  return { switches, say };
 }

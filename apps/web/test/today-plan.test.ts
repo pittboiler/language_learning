@@ -25,7 +25,7 @@ function promised(b: string, s: CourseSession): TodayStep["kind"] | undefined {
   if (/^(Conversation|First try at the conversation):/.test(b)) return "speak";
   if (/^Write it:/.test(b)) return "writing";
   if (/^Checkpoint:/.test(b)) return s.letters ? "letters" : "checkpoint";
-  if (/^Then the conversation once more/.test(b)) return "checkpoint";
+  if (/^(Then the conversation once more|Switch the person:|Out loud:)/.test(b)) return "checkpoint";
   if (s.letters && b.startsWith(`${s.letters.title}:`)) return "letters";
   if (/^Practice: /.test(b) || (s.role === "teach" && !!s.pointId && b === course.points.find((p) => p.id === s.pointId)?.agenda)) return "point";
   return undefined;
@@ -88,6 +88,22 @@ for (const ch of course.chapters) {
   }
 }
 assert.equal(sessions, course.chapters.reduce((n, c) => n + c.sessions.length, 0));
+
+// The chapter's last session takes in the whole chapter: every word learned and every grammar card, then
+// "Switch the person" (one person per line) and lines to say for the persons it didn't reach.
+{
+  const ch1 = course.chapters.find((c) => c.chapterId === "s0-repair")!;
+  const fam: Progress["familiarity"] = {};
+  for (const w of ch1.words) fam[w.lexKey] = familiarity.capture({ lexKey: w.lexKey, kind: "word", display: w.display, gloss: w.gloss }, past);
+  const at = { familiarity: fam, scenarios: {}, settings: { courseV2: true }, letters, seenGrammar: { "pt-sum": true, "pt-ne": true }, course: { chapterId: "s0-repair", session: 8, v: course.version } } as unknown as Progress;
+  const cpStep = courseSteps(pack, at).find((x): x is Extract<TodayStep, { kind: "checkpoint" }> => x.kind === "checkpoint")!;
+  const cards = ch1.pointIds.flatMap((id) => cp.blankCardItems(course.points.find((p) => p.id === id)!));
+  assert.equal(cpStep.items.filter((i) => i.kind !== "grammar").length, ch1.words.length, "every word of the chapter");
+  assert.equal(cpStep.items.filter((i) => i.kind === "grammar").length, cards.length, "every grammar card of the chapter");
+  const sw = cpStep.persons!.switches;
+  assert.ok(sw.length >= 3 && new Set(sw.map((x) => x.person)).size === sw.length, "switches cover different persons");
+  assert.ok(cpStep.persons!.say.length >= 1, "lines to say for the other persons");
+}
 
 // Catch-up: a learner who finished chapter 1 before вие / тие joined its session 6 is taught them at the start
 // of the checkpoint (the agenda says why), and not again once met.

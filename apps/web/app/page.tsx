@@ -156,6 +156,8 @@ export default function Home() {
   const [ready, setReady] = useState(false);
   const [config, setConfig] = useState<api.Config | null>(null);
   const [section, setSection] = useState<Section>("today");
+  // A finished lesson being done again (Progress / My notes → "Do again"); null = the real session.
+  const [replay, setReplay] = useState<{ at: NoteAt; key: number } | null>(null);
   const [libView, setLibView] = useState<LibView>("browse");
   const [acctOpen, setAcctOpen] = useState(false);
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -257,27 +259,31 @@ export default function Home() {
           ["progress", "Progress"],
           ["partnered", "Partnered"],
         ] as [Section, string][]).map(([s, label]) => (
-          <button key={s} className={section === s ? "active" : ""} onClick={() => setSection(s)}>{label}</button>
+          <button key={s} className={section === s && !replay ? "active" : ""} onClick={() => { setReplay(null); setSection(s); }}>{label}</button>
         ))}
       </nav>
       <CourseOrderContext.Provider value={cp.courseV2On(pack, progress) && pack.course ? cp.currentSlot(pack.course, progress).order : undefined}>
+      <ReplayContext.Provider value={cp.courseV2On(pack, progress) && pack.course ? (at) => { setReplay({ at, key: Date.now() }); window.scrollTo(0, 0); } : null}>
       <main>
+        {/* Replaying a finished lesson: its own Today, on top; your real session stays as it was underneath. */}
+        {replay && <Today key={replay.key} progress={progress} persist={persist} config={config} navigate={navigate} replay={{ at: replay.at, onExit: () => setReplay(null) }} />}
         {/* Today stays MOUNTED (just hidden) across tab switches so your place in the session — the
             step index and the once-built plan — survives. Other sections are cheap to remount. */}
-        <div style={{ display: section === "today" ? undefined : "none" }}>
+        <div style={{ display: section === "today" && !replay ? undefined : "none" }}>
           <Today progress={progress} persist={persist} config={config} navigate={navigate} />
         </div>
-        {section === "library" && (
+        {!replay && section === "library" && (
           <LibrarySection progress={progress} persist={persist} config={config} lettersDone={lettersDone} mode={libView} setMode={setLibView} />
         )}
-        {section === "progress" && (
+        {!replay && section === "progress" && (
           <>
             <ProgressDash progress={progress} persist={persist} navigate={navigate} dueCount={dueCount} />
             <Review progress={progress} persist={persist} />
           </>
         )}
-        {section === "partnered" && <PartnerPanel progress={progress} persist={persist} config={config} navigateToStory={goToStory} />}
+        {!replay && section === "partnered" && <PartnerPanel progress={progress} persist={persist} config={config} navigateToStory={goToStory} />}
       </main>
+      </ReplayContext.Provider>
       </CourseOrderContext.Provider>
       {acctOpen && <AccountPanel progress={progress} persist={persist} config={config} onClose={() => setAcctOpen(false)} />}
       </SlowContext.Provider>
@@ -349,20 +355,25 @@ const PRONOUNS: { key: keyof ConjugationSet["forms"]; en: string; mk: string }[]
 ];
 
 
-function Today({ progress, persist, config, navigate }: {
+function Today({ progress, persist, config, navigate, replay }: {
   progress: Progress;
   persist: (p: Progress) => void;
   config: api.Config | null;
   navigate: (sec: Section, lv?: LibView, scenarioId?: string) => void;
+  /** Do a finished lesson again: planned from that session, and finishing it changes nothing about your place
+   *  in the course (no advance, no lesson log, no "done for today"). What you practise still counts. */
+  replay?: { at: NoteAt; onExit: () => void };
 }) {
   const pack = usePack();
+  // The position the session is planned from: yours, or the lesson being replayed.
+  const planCourse = replay && pack.course ? { chapterId: replay.at.chapterId, session: replay.at.n, v: pack.course.version } : progress.course;
   const lettersDone = focusLetters(pack).every((a) => progress.letters[a.glyph]);
   // The plan is built once per mount (and when letters finish) so steps don't shift under the user mid-session.
   // planVersion bumps when the learner starts the next course session straight away (new course only).
   const [planVersion, setPlanVersion] = useState(0);
   const v2 = cp.courseV2On(pack, progress);
   const steps = useMemo<TodayStep[]>(() => {
-    if (cp.courseV2On(pack, progress)) return courseSteps(pack, progress);
+    if (cp.courseV2On(pack, progress)) return courseSteps(pack, { ...progress, course: planCourse });
     const out: TodayStep[] = [];
     const now = new Date();
     // Due studied items, deduped by lexKey — the pool can hold two items for one word (e.g. an authored
@@ -505,7 +516,7 @@ function Today({ progress, persist, config, navigate }: {
   // Once today's session is finished we record the local day (below). On a later reload/reopen that flag
   // survives even though `idx` resets to 0 — so we open on the "done for today" screen instead of
   // marching the learner back through step 1. "Practice more anyway" opts back into the full flow.
-  const completedToday = progress.lastSessionDay === localDay();
+  const completedToday = !replay && progress.lastSessionDay === localDay();
   const [practiceMore, setPracticeMore] = useState(false);
   // Items missed this session (auto-collected) → offered as an optional recap once the flow is done.
   const [missed, setMissed] = useState<ReviewItem[]>([]);
@@ -513,7 +524,7 @@ function Today({ progress, persist, config, navigate }: {
   const startedAt = useMemo(() => new Date(), [planVersion]);
   // The position the session was planned from (the course advances as soon as it ends, so the recap must
   // describe the session just finished, not the next one).
-  const playedPos = useMemo(() => (v2 ? cp.position(pack.course!, progress.course) : undefined),
+  const playedPos = useMemo(() => (v2 ? cp.position(pack.course!, planCourse) : undefined),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [planVersion, v2]);
   const [recap, setRecap] = useState<"offer" | "review" | "done">("offer");
@@ -535,6 +546,7 @@ function Today({ progress, persist, config, navigate }: {
   const advancedFor = useRef(-1);
   useEffect(() => {
     if (steps.length === 0 || idx < steps.length) return;
+    if (replay) return; // a replay never moves the course on
     if (v2) {
       // New course: every finished session advances the blueprint exactly once (the learner may start the
       // next one straight away, so this can't key on the calendar day).
@@ -554,7 +566,8 @@ function Today({ progress, persist, config, navigate }: {
   // Flipping the course switch mid-session starts today's session over on the other planner.
   const firstV2 = useRef(v2);
   useEffect(() => { if (firstV2.current !== v2) { firstV2.current = v2; setIdx(0); } }, [v2]);
-  const est = Math.max(5, steps.length * 3);
+  // About three minutes a step; a checkpoint is a whole chapter's worth (words, cards, persons, conversation).
+  const est = Math.max(5, steps.length * 3 + (steps.some((x) => x.kind === "checkpoint") ? 12 : 0));
   // Advance to the next step, persisting a single merged Progress and counting the day toward the streak.
   const done = (mutated: Progress = progress) => {
     persist(bumpStreak(mutated));
@@ -565,7 +578,7 @@ function Today({ progress, persist, config, navigate }: {
   if (phase === "gate")
     return (
       <section className="view">
-        <TodayHeader progress={progress} />
+        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
         <p className="lead">First, the alphabet. Macedonian uses Cyrillic — review all {pack.alphabet.length} letters (I&apos;ll quiz you on the {focusLetters(pack).length} trickiest), then today&apos;s session opens up right here.</p>
         <Letters progress={progress} persist={persist} onDone={() => setPhase("flow")} />
       </section>
@@ -575,7 +588,7 @@ function Today({ progress, persist, config, navigate }: {
   if (completedToday && !practiceMore && idx < steps.length)
     return (
       <section className="view">
-        <TodayHeader progress={progress} />
+        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>Done for today 🎉</h3>
         <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
         <div className="row" style={{ marginTop: 4 }}>
@@ -590,7 +603,7 @@ function Today({ progress, persist, config, navigate }: {
   if (steps.length === 0)
     return (
       <section className="view">
-        <TodayHeader progress={progress} />
+        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
         <p className="lead">You&apos;re all caught up for today. 🎉 Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
       </section>
@@ -598,7 +611,7 @@ function Today({ progress, persist, config, navigate }: {
   if (idx >= steps.length && v2 && playedPos && recap !== "review")
     return (
       <section className="view">
-        <TodayHeader progress={progress} />
+        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
         <CourseRecap
           pos={playedPos}
           since={startedAt}
@@ -606,7 +619,8 @@ function Today({ progress, persist, config, navigate }: {
           persist={persist}
           missed={missed}
           onReviewMissed={() => setRecap("review")}
-          onNext={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}
+          onNext={replay ? replay.onExit : () => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}
+          nextLabel={replay ? "Back to where you were →" : undefined}
           navigate={navigate}
         />
       </section>
@@ -614,7 +628,7 @@ function Today({ progress, persist, config, navigate }: {
   if (idx >= steps.length && v2 && recap === "review" && missed.length)
     return (
       <section className="view">
-        <TodayHeader progress={progress} />
+        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>One more pass</h3>
         <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
         <SessionRecap items={missed} onDone={() => { setMissed([]); setRecap("done"); }} />
@@ -625,7 +639,7 @@ function Today({ progress, persist, config, navigate }: {
     if (missed.length > 0 && recap === "offer")
       return (
         <section className="view">
-          <TodayHeader progress={progress} />
+          <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
           <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
           <p className="lead">Nice work — you finished today&apos;s session.</p>
           <div className="fb" style={{ marginTop: 4 }}>
@@ -643,7 +657,7 @@ function Today({ progress, persist, config, navigate }: {
     if (missed.length > 0 && recap === "review")
       return (
         <section className="view">
-          <TodayHeader progress={progress} />
+          <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
           <h3 style={{ marginTop: 4 }}>One more pass</h3>
           <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
           <SessionRecap items={missed} onDone={() => setRecap("done")} />
@@ -651,7 +665,7 @@ function Today({ progress, persist, config, navigate }: {
       );
     return (
       <section className="view">
-        <TodayHeader progress={progress} />
+        <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
         <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
         <div className="row" style={{ marginTop: 4 }}>
@@ -666,7 +680,7 @@ function Today({ progress, persist, config, navigate }: {
   const step = steps[idx]!;
   return (
     <section className="view">
-      <TodayHeader progress={progress} />
+      <TodayHeader progress={{ ...progress, course: planCourse }} replay={replay} />
       <div className="pbar"><div style={{ width: `${(idx / steps.length) * 100}%` }} /></div>
       <div className="muted small" style={{ marginBottom: 14 }}>
         Step {idx + 1} of {steps.length} · ~{est} min
@@ -695,6 +709,8 @@ function Today({ progress, persist, config, navigate }: {
             key={idx}
             chapter={step.chapter}
             items={step.items}
+            persons={step.persons}
+            onMissTurn={flagTurn}
             scenario={step.scenario}
             progress={progress}
             persist={persist}
@@ -873,11 +889,14 @@ function Today({ progress, persist, config, navigate }: {
 // course doesn't quietly move on from a chapter the learner can't yet use.
 const CHECKPOINT_PASS = 0.7;
 
-function ChapterCheckpoint({ chapter, items, scenario, progress, persist, config, onMiss, onDone, nextLabel }: {
+function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenario, progress, persist, config, onMiss, onDone, nextLabel }: {
   /** New course: what a pass leads to (the next chapter, a stage review, or the end). */
   nextLabel?: string;
   chapter: Chapter;
   items: ReviewItem[];
+  /** The person round (cp.checkpointPersons): "Switch the person" on the chapter's stories, then lines to say. */
+  persons?: { switches: cp.UseItItem[]; say: { text: string; gloss: string; focus?: string[] }[] };
+  onMissTurn?: (t: DialogueTurn) => void;
   scenario?: Scenario;
   progress: Progress;
   persist: (p: Progress) => void;
@@ -885,24 +904,52 @@ function ChapterCheckpoint({ chapter, items, scenario, progress, persist, config
   onMiss: (item: ReviewItem) => void;
   onDone: (p: Progress) => void;
 }) {
-  const [phase, setPhase] = useState<"drill" | "speak" | "result">("drill");
+  const [phase, setPhase] = useState<"drill" | "persons" | "say" | "speak" | "result">("drill");
   const [score, setScore] = useState({ got: 0, total: 0 });
   const [spoke, setSpoke] = useState(false);
   const recallOk = score.total === 0 || score.got / score.total >= CHECKPOINT_PASS;
   const passed = recallOk && (!scenario || spoke);
+  const switches = persons?.switches ?? [];
+  const sayLines = persons?.say ?? [];
+  const afterPersons = () => setPhase(sayLines.length ? "say" : scenario ? "speak" : "result");
+  // A switch missed counts against the recall score, like a word or a card.
+  const missedSwitch = useRef(new Set<string>());
 
   const finishDrill = useCallback((results: WarmResult[]) => {
     setScore({ got: results.filter((r) => r.ok).length, total: results.length });
-    setPhase(scenario ? "speak" : "result");
-  }, [scenario]);
+    setPhase(switches.length ? "persons" : sayLines.length ? "say" : scenario ? "speak" : "result");
+  }, [scenario, switches.length, sayLines.length]);
 
 
   if (phase === "drill")
     return (
       <div>
         <Tag>Checkpoint · chapter {chapter.order}</Tag>
-        <p className="lead" style={{ marginTop: 0 }}>Before we move on from <b>{chapter.shortTitle}</b> — a quick check that it stuck.</p>
+        <p className="lead" style={{ marginTop: 0 }}>Before we move on from <b>{chapter.shortTitle}</b>: everything it taught — {items.filter((i) => i.kind !== "grammar").length} words and {items.filter((i) => i.kind === "grammar").length} grammar cards{switches.length ? ", then the people swap" : ""}{scenario ? ", then the conversation" : ""}.</p>
         <WarmupSession items={items} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} />
+      </div>
+    );
+
+  if (phase === "persons")
+    return (
+      <div>
+        <Tag>Checkpoint · switch the person</Tag>
+        <UseIt
+          items={switches}
+          config={config}
+          lead="Lines from this chapter's stories, told about someone else: pick the form that fits."
+          onMiss={(it) => { missedSwitch.current.add(it.id); onMiss(it); }}
+          onDone={() => { setScore((sc) => ({ got: sc.got + switches.length - missedSwitch.current.size, total: sc.total + switches.length })); afterPersons(); }}
+        />
+      </div>
+    );
+
+  if (phase === "say")
+    return (
+      <div>
+        <Tag>Checkpoint · out loud</Tag>
+        <p className="lead" style={{ marginTop: 0 }}>One line for each of the other persons, from this chapter&apos;s stories.</p>
+        <SayIt lines={sayLines} config={config} onMiss={(t) => onMissTurn?.(t)} onDone={() => setPhase(scenario ? "speak" : "result")} />
       </div>
     );
 
@@ -1052,7 +1099,12 @@ function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss 
     if (matchPairs.length === 1) { cards.unshift({ item: matchPairs[0]!.item, format: "recall" }); matchPairs.length = 0; }
     const steps: WarmStep[] = [];
     if (conjVerb) steps.push({ kind: "conjugation", verb: conjVerb });
-    if (matchPairs.length >= 2) steps.push({ kind: "match", pairs: matchPairs });
+    // A big set (a checkpoint's whole chapter) is matched six at a time: one grid of eighteen is a wall.
+    if (matchPairs.length >= 2) {
+      const groups = Math.ceil(matchPairs.length / 6);
+      const size = Math.ceil(matchPairs.length / groups);
+      for (let g = 0; g < matchPairs.length; g += size) steps.push({ kind: "match", pairs: matchPairs.slice(g, g + size) });
+    }
     for (const c of cards) steps.push({ kind: "card", card: c });
     return steps;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1313,7 +1365,7 @@ function AgendaCard({ agenda, onStart, pointId, onOpenPoint, onSkipChapter }: { 
 // The end-of-session recap (DESIGN §5): what you learned (the point's recap, quoted from today's own lines),
 // every word from today and today's grammar cards — each savable to the ★ deck — what you slipped on, and
 // what's next. More detail than the agenda, still not a textbook: the Library holds the rest.
-function CourseRecap({ pos, since, until, progress, persist, missed, onReviewMissed, onNext, navigate, notes }: {
+function CourseRecap({ pos, since, until, progress, persist, missed, onReviewMissed, onNext, nextLabel, navigate, notes }: {
   pos: cp.CoursePosition;
   since: Date;
   /** Saved lesson notes: the session's end, so words tapped later don't creep in. */
@@ -1323,6 +1375,7 @@ function CourseRecap({ pos, since, until, progress, persist, missed, onReviewMis
   missed: { answer: string; gloss: string }[];
   onReviewMissed?: () => void;
   onNext?: () => void;
+  nextLabel?: string;
   navigate: (sec: Section, lv?: LibView) => void;
   /** Reopened later as lesson notes (Progress / Library → My notes): a heading and date, no "next" buttons. */
   notes?: { title: string; when?: string };
@@ -1446,7 +1499,7 @@ function CourseRecap({ pos, since, until, progress, persist, missed, onReviewMis
       {!notes && rc.next && <p className="lead" style={{ margin: "8px 0" }}>{rc.next}</p>}
       {!notes && (
         <div className="row" style={{ marginTop: 4 }}>
-          {onNext && <button className="btn" onClick={onNext}>Start the next session now →</button>}
+          {onNext && <button className="btn" onClick={onNext}>{nextLabel ?? "Start the next session now →"}</button>}
           <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
           <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
         </div>
@@ -1517,7 +1570,7 @@ function Tag({ children }: { children: ReactNode }) {
 // The session header also LOCATES the session: which chapter today's material comes from, and which
 // day of it this is. The chapter is derived from the story the planner actually chose, so the header
 // can never disagree with what the session goes on to teach.
-function TodayHeader({ progress }: { progress: Progress }) {
+function TodayHeader({ progress, replay }: { progress: Progress; replay?: { at: NoteAt; onExit: () => void } }) {
   const pack = usePack();
   const streak = progress.streak?.count ?? 0;
   if (cp.courseV2On(pack, progress)) {
@@ -1526,7 +1579,8 @@ function TodayHeader({ progress }: { progress: Progress }) {
     return (
       <div className="today-head">
         <div>
-          <h2 style={{ marginBottom: 2 }}>Today</h2>
+          <h2 style={{ marginBottom: 2 }}>{replay ? "Doing a lesson again" : "Today"}</h2>
+          {replay && <p className="muted small" style={{ margin: "0 0 4px" }}>Your place in the course doesn&apos;t move. <button className="linklike small" onClick={replay.onExit}>Back to where you were</button></p>}
           <span className="muted small">
             {pos.kind === "session" && ch
               ? <>Chapter {ch.order} · <b>{ch.shortTitle}</b> · session {pos.session.n} of {pos.chapter.sessions.length}{pos.session.role === "review" ? " · review day" : pos.session.role === "checkpoint" ? " · checkpoint" : ""}</>
@@ -3247,7 +3301,9 @@ function TodayStoryStep({ story, progress, persist, config, onDone, onMiss, dayI
 // "Use it": a few quick exercises on today's focus after the story, each a little more productive than the
 // last — understand a line, pick the missing form, build a line from its words, say one aloud. Built from the
 // story's own lines (cp.useItItems), so they practise the lesson at hand. Misses join the session's recap.
-function UseIt({ items, config, onMiss, onRestart, onDone }: {
+function UseIt({ items, config, onMiss, onRestart, onDone, lead }: {
+  /** The line above the exercises (default: the story's "Use it"). */
+  lead?: string;
   items: cp.UseItItem[];
   config: api.Config | null;
   onMiss?: (item: ReviewItem) => void;
@@ -3272,7 +3328,7 @@ function UseIt({ items, config, onMiss, onRestart, onDone }: {
   const head = { understand: "What does it mean?", complete: "Complete the line", build: "Build the line", say: "Say it", switch: "Switch the person" }[it.kind];
   return (
     <div>
-      <p className="lead" style={{ marginBottom: 6 }}>Use it: today&apos;s focus, in the story&apos;s own lines.</p>
+      <p className="lead" style={{ marginBottom: 6 }}>{lead ?? <>Use it: today&apos;s focus, in the story&apos;s own lines.</>}</p>
       <div className="fb">
         <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
           <div className="gram-kicker">{head}</div>
@@ -3894,6 +3950,13 @@ function ProgressDash({ progress, persist, navigate, dueCount }: { progress: Pro
 // Rebuilt from the blueprint plus the small record kept when the session ended (Progress.courseLog). Sessions
 // finished before records were kept still open, just without a date or the items missed.
 type NoteAt = { chapterId: string; n: number; stage?: boolean; exam?: boolean };
+// "Do this lesson again": replay a finished session in Today without moving your place in the course.
+const ReplayContext = createContext<((at: NoteAt) => void) | null>(null);
+function ReplayButton({ at }: { at: NoteAt }) {
+  const start = useContext(ReplayContext);
+  if (!start || at.stage || at.exam) return null;
+  return <button className="ghost small" title="Do this lesson again — your place in the course stays where it is" onClick={() => start(at)}>Do again</button>;
+}
 let pendingNotesFocus: NoteAt | null = null;
 const noteDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : undefined);
 function noteTitle(pack: LanguagePack, at: NoteAt): string {
@@ -3917,7 +3980,10 @@ function LessonNotes({ at, progress, persist, navigate, onBack, backLabel }: {
   const until = useMemo(() => (log ? new Date(log.at) : undefined), [log]);
   return (
     <div>
-      <button className="ghost small" onClick={onBack} style={{ marginBottom: 8 }}>← {backLabel}</button>
+      <div className="row" style={{ marginBottom: 8, justifyContent: "space-between" }}>
+        <button className="ghost small" onClick={onBack}>← {backLabel}</button>
+        <ReplayButton at={at} />
+      </div>
       {pos
         ? <CourseRecap pos={pos} since={since} until={until} progress={progress} persist={persist} missed={log?.missed ?? []} navigate={navigate} notes={{ title: noteTitle(pack, at), when: log ? `Finished ${noteDate(log.at)}` : undefined }} />
         : <p className="muted">This lesson isn&apos;t in the course any more.</p>}
@@ -4056,7 +4122,7 @@ function CourseMap({ progress, persist, navigate }: { progress: Progress; persis
                       <li key={x.n} className={`session-row ${x.state}`}>
                         <span className="sess-n" aria-label={x.state}>{x.state === "done" ? "✓" : x.state === "current" ? "▶" : x.n}</span>
                         <span className="sess-text">{x.headline}{x.state === "current" ? <span className="muted small"> · next up in Today</span> : null}</span>
-                        {x.state === "done" && <button className="ghost small" onClick={() => setView({ kind: "notes", at: { chapterId: ch.chapterId, n: x.n } })}>Notes</button>}
+                        {x.state === "done" && <span className="row" style={{ gap: 4, flexWrap: "nowrap" }}><button className="ghost small" onClick={() => setView({ kind: "notes", at: { chapterId: ch.chapterId, n: x.n } })}>Notes</button><ReplayButton at={{ chapterId: ch.chapterId, n: x.n }} /></span>}
                       </li>
                     ))}
                     {ch.stageReview && (
@@ -4469,7 +4535,7 @@ function MyNotes({ progress, persist, navigate }: { progress: Progress; persist:
             <li key={`${l.at.chapterId}-${l.at.n}-${l.at.stage ? "s" : ""}`} className="session-row done">
               <span className="sess-n">✓</span>
               <span className="sess-text"><span className="muted small">{l.at.stage ? `After chapter ${l.order}` : `Chapter ${l.order} · session ${l.at.n}`}{l.log ? ` · ${noteDate(l.log.at)}` : ""}</span><br />{l.headline}</span>
-              <button className="ghost small" onClick={() => setView({ kind: "notes", at: l.at })}>Notes</button>
+              <span className="row" style={{ gap: 4, flexWrap: "nowrap" }}><button className="ghost small" onClick={() => setView({ kind: "notes", at: l.at })}>Notes</button><ReplayButton at={l.at} /></span>
             </li>
           ))}
         </ol>

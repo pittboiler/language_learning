@@ -3974,7 +3974,7 @@ export const course: Course = {
             "Conversation: Who's who?",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
             "story:gen-s0-repair-story#6",
             "story:gen-s0-repair-story#7",
@@ -3987,7 +3987,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, Hello, how are you?"
@@ -4470,7 +4472,7 @@ export const course: Course = {
             "Conversation: Saying hello",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
             "qa:gen-s0-greet-story#q1:q",
             "qa:gen-s0-greet-story#q3:q",
@@ -4483,7 +4485,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, Numbers & prices"
@@ -5023,7 +5027,7 @@ export const course: Course = {
             "Conversation: A first small purchase",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
             "qa:gen-s0-survive-story-b#q1:q",
             "qa:gen-s0-survive-story-b#q3:q",
@@ -5036,7 +5040,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a stage review, then At the café"
@@ -5573,7 +5579,7 @@ export const course: Course = {
             "Conversation: Ordering at the café",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: every word and grammar card from this chapter"
         },
         {
           "n": 8,
@@ -5581,7 +5587,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, Meeting people"
@@ -6099,7 +6107,7 @@ export const course: Course = {
             "Conversation: Meeting someone at the bar",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
             "story:gen-s1-greet-intro-story#4",
             "story:gen-s1-greet-intro-story#5",
@@ -6112,7 +6120,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, At the market"
@@ -6574,7 +6584,7 @@ export const course: Course = {
             "Conversation: You're the seller",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
             "scenario:gen-s1-market-convo-b#1",
             "scenario:gen-s1-market-convo-b#7"
@@ -6586,7 +6596,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a stage review, then Finding your way"
@@ -7098,7 +7110,7 @@ export const course: Course = {
             "Conversation: A tourist asks you",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar",
+          "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
             "scenario:gen-s1-directions-convo-b#2"
           ]
@@ -7109,7 +7121,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, Likes & plans"
@@ -7608,7 +7622,7 @@ export const course: Course = {
             "Conversation: Chatting about likes and plans",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: every word and grammar card from this chapter"
         },
         {
           "n": 8,
@@ -7616,7 +7630,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, What you did"
@@ -8048,7 +8064,7 @@ export const course: Course = {
             "Conversation: How was your weekend?",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: every word and grammar card from this chapter"
         },
         {
           "n": 7,
@@ -8056,7 +8072,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, Family & home"
@@ -8515,7 +8533,7 @@ export const course: Course = {
             "Conversation: Talking about your family",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: every word and grammar card from this chapter"
         },
         {
           "n": 7,
@@ -8523,7 +8541,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, Making plans"
@@ -8862,7 +8882,7 @@ export const course: Course = {
             "Conversation: Arranging to meet by phone",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: every word and grammar card from this chapter"
         },
         {
           "n": 6,
@@ -8870,7 +8890,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "Next: a new chapter, When things go wrong"
@@ -9205,7 +9227,7 @@ export const course: Course = {
             "Conversation: Fixing an order",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: this chapter's words and grammar"
+          "next": "Next: Checkpoint: every word and grammar card from this chapter"
         },
         {
           "n": 6,
@@ -9213,7 +9235,9 @@ export const course: Course = {
           "words": [],
           "build": [],
           "agenda": [
-            "Checkpoint: this chapter's words and grammar",
+            "Checkpoint: every word and grammar card from this chapter",
+            "Switch the person: this chapter's stories, told about someone else",
+            "Out loud: a line for each of the other persons",
             "Then the conversation once more"
           ],
           "next": "That's the whole course: the final stage review is next."
