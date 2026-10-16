@@ -91,8 +91,13 @@ export async function POST(req: Request) {
   const pack = getPack(form.get("packId")?.toString());
   const scribeLang = process.env.SCRIBE_LANG || pack.asr.languageHints[0] || "mkd";
   const googleLang = pack.asr.languageHints[1] || "mk-MK";
+  // Both engines at once: the wait is the slower one, not the two added up. (`timed` never throws.)
+  const [eleven, google] = await Promise.all([
+    hasEleven() ? timed(() => transcribeEleven(buf, mime, scribeLang)) : undefined,
+    hasGoogle() ? timed(() => transcribeGoogle(buf, mime, googleLang)) : undefined,
+  ]);
   const out: { eleven?: EngineResult; google?: EngineResult } = {};
-  if (hasEleven()) out.eleven = await timed(() => transcribeEleven(buf, mime, scribeLang));
-  if (hasGoogle()) out.google = await timed(() => transcribeGoogle(buf, mime, googleLang));
+  if (eleven) out.eleven = eleven;
+  if (google) out.google = google;
   return Response.json(out);
 }
