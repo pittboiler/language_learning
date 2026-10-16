@@ -81,10 +81,11 @@ export const SPINE: SpineChapter[] = [
     // The question words land in the first three sessions: што, каде (1), then како, колку and кој / кога / зошто
     // with yes/no questions (3); „Добро сум, фала“ moves to 4 to make room.
     pinWords: { "кој / кога / зошто": 3, "Добро сум, фала.": 4,
-      // Each family together (2026-10-16, Jake: "similar things are just never taught"): every thank-you (4), the
-      // time-of-day greetings (5), every goodbye (7), yes and no (8). Sessions 1–3 stay as they were.
-      "Фала": 4, "Благодарам / Нема за што": 4, "Добро утро / Добра вечер / Добра ноќ": 5,
-      "Догледање": 7, "Пријатно / Чао": 7, "Да": 8, "Не": 8 },
+      // Each family together (2026-10-16, Jake: "similar things are just never taught"): yes and no right after
+      // yes/no questions (4), every thank-you and please (5), the hellos and goodbyes for each time of day (7),
+      // and / and-but / or (8). Sessions 1–3 stay as they were.
+      "Да": 4, "Не": 4, "Фала": 5, "Благодарам / Нема за што": 5, "Ве молам": 5,
+      "Добро утро / Добра вечер / Добра ноќ": 7, "Догледање": 7, "Пријатно / Чао": 7, "и / а / или": 8 },
     points: [
       { id: "pt-question-words", title: "Question words", grammarIds: ["questions"], depth: "produce",
         scope: "Wh-question words that open a question: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much), чиј (whose).",

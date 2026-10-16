@@ -4083,6 +4083,16 @@ export const course: Course = {
           "gloss": "I'm well, thanks."
         },
         {
+          "lexKey": "да",
+          "display": "Да",
+          "gloss": "Yes"
+        },
+        {
+          "lexKey": "не",
+          "display": "Не",
+          "gloss": "No"
+        },
+        {
           "lexKey": "фала",
           "display": "Фала",
           "gloss": "Thanks"
@@ -4093,19 +4103,14 @@ export const course: Course = {
           "gloss": "thank you / you're welcome"
         },
         {
-          "lexKey": "добро утро / добра вечер / добра ноќ",
-          "display": "Добро утро / Добра вечер / Добра ноќ",
-          "gloss": "good morning / good evening / good night"
-        },
-        {
-          "lexKey": "и / а / или",
-          "display": "и / а / или",
-          "gloss": "and / and (by contrast) / or"
-        },
-        {
           "lexKey": "ве молам",
           "display": "Ве молам",
           "gloss": "Please / You're welcome"
+        },
+        {
+          "lexKey": "добро утро / добра вечер / добра ноќ",
+          "display": "Добро утро / Добра вечер / Добра ноќ",
+          "gloss": "good morning / good evening / good night"
         },
         {
           "lexKey": "догледање",
@@ -4118,14 +4123,9 @@ export const course: Course = {
           "gloss": "goodbye, have a nice day / bye"
         },
         {
-          "lexKey": "да",
-          "display": "Да",
-          "gloss": "Yes"
-        },
-        {
-          "lexKey": "не",
-          "display": "Не",
-          "gloss": "No"
+          "lexKey": "и / а / или",
+          "display": "и / а / или",
+          "gloss": "and / and (by contrast) / or"
         }
       ],
       "extraWords": [
@@ -4329,14 +4329,14 @@ export const course: Course = {
               "gloss": "I'm well, thanks."
             },
             {
-              "lexKey": "фала",
-              "display": "Фала",
-              "gloss": "Thanks"
+              "lexKey": "да",
+              "display": "Да",
+              "gloss": "Yes"
             },
             {
-              "lexKey": "благодарам / нема за што",
-              "display": "Благодарам / Нема за што",
-              "gloss": "thank you / you're welcome"
+              "lexKey": "не",
+              "display": "Не",
+              "gloss": "No"
             }
           ],
           "story": {
@@ -4362,7 +4362,7 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "3 new words: Добро сум, фала, Фала, Благодарам / Нема за што",
+            "3 new words: Добро сум, фала, Да, Не",
             "Practice: Yes/no questions: ли or дали",
             "Say it: today's words and examples, out loud",
             "Read “Ана, каде си?”: spot everything from this chapter, then a few quick exercises",
@@ -4380,14 +4380,14 @@ export const course: Course = {
           "role": "practice",
           "words": [
             {
-              "lexKey": "добро утро / добра вечер / добра ноќ",
-              "display": "Добро утро / Добра вечер / Добра ноќ",
-              "gloss": "good morning / good evening / good night"
+              "lexKey": "фала",
+              "display": "Фала",
+              "gloss": "Thanks"
             },
             {
-              "lexKey": "и / а / или",
-              "display": "и / а / или",
-              "gloss": "and / and (by contrast) / or"
+              "lexKey": "благодарам / нема за што",
+              "display": "Благодарам / Нема за што",
+              "gloss": "thank you / you're welcome"
             },
             {
               "lexKey": "ве молам",
@@ -4419,7 +4419,7 @@ export const course: Course = {
           ],
           "speak": "gen-s0-greet",
           "agenda": [
-            "3 new words: Добро утро / Добра вечер / Добра ноќ, и / а / или, Ве молам",
+            "3 new words: Фала, Благодарам / Нема за што, Ве молам",
             "Practice: Yes/no questions: ли or дали",
             "Say it: today's words and examples, out loud",
             "Read “Здраво или добар ден?”: spot everything from this chapter, then a few quick exercises",
@@ -4476,6 +4476,11 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
+              "lexKey": "добро утро / добра вечер / добра ноќ",
+              "display": "Добро утро / Добра вечер / Добра ноќ",
+              "gloss": "good morning / good evening / good night"
+            },
+            {
               "lexKey": "догледање",
               "display": "Догледање",
               "gloss": "Goodbye"
@@ -4511,7 +4516,7 @@ export const course: Course = {
           "speak": "gen-s0-greet",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "2 new words: Догледање, Пријатно / Чао",
+            "3 new words: Добро утро / Добра вечер / Добра ноќ, Догледање, Пријатно / Чао",
             "Read “Ана, каде си?”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Saying hello"
@@ -4528,14 +4533,9 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
-              "lexKey": "да",
-              "display": "Да",
-              "gloss": "Yes"
-            },
-            {
-              "lexKey": "не",
-              "display": "Не",
-              "gloss": "No"
+              "lexKey": "и / а / или",
+              "display": "и / а / или",
+              "gloss": "and / and (by contrast) / or"
             }
           ],
           "story": {
@@ -4564,7 +4564,7 @@ export const course: Course = {
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
-            "2 new words: Да, Не",
+            "1 new word: и / а / или",
             "Read “Здраво или добар ден?”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Saying hello",
@@ -4603,15 +4603,15 @@ export const course: Course = {
           "како",
           "колку",
           "добро сум, фала",
+          "да",
+          "не",
           "фала",
           "благодарам / нема за што",
-          "добро утро / добра вечер / добра ноќ",
-          "и / а / или",
           "ве молам",
+          "добро утро / добра вечер / добра ноќ",
           "догледање",
           "пријатно / чао",
-          "да",
-          "не"
+          "и / а / или"
         ],
         "pointIds": [
           "pt-question-words",
@@ -9519,15 +9519,15 @@ export const course: Course = {
         "како",
         "колку",
         "добро сум, фала",
-        "фала",
-        "благодарам / нема за што",
-        "добро утро / добра вечер / добра ноќ",
-        "и / а / или",
-        "ве молам",
-        "догледање",
-        "пријатно / чао",
         "да",
         "не",
+        "фала",
+        "благодарам / нема за што",
+        "ве молам",
+        "добро утро / добра вечер / добра ноќ",
+        "догледање",
+        "пријатно / чао",
+        "и / а / или",
         "еден / една / едно",
         "ова / тоа",
         "овој / оваа / овие",
