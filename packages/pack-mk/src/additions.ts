@@ -140,6 +140,16 @@ export const level1Additions: ReviewItem[] = [
     meta: { wordNote: "Ме боли … is “my … hurts”, literally “… hurts me”: Ме боли глава, my head hurts." },
   }),
 
+  // ---- 2026-10-16: the rest of the question words, taught with the others in chapter 2 ----
+  item({
+    id: "add-qwords", kind: "vocab", tags: ["s0-greet"],
+    answer: "кој / кога / зошто", translit: "koy / koga / zoshto",
+    gloss: "who / when / why",
+    breakdown: parts("кој, кога, зошто", "who, when, why"),
+    takeaway: "Like што, каде, како and колку, each one opens its question: Кој е тој? · Кога? · Зошто?",
+    meta: { wordNote: "The rest of the question words, each at the start of its question: Кој е тој? (Who is he?) · Кога? (When?) · Зошто? (Why?)" },
+  }),
+
   // ---- 2026-10-14 (DESIGN-story-variety §2e): every person, once its grammar is taught ----
   // Chapter 8: “to you all” and “to them”, so likes are practised for every person (ми, ти, му, ѝ, ни, ви, им).
   item({

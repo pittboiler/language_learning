@@ -67,13 +67,12 @@ function needs(entry: { status: string; strength: number } | undefined, needThre
  *
  * Selection (matched-beginner bias): only words BOTH members have STUDIED are eligible — nobody is ever
  * asked to produce (or drilled on) a word the other has never met, so being ahead never pushes your words
- * onto your partner before they've studied them. Among those, items both still need come first (learn the
- * same words at the same time → you can use them with each other), then items one needs; within a tier, the
- * lowest combined strength (the rawest material) leads.
+ * onto your partner before they've studied them. Words neither of you still needs are left out.
  *
- * Role per item: the MORE-familiar member CHECKS (validates against the answer), the other PRODUCES (gets
- * the retrieval practice they need). When strengths tie — the common case for two beginners — roles
- * ALTERNATE by position so it flips turn to turn.
+ * Roles STRICTLY ALTERNATE (2026-10-16, Jake: one partner was getting far more turns): the first member
+ * produces, then the second, and so on — an even split however far apart you are. Each turn gives the one
+ * saying it the word THEY need most (their weakest, of the words you've both studied); when they need none of
+ * what's left, one they know well — still a word they've studied, never one sprung on them.
  */
 export function buildQueue(
   members: [string, string],
@@ -85,9 +84,8 @@ export function buildQueue(
   const needThreshold = opts.needThreshold ?? 0.5;
   const [a, b] = members;
   const [projA, projB] = projections;
-  const eps = 0.05;
 
-  type Scored = { c: TogetherCandidate; sa: number; sb: number; bothNeed: boolean; combined: number };
+  type Scored = { c: TogetherCandidate; sa: number; sb: number; needA: boolean; needB: boolean };
   const inPlay: Scored[] = [];
   const seenKeys = new Set<string>();
   for (const c of candidates) {
@@ -100,29 +98,22 @@ export function buildQueue(
     const needA = needs(ea, needThreshold);
     const needB = needs(eb, needThreshold);
     if (!needA && !needB) continue; // both already own it — nothing to drill together
-    const sa = clamp(ea?.strength ?? 0);
-    const sb = clamp(eb?.strength ?? 0);
-    inPlay.push({ c, sa, sb, bothNeed: needA && needB, combined: sa + sb });
+    inPlay.push({ c, sa: clamp(ea.strength), sb: clamp(eb.strength), needA, needB });
   }
 
-  // both-need first, then rawest (lowest combined strength), then a stable lexKey tiebreak for determinism.
-  inPlay.sort((x, y) => Number(y.bothNeed) - Number(x.bothNeed) || x.combined - y.combined || x.c.lexKey.localeCompare(y.c.lexKey));
-
-  return inPlay.slice(0, limit).map((s, index) => {
-    let producer: string;
-    let checker: string;
-    if (Math.abs(s.sa - s.sb) < eps) {
-      // tie → alternate by position so roles flip across the session
-      [producer, checker] = index % 2 === 0 ? [a, b] : [b, a];
-    } else if (s.sa > s.sb) {
-      checker = a;
-      producer = b; // the less-familiar member produces (needs the retrieval)
-    } else {
-      checker = b;
-      producer = a;
-    }
-    return { index, lexKey: s.c.lexKey, prompt: s.c.prompt, answer: s.c.answer, translit: s.c.translit, producer, checker };
-  });
+  const turns: TogetherTurn[] = [];
+  const used = new Set<string>();
+  for (let index = 0; index < limit && used.size < inPlay.length; index++) {
+    const producer = index % 2 === 0 ? a : b;
+    const checker = producer === a ? b : a;
+    const mine = (x: Scored) => (producer === a ? { need: x.needA, s: x.sa } : { need: x.needB, s: x.sb });
+    // The producer's own need first, then their weakest, then the rawest overall, then a stable tiebreak.
+    const pick = inPlay.filter((x) => !used.has(x.c.lexKey)).sort((x, y) =>
+      Number(mine(y).need) - Number(mine(x).need) || mine(x).s - mine(y).s || (x.sa + x.sb) - (y.sa + y.sb) || x.c.lexKey.localeCompare(y.c.lexKey))[0]!;
+    used.add(pick.c.lexKey);
+    turns.push({ index, lexKey: pick.c.lexKey, prompt: pick.c.prompt, answer: pick.c.answer, translit: pick.c.translit, producer, checker });
+  }
+  return turns;
 }
 
 /** Create a session from a pre-built queue. Members are sorted here too, so callers can pass either order. */

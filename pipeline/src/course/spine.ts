@@ -30,6 +30,8 @@ export interface SpineChapter {
   /** Pin the mid-chapter review after this point (0-based) instead of the earliest that fits — to keep a
    *  chapter's structure when its word list shrinks (a structure change re-places every learner). */
   reviewAfter?: number;
+  /** Words (by pack answer) taught in a given session (1-based) — so a family of words lands together. */
+  pinWords?: Record<string, number>;
   /** Words the chapter currently carries that should NOT be taught in it (moved to the Library). */
   dropWords?: string[];
 }
@@ -76,10 +78,15 @@ export const SPINE: SpineChapter[] = [
     // and re-places every learner.
     extraSessions: 1,
     reviewAfter: 2,
+    // The question words land in the first three sessions: што, каде (1), then како, колку and кој / кога / зошто
+    // with yes/no questions (3); „Добро сум, фала“ moves to 4 to make room.
+    pinWords: { "кој / кога / зошто": 3, "Добро сум, фала.": 4 },
     points: [
       { id: "pt-question-words", title: "Question words", grammarIds: ["questions"], depth: "produce",
         scope: "Wh-question words that open a question: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much), чиј (whose).",
-        words: ["што", "каде", "како", "колку"] },
+        // All of them in this chapter (2026-10-16, Jake: words of a kind come together): кој / кога / зошто used
+        // to wait for chapter 11–12 or never come at all. чиј (whose) changes with its noun, so it stays in the Library.
+        words: ["што", "каде", "како", "колку", "кој / кога / зошто"] },
       { id: "pt-ti-vie", title: "Casual ти or polite вие", grammarIds: [], depth: "produce",
         scope: "Choosing informal ти forms (Како си?, verbs ending -ш) with friends and family vs polite/plural вие forms (Како сте?, verbs ending -те, Извинете) with strangers and elders.",
         words: ["вие", "Како си?", "Како сте?"] },
@@ -187,6 +194,7 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s2-arrange",
+    dropWords: ["Кога?"], // taught with the other question words in chapter 2
     points: [
       { id: "pt-time", title: "Telling the time: во … часот", grammarIds: [], depth: "produce",
         scope: "Clock times: во + number + часот (Во шест часот), Во колку часот?, кога." },

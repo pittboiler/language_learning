@@ -4063,9 +4063,9 @@ export const course: Course = {
           "gloss": "Good day (neutral/formal)"
         },
         {
-          "lexKey": "добро сум, фала",
-          "display": "Добро сум, фала.",
-          "gloss": "I'm well, thanks."
+          "lexKey": "кој / кога / зошто",
+          "display": "кој / кога / зошто",
+          "gloss": "who / when / why"
         },
         {
           "lexKey": "како",
@@ -4076,6 +4076,11 @@ export const course: Course = {
           "lexKey": "колку",
           "display": "колку",
           "gloss": "how much/many"
+        },
+        {
+          "lexKey": "добро сум, фала",
+          "display": "Добро сум, фала.",
+          "gloss": "I'm well, thanks."
         },
         {
           "lexKey": "фала",
@@ -4247,9 +4252,9 @@ export const course: Course = {
           "pointId": "pt-yes-no",
           "words": [
             {
-              "lexKey": "добро сум, фала",
-              "display": "Добро сум, фала.",
-              "gloss": "I'm well, thanks."
+              "lexKey": "кој / кога / зошто",
+              "display": "кој / кога / зошто",
+              "gloss": "who / when / why"
             },
             {
               "lexKey": "како",
@@ -4263,17 +4268,17 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-greet-story-b",
+            "id": "gen-s0-repair-story",
             "lens": [
               "pt-yes-no"
             ],
             "highlight": [
-              2,
               5
-            ]
+            ],
+            "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
+            "phrase-add-qwords",
             "phrase-gen-s0-repair-v3",
             "phrase-gen-s0-greet-v4",
             "phrase-gen-s0-greet-v5",
@@ -4281,23 +4286,28 @@ export const course: Course = {
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
-            "3 new words: Добро сум, фала, како, колку",
+            "3 new words: кој / кога / зошто, како, колку",
             "Ask yes/no questions: ли after the verb, or дали up front",
             "Say it: today's words and examples, out loud",
-            "Read “Здраво или добар ден?”: spot today's pattern, then a few quick exercises",
+            "Reread “Ана учи македонски” from an earlier chapter: find yes/no questions: ли or дали, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
           "next": "Next: Practice: Yes/no questions: ли or дали",
           "notes": [
-            "story:gen-s0-greet-story-b#2",
-            "story:gen-s0-greet-story-b#3",
-            "qa:gen-s0-greet-story-b#q1:q"
+            "qa:gen-s0-repair-story#q1:q",
+            "qa:gen-s0-repair-story#q1:a",
+            "qa:gen-s0-repair-story#q2:q"
           ]
         },
         {
           "n": 4,
           "role": "practice",
           "words": [
+            {
+              "lexKey": "добро сум, фала",
+              "display": "Добро сум, фала.",
+              "gloss": "I'm well, thanks."
+            },
             {
               "lexKey": "фала",
               "display": "Фала",
@@ -4307,11 +4317,6 @@ export const course: Course = {
               "lexKey": "ве молам",
               "display": "Ве молам",
               "gloss": "Please / You're welcome"
-            },
-            {
-              "lexKey": "да",
-              "display": "Да",
-              "gloss": "Yes"
             }
           ],
           "story": {
@@ -4329,21 +4334,19 @@ export const course: Course = {
             ]
           },
           "build": [
+            "phrase-gen-s0-greet-v6",
             "phrase-gen-s0-greet-v8",
             "phrase-gen-s0-repair-v3",
             "phrase-gen-s0-greet-v4",
             "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6"
+            "phrase-gen-s0-greet-v2"
           ],
-          "speak": "gen-s0-greet",
           "agenda": [
-            "3 new words: Фала, Ве молам, Да",
+            "3 new words: Добро сум, фала, Фала, Ве молам",
             "Practice: Yes/no questions: ли or дали",
             "Say it: today's words and examples, out loud",
             "Read “Ана, каде си?”: spot everything from this chapter, then a few quick exercises",
-            "Build a sentence: put the words in order",
-            "Conversation: Saying hello"
+            "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new",
           "notes": [
@@ -4357,15 +4360,14 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s0-repair-story-b",
             "lens": [
               "pt-question-words",
               "pt-ti-vie",
               "pt-yes-no"
             ],
             "highlight": [
-              5,
-              6
+              8
             ],
             "reuse": true
           },
@@ -4374,27 +4376,32 @@ export const course: Course = {
             "phrase-gen-s0-greet-v4",
             "phrase-gen-s0-greet-v5",
             "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-greet-v8"
+            "phrase-add-qwords",
+            "phrase-gen-s0-greet-v6"
           ],
-          "speak": "gen-s0-greet-convo-b",
+          "speak": "gen-s0-greet",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns, then a few quick exercises",
+            "Reread “Ние сме во Скопје” from an earlier chapter: find this chapter's patterns, then a few quick exercises",
             "Build a sentence: put the words in order",
-            "Conversation: Hello to you both"
+            "First try at the conversation: Saying hello"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
           "notes": [
-            "qa:gen-s0-repair-story#q1:q",
-            "qa:gen-s0-repair-story#q1:a",
-            "qa:gen-s0-repair-story#q2:q"
+            "qa:gen-s0-repair-story-b#q2:a",
+            "qa:gen-s0-repair-story-b#q3:q",
+            "qa:gen-s0-repair-story-b#q3:a"
           ]
         },
         {
           "n": 6,
           "role": "use",
           "words": [
+            {
+              "lexKey": "да",
+              "display": "Да",
+              "gloss": "Yes"
+            },
             {
               "lexKey": "не",
               "display": "Не",
@@ -4406,47 +4413,6 @@ export const course: Course = {
               "gloss": "Goodbye"
             }
           ],
-          "story": {
-            "id": "gen-s0-greet-story-a",
-            "lens": [
-              "pt-question-words",
-              "pt-ti-vie",
-              "pt-yes-no"
-            ],
-            "highlight": [
-              1,
-              2,
-              6,
-              7
-            ]
-          },
-          "build": [
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-greet-v4",
-            "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-greet-v8"
-          ],
-          "speak": "gen-s0-greet",
-          "agenda": [
-            "Put it together: use this chapter in a real exchange",
-            "2 new words: Не, Догледање",
-            "Read “Ана, каде си?”: spot everything from this chapter, then a few quick exercises",
-            "Build a sentence: put the words in order",
-            "Conversation: Saying hello"
-          ],
-          "next": "Next: Put it together: use this chapter in a real exchange, then in writing",
-          "notes": [
-            "story:gen-s0-greet-story-a#4",
-            "story:gen-s0-greet-story-a#5",
-            "qa:gen-s0-greet-story-a#q1:a"
-          ]
-        },
-        {
-          "n": 7,
-          "role": "use",
-          "words": [],
           "story": {
             "id": "gen-s0-greet-story-b",
             "lens": [
@@ -4466,23 +4432,64 @@ export const course: Course = {
             "phrase-gen-s0-greet-v4",
             "phrase-gen-s0-greet-v5",
             "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-greet-v8"
+            "phrase-add-qwords",
+            "phrase-gen-s0-greet-v6"
+          ],
+          "speak": "gen-s0-greet-convo-b",
+          "agenda": [
+            "Put it together: use this chapter in a real exchange",
+            "3 new words: Да, Не, Догледање",
+            "Read “Здраво или добар ден?”: spot everything from this chapter, then a few quick exercises",
+            "Build a sentence: put the words in order",
+            "Conversation: Hello to you both"
+          ],
+          "next": "Next: Put it together: use this chapter in a real exchange, then in writing",
+          "notes": [
+            "story:gen-s0-greet-story-b#2",
+            "story:gen-s0-greet-story-b#3",
+            "qa:gen-s0-greet-story-b#q1:q"
+          ]
+        },
+        {
+          "n": 7,
+          "role": "use",
+          "words": [],
+          "story": {
+            "id": "gen-s0-greet-story-a",
+            "lens": [
+              "pt-question-words",
+              "pt-ti-vie",
+              "pt-yes-no"
+            ],
+            "highlight": [
+              1,
+              2,
+              6,
+              7
+            ]
+          },
+          "build": [
+            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-greet-v4",
+            "phrase-gen-s0-greet-v5",
+            "phrase-gen-s0-greet-v2",
+            "phrase-add-qwords",
+            "phrase-gen-s0-greet-v6"
           ],
           "speak": "gen-s0-greet",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
-            "Read “Здраво или добар ден?”: spot everything from this chapter, then a few quick exercises",
+            "Read “Ана, каде си?”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Saying hello",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
           "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
-            "qa:gen-s0-greet-story-b#q1:a",
-            "scenario:gen-s0-greet#2",
-            "scenario:gen-s0-greet#3"
+            "story:gen-s0-greet-story-a#4",
+            "story:gen-s0-greet-story-a#5",
+            "qa:gen-s0-greet-story-a#q1:a"
           ]
         },
         {
@@ -4507,9 +4514,10 @@ export const course: Course = {
           "како си",
           "како сте",
           "добар ден",
-          "добро сум, фала",
+          "кој / кога / зошто",
           "како",
           "колку",
+          "добро сум, фала",
           "фала",
           "ве молам",
           "да",
@@ -8306,7 +8314,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-home-family-v9",
             "phrase-gen-s2-home-family-v1",
-            "phrase-gen-s0-greet-v6",
+            "phrase-add-qwords",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s0-repair-v1"
@@ -8353,7 +8361,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-home-family-v2",
             "phrase-gen-s2-home-family-v3",
-            "phrase-gen-s0-greet-v6",
+            "phrase-add-qwords",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-home-family-v9"
@@ -8403,7 +8411,7 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
+            "phrase-add-qwords",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-home-family-v9",
@@ -8436,7 +8444,7 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
+            "phrase-add-qwords",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-home-family-v9",
@@ -8488,7 +8496,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-home-family-v7",
             "phrase-gen-s2-home-family-v8",
-            "phrase-gen-s0-greet-v6",
+            "phrase-add-qwords",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-home-family-v9"
@@ -8526,7 +8534,7 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
+            "phrase-add-qwords",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-home-family-v9",
@@ -8601,11 +8609,6 @@ export const course: Course = {
           "gloss": "Is … home?"
         },
         {
-          "lexKey": "кога",
-          "display": "Кога?",
-          "gloss": "When?"
-        },
-        {
           "lexKey": "во колку часот",
           "display": "Во колку часот?",
           "gloss": "At what time?"
@@ -8675,9 +8678,9 @@ export const course: Course = {
               "gloss": "Is … home?"
             },
             {
-              "lexKey": "кога",
-              "display": "Кога?",
-              "gloss": "When?"
+              "lexKey": "во колку часот",
+              "display": "Во колку часот?",
+              "gloss": "At what time?"
             }
           ],
           "story": {
@@ -8692,15 +8695,15 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v8",
+            "phrase-gen-s2-arrange-v4",
+            "phrase-gen-s0-greet-v6",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "3 new words: Ало?, Дома ли е …?, Кога?",
+            "3 new words: Ало?, Дома ли е …?, Во колку часот?",
             "Tell the time with во plus a number plus часот.",
             "Say it: today's words and examples, out loud",
             "Read “Во колку часот?”: spot today's pattern, then a few quick exercises",
@@ -8714,11 +8717,6 @@ export const course: Course = {
           "pointId": "pt-ajde-da",
           "words": [
             {
-              "lexKey": "во колку часот",
-              "display": "Во колку часот?",
-              "gloss": "At what time?"
-            },
-            {
               "lexKey": "каде да се видиме",
               "display": "Каде да се видиме?",
               "gloss": "Where shall we meet?"
@@ -8727,6 +8725,11 @@ export const course: Course = {
               "lexKey": "ајде да",
               "display": "Ајде да …",
               "gloss": "Let's …"
+            },
+            {
+              "lexKey": "важи. / договорено",
+              "display": "Важи. / Договорено.",
+              "gloss": "Deal. / Agreed."
             }
           ],
           "story": {
@@ -8740,15 +8743,15 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s2-arrange-v4",
             "phrase-gen-s2-arrange-v5",
-            "phrase-gen-s0-greet-v8",
+            "phrase-gen-s2-arrange-v7",
+            "phrase-gen-s0-greet-v6",
             "sent-јаде",
             "sent-оди-t2",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s2-arrange-v4"
           ],
           "agenda": [
-            "3 new words: Во колку часот?, Каде да се видиме?, Ајде да …",
+            "3 new words: Каде да се видиме?, Ајде да …, Важи. / Договорено",
             "Suggest plans: \"Ајде да\" for let's, and \"да\" for where/when shall we?",
             "Say it: today's words and examples, out loud",
             "Read “Телефонски повик”: spot today's pattern, then a few quick exercises",
@@ -8772,12 +8775,12 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v8",
+            "phrase-gen-s0-greet-v6",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-arrange-v4",
             "phrase-gen-s2-arrange-v5",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s2-arrange-v7"
           ],
           "speak": "gen-s2-arrange",
           "agenda": [
@@ -8796,11 +8799,6 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
-              "lexKey": "важи. / договорено",
-              "display": "Важи. / Договорено.",
-              "gloss": "Deal. / Agreed."
-            },
-            {
               "lexKey": "оставете порака",
               "display": "Оставете порака.",
               "gloss": "Leave a message."
@@ -8809,6 +8807,11 @@ export const course: Course = {
               "lexKey": "порака",
               "display": "порака",
               "gloss": "message"
+            },
+            {
+              "lexKey": "да оставам порака",
+              "display": "да оставам порака",
+              "gloss": "to leave a message"
             }
           ],
           "story": {
@@ -8823,9 +8826,9 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s2-arrange-v7",
             "phrase-gen-s2-arrange-v8",
-            "phrase-gen-s0-greet-v8",
+            "phrase-gen-phone-v4",
+            "phrase-gen-s0-greet-v6",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-arrange-v4"
@@ -8833,7 +8836,7 @@ export const course: Course = {
           "speak": "gen-s2-arrange-convo-b",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "3 new words: Важи. / Договорено, Оставете порака, порака",
+            "3 new words: Оставете порака, порака, да оставам порака",
             "Read “Каде е кафулето?”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Marko calls you"
@@ -8844,11 +8847,6 @@ export const course: Course = {
           "n": 5,
           "role": "use",
           "words": [
-            {
-              "lexKey": "да оставам порака",
-              "display": "да оставам порака",
-              "gloss": "to leave a message"
-            },
             {
               "lexKey": "нека ме повика",
               "display": "нека ме повика",
@@ -8874,18 +8872,18 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-phone-v4",
             "phrase-gen-phone-v5",
-            "phrase-gen-s0-greet-v8",
+            "phrase-gen-s0-greet-v6",
             "sent-јаде",
             "sent-оди-t2",
-            "phrase-gen-s2-arrange-v4"
+            "phrase-gen-s2-arrange-v4",
+            "phrase-gen-s2-arrange-v5"
           ],
           "speak": "gen-s2-arrange",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
-            "3 new words: да оставам порака, нека ме повика, Пријатно",
+            "2 new words: нека ме повика, Пријатно",
             "Read “Во колку часот?”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Arranging to meet by phone",
@@ -8911,7 +8909,6 @@ export const course: Course = {
         "wordKeys": [
           "ало",
           "дома ли е",
-          "кога",
           "во колку часот",
           "каде да се видиме",
           "ајде да",
@@ -9056,7 +9053,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2",
-            "phrase-gen-s0-survive-v6",
+            "phrase-gen-s0-greet-v8",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s0-repair-v1"
@@ -9101,7 +9098,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-problems-v4",
             "phrase-gen-s2-problems-v6",
-            "phrase-gen-s0-survive-v6",
+            "phrase-gen-s0-greet-v8",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-problems-v1"
@@ -9130,7 +9127,7 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-survive-v6",
+            "phrase-gen-s0-greet-v8",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-problems-v1",
@@ -9180,18 +9177,18 @@ export const course: Course = {
           "build": [
             "phrase-add-mi-treba",
             "phrase-add-me-boli",
-            "phrase-gen-s0-survive-v6",
+            "phrase-gen-s0-greet-v8",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-problems-v1"
           ],
-          "speak": "gen-s2-problems",
+          "speak": "gen-s2-problems-convo-b",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "3 new words: Ми треба помош, Ме боли глава, Извинете, ама …",
             "Read “Јаболката не се добри”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
-            "Conversation: Sorting out a problem"
+            "Conversation: Fixing an order"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange, then in writing"
         },
@@ -9219,20 +9216,20 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s2-problems-v8",
-            "phrase-gen-s0-survive-v6",
+            "phrase-gen-s0-greet-v8",
             "sent-јаде",
             "sent-оди-t2",
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2"
           ],
-          "speak": "gen-s2-problems-convo-b",
+          "speak": "gen-s2-problems",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
             "1 new word: Не разбирам зошто",
             "Read “Немаме вода!”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
-            "Conversation: Fixing an order",
+            "Conversation: Sorting out a problem",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
           "next": "Next: Checkpoint: every word and grammar card from this chapter"
@@ -9306,9 +9303,10 @@ export const course: Course = {
         "како си",
         "како сте",
         "добар ден",
-        "добро сум, фала",
+        "кој / кога / зошто",
         "како",
         "колку",
+        "добро сум, фала",
         "фала",
         "ве молам",
         "да",
@@ -9488,7 +9486,6 @@ export const course: Course = {
         "стан",
         "ало",
         "дома ли е",
-        "кога",
         "во колку часот",
         "каде да се видиме",
         "ајде да",

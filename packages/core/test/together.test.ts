@@ -44,19 +44,22 @@ assert.ok(!q.some((t) => t.lexKey === "maka"), "an item both partners already kn
 assert.ok(!q.some((t) => t.lexKey === "solo"), "a word only ONE partner has studied is excluded (never drill the other on it)");
 assert.ok(!q.some((t) => t.lexKey === "nov"), "a word neither partner has studied is excluded (no cold drills)");
 assert.equal(q.length, 3, "the three still-needed, both-studied items are queued");
-// both-need items (leb, voda) lead; the one-needs item (kafe) trails.
-assert.deepEqual(q.slice(0, 2).map((t) => t.lexKey).sort(), ["leb", "voda"], "both-need items come first");
-assert.equal(q[2]!.lexKey, "kafe", "the one-needs item trails");
+assert.deepEqual(q.map((t) => t.lexKey).sort(), ["kafe", "leb", "voda"]);
 
-// --- roles ---
-// kafe: A is more familiar (0.9 vs 0) ⇒ A checks, B produces (B gets the retrieval).
-const kafeTurn = q.find((t) => t.lexKey === "kafe")!;
-assert.equal(kafeTurn.checker, A, "the more-familiar member checks");
-assert.equal(kafeTurn.producer, B, "the less-familiar member produces");
-
-// leb/voda: both strength 0 (tie) ⇒ roles alternate by position.
-assert.notEqual(q[0]!.producer, q[1]!.producer, "tied items alternate the producer role");
+// --- roles: strictly alternating, each turn the producer's own weakest word ---
+assert.deepEqual(q.map((t) => t.producer), [A, B, A], "producers take turns, however far apart they are");
 assert.ok(q.every((t) => t.producer !== t.checker), "producer and checker are always distinct");
+assert.equal(q[0]!.lexKey, "leb", "A's turn: a word A needs (leb / voda tie → stable order)");
+assert.equal(q[1]!.lexKey, "voda", "B's turn: B's weakest left (voda 0.1 before kafe 0.15)");
+assert.equal(q[2]!.lexKey, "kafe", "A's turn again: only kafe is left — one A has studied, so that's fine");
+
+// An even split even when one partner is far ahead: B needs everything, A needs nothing.
+const aheadA = proj(Object.fromEntries(["w1", "w2", "w3", "w4"].map((k) => [k, { status: "known" as const, strength: 0.9 }])));
+const behindB = proj(Object.fromEntries(["w1", "w2", "w3", "w4"].map((k) => [k, { status: "learning" as const, strength: 0.1 }])));
+const four: TogetherCandidate[] = ["w1", "w2", "w3", "w4"].map((k) => ({ lexKey: k, prompt: k, answer: k }));
+const split = buildQueue(members, [aheadA, behindB], four);
+assert.equal(split.filter((t) => t.producer === A).length, 2, "the partner who's ahead still says half");
+assert.equal(split.filter((t) => t.producer === B).length, 2);
 
 // --- limit --- (both partners are learning all 30, so all are in play; the cap trims to 12)
 const many: TogetherCandidate[] = Array.from({ length: 30 }, (_, i) => ({ lexKey: `w${i}`, prompt: `p${i}`, answer: `a${i}` }));

@@ -115,6 +115,13 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     // The mid-chapter review is the first try at the conversation, so every word the conversation needs
     // must be taught BEFORE it. Grow the chapter by practice sessions (up to MAX_AUTO_EXTRA, plus any
     // hand-tuned `extraSessions`) until that holds and the chapter's core words fit.
+    // Words pinned to a session (spine `pinWords`): taught exactly there, so a family of words lands together.
+    const pinned = new Map<number, CourseWord[]>();
+    for (const [w, n] of Object.entries(spineCh.pinWords ?? {})) {
+      const v = findWord(w);
+      if (!v) throw new Error(`pinWords: "${w}" isn't a word in ${chId}`);
+      if (fresh(v)) pinned.set(n - 1, [...(pinned.get(n - 1) ?? []), toWord(v)]);
+    }
     const fixedExtra = spineCh.extraSessions ?? 0;
     const unitRest = dedupe(unit, new Set([...pw, ...required].map((w) => w.lexKey)));
     const tries: { extra: number; reviewAfter: number }[] = [];
@@ -126,11 +133,11 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     // Fewest sessions first; for the same length, the earliest review that works.
     tries.sort((a, b) => a.extra - b.extra || a.reviewAfter - b.reviewAfter);
     const ok = (l: ReturnType<typeof assignWords>) => l.requiredBeforeReview && l.mandatoryFit(mandatory);
-    let layout = assignWords(skeleton(spineCh.points, tries[0]!.extra, tries[0]!.reviewAfter), pointWords, required, unitRest, optional);
+    let layout = assignWords(skeleton(spineCh.points, tries[0]!.extra, tries[0]!.reviewAfter), pointWords, required, unitRest, optional, pinned);
     for (const t of tries) {
-      const l = assignWords(skeleton(spineCh.points, t.extra, t.reviewAfter), pointWords, required, unitRest, optional);
+      const l = assignWords(skeleton(spineCh.points, t.extra, t.reviewAfter), pointWords, required, unitRest, optional, pinned);
       if (ok(l)) { layout = l; break; }
-      if (t === tries.at(-1)) layout = assignWords(skeleton(spineCh.points, fixedExtra + MAX_AUTO_EXTRA, spineCh.reviewAfter ?? Math.min(1, spineCh.points.length - 1)), pointWords, required, unitRest, optional);
+      if (t === tries.at(-1)) layout = assignWords(skeleton(spineCh.points, fixedExtra + MAX_AUTO_EXTRA, spineCh.reviewAfter ?? Math.min(1, spineCh.points.length - 1)), pointWords, required, unitRest, optional, pinned);
     }
     const { slots, sessionWords, leftover } = layout;
     const taught = sessionWords.flat();
@@ -359,8 +366,8 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
  *  takes that point's own words first — but only two while the conversation still needs words, so the
  *  conversation's vocabulary isn't crowded out before the review. Then: the conversation's words, any
  *  point's leftovers, the unit's chunks, and finally core words the chapter's lines actually use. */
-function assignWords(slots: Slot[], pointWords: Map<string, CourseWord[]>, required: CourseWord[], unitIn: CourseWord[], optionalIn: CourseWord[]) {
-  const assigned = new Set<string>();
+function assignWords(slots: Slot[], pointWords: Map<string, CourseWord[]>, required: CourseWord[], unitIn: CourseWord[], optionalIn: CourseWord[], pinned = new Map<number, CourseWord[]>()) {
+  const assigned = new Set<string>([...pinned.values()].flat().map((w) => w.lexKey));
   const unit = [...unitIn];
   const optional = [...optionalIn];
   const own = new Map([...pointWords].map(([k, v]) => [k, [...v]]));
@@ -373,10 +380,10 @@ function assignWords(slots: Slot[], pointWords: Map<string, CourseWord[]>, requi
     }
     return undefined;
   };
-  const sessionWords = slots.map((slot) => {
+  const sessionWords = slots.map((slot, idx) => {
     if (slot.role === "teach" && slot.point) introduced.push(slot.point.id);
     if (!teachesWords(slot.role)) return [];
-    const take: CourseWord[] = [];
+    const take: CourseWord[] = [...(pinned.get(idx) ?? [])];
     const mine = slot.point ? own.get(slot.point.id) ?? [] : [];
     const cap = req.some((w) => !assigned.has(w.lexKey)) ? 2 : WORDS_PER_SESSION;
     while (mine.length && take.length < cap) { const w = mine.shift()!; if (!assigned.has(w.lexKey)) { take.push(w); assigned.add(w.lexKey); } }
