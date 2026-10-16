@@ -61,7 +61,7 @@ export type TodayStep =
 // verb comes up each day; once every verb has been seen it cycles.
 // Verbs never drilled as a six-person table: треба is taught as impersonal (треба да…, ми треба), and чини
 // only exists in the 3rd person — "требам" / "чинам" would contradict the lessons.
-export const NOT_DRILLABLE = new Set(["треба", "чини"]);
+export const NOT_DRILLABLE = cp.NOT_DRILLABLE;
 /** The verbs whose six forms are fair game by now: the verb group's point has been taught (сум from chapter 1,
  *  -а verbs from chapter 4, -е/-и from chapter 5) and the course has taught the verb itself. Shared by the
  *  warm-up drill and "Switch the person". */

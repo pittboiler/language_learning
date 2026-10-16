@@ -359,19 +359,30 @@ for (const c of course.chapters) {
   assert.equal(cp.wordsTaughtToBoth(course, { order: 1, n: 1 }, { order: 3, n: 1 }).length, 0);
 }
 
-// The partnered grammar step: rule read aloud first, then the point's questions and fill-ins (each fill-in
-// carrying the right answer among its options), then gaps from story lines both partners have read.
+// The partnered grammar step (person ping-pong): lines from stories you've BOTH read, said about someone else
+// — a different person each, verbs only once both of you know them — with a couple of fill-ins on the point;
+// no rule read aloud, no rule quiz.
 {
-  const items = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 1, n: 3 }, { order: 1, n: 3 });
-  assert.equal(items[0]!.kind, "read");
-  assert.ok(items.some((x) => x.kind === "rule") && items.some((x) => x.kind === "blank"));
-  for (const x of items) if (x.kind === "blank") assert.ok([x.answer, ...x.options].includes(x.answer) && x.options.length >= 2, x.line);
+  const names = (w: string) => ["Ана", "Марко", "Вера", "Ема", "Петар", "Скопје", "Битола", "Охрид", "Сара", "Иван", "Англија", "Лондон"].includes(w);
+  const items = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 1, n: 3 }, { order: 1, n: 3 }, names);
+  assert.ok(!items.some((x) => x.kind === "read" || x.kind === "rule"), "no reading the rule aloud, no rule quiz");
+  const sw = items.filter((x): x is Extract<typeof x, { kind: "switch" }> => x.kind === "switch");
+  assert.ok(sw.length >= 2, "ping-pong turns from chapter 1's stories");
+  assert.equal(new Set(sw.map((x) => x.pronoun)).size, sw.length, "a different person each turn");
+  for (const x of sw) assert.ok(x.answer !== x.line && x.why.includes("All six"), x.line);
+  for (const x of items) if (x.kind === "blank") assert.ok(x.options.length > 0 && x.line.includes(x.answer), x.line);
   const cardBlank = items.find((x) => x.kind === "blank" && x.cardId);
   assert.ok(cardBlank && cardBlank.kind === "blank" && cp.blankCardItems(course.points.find((p) => p.id === "pt-sum")!).some((it) => it.id === cardBlank.cardId), "a card fill-in grades that card");
-  // Nobody has read a story yet → only the point's own cards, no extra gaps from story lines.
-  const early = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 1, n: 1 }, { order: 1, n: 1 });
-  assert.ok(early.every((x) => x.kind !== "blank" || !!x.cardId));
-  assert.ok(items.length >= early.length);
+  // Nobody has read a story yet → no ping-pong, just the point's fill-ins.
+  const early = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 1, n: 1 }, { order: 1, n: 1 }, names);
+  assert.ok(early.length > 0 && early.every((x) => x.kind === "blank"));
+  // Further on: six turns, every person; a verb only once BOTH partners have it (one in chapter 4, one in 1).
+  const later = cp.grammarTogetherItems(macedonian, course, "pt-verbs-a", { order: 5, n: 1 }, { order: 5, n: 1 }, names).filter((x) => x.kind === "switch");
+  assert.equal(later.length, 6);
+  assert.equal(new Set(later.map((x) => x.kind === "switch" && x.pronoun)).size, 6, "every person");
+  const mixed = cp.grammarTogetherItems(macedonian, course, "pt-sum", { order: 5, n: 1 }, { order: 1, n: 8 }, names).filter((x): x is Extract<typeof x, { kind: "switch" }> => x.kind === "switch");
+  const sumForms = new Set(["сум", "си", "е", "сме", "сте", "се"]);
+  assert.ok(mixed.every((x) => cp.wordTokens(x.answer).some((t) => sumForms.has(t))), "only сум while one of you hasn't reached the -а verbs");
 }
 
 // 12. Writing, line by line: every chapter's writing session has its lines (each with an English prompt and

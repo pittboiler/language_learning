@@ -5,15 +5,21 @@
 //           judges it (✓ / ↻), exactly like the drill.
 //   blank — the asker reads a line aloud with a gap; the answerer TAPS one of the options on their own
 //           screen. The pick is checked against the answer, and both screens show it with the "why".
+//   switch — "person ping-pong" (2026-10-16): the asker reads a line from a story you've both read; the
+//           answerer says it about someone else (the person on their screen, e.g. тие); the asker holds the
+//           answer and judges (✓ / ↻). The grammar section is now these plus a couple of fill-ins — the rule
+//           sits on both screens instead of being read aloud, and there are no rule quiz questions.
 // Pure turn-state logic, language-agnostic; synced over Realtime like @ll/core/story-together.
 
-export type GrammarTurnKind = "read" | "rule" | "blank";
+export type GrammarTurnKind = "read" | "rule" | "blank" | "switch";
 
 /** One item as the app feeds it in (from the point's rule + cards, and gaps in lines you've both read). */
 export type GrammarItem =
   | { kind: "read" }
   | { kind: "rule"; question: string; answer: string }
-  | { kind: "blank"; line: string; gloss: string; answer: string; options: string[]; why: string; source?: string; cardId?: string };
+  | { kind: "blank"; line: string; gloss: string; answer: string; options: string[]; why: string; source?: string; cardId?: string }
+  /** The line as read aloud, who to say it about now (pronoun + English), and the line said that way. */
+  | { kind: "switch"; line: string; gloss: string; pronoun: string; personEn: string; answer: string; why: string };
 
 export type GrammarTurn = GrammarItem & {
   index: number;
@@ -57,10 +63,11 @@ export function shuffleOptions(options: string[], seed: string): string[] {
 export function startGrammarTogether(id: string, packId: string, pointId: string, memberA: string, memberB: string, items: GrammarItem[]): GrammarTogetherSession {
   const members = [memberA, memberB].sort() as [string, string];
   const [a, b] = members;
-  const seen: Record<GrammarTurnKind, number> = { read: 0, rule: 0, blank: 0 };
+  const seen: Record<GrammarTurnKind, number> = { read: 0, rule: 0, blank: 0, switch: 0 };
   const turns: GrammarTurn[] = items.map((it, index) => {
     const k = seen[it.kind]++;
-    // read: a reads to b. rule: a asks b first. blank: b asks a first. Then each kind alternates.
+    // read: a reads to b. rule / switch: a asks b first. blank: b asks a first. Then each kind alternates,
+    // so you each answer half of every kind.
     const [asker, answerer] = it.kind === "blank" ? (k % 2 === 0 ? [b, a] : [a, b]) : (k % 2 === 0 ? [a, b] : [b, a]);
     return {
       ...(it.kind === "blank" ? { ...it, options: shuffleOptions(it.options.includes(it.answer) ? it.options : [it.answer, ...it.options], it.line) } : it),
@@ -89,10 +96,10 @@ export function doneReading(s: GrammarTogetherSession, userId: string): GrammarT
   return resolve(s, {});
 }
 
-/** rule: the asker judges the spoken answer. */
+/** rule / switch: the asker judges the spoken answer. */
 export function judge(s: GrammarTogetherSession, userId: string, got: boolean): GrammarTogetherSession {
   const t = currentTurn(s);
-  if (!t || t.kind !== "rule") return s;
+  if (!t || (t.kind !== "rule" && t.kind !== "switch")) return s;
   if (t.asker !== userId) throw new Error("not your turn to judge");
   return resolve(s, { result: got ? "got" : "missed" });
 }

@@ -210,33 +210,64 @@ export function storySlots(course: Course): Map<string, CourseSlot> {
  *  interleaved, then gaps for the point in story lines BOTH partners have already read (from lineFocus).
  *  Existing lines only. Fill-ins from the point's cards carry the card id, so the answerer's pick grades
  *  their own grammar flashcard. */
-export function grammarTogetherItems(pack: LanguagePack, course: Course, pointId: string, a: CourseSlot, b: CourseSlot): GrammarItem[] {
+/** Verbs whose six forms are fair game for someone at `at` (their next, not-yet-done session): the verb
+ *  group's lesson is behind them and they've met the verb — every form of it, for a past-tense table (the past
+ *  is taught form by form). Never треба / чини (impersonal, not drilled by person). */
+export const NOT_DRILLABLE = new Set(["треба", "чини"]);
+export function verbsKnownBefore(pack: LanguagePack, course: Course, at: CourseSlot): Set<string> {
+  const forms = formSlots(pack, course);
+  const ps = pointSlots(course);
+  const known = (t: string) => taughtBefore(forms.get(t), at);
+  const groupTaught = (g: string) => {
+    if (g === "past") return true;
+    const pt = course.points.find((p) => p.grammarIds.includes(verbGroupConcept(g)));
+    return !!pt && taughtBefore(ps.get(pt.id), at);
+  };
+  return new Set((pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && groupTaught(v.group) && (v.group === "past"
+    ? Object.values(v.forms).flatMap(wordTokens).every(known)
+    : [v.lemma, ...Object.values(v.forms)].flatMap(wordTokens).some(known))).map((v) => v.lemma));
+}
+
+/** The partnered grammar section (2026-10-16, Jake: "I don't like the grammar section as it is"): person
+ *  ping-pong — lines from stories you've BOTH read, said about someone else, every person in turn — with a
+ *  couple of fill-ins on the point of the day between them. No reading the rule aloud, no rule quiz: the rule
+ *  sits on both screens. Verbs only once both of you have been taught them. */
+export function grammarTogetherItems(pack: LanguagePack, course: Course, pointId: string, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean = () => false): GrammarItem[] {
   const point = course.points.find((p) => p.id === pointId);
   if (!point) return [];
-  const rules: GrammarItem[] = point.cards.flatMap((c): GrammarItem[] => (c.kind === "rule" ? [{ kind: "rule", question: c.front, answer: c.back }] : [])).slice(0, 2);
   const blanks: GrammarItem[] = point.cards.flatMap((c, i): GrammarItem[] => c.kind !== "blank" ? [] : [{
     kind: "blank", line: c.line.text, gloss: c.line.gloss, answer: c.blank, options: c.options, why: c.why, source: c.line.source, cardId: `pt:${point.id}:${i}`,
-  }]).slice(0, 4);
-  const used = new Set(blanks.map((x) => (x.kind === "blank" ? x.line : "")));
+  }]).slice(0, 2);
   const slots = storySlots(course);
-  const extra: GrammarItem[] = [];
-  for (const [src, byPoint] of Object.entries(course.lineFocus ?? {})) {
-    const f = byPoint[pointId];
-    if (extra.length >= 2 || !f?.blank || !src.startsWith("story:")) continue;
-    const storyId = src.slice("story:".length, src.lastIndexOf("#"));
-    const slot = slots.get(storyId);
-    if (!taughtBefore(slot, a) || !taughtBefore(slot, b)) continue; // only lines you've both read
-    const line = pack.stories?.find((st) => st.id === storyId)?.body[Number(src.slice(src.lastIndexOf("#") + 1))];
-    if (!line || used.has(line.text)) continue;
-    used.add(line.text);
-    extra.push({ kind: "blank", line: line.text, gloss: line.gloss, answer: f.blank.word, options: f.blank.options, why: f.blank.why, source: src });
+  const bothRead = (pack.stories ?? []).filter((st) => taughtBefore(slots.get(st.id), a) && taughtBefore(slots.get(st.id), b));
+  const verbsA = verbsKnownBefore(pack, course, a);
+  const verbs = new Set([...verbsKnownBefore(pack, course, b)].filter((v) => verbsA.has(v)));
+  // On a verb day, that day's verbs come first (the past on the past day); then any verb you both know.
+  const dayVerbs = new Set((pack.conjugations ?? []).filter((v) => verbs.has(v.lemma)
+    && (point.grammarIds.includes(verbGroupConcept(v.group)) || (v.group === "past" && point.grammarIds.includes("past-tense")))).map((v) => v.lemma));
+  // Six switches, a different person each where the stories allow, never the same sentence twice, newest
+  // stories first (the freshest language).
+  const switches: GrammarItem[] = [];
+  const persons = new Set<string>();
+  const lines = new Set<string>();
+  const pool = [...bothRead].reverse();
+  for (const use of dayVerbs.size ? [dayVerbs, verbs] : [verbs]) {
+    for (let seed = 0; seed < 12 && switches.length < 6; seed++) {
+      for (const st of pool) {
+        if (switches.length >= 6) break;
+        const it = switchPersonItem(pack, st, use, names, seed);
+        const text = it && familiarity.normalize(spoken(it.line.text) ?? it.line.text);
+        if (!it || lines.has(text!) || (persons.has(it.person) && persons.size < 6)) continue;
+        persons.add(it.person); lines.add(text!);
+        switches.push({ kind: "switch", line: it.line.text, gloss: it.line.gloss, pronoun: PRONOUN[it.person].mk, personEn: PRONOUN[it.person].en, answer: it.filled, why: it.why });
+      }
+    }
   }
-  const mixed: GrammarItem[] = [];
-  for (let i = 0; i < Math.max(rules.length, blanks.length); i++) {
-    if (rules[i]) mixed.push(rules[i]!);
-    if (blanks[i]) mixed.push(blanks[i]!);
-  }
-  return [{ kind: "read" }, ...mixed, ...extra];
+  // Switch, switch, fill-in, … — the fill-ins on today's point break up the ping-pong.
+  const out: GrammarItem[] = [];
+  let bi = 0;
+  switches.forEach((sw, i) => { out.push(sw); if (i % 2 === 1 && blanks[bi]) out.push(blanks[bi++]!); });
+  return [...out, ...blanks.slice(bi)];
 }
 
 /** The course words BOTH partners have been taught (in sessions each has finished) — the partnered warm-up

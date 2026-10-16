@@ -6591,7 +6591,9 @@ function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId,
       <span className="muted small">{prev.result === "got" ? "✓" : "✗"}</span>
       {prev.kind === "blank"
         ? <span className="small"><b>{prev.line}</b>{prev.choice && prev.choice !== prev.answer ? <> — picked “{prev.choice}”, it's <b>{prev.answer}</b></> : null}<span className="muted"> · {prev.why}</span></span>
-        : <span className="small">{prev.question} <span className="muted">— {prev.answer}</span></span>}
+        : prev.kind === "switch"
+          ? <span className="small">{prev.pronoun}: <b>{prev.answer}</b><span className="muted"> · {prev.why}</span></span>
+          : <span className="small">{prev.question} <span className="muted">— {prev.answer}</span></span>}
     </div>
   ) : null;
   const ruleBox = (
@@ -6621,12 +6623,44 @@ function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId,
 
   const t = gtog.currentTurn(g)!;
   const iAsk = t.asker === myId;
+  const pingPong = g.turns.some((x) => x.kind === "switch");
   return (
     <div style={colStack}>{head}
+      {/* Person ping-pong: how it works, and the rule on both screens (nobody reads it aloud). */}
+      {pingPong && g.turnIndex === 0 && (
+        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps ✓ or ↻. Now and then, a fill-in on today&apos;s point.</div>
+      )}
+      {pingPong && <details className="small"><summary>The rule: {point.title}</summary><p style={{ margin: "4px 0" }}>{point.rule}</p></details>}
       <div className="pbar"><div style={{ width: `${(g.turnIndex / (g.turns.length || 1)) * 100}%` }} /></div>
       <div className="muted small">Turn {g.turnIndex + 1} of {g.turns.length} · {sc.got} right</div>
       {err ? <div className="err">{err}</div> : null}
       {lastResult}
+      {t.kind === "switch" && (iAsk ? (
+        <div className="fb">
+          <div className="muted small">Read this line aloud to your partner:</div>
+          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
+            <button className="spk" onClick={() => play(t.line, 0.9)}>🔊</button>
+            <b className="target" style={{ fontSize: 20 }}>{t.line}</b>
+          </div>
+          <div className="gloss">{t.gloss}</div>
+          <div className="small" style={{ marginTop: 8 }}>They say it about <b>{t.pronoun}</b> ({t.personEn}). The answer: <b className="target">{t.answer}</b></div>
+          <div className="row" style={{ marginTop: 8 }}>
+            <button className="btn" onClick={() => void act((s) => gtog.judge(s, myId, true))}>✓ Got it</button>
+            <button className="ghost" onClick={() => void act((s) => gtog.judge(s, myId, false))}>↻ Not quite</button>
+          </div>
+        </div>
+      ) : (
+        <div className="fb">
+          <div className="muted small">Your partner reads this line:</div>
+          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
+            <b className="target" style={{ fontSize: 20 }}>{t.line}</b>
+          </div>
+          <div className="gloss">{t.gloss}</div>
+          <p className="lead" style={{ margin: "10px 0 4px" }}>Now say it about <b className="target">{t.pronoun}</b> ({t.personEn}), out loud.</p>
+          <HintButton hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
+          <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking…" : "waiting for your partner…"}</div>
+        </div>
+      ))}
       {t.kind === "read" && (
         <div className="fb">
           <div className="muted small">{iAsk ? "Read the rule aloud to your partner, examples too:" : "Your partner is reading the rule aloud — follow along:"}</div>
@@ -6700,7 +6734,7 @@ function JointSessionRecap({ row, store, partnershipId, myId, progress, persist,
   const point = refs.pointId ? pack.course?.points.find((p) => p.id === refs.pointId) : undefined;
   const st = refs.storyId ? pack.stories?.find((s) => s.id === refs.storyId) : undefined;
   const words = (drill?.turns ?? []).filter((t) => t.result);
-  const missed = (gram?.turns ?? []).filter((t) => t.kind === "blank" && t.result === "missed");
+  const missed = (gram?.turns ?? []).filter((t) => (t.kind === "blank" || t.kind === "switch") && t.result === "missed");
   const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
   const allSaved = words.length > 0 && words.every((w) => starred(w.lexKey));
   const how = (s: jsession.JointSection) => { const o = row.outcomes[s]; return o === "done" ? "✓ done" : o === "skipped" ? "skipped" : "nothing to share yet"; };
@@ -6717,7 +6751,8 @@ function JointSessionRecap({ row, store, partnershipId, myId, progress, persist,
           <p style={{ margin: "6px 0" }}>{point.recap}</p>
           {missed.length > 0 && (
             <ul className="small" style={{ margin: "4px 0", paddingLeft: 18 }}>
-              {missed.map((t) => t.kind === "blank" && <li key={t.index}><b>{t.line}</b> — {t.why}</li>)}
+              {missed.map((t) => t.kind === "blank" ? <li key={t.index}><b>{t.line}</b> — {t.why}</li>
+                : t.kind === "switch" ? <li key={t.index}>{t.pronoun}: <b>{t.answer}</b> — {t.why}</li> : null)}
             </ul>
           )}
           {st && refs.storyLines.length > 0 && (
@@ -6961,7 +6996,7 @@ function PartnerPanel({ progress, persist, config, navigateToStory }: { progress
       let grammarRowId: string | undefined;
       const myPos = cp.positionShare(pack, progress);
       if (plan?.focusPointId && pack.course && myPos) {
-        const items = cp.grammarTogetherItems(pack, pack.course, plan.focusPointId, cp.slotOfShare(myPos), cp.slotOfShare(partnerState?.course ?? myPos));
+        const items = cp.grammarTogetherItems(pack, pack.course, plan.focusPointId, cp.slotOfShare(myPos), cp.slotOfShare(partnerState?.course ?? myPos), (w) => properNounLike(w, pack));
         if (items.length > 1) {
           grammarRowId = await sharedArtifactId("grammar-together", pid, day);
           await store.putArtifact(pid, packId, "grammar-together", { ...gtog.startGrammarTogether(grammarRowId, packId, plan.focusPointId, myId, partnerId, items), day, startedBy: myId }, grammarRowId);
