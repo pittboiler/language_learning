@@ -237,3 +237,15 @@ export async function explain(opts: { packId?: string; convoId: string; lines: {
     return { error: "network" };
   }
 }
+
+export type GuidedReviewResponse = import("@ll/core/coach").ConversationReview & { error?: string };
+
+/** Review a finished guided conversation (the server looks the cues up by id and rebuilds the AI's lines). */
+export async function guidedReview(body: {
+  cueIds: string[];
+  members: { id: string; name: string; at?: { order: number; n: number } }[];
+  segments: { turn: number; transcripts?: { scribe?: string; google?: string }; text?: string; skipped?: boolean }[];
+}, packId?: string): Promise<GuidedReviewResponse> {
+  const r = await fetch("/api/guided-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, packId }) });
+  return r.json();
+}

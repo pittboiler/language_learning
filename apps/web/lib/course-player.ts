@@ -862,28 +862,42 @@ export function knownBefore(pack: LanguagePack, course: Course, names: (word: st
 export const GUIDED_MIN = 4;
 export const GUIDED_MAX = 8;
 
-/** The guided conversation for a pair (or, with `b` = `a`, for one learner with the AI): the newest
- *  chapter's deck that both have mostly reached (¾ of its cues usable), keeping only cues whose line and
- *  reply starter use words BOTH have been taught (solo: the AI's reply too), in the deck's order so it reads
- *  as one conversation. Early in a chapter that's the last chapter's deck, whole, rather than a few lines of
- *  the new one; failing that, whichever deck has the most usable cues. */
-export function guidedFor(pack: LanguagePack, course: Course, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean, opts: { ai?: boolean; max?: number } = {}): { deck: CourseGuided; cues: GuidedCue[] } | undefined {
+type GuidedOpts = { ai?: boolean; max?: number };
+
+/** Which of a deck's cues a pair can use: the line and the reply starter in words BOTH have been taught (solo,
+ *  with the AI: its reply too). */
+function guidedUsable(pack: LanguagePack, course: Course, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean, opts: GuidedOpts): (c: GuidedCue) => boolean {
   const known = knownBefore(pack, course, names);
   const latin = (t: string) => /^\p{Script=Latin}+$/u.test(t);
   const fine = (text: string | undefined) => !text || wordTokens(text).every((t) => latin(t) || (known(t, a) && known(t, b)));
-  const usable = (c: GuidedCue) => fine(c.answer) && fine(c.replyFrame?.replace(/…/g, "")) && (!opts.ai || fine(c.sampleReply));
-  const reach = Math.min(a.order, b.order);
-  const decks = (course.guided ?? [])
-    .map((d) => ({ d, order: course.chapters.find((c) => c.chapterId === d.chapterId)?.order ?? 999 }))
-    .filter((x) => x.order <= reach)
-    .sort((x, y) => y.order - x.order);
+  return (c) => fine(c.answer) && fine(c.replyFrame?.replace(/…/g, "")) && (!opts.ai || fine(c.sampleReply));
+}
+
+/** Too many: keep the opening cues and the last (the goodbye), so the conversation still ends. */
+const trimCues = (all: GuidedCue[], max: number) => (all.length > max ? [...all.slice(0, max - 1), all.at(-1)!] : all);
+
+/** One deck's cues for a pair (the Library's "Practice with AI" opens a chapter's deck), in order, at most
+ *  `max`. Fewer than GUIDED_MIN means the deck isn't open yet. */
+export function guidedCuesIn(pack: LanguagePack, course: Course, deck: CourseGuided, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean, opts: GuidedOpts = {}): GuidedCue[] {
+  return trimCues(deck.cues.filter(guidedUsable(pack, course, a, b, names, opts)), opts.max ?? GUIDED_MAX);
+}
+
+/** The guided conversation for a pair (or, with `b` = `a`, for one learner with the AI): the newest
+ *  chapter's deck that both have mostly reached (¾ of its cues usable), keeping only the cues they can both
+ *  use, in the deck's order so it reads as one conversation. Early in a chapter that's the last chapter's
+ *  deck, whole, rather than a few lines of the new one; failing that, whichever deck has the most usable cues. */
+export function guidedFor(pack: LanguagePack, course: Course, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean, opts: GuidedOpts = {}): { deck: CourseGuided; cues: GuidedCue[] } | undefined {
+  const usable = guidedUsable(pack, course, a, b, names, opts);
   const max = opts.max ?? GUIDED_MAX;
-  const options = decks.map(({ d }) => ({ deck: d, all: d.cues.filter(usable) }));
+  const reach = Math.min(a.order, b.order);
+  const options = (course.guided ?? [])
+    .map((d) => ({ deck: d, order: course.chapters.find((c) => c.chapterId === d.chapterId)?.order ?? 999 }))
+    .filter((x) => x.order <= reach)
+    .sort((x, y) => y.order - x.order)
+    .map(({ deck }) => ({ deck, all: deck.cues.filter(usable) }));
   const reached = options.find((o) => o.all.length >= GUIDED_MIN && (o.all.length >= max || o.all.length >= 0.75 * o.deck.cues.length));
   const best = reached ?? options.filter((o) => o.all.length >= GUIDED_MIN).sort((x, y) => y.all.length - x.all.length)[0];
-  // Too many: keep the opening ones and the last (the goodbye), so the conversation still ends.
-  const trim = (all: GuidedCue[]) => (all.length > max ? [...all.slice(0, max - 1), all.at(-1)!] : all);
-  return best ? { deck: best.deck, cues: trim(best.all) } : undefined;
+  return best ? { deck: best.deck, cues: trimCues(best.all, max) } : undefined;
 }
 
 /** What a learner has been taught by a session, for the end-of-conversation coach: every course word, and

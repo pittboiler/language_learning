@@ -1,7 +1,7 @@
 # Design — **Guided conversation**, reviewed together at the end
 
-> Status: **Phase 1 built (2026-10-16): engine, end review, API route, cue decks for chapters 1–3 (awaiting Jake's
-> Macedonian review). No screens yet; Practice with AI (Phase 2) is next.** Extends
+> Status: **Phases 1–2 built (2026-10-16).** The engine, the end review, cue decks for chapters 1–3 (awaiting
+> Jake's Macedonian review), and **Practice with AI** in the Library. The partnered "Talk" section (Phase 3) is next. Extends
 > [DESIGN-partnered-v2.md](DESIGN-partnered-v2.md) (the Together session) and reuses the speaking, exam and
 > live-conversation engines. A solo version, "Practice with AI", lives in the Library.
 
@@ -232,7 +232,7 @@ browser use the same mic, so each person's app records them while Zoom carries t
 |---|---|---|
 | **0 · Spike** | ~20 recorded cue answers each with some **deliberate mistakes** (wrong person, wrong gender, missing word), plus TTS-made error clips; one recording while on Zoom with headphones and one without. Run both engines; run the analysis prompt on Opus vs Sonnet; compare with Jake's judgement. | Error-preservation rate known; ≥~85% agreement on clear cases; setup advice confirmed |
 | **1 · Engine + decks** ✅ built | Parallel ASR; `@ll/core/partner/guided` (turns, member rows, transcript, review) + `@ll/core/coach` (one end-of-conversation review, Opus 5.5) with tests; `/api/guided-review`; `GuidedCue` schema; decks for ch1–3 in `pack-mk/src/guided-cues.ts` (hand-written, linted: taught words, {partner}, persons) → **Jake reviews**. A live test with planted mistakes caught all four, skipped the one the engines disagreed on, 16 s, $0.04. | Decks reviewed |
-| **2 · Practice with AI** | The solo version in the Library: scripted AI turns by TTS, continuous recording, the end review. | Jake tries it; I verify it in the browser |
+| **2 · Practice with AI** ✅ built | Library › Practice with AI: one card per chapter's deck (open once ¾ of its cues use words you've been taught). Ema (the AI) speaks first; 🔊 to hear her (never autoplay), words and English on tap. Your turn: answer in your own words (a start on tap), then the cue (a model on tap); ⏺ Talk / Done, or type, or skip. Each clip is transcribed in the background; at the end one review, then fix by fix: what you said (▶ your clip), the better line (🔊, romanization, English, why), say it, ✓ Got it / ↻ Not quite / "That's not what I said". Kept fixes are saved ★ to Flashcards › Sentences. Browser-verified in typed mode (the preview has no mic): the planted mistakes were caught and the saved lines show up in Flashcards. | Jake tries it with his mic |
 | **3 · Partnered** | Member rows + `talk` section after the story + shared review + recap/Flashcards hooks. | Jake + Madison's first Zoom session |
 | **4 · Later** | Follow-up cues that react to the answer; recurring-error tracking across sessions; graduating to open conversation. | — |
 
