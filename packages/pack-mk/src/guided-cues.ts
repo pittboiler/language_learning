@@ -1,0 +1,92 @@
+import type { CourseGuided } from "@ll/pack-schema";
+
+// Guided conversations (DESIGN-partnered-conversation.md §5; Jake, 2026-10-16). Partners take turns: each turn
+// answers the last line in your own words, then says the next cue. `en` is what to say (to the partner, by
+// name: {partner}); `answer` is a model line, `also` others just as right; `replyFrame` is a start for the
+// answer, shown on tap; `sampleReply` is a natural answer (the AI's line in "Practice with AI").
+// Every Macedonian line uses only what's taught by the end of its chapter (pipeline lint "guided"); the cues
+// run through every person (ти, вие, ние, тие…), in the order a real conversation would go.
+// ⚠ Awaiting Jake's Macedonian review.
+export const guidedConversations: CourseGuided[] = [
+  {
+    chapterId: "s0-repair",
+    scene: "You've just met in Skopje. Ask where everyone is, and when you don't understand, say so.",
+    cues: [
+      { id: "g1-1", en: "Ask {partner} whether they're in Skopje.", answer: "Ти си во Скопје?", answerGloss: "Are you in Skopje?",
+        replyFrame: "Не, јас сум во …", replyEn: "whether they're in Skopje", sampleReply: "Не, јас сум во Битола.", sampleReplyGloss: "No, I'm in Bitola." },
+      { id: "g1-2", en: "Ask {partner} whether Ana is in Bitola.", answer: "Ана е во Битола?", answerGloss: "Is Ana in Bitola?", also: ["Таа е во Битола?"],
+        replyFrame: "Не, таа е во …", replyEn: "whether Ana is in Bitola", sampleReply: "Не, таа е во Охрид.", sampleReplyGloss: "No, she's in Ohrid." },
+      { id: "g1-3", en: "Tell {partner} that you and your friends are in Skopje.", answer: "Ние сме во Скопје.", answerGloss: "We're in Skopje.", also: ["Во Скопје сме."],
+        replyFrame: "Аха! Вие сте …", replyEn: "a reaction to where they are", sampleReply: "Аха! Вие сте во Скопје.", sampleReplyGloss: "Aha! You're in Skopje." },
+      { id: "g1-4", en: "Ask {partner} whether Vera and Petar (“they”) are in Ohrid.", answer: "Тие се во Охрид?", answerGloss: "Are they in Ohrid?",
+        replyFrame: "Не знам. / Не, тие се во …", replyEn: "whether Vera and Petar are in Ohrid", sampleReply: "Не знам.", sampleReplyGloss: "I don't know." },
+      { id: "g1-5", en: "{partner} is with friends. Ask whether they're all in Bitola.", answer: "Вие сте во Битола?", answerGloss: "Are you (all) in Bitola?",
+        replyFrame: "Не, ние сме во …", replyEn: "whether they're all in Bitola", sampleReply: "Не, ние не сме во Битола. Ние сме во Скопје.", sampleReplyGloss: "No, we're not in Bitola. We're in Skopje." },
+      { id: "g1-6", en: "Tell {partner} you're not Marko.", answer: "Јас не сум Марко.", answerGloss: "I'm not Marko.", also: ["Не сум Марко."],
+        replyFrame: "Аха. Ти си …?", replyEn: "a reaction (who are you, then?)", sampleReply: "Аха. Ти си Петар?", sampleReplyGloss: "Aha. Are you Petar?" },
+      { id: "g1-7", en: "You didn't catch that. Say you don't understand, and politely ask {partner} to repeat it.", answer: "Не разбирам. Можете ли да повторите?", answerGloss: "I don't understand. Could you repeat that?",
+        also: ["Извинете, не разбирам. Можете ли да повторите?", "Не разбирам. Уште еднаш, ве молам."],
+        replyFrame: "Во ред. …", replyEn: "agreeing, then saying it again", sampleReply: "Во ред.", sampleReplyGloss: "OK." },
+      { id: "g1-8", en: "Tell {partner} you're still learning Macedonian, and ask them to speak more slowly.", answer: "Сѐ уште учам македонски. Побавно, ве молам.", answerGloss: "I'm still learning Macedonian. Slower, please.",
+        replyFrame: "Во ред.", replyEn: "a reaction", sampleReply: "Аха, во ред.", sampleReplyGloss: "Ah, OK." },
+      { id: "g1-9", en: "Ask {partner} how you say “I” in Macedonian.", answer: "Како се вели „I“ на македонски?", answerGloss: "How do you say “I” in Macedonian?",
+        replyFrame: "„…“", replyEn: "the Macedonian word for “I”", sampleReply: "Јас.", sampleReplyGloss: "Jas (I)." },
+    ],
+  },
+  {
+    chapterId: "s0-greet",
+    scene: "You run into each other: hello, how are you, and where is everyone?",
+    cues: [
+      { id: "g2-1", en: "Greet {partner} for the time of day, and ask how they are.", answer: "Добар ден! Како си?", answerGloss: "Good day! How are you?",
+        also: ["Здраво! Како си?", "Добро утро! Како си?", "Добра вечер! Како си?"],
+        replyFrame: "Добро сум, фала. А ти?", replyEn: "how they are", sampleReply: "Добро сум, фала. А ти?", sampleReplyGloss: "I'm well, thanks. And you?" },
+      { id: "g2-2", en: "Say you're well too, and ask {partner} where Marko is.", answer: "И јас сум добро. Каде е Марко?", answerGloss: "I'm well too. Where's Marko?",
+        also: ["Добро сум, фала. Каде е Марко?", "И јас сум добро, фала. Каде е Марко?"],
+        replyFrame: "Марко е во …", replyEn: "where Marko is", sampleReply: "Марко е во Битола.", sampleReplyGloss: "Marko is in Bitola." },
+      { id: "g2-3", en: "Ask {partner} who is in Skopje.", answer: "Кој е во Скопје?", answerGloss: "Who's in Skopje?",
+        replyFrame: "… е во Скопје. / … се во Скопје.", replyEn: "who is in Skopje", sampleReply: "Вера и Петар се во Скопје.", sampleReplyGloss: "Vera and Petar are in Skopje." },
+      { id: "g2-4", en: "Ask {partner} how Vera and Petar are.", answer: "Како се Вера и Петар?", answerGloss: "How are Vera and Petar?", also: ["Како се тие?"],
+        replyFrame: "Добро се …", replyEn: "how Vera and Petar are", sampleReply: "Добро се, фала.", sampleReplyGloss: "They're well, thanks." },
+      { id: "g2-5", en: "{partner} is with a friend. Ask how they both are.", answer: "Како сте?", answerGloss: "How are you (both)?", also: ["Како сте вие?", "Здраво! Како сте?"],
+        replyFrame: "Добро сме …", replyEn: "how they both are", sampleReply: "Добро сме, фала. А ти?", sampleReplyGloss: "We're well, thanks. And you?" },
+      { id: "g2-6", en: "Ask {partner} whether they're in Ohrid. Start with дали.", answer: "Дали си во Охрид?", answerGloss: "Are you in Ohrid?",
+        replyFrame: "Да, … / Не, …", replyEn: "whether they're in Ohrid", sampleReply: "Не, не сум во Охрид. Јас сум во Скопје.", sampleReplyGloss: "No, I'm not in Ohrid. I'm in Skopje." },
+      { id: "g2-7", en: "Tell {partner} that you and Ana are in Skopje, and ask where they are.", answer: "Јас и Ана сме во Скопје. А ти, каде си?", answerGloss: "Ana and I are in Skopje. And you, where are you?",
+        also: ["Ние сме во Скопје. Каде си ти?", "Јас и Ана сме во Скопје. Каде си?", "Ние сме во Скопје. А ти?"],
+        replyFrame: "Јас сум во …", replyEn: "where they are", sampleReply: "Јас сум во Битола.", sampleReplyGloss: "I'm in Bitola." },
+      { id: "g2-8", en: "Thank {partner}.", answer: "Фала!", answerGloss: "Thanks!", also: ["Благодарам!"],
+        replyFrame: "Нема за што!", replyEn: "a reply to thanks", sampleReply: "Нема за што!", sampleReplyGloss: "You're welcome!" },
+      { id: "g2-9", en: "Say goodbye to {partner}: it's late in the evening.", answer: "Добра ноќ!", answerGloss: "Good night!", also: ["Пријатно!", "Догледање!", "Чао!"],
+        replyFrame: "Добра ноќ! / Чао!", replyEn: "a goodbye", sampleReply: "Добра ноќ! Чао!", sampleReplyGloss: "Good night! Bye!" },
+    ],
+  },
+  {
+    chapterId: "s0-survive",
+    scene: "Two friends, then a kiosk: one of you plays the seller for a few lines.",
+    cues: [
+      { id: "g3-1", en: "Ask {partner} whether they're OK.", answer: "Дали си добро?", answerGloss: "Are you OK?",
+        replyFrame: "Да, добро сум …", replyEn: "whether they're OK", sampleReply: "Да, добро сум, фала. А ти?", sampleReplyGloss: "Yes, I'm fine, thanks. And you?" },
+      { id: "g3-2", en: "Say you're very well, and ask {partner} where Ana and Marko are.", answer: "Многу добро. Каде се Ана и Марко?", answerGloss: "Very well. Where are Ana and Marko?",
+        also: ["Многу добро, фала. Каде се Ана и Марко?", "Добро сум. Каде се Ана и Марко?"],
+        replyFrame: "Тие се во …", replyEn: "where Ana and Marko are", sampleReply: "Тие се во Битола.", sampleReplyGloss: "They're in Bitola." },
+      { id: "g3-3", en: "Tell {partner} that you and Vera are in Skopje.", answer: "Јас и Вера сме во Скопје.", answerGloss: "Vera and I are in Skopje.", also: ["Ние сме во Скопје."],
+        replyFrame: "Аха! И јас …", replyEn: "a reaction", sampleReply: "Аха! И јас сум во Скопје.", sampleReplyGloss: "Aha! I'm in Skopje too." },
+      { id: "g3-4", en: "{partner} is with a friend. Ask whether they're in Skopje too.", answer: "И вие сте во Скопје?", answerGloss: "Are you in Skopje too?", also: ["Дали и вие сте во Скопје?"],
+        replyFrame: "Да, и ние …", replyEn: "whether they're in Skopje too", sampleReply: "Да, и ние сме во Скопје.", sampleReplyGloss: "Yes, we're in Skopje too." },
+      { id: "g3-5", en: "Now {partner} is the seller at a kiosk. Greet them politely and ask whether they have beer.", answer: "Добар ден! Имате ли пиво?", answerGloss: "Good day! Do you have beer?",
+        also: ["Здраво! Имате ли пиво?"],
+        replyFrame: "Да. / Не.", replyEn: "whether they have beer", sampleReply: "Да. Колку пива?", sampleReplyGloss: "Yes. How many beers?" },
+      { id: "g3-6", en: "Tell {partner} you want two beers, and ask how much it is.", answer: "Сакам две пива. Колку чини?", answerGloss: "I want two beers. How much is it?",
+        replyFrame: "… денари.", replyEn: "the price", sampleReply: "Осумдесет денари.", sampleReplyGloss: "Eighty denars." },
+      { id: "g3-7", en: "Point at something and tell {partner} you want this one, not that one.", answer: "Сакам ова, не тоа.", answerGloss: "I want this one, not that one.",
+        replyFrame: "Ова? …", replyEn: "a reaction", sampleReply: "Ова? Во ред.", sampleReplyGloss: "This one? OK." },
+      { id: "g3-8", en: "Ask {partner} whether it's good.", answer: "Дали е добро?", answerGloss: "Is it good?", also: ["Дали е ова добро?", "Дали ова е добро?"],
+        replyFrame: "Да, многу …", replyEn: "whether it's good", sampleReply: "Да, многу добро.", sampleReplyGloss: "Yes, very good." },
+      { id: "g3-9", en: "Ask {partner} whether you can have one more beer.", answer: "Може ли уште едно пиво?", answerGloss: "Can I have one more beer?",
+        replyFrame: "Може.", replyEn: "yes or no", sampleReply: "Може.", sampleReplyGloss: "Sure." },
+      { id: "g3-10", en: "Thank {partner} and say goodbye.", answer: "Фала! Догледање!", answerGloss: "Thanks! Goodbye!",
+        also: ["Благодарам! Догледање!", "Фала! Пријатно!", "Благодарам! Пријатно!", "Фала! Чао!"],
+        replyFrame: "Нема за што! …", replyEn: "a reply to thanks, and a goodbye", sampleReply: "Нема за што! Пријатно!", sampleReplyGloss: "You're welcome! Have a nice day!" },
+    ],
+  },
+];

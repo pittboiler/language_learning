@@ -359,7 +359,7 @@ export function lintCourse(pack: LanguagePack): CourseLintIssue[] {
 // tomorrow's grammar. "error" counts against the lint; "note" is worth a look but isn't a defect (a glossed
 // word the learner hasn't met yet, a story line that's a set phrase for a session or two).
 export interface SessionLintIssue {
-  kind: "lesson-later-grammar" | "build-untaught" | "agenda" | "lesson-untaught-words" | "table-untaught-words" | "reading-later-grammar" | "writing-untaught" | "persons";
+  kind: "lesson-later-grammar" | "build-untaught" | "agenda" | "lesson-untaught-words" | "table-untaught-words" | "reading-later-grammar" | "writing-untaught" | "persons" | "guided";
   level: "error" | "note";
   where: string;
   detail: string;
@@ -513,6 +513,31 @@ export function lintCourseSessions(pack: LanguagePack): SessionLintIssue[] {
     const r = count(read), w = count(said);
     const thin = PERSONS.filter((p) => (r[p] ?? 0) < 2 || !w[p]);
     if (thin.length) add("error", "persons", `ch${c.order} ${c.chapterId}`, PERSONS.map((p) => `${p} ${r[p] ?? 0}/${w[p] ?? 0}`).join(" · ") + ` (read/said) — thin: ${thin.join(", ")}`);
+  }
+
+  // 4. Guided conversations (DESIGN-partnered-conversation.md §5): every line is taught by the end of its
+  //    chapter, each cue says who to say it to ({partner}), ids are unique, and a deck runs through every
+  //    person but at most one (the lesson repeated in every exercise).
+  const cueIds = new Set<string>();
+  for (const d of course.guided ?? []) {
+    const c = course.chapters.find((x) => x.chapterId === d.chapterId);
+    if (!c) { add("error", "guided", d.chapterId, "a guided conversation for a chapter that isn't in the course"); continue; }
+    const end: cp.CourseSlot = { order: c.order, n: c.sessions.length };
+    const where = `ch${c.order} guided`;
+    if (d.cues.length < cp.GUIDED_MIN) add("error", "guided", where, `only ${d.cues.length} cues (at least ${cp.GUIDED_MIN})`);
+    const persons = new Set<string>();
+    for (const q of d.cues) {
+      if (cueIds.has(q.id)) add("error", "guided", where, `duplicate cue id ${q.id}`);
+      cueIds.add(q.id);
+      if (!q.en.includes("{partner}")) add("error", "guided", `${where} ${q.id}`, "the cue doesn't say who it's to ({partner})");
+      for (const text of [q.answer, ...(q.also ?? []), q.replyFrame ?? "", q.sampleReply]) {
+        const bad = unknownWords(text, end).filter((t) => !/^\p{Script=Latin}+$/u.test(t));
+        if (bad.length) add("error", "guided", `${where} ${q.id}`, `“${text}” uses ${bad.join(", ")} before the chapter teaches them`);
+      }
+      for (const text of [q.answer, ...(q.also ?? [])]) for (const t of cp.wordTokens(text)) { const p = personOf.get(t); if (p) persons.add(p); }
+    }
+    const missing = PERSONS.filter((p) => !persons.has(p));
+    if (sumAt && c.order >= sumAt.order && missing.length > 1) add("error", "guided", where, `the cues never use ${missing.join(", ")}`);
   }
   return out;
 }

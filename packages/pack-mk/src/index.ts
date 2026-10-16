@@ -4,6 +4,7 @@ import { chapters } from "./chapters.js";
 import { course } from "./course.js";
 import { exams } from "./exams.js";
 import { courseWriting } from "./writing-lines.js";
+import { guidedConversations } from "./guided-cues.js";
 import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
 import { conjugations } from "./conjugations.js";
@@ -96,7 +97,7 @@ export const macedonian: LanguagePack = {
   hints,
   // The midterm + final and each chapter's writing lines sit beside the generated blueprint (they're
   // hand-authored, outside its structure).
-  course: { ...course, exams, writing: courseWriting },
+  course: { ...course, exams, writing: courseWriting, guided: guidedConversations },
 };
 
 export default macedonian;

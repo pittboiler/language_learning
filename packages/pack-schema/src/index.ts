@@ -480,6 +480,36 @@ export interface CourseWriting {
   lines: WritingLine[];
 }
 
+/** One cue of a guided conversation (DESIGN-partnered-conversation.md §5): what to say to your partner, in
+ *  English, the line it's after, and what an answer might sound like. The partner answers in their own words,
+ *  so `sampleReply` is a model (and the AI's line in "Practice with AI"), never the only right answer. */
+export interface GuidedCue {
+  id: string;
+  /** What to say, in English. {partner} stands for the partner's name. */
+  en: string;
+  /** The line, in the target language. Every word is taught by the end of the cue's chapter. */
+  answer: string;
+  /** Its English. */
+  answerGloss: string;
+  /** Other lines that are just as right. */
+  also?: string[];
+  /** A start for whoever answers, shown on tap: „Живеам во …“. */
+  replyFrame?: string;
+  /** What an answer is about, in English, for the coach: "where they live". */
+  replyEn: string;
+  /** A natural answer, in the target language, and its English. */
+  sampleReply: string;
+  sampleReplyGloss: string;
+}
+
+/** A chapter's guided conversation: a scene, then cues in order, so they read as one conversation. Lives
+ *  outside the chapters (like the writing lines), so editing it never changes the course structure. */
+export interface CourseGuided {
+  chapterId: string;
+  scene: string;
+  cues: GuidedCue[];
+}
+
 export interface Course {
   /** Changes only when the chapter/session STRUCTURE changes (not wording) — a learner whose saved
    *  position was made on another structure is re-placed. */
@@ -492,6 +522,8 @@ export interface Course {
   exams?: CourseExam[];
   /** Each chapter's writing exercise (played in its session marked `writing`). */
   writing?: CourseWriting[];
+  /** Each chapter's guided conversation (partnered "Talk", and "Practice with AI" in the Library). */
+  guided?: CourseGuided[];
   points: GrammarPoint[];
   chapters: CourseChapter[];
   stageReviews: StageReview[];

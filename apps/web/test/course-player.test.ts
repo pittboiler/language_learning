@@ -468,3 +468,34 @@ for (const c of course.chapters) {
 }
 
 console.log("course-player.test.ts: all assertions passed ✓");
+
+// 13. Guided conversation (DESIGN-partnered-conversation.md): the newest deck both partners have reached, only
+//     cues whose line and reply starter they've BOTH been taught, in the deck's order; and what each has been
+//     taught, for the end-of-conversation coach.
+{
+  const names = (w: string) => ["Ана", "Марко", "Вера", "Ема", "Петар", "Скопје", "Битола", "Охрид", "Сара", "Иван"].includes(w);
+  const end = (id: string) => { const c = course.chapters.find((x) => x.chapterId === id)!; return { order: c.order, n: c.sessions.length }; };
+  assert.ok((course.guided ?? []).length >= 3, "decks for chapters 1–3");
+  const late = cp.guidedFor(macedonian, course, { order: 4, n: 1 }, { order: 4, n: 1 }, names)!;
+  assert.equal(late.deck.chapterId, "s0-survive", "both past chapter 3: its deck");
+  assert.ok(late.cues.length >= cp.GUIDED_MIN && late.cues.length <= cp.GUIDED_MAX);
+  const order = late.deck.cues.map((c) => c.id);
+  assert.deepEqual(late.cues.map((c) => c.id), [...late.cues.map((c) => c.id)].sort((x, y) => order.indexOf(x) - order.indexOf(y)), "in the deck's order");
+  // Early in a chapter: the last chapter's deck, whole, rather than a few lines of the new one.
+  assert.equal(cp.guidedFor(macedonian, course, { order: 3, n: 1 }, { order: 3, n: 1 }, names)!.deck.chapterId, "s0-greet");
+  // One partner further on: the deck follows the one behind.
+  const mixed = cp.guidedFor(macedonian, course, { order: 4, n: 1 }, { order: 2, n: 9 }, names)!;
+  assert.ok(mixed.deck.chapterId !== "s0-survive", "the one behind decides the deck");
+  const known = cp.knownBefore(macedonian, course, names);
+  for (const c of mixed.cues) for (const t of cp.wordTokens(c.answer)) assert.ok(known(t, { order: 2, n: 9 }), `${c.id}: ${t} is taught before ch2 s9`);
+  // Nothing yet at the very start.
+  assert.equal(cp.guidedFor(macedonian, course, { order: 1, n: 1 }, { order: 1, n: 1 }, names), undefined);
+  // Solo: the AI's replies must be understandable too.
+  const solo = cp.guidedFor(macedonian, course, end("s0-greet"), end("s0-greet"), names, { ai: true });
+  assert.ok(!solo || solo.cues.every((c) => cp.wordTokens(c.sampleReply).every((t) => known(t, end("s0-greet")))));
+  // Taught: the words and points of finished sessions only.
+  const t = cp.taughtFor(course, { order: 2, n: 2 });
+  assert.ok(t.words.includes("што") && t.words.includes("јас") && !t.words.includes("Како си?"), "ch2 s2: ch1 and ch2 s1 words, not s2's");
+  assert.ok(t.grammar.some((g) => g.startsWith(course.points.find((p) => p.id === "pt-sum")!.title)) && !t.grammar.some((g) => g.startsWith(course.points.find((p) => p.id === "pt-ti-vie")!.title)));
+}
+console.log("course-player.test.ts (guided): all assertions passed ✓");

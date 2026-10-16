@@ -1,6 +1,7 @@
 # Design — **Guided conversation**, reviewed together at the end
 
-> Status: **plan, revised with Jake's decisions (2026-10-16). Not built.** Extends
+> Status: **Phase 1 built (2026-10-16): engine, end review, API route, cue decks for chapters 1–3 (awaiting Jake's
+> Macedonian review). No screens yet; Practice with AI (Phase 2) is next.** Extends
 > [DESIGN-partnered-v2.md](DESIGN-partnered-v2.md) (the Together session) and reuses the speaking, exam and
 > live-conversation engines. A solo version, "Practice with AI", lives in the Library.
 
@@ -35,8 +36,8 @@ scaffolded (v2 principle 3):
 
 | # | Decision |
 |---|---|
-| Setting | Partners are on **Zoom**: they hear each other there, and the app doesn't carry audio. |
-| Feedback | **All at the end**, in a review the two do **together**. |
+| Setting | Partners are on **Zoom**: they hear each other there, and the app doesn't carry audio. **Both on their computers**: Zoom and the app (a browser tab) side by side. |
+| Feedback | **All at the end**, in a review the two do **together**: only the one who made the mistake says the fix, and the other taps **"Got it" / "Not quite"**, as in the warm-up. |
 | Timing | No feedback during the conversation. |
 | Placement | In the partnered session, **after the story** (the finale before the recap). |
 | Solo | Yes: **"Practice with AI"** in the Library, the app playing the partner. |
@@ -117,11 +118,11 @@ Item by item, alternating whose item it is, on both screens at once:
    owner can tap ▶ to hear their own clip.
 2. **Better:** „Каде живееш?“, and **why**, in one line: "живеете is for вие; to a friend, живееш."
    🔊 to hear it (tap, never autoplay).
-3. **Say it:** the owner says the corrected line, checked against it (fast match, then the dual-engine
-   gate; no LLM needed for a fixed target). ✓, or one more try.
-4. **Your turn too:** the partner says it as well. Everyone practises every fix.
-5. **Saved:** each corrected line goes into its owner's Flashcards › Sentences (★ to unsave).
-6. **Opening and close:** the review opens with the **highlights** and closes with a one-line score
+3. **Say it:** the owner says the corrected line aloud (over Zoom). The partner's screen shows the line and
+   **✓ Got it / ↻ Not quite**, exactly like the warm-up. No speech recognition in the review: the partner is
+   the judge. Solo, you say it, hear the model (🔊) and tap "Got it" yourself.
+4. **Saved:** each corrected line goes into its owner's Flashcards › Sentences (★ to unsave).
+5. **Opening and close:** the review opens with the **highlights** and closes with a one-line score
    ("7 turns, 5 asks spot on, 4 fixes said right"), then the joint recap.
 
 **"That's not what I said"** on any item dismisses it: ASR misheard, and the item drops out (logged, to
@@ -160,13 +161,13 @@ interface CourseGuided { chapterId: string; scene: string; cues: GuidedCue[] }  
 
 - **A thread, not a bag:** name → where from → where you live → work → family, so it reads as one
   conversation.
-- **Authored by the pipeline** (`run-guided.ts`, Opus), constrained to what's taught by the end of each
-  chapter. Then:
-  - lint: reuse `writing-untaught`, plus a new `guided-persons` check that each deck cycles every taught
-    person;
-  - **Jake's Macedonian review**, like the writing lines.
-- **Level-matched:** the deck for the lower partner's chapter, and only cues both partners have the words
-  for.
+- **Hand-written** for chapters 1–3 (`pack-mk/src/guided-cues.ts`, like the writing lines), then linted
+  (pipeline `lint.ts`, kind `guided`): every line taught by the end of its chapter, every cue names
+  `{partner}`, ids unique, every person but at most one. Then **Jake's Macedonian review**. Later chapters
+  the same way.
+- **Level-matched** (`cp.guidedFor`): the newest deck both partners have mostly reached (¾ of its cues
+  usable), only the cues both have the words for, in order, at most 8, always keeping the goodbye. Early in
+  a chapter, that means the previous chapter's deck, whole.
 
 ## 6. Sync design
 
@@ -190,17 +191,14 @@ New pure module `@ll/core/partner/guided` (reducer + tests, no language data):
   - In the app: the label, agenda, `JointSessionView` branch and row creation in the start handler.
   - No migration (artifact `kind` is free text).
 
-## 7. Recording on Zoom (the setup risk)
+## 7. Recording on Zoom (the setup)
 
-Each person's app must hear **only that person**:
-- **Recommended setup:** Zoom on the computer, **with headphones**; the app on the phone or in a browser
-  tab.
-  - With speakers instead, the app's mic also picks up the partner through them. Turns are tap-delimited
-    and the partner is silent during yours, so the damage is small, but headphones remove it.
-- **iPhone caveat:** iOS likely won't let Safari record while the Zoom app holds the mic (Phase 0 checks).
-  So it's Zoom on one device and the app on another, or both on a computer (macOS lets the Zoom app and a
-  browser share the mic).
-- The app will run a **mic check** first: "say „Здраво“". It shows a clear message if the mic is busy.
+Both partners are on their computers, Zoom and the app side by side. macOS and Windows let the Zoom app and a
+browser use the same mic, so each person's app records them while Zoom carries the call.
+- **Headphones are recommended.** With speakers, the app's mic also picks up the partner through them.
+  Turns are tap-delimited and the partner is silent during yours, so the damage is small, but headphones
+  remove it.
+- The app runs a **mic check** first ("say „Здраво“") and says clearly if the mic is busy or blocked.
 
 ## 8. Latency and cost
 
@@ -208,12 +206,12 @@ Each person's app must hear **only that person**:
 - **Talk:** a turn hands off in about a second (no waiting on ASR).
 - **Analysis:** about 15–30 s after the last turn, behind the "putting your review together" screen.
   Almost all transcription is already done by then.
-- **Review "say it":** about 2–3 s per attempt, once `/api/asr` runs the two engines **in parallel**
-  (shipped with this plan).
+- **Review:** instant; the partner judges each fix. (`/api/asr` now runs the two engines in parallel, for
+  the transcription during the talk.)
 
 **Cost** (rough):
 - one Opus analysis, about 4k tokens in and 1.5k out: **~$0.05**;
-- ASR for ~16 segments plus ~16 review attempts: pennies;
+- ASR for ~16 segments: pennies;
 - total **~$0.10 per session**, so **~$2 a month** for the two of you. Cheaper than per-turn coaching.
 
 ## 9. Risks (honest)
@@ -233,13 +231,12 @@ Each person's app must hear **only that person**:
 | Phase | What | Exit |
 |---|---|---|
 | **0 · Spike** | ~20 recorded cue answers each with some **deliberate mistakes** (wrong person, wrong gender, missing word), plus TTS-made error clips; one recording while on Zoom with headphones and one without. Run both engines; run the analysis prompt on Opus vs Sonnet; compare with Jake's judgement. | Error-preservation rate known; ≥~85% agreement on clear cases; setup advice confirmed |
-| **1 · Engine + decks** | Parallel ASR (done); `core/partner/guided` reducer + `core/coach` analysis (schema §3.3) with tests; `GuidedCue` schema; `run-guided.ts` + lints; decks for ch1–3 → **Jake reviews**. | Tests + lint green; decks reviewed |
+| **1 · Engine + decks** ✅ built | Parallel ASR; `@ll/core/partner/guided` (turns, member rows, transcript, review) + `@ll/core/coach` (one end-of-conversation review, Opus 5.5) with tests; `/api/guided-review`; `GuidedCue` schema; decks for ch1–3 in `pack-mk/src/guided-cues.ts` (hand-written, linted: taught words, {partner}, persons) → **Jake reviews**. A live test with planted mistakes caught all four, skipped the one the engines disagreed on, 16 s, $0.04. | Decks reviewed |
 | **2 · Practice with AI** | The solo version in the Library: scripted AI turns by TTS, continuous recording, the end review. | Jake tries it; I verify it in the browser |
 | **3 · Partnered** | Member rows + `talk` section after the story + shared review + recap/Flashcards hooks. | Jake + Madison's first Zoom session |
 | **4 · Later** | Follow-up cues that react to the answer; recurring-error tracking across sessions; graduating to open conversation. | — |
 
-## 11. Still open (small)
+## 11. Answered (2026-10-16)
 
-1. **Devices:** is Zoom usually on a computer with the app on a phone, or everything on one computer?
-   This decides whether the mic check needs a "use your phone" path.
-2. **The review:** should *both* people say every fix (my recommendation, §3.4), or only its owner?
+1. **Devices:** both on computers, Zoom and the app side by side.
+2. **The review:** only the one who made the mistake says the fix; the partner taps "Got it" / "Not quite".

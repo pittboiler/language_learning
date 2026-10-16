@@ -10,7 +10,7 @@ import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { GrammarItem } from "@ll/core/partner/grammar-together";
 import type { CourseLogEntry, Progress } from "./store";
-import type { CourseExam, CourseWriting, WritingLine } from "@ll/pack-schema";
+import type { CourseExam, CourseGuided, CourseWriting, GuidedCue, WritingLine } from "@ll/pack-schema";
 import { romanize } from "./romanize";
 
 /** The switch (DESIGN §11): on since the 2026-10-08 cutover. A learner can still switch back to the old
@@ -837,6 +837,62 @@ export function writingKey(text: string): string {
 export function writtenMatches(typed: string, line: WritingLine): boolean {
   const k = writingKey(typed);
   return !!k && [line.answer, ...(line.also ?? [])].some((a) => writingKey(a) === k);
+}
+
+// ---------- Guided conversation (DESIGN-partnered-conversation.md) ----------
+
+const ARTICLE_ENDINGS = ["от", "та", "то", "те", "ов", "ва", "во", "ве", "он", "на", "но", "не"];
+
+/** "Has this learner been taught this word form, in a session they've finished?" Names count; once "the"
+ *  is taught, a known word with an article ending does too (кафе → кафето). Same rule as the pipeline's
+ *  knownAtSlot, but strictly before the session (a partnered session may come before today's lesson). */
+export function knownBefore(pack: LanguagePack, course: Course, names: (word: string) => boolean): (token: string, at: CourseSlot) => boolean {
+  const forms = formSlots(pack, course);
+  const the = course.points.find((p) => p.grammarIds.includes("definite-articles"));
+  const theAt = the ? pointSlots(course).get(the.id) : undefined;
+  const by = (t: string, at: CourseSlot) => taughtBefore(forms.get(t), at);
+  return (t, at) => {
+    if (by(t, at) || names(t.charAt(0).toUpperCase() + t.slice(1))) return true;
+    if (!theAt || !taughtBefore(theAt, at)) return false;
+    return ARTICLE_ENDINGS.some((e) => t.length > e.length + 1 && t.endsWith(e) && by(t.slice(0, -e.length), at));
+  };
+}
+
+/** Fewest cues worth a conversation; most in one. */
+export const GUIDED_MIN = 4;
+export const GUIDED_MAX = 8;
+
+/** The guided conversation for a pair (or, with `b` = `a`, for one learner with the AI): the newest
+ *  chapter's deck that both have mostly reached (¾ of its cues usable), keeping only cues whose line and
+ *  reply starter use words BOTH have been taught (solo: the AI's reply too), in the deck's order so it reads
+ *  as one conversation. Early in a chapter that's the last chapter's deck, whole, rather than a few lines of
+ *  the new one; failing that, whichever deck has the most usable cues. */
+export function guidedFor(pack: LanguagePack, course: Course, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean, opts: { ai?: boolean; max?: number } = {}): { deck: CourseGuided; cues: GuidedCue[] } | undefined {
+  const known = knownBefore(pack, course, names);
+  const latin = (t: string) => /^\p{Script=Latin}+$/u.test(t);
+  const fine = (text: string | undefined) => !text || wordTokens(text).every((t) => latin(t) || (known(t, a) && known(t, b)));
+  const usable = (c: GuidedCue) => fine(c.answer) && fine(c.replyFrame?.replace(/…/g, "")) && (!opts.ai || fine(c.sampleReply));
+  const reach = Math.min(a.order, b.order);
+  const decks = (course.guided ?? [])
+    .map((d) => ({ d, order: course.chapters.find((c) => c.chapterId === d.chapterId)?.order ?? 999 }))
+    .filter((x) => x.order <= reach)
+    .sort((x, y) => y.order - x.order);
+  const max = opts.max ?? GUIDED_MAX;
+  const options = decks.map(({ d }) => ({ deck: d, all: d.cues.filter(usable) }));
+  const reached = options.find((o) => o.all.length >= GUIDED_MIN && (o.all.length >= max || o.all.length >= 0.75 * o.deck.cues.length));
+  const best = reached ?? options.filter((o) => o.all.length >= GUIDED_MIN).sort((x, y) => y.all.length - x.all.length)[0];
+  // Too many: keep the opening ones and the last (the goodbye), so the conversation still ends.
+  const trim = (all: GuidedCue[]) => (all.length > max ? [...all.slice(0, max - 1), all.at(-1)!] : all);
+  return best ? { deck: best.deck, cues: trim(best.all) } : undefined;
+}
+
+/** What a learner has been taught by a session, for the end-of-conversation coach: every course word, and
+ *  every grammar point as "title: rule". */
+export function taughtFor(course: Course, at: CourseSlot): { words: string[]; grammar: string[] } {
+  const ps = pointSlots(course);
+  const words = course.chapters.flatMap((c) => c.sessions.filter((s) => taughtBefore({ order: c.order, n: s.n }, at)).flatMap((s) => s.words.map((w) => w.display)));
+  const grammar = course.points.filter((p) => taughtBefore(ps.get(p.id), at)).map((p) => `${p.title}: ${p.rule.replace(/\s+/g, " ").slice(0, 240)}`);
+  return { words: [...new Set(words)], grammar };
 }
 
 // ---------- Persons: every form, in context (DESIGN-story-variety §2; Jake: "it's the core LESSON that must
