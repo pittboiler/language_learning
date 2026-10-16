@@ -143,6 +143,7 @@ export function phraseCards(pack: LanguagePack, opts: Pick<ScopeOptions, "chapte
       const answer = it.answer.trim();
       const words = answer.split(/\s+/).filter(Boolean);
       if (words.length < 2 || words.length > 5) continue; // one word isn't a build; a long chunk is a slog
+      if (answer.includes(" / ")) continue; // a word family ("тука / таму") is a card of words, not a sentence
       if (!opts.hasMet(normalize(answer))) continue;
       out.push({
         id: `phrase-${it.id}`,

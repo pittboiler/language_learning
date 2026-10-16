@@ -30,6 +30,27 @@ assert.equal(cp.position(course, { chapterId: "s0-repair", session: 2 }).kind ==
 const kept = cp.position(course, { chapterId: "s0-repair", session: 2, v: course.version });
 assert.ok(kept.kind === "session" && kept.chapter.chapterId === "s0-repair" && kept.session.n === 2);
 assert.equal(cp.advance(course, undefined, {}).v, course.version, "advancing stamps the structure version");
+// 1c. A position saved on an EARLIER structure we know (Course.pastLayouts) keeps its place: the same session
+//     in the new layout (2026-10-16: sessions added to chapters 2, 3, 6, 7 and 10 for word families).
+{
+  const OLD = "1vx4d6w";
+  assert.ok(course.pastLayouts?.[OLD], "the live structure before the word families is kept");
+  const at = (chapterId: string, session: number, extra: Partial<cp.CourseState> = {}) => cp.position(course, { chapterId, session, v: OLD, ...extra });
+  const is = (p: cp.CoursePosition, chapterId: string, n: number) => p.kind === "session" && p.chapter.chapterId === chapterId && p.session.n === n;
+  assert.ok(is(at("s0-greet", 2), "s0-greet", 2), "chapter 2, session 2 stays session 2 (its first sessions didn't move)");
+  assert.ok(is(at("s0-repair", 6), "s0-repair", 6), "chapter 1 is unchanged");
+  const ch2 = course.chapters.find((c) => c.chapterId === "s0-greet")!;
+  const old2 = course.pastLayouts![OLD]!["s0-greet"]!;
+  for (let n = 1; n <= old2.length; n++) {
+    const p = at("s0-greet", n);
+    assert.ok(p.kind === "session" && cp.sessionKey(p.session) === old2[n - 1], `old chapter-2 session ${n} (${old2[n - 1]}) lands on the same kind of session`);
+  }
+  assert.ok(is(at("s0-greet", 6), "s0-greet", ch2.sessions.findIndex((s) => s.role === "use") + 1), "the first “use” day stays the first “use” day");
+  const retry = at("s0-greet", old2.length, { retry: true });
+  assert.ok(retry.kind === "session" && retry.session.role === "checkpoint" && retry.retry, "a checkpoint retry is still a retry");
+  assert.deepEqual(cp.advance(course, { chapterId: "s0-greet", session: 2, v: OLD }, {}), { chapterId: "s0-greet", session: 3, v: course.version }, "and moves on from there");
+  assert.ok(is(cp.position(course, { chapterId: "s0-greet", session: 4, v: "unknown" }), "s0-letters", 1), "an unknown structure still restarts");
+}
 
 // 2. Walking a chapter: sessions advance one at a time up to the checkpoint.
 const ch1 = course.chapters[0]!;
@@ -233,7 +254,7 @@ assert.ok(!cp.canSkipChapter(cp.position(course, { chapterId: "s0-repair", sessi
   assert.ok(knownBy("јас", at(1, 1)) && knownBy("сум", at(1, 1)), "ch1 s1 teaches јас and сум");
   assert.ok(!knownBy("не", at(1, 1)) && knownBy("не", at(1, 2)), "не comes with its point in s2");
   const verbsA = cp.pointSlots(course).get("pt-verbs-a")!;
-  assert.ok(knownBy("сакам", at(3, 1)) && !knownBy("сакаш", at(3, 1)), "сакам is a word in ch3; сакаш waits for the -а endings");
+  assert.ok(knownBy("сакам", at(3, 2)) && !knownBy("сакаш", at(3, 2)), "сакам is a word in ch3; сакаш waits for the -а endings");
   assert.ok(knownBy("сакаш", verbsA), "once -а endings are taught, every form of a known -а verb is known");
 }
 

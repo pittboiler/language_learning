@@ -26,6 +26,10 @@ export const FIRST_READ_KNOWN = 0.85;
 /** A reread comes from the last few chapters: close enough to be a refresher, not chapter 1 in chapter 10. */
 export const REREAD_WINDOW = 3;
 
+/** A word family taught as one card: "вчера / денес / утре" (not a phrase with a slash in it). */
+const isFamily = (answer: string) => answer.includes(" / ");
+const partsOf = (answer: string) => answer.split(" / ").map((x) => normalize(x)).filter(Boolean);
+
 const toWord = (v: ReviewItem): CourseWord => ({ lexKey: deriveKeyForItem(v).lexKey, display: v.answer.trim(), gloss: v.gloss });
 
 interface Slot { role: SessionRole; point?: SpinePoint }
@@ -65,6 +69,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
   const spineOf = new Map(allSpine.map((p) => [p.id, p]));
 
   const taughtBefore = new Map<string, CourseWord>(); // every word taught by an earlier chapter
+  const covered = new Set<string>(); // …and every part of a word family taught as one card
   const pointsBefore: string[] = []; // every point taught by an earlier chapter
   const reusedAt = new Map<string, number>(); // story id → chapter order it was last brought back in
   const lensAt = new Map<string, number>(); // point id → when it was last the lens of a refresher
@@ -91,8 +96,18 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
     const drop = new Set((spineCh.dropWords ?? []).map(normalize));
 
     // ---- word list, in priority order ----
-    const fresh = (v: ReviewItem) => { const k = deriveKeyForItem(v).lexKey; return !taughtBefore.has(k) && !drop.has(k); };
     const findWord = (w: string) => content.vocab.find((v) => normalize(v.answer) === normalize(w)) ?? pack.vocab.find((v) => normalize(v.answer) === normalize(w));
+    const unseen = (v: ReviewItem) => { const k = deriveKeyForItem(v).lexKey; return !taughtBefore.has(k) && !drop.has(k); };
+    // A word family taught as one card ("вчера / денес / утре") covers its parts: a part on its own isn't
+    // taught again, in this chapter or a later one, and a family whose parts are all taught isn't either.
+    const here = [...content.vocab, ...spineCh.points.flatMap((p) => p.words ?? []).map(findWord), ...Object.keys(spineCh.pinWords ?? {}).map(findWord)]
+      .filter((v): v is ReviewItem => !!v && unseen(v) && isFamily(v.answer));
+    const partsHere = new Set(here.flatMap((v) => partsOf(v.answer)));
+    const fresh = (v: ReviewItem) => {
+      if (!unseen(v)) return false;
+      if (!isFamily(v.answer)) return !covered.has(normalize(v.answer)) && !partsHere.has(normalize(v.answer));
+      return !partsOf(v.answer).every((p) => covered.has(p));
+    };
     const pointWords = new Map<string, CourseWord[]>();
     for (const p of spineCh.points) pointWords.set(p.id, (p.words ?? []).map(findWord).filter((v): v is ReviewItem => !!v && fresh(v)).map(toWord));
     const scen = pack.scenarios.find((s) => s.id === `gen-${chId}`);
@@ -271,7 +286,7 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       sessions,
       checkpoint: { wordKeys: taught.map((w) => w.lexKey), pointIds: chapterPointIds, ...(scen ? { scenarioId: scen.id } : {}) },
     });
-    taught.forEach((w) => taughtBefore.set(w.lexKey, w));
+    taught.forEach((w) => { taughtBefore.set(w.lexKey, w); covered.add(normalize(w.display)); partsOf(w.display).forEach((p) => covered.add(p)); });
     pointsBefore.push(...chapterPointIds);
   }
 
@@ -380,9 +395,10 @@ function assignWords(slots: Slot[], pointWords: Map<string, CourseWord[]>, requi
     }
     return undefined;
   };
+  let pinLost = false; // a pin on a session that teaches no words (a review, the checkpoint) would vanish
   const sessionWords = slots.map((slot, idx) => {
     if (slot.role === "teach" && slot.point) introduced.push(slot.point.id);
-    if (!teachesWords(slot.role)) return [];
+    if (!teachesWords(slot.role)) { if (pinned.has(idx)) pinLost = true; return []; }
     const take: CourseWord[] = [...(pinned.get(idx) ?? [])];
     const mine = slot.point ? own.get(slot.point.id) ?? [] : [];
     const cap = req.some((w) => !assigned.has(w.lexKey)) ? 2 : WORDS_PER_SESSION;
@@ -396,7 +412,7 @@ function assignWords(slots: Slot[], pointWords: Map<string, CourseWord[]>, requi
   return {
     slots, sessionWords, leftover,
     requiredBeforeReview: required.every((w) => before.has(w.lexKey)),
-    mandatoryFit: (mandatory: CourseWord[]) => mandatory.every((w) => assigned.has(w.lexKey)),
+    mandatoryFit: (mandatory: CourseWord[]) => !pinLost && [...pinned.keys()].every((i) => i < slots.length) && mandatory.every((w) => assigned.has(w.lexKey)),
   };
 }
 
@@ -435,7 +451,8 @@ function buildCandidates(pack: LanguagePack, o: {
   lineTags: Record<string, string[]>;
 }): string[] {
   const vocabId = (w: CourseWord) => pack.vocab.find((v) => deriveKeyForItem(v).lexKey === w.lexKey)?.id;
-  const phrase = (w: CourseWord) => { const n = w.display.split(/\s+/).length; return n >= 2 && n <= 5 && !w.display.includes("…") ? vocabId(w) : undefined; };
+  // A word family ("тука / таму") is several words on one card, not a sentence to put back together.
+  const phrase = (w: CourseWord) => { const n = w.display.split(/\s+/).length; return n >= 2 && n <= 5 && !w.display.includes("…") && !isFamily(w.display) ? vocabId(w) : undefined; };
   const today = o.words.map(phrase).filter((x): x is string => !!x).map((id) => `phrase-${id}`);
   const chapter = o.chapterWords.filter((w) => o.taughtUpTo.has(w.lexKey)).map(phrase).filter((x): x is string => !!x).map((id) => `phrase-${id}`);
   const earlier = o.earlierWords.map(phrase).filter((x): x is string => !!x).map((id) => `phrase-${id}`);

@@ -31,7 +31,7 @@ import { SPINE, spinePoints } from "./course/spine.js";
 import { lineCatalog, proseWords, tokens, wordCorpus, type CatalogLine } from "./course/lines.js";
 import { planCourse } from "./course/plan.js";
 import { lintCourse } from "./lint.js";
-import { blankOut } from "../../apps/web/lib/course-player.js";
+import { blankOut, sessionKey } from "../../apps/web/lib/course-player.js";
 import * as cpSlots from "../../apps/web/lib/course-player.js";
 import { knownAtSlot, laterGrammarAt } from "./course/known.js";
 
@@ -519,6 +519,11 @@ async function points() {
 // =====================================================================================================
 function assemble() {
   const { chapters, stageReviews, version } = planCourse({ pack, points: course.points, lineTags: course.lineTags, chunkNotes: course.chunkNotes });
+  // A new structure: keep the old one's layout, so learners saved on it stay where they are (Course.pastLayouts).
+  if (course.version && course.version !== version && course.chapters?.length) {
+    course.pastLayouts = { ...course.pastLayouts, [course.version]: Object.fromEntries(course.chapters.map((c) => [c.chapterId, c.sessions.map(sessionKey)])) };
+    console.log(`course structure ${course.version} → ${version}: old layout kept in pastLayouts`);
+  }
   course.version = version;
   course.chapters = chapters;
   course.stageReviews = stageReviews;

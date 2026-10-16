@@ -48,9 +48,31 @@ export const examAfterChapter = (course: Course, chapterId: string): CourseExam 
 
 export const initialState = (course: Course): CourseState => ({ chapterId: course.chapters[0]!.chapterId, session: 1, v: course.version });
 
-/** The saved state, unless it was made on a different course structure (then: the start). */
+/** A session's place in the structure: its role, plus its point or letters. Course.version hashes these. */
+export const sessionKey = (s: Pick<CourseSession, "role" | "pointId" | "letters">): string =>
+  `${s.role}${s.pointId ? `/${s.pointId}` : ""}${s.letters ? `/${s.letters.glyphs.join("")}` : ""}`;
+
+/** A state saved on an earlier structure, moved to the same session in this one (the nth "use" stays the
+ *  nth "use" when a practice session is added before it). Undefined when that structure isn't known. */
+function replaced(course: Course, state: CourseState): CourseState | undefined {
+  const old = state.v ? course.pastLayouts?.[state.v] : undefined;
+  const chapter = course.chapters.find((c) => c.chapterId === state.chapterId);
+  if (!old || !chapter) return undefined;
+  const moved = { ...state, v: course.version };
+  if (state.finished || state.examAfter || state.stageReviewAfter) return moved;
+  const before = old[state.chapterId] ?? [];
+  const key = before[state.session - 1];
+  if (!key) return { ...moved, session: Math.min(Math.max(1, state.session), chapter.sessions.length) };
+  const nth = before.slice(0, state.session).filter((k) => k === key).length;
+  const at = chapter.sessions.map(sessionKey).reduce<number[]>((acc, k, i) => (k === key ? [...acc, i] : acc), [])[nth - 1];
+  return { ...moved, session: at !== undefined ? at + 1 : Math.min(state.session, chapter.sessions.length) };
+}
+
+/** The saved state — moved onto this structure if it was made on an earlier one we know, else the start. */
 const current = (course: Course, state: CourseState | undefined): CourseState =>
-  state && (!course.version || state.v === course.version) ? state : initialState(course);
+  !state ? initialState(course)
+    : !course.version || state.v === course.version ? state
+      : replaced(course, state) ?? initialState(course);
 
 export function position(course: Course, state: CourseState | undefined): CoursePosition {
   const s = current(course, state);

@@ -80,7 +80,11 @@ export const SPINE: SpineChapter[] = [
     reviewAfter: 2,
     // The question words land in the first three sessions: што, каде (1), then како, колку and кој / кога / зошто
     // with yes/no questions (3); „Добро сум, фала“ moves to 4 to make room.
-    pinWords: { "кој / кога / зошто": 3, "Добро сум, фала.": 4 },
+    pinWords: { "кој / кога / зошто": 3, "Добро сум, фала.": 4,
+      // Each family together (2026-10-16, Jake: "similar things are just never taught"): every thank-you (4), the
+      // time-of-day greetings (5), every goodbye (7), yes and no (8). Sessions 1–3 stay as they were.
+      "Фала": 4, "Благодарам / Нема за што": 4, "Добро утро / Добра вечер / Добра ноќ": 5,
+      "Догледање": 7, "Пријатно / Чао": 7, "Да": 8, "Не": 8 },
     points: [
       { id: "pt-question-words", title: "Question words", grammarIds: ["questions"], depth: "produce",
         scope: "Wh-question words that open a question: што (what), кој (who), каде (where), кога (when), зошто (why), како (how), колку (how much), чиј (whose).",
@@ -98,10 +102,12 @@ export const SPINE: SpineChapter[] = [
   {
     chapterId: "s0-survive",
     dropWords: ["десет", "таму", "еден", "два", "три", "пет"],
+    // The gender words together on day 1: one, this / that, and "this" for every gender.
+    pinWords: { "еден / една / едно": 1, "ова / тоа": 1, "овој / оваа / овие": 1 },
     points: [
       { id: "pt-gender", title: "Three genders: еден, една, едно", grammarIds: ["gender"], depth: "produce",
         scope: "Noun gender (masculine/feminine/neuter, usually visible from the ending) and words that agree with it: еден/една/едно, овој/оваа/ова.",
-        words: ["еден / една / едно", "ова / тоа"] },
+        words: ["еден / една / едно", "ова / тоа", "овој / оваа / овие"] },
       { id: "pt-numbers", title: "Counting things", grammarIds: ["numbers"], depth: "produce",
         scope: "Numbers (еден…десет, сто), два vs две, nouns after a number going plural (пет денари), and asking prices (Колку чини?).",
         words: ["два, три, четири, пет", "шест, седум, осум, девет, десет", "денар / денари"] },
@@ -133,13 +139,15 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s1-market",
+    // The adjective pairs with "adjectives match their noun" (2), and the rest the day after (3).
+    pinWords: { "евтин": 2, "скап": 2, "голем / мал": 2, "нов / стар": 3, "добар": 3 },
     points: [
       { id: "pt-plurals", title: "More than one: plurals", grammarIds: ["noun-plurals"], depth: "produce",
         scope: "Regular noun plurals: masculine -и/-ови, feminine -а → -и, neuter -о/-е → -а (денар → денари, пиво → пива, кафе → кафиња; јаболка = apples).",
         words: ["јаболка"] },
       { id: "pt-adjectives", title: "Adjectives match their noun", grammarIds: ["adjective-agreement"], depth: "produce",
         scope: "Adjective agreement in gender and number: добар/добра/добро/добри, евтин/евтина, голем/голема/големи, убав/убаво/убави, нов/ново — including with the article (новиот).",
-        words: ["евтин", "скап", "добар"] },
+        words: ["евтин", "скап", "добар", "голем / мал", "нов / стар"] },
       { id: "pt-go-ja-gi", title: "It, them: го, ја, ги", grammarIds: ["clitics"], depth: "produce",
         scope: "Direct-object pronouns го (him/it), ја (her/it), ги (them) placed before the verb, including doubling a definite object: ќе ги земам, Го сакам.",
         acceptLater: {
@@ -150,10 +158,14 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s1-directions",
+    // Every preposition in two sessions: во/на/со/за/кај with the point (1), од/до/пред/зад in the practice
+    // session after the points (4) — one more session than before, so до and улица still fit.
+    extraSessions: 1,
+    pinWords: { "во": 1, "на": 1, "со / за / кај": 1, "од": 4, "до": 4, "пред / зад": 4 },
     points: [
       { id: "pt-prepositions", title: "Little linking words: во, на, до, од, со", grammarIds: ["prepositions"], depth: "produce",
         scope: "Prepositions of place and movement: во (in), на (on/at/to), до (to/next to), од (from), со (with), кај (at someone's), пред, зад, близу до.",
-        words: ["во", "на", "од"] },
+        words: ["во", "на", "од", "со / за / кај", "пред / зад"] },
       { id: "pt-commands", title: "Telling someone what to do", grammarIds: ["imperatives"], depth: "produce",
         scope: "Imperatives: polite/plural -ете/-ајте (Свртете, Одете, Повелете, Извинете, Кажете) and informal -ај/-и, plus немој да for “don't”.",
         words: ["Свртете лево."] },
@@ -163,7 +175,11 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s2-smalltalk",
-    dropWords: ["ама", "затоа", "и"],
+    // и is taught with а / или in chapter 2; the "but / so" words come together here (add-but-so).
+    dropWords: ["ама", "затоа", "и", "и / ама / затоа"],
+    // Yesterday / today / tomorrow as one family, with the future (утре ќе…), instead of денес here and the
+    // family again in chapter 9.
+    pinWords: { "вчера / денес / утре": 4 },
     points: [
       { id: "pt-mi-ti-mu", title: "To me, to you: ми, ти, му", grammarIds: ["clitics"], depth: "produce", heavy: true,
         scope: "Short to-whom pronouns ми, ти, му, ѝ, ни, ви, им before the verb, including the liking construction ми се допаѓа (it pleases me), Мило ми е, Кажи ми.",
@@ -184,6 +200,8 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s2-home-family",
+    // Every possessive in the same stretch: мој (1), then твој, негов / нејзин, наш / ваш / нивен (3).
+    pinWords: { "твој": 3, "негов / нејзин": 3, "наш / ваш / нивен": 3 },
     points: [
       { id: "pt-possessives", title: "My, your: мој and мајка ми", grammarIds: ["possessives"], depth: "produce",
         scope: "Possessives мој/моја/мое/мои, твој, негов, нејзин, наш, ваш, usually with the article (мојот, мојата), and the family shortcut мајка ми, брат ми.",

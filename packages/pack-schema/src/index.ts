@@ -484,6 +484,10 @@ export interface Course {
   /** Changes only when the chapter/session STRUCTURE changes (not wording) — a learner whose saved
    *  position was made on another structure is re-placed. */
   version?: string;
+  /** Earlier structures, by their `version`: each chapter's sessions as `sessionKey`s ("teach/pt-sum",
+   *  "practice", "use"…). A learner saved on one of them keeps their place — the same session in the new
+   *  layout — instead of going back to the start; a session added before them is caught up on by its words. */
+  pastLayouts?: Record<string, Record<string, string[]>>;
   /** Midterm / final, each after a chapter (and after its stage review, when there is one). */
   exams?: CourseExam[];
   /** Each chapter's writing exercise (played in its session marked `writing`). */
