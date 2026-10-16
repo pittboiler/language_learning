@@ -5,7 +5,7 @@
 // Run:  pipeline/node_modules/.bin/tsx pipeline/src/run-lint.ts
 import { macedonian } from "@ll/pack-mk";
 import { bulgarian } from "@ll/pack-bg";
-import { lintDrills, lintTranslit, lintSynonyms, lintChapters, lintHints, lintSentences, lintCourse, lintCourseSessions, lintScriptMix, type SynonymGroup } from "./lint.js";
+import { lintDrills, lintTranslit, lintSynonyms, lintChapters, lintHints, lintSentences, lintCourse, lintCourseSessions, lintScriptMix, lintStoryGlosses, type SynonymGroup } from "./lint.js";
 
 // One word per everyday concept, decided once and enforced here so a later generation wave can't quietly
 // reintroduce the other one. Add a group whenever a review turns up two words doing the same job.
@@ -49,6 +49,11 @@ for (const pack of [macedonian, bulgarian]) {
   total += sentenceIssues.length;
   console.log(`${pack.name} (${pack.id}): ${sentenceIssues.length} unserveable sentence(s) of ${pack.sentences?.length ?? 0}`);
   for (const i of sentenceIssues) console.log(`  • [${i.kind}] ${i.id}: ${i.detail}`);
+
+  const gl = lintStoryGlosses(pack);
+  total += gl.length;
+  console.log(`${pack.name} (${pack.id}): ${gl.length} story line(s) whose English doesn't match the Macedonian`);
+  for (const i of gl) console.log(`  • ${i.location}: ${i.detail}`);
 
   const mix = lintScriptMix(pack);
   total += mix.length;

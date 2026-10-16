@@ -225,7 +225,7 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
     // The point's examples from real exchanges first; the grammar reference's own examples when it has no others.
     const examples = point?.examples ?? [];
     const fromPoint = [...examples.filter((e) => !e.source.startsWith("grammar:")), ...examples.filter((e) => e.source.startsWith("grammar:"))].slice(0, 2)
-      .map((e) => ({ text: e.text.replace(/^[„“"]+|[“”"]+$/g, ""), gloss: e.gloss, focus: cp.focusWords(course, e.source, [point!.id]) }));
+      .map((e) => ({ text: (cp.spoken(e.text) ?? e.text).replace(/^[„“"]+|[“”"]+$/g, ""), gloss: cp.spokenGloss(e.gloss), focus: cp.focusWords(course, e.source, [point!.id]) }));
     // …and two more persons, taking turns across the chapter's sessions (cp.personPair), so every form gets said.
     const persons = cp.personSayLines(pack, cc, s, drillableVerbs(pack, progress));
     const lines = [...fromWords, ...fromPoint.slice(0, persons.length ? 1 : 2), ...persons].filter((l, i, all) => all.findIndex((x) => x.text === l.text) === i).slice(0, 5);

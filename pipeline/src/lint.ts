@@ -519,6 +519,31 @@ export function lintCourseSessions(pack: LanguagePack): SessionLintIssue[] {
 
 const PERSONS = cp.PERSONS;
 
+// --- Story English lint ---------------------------------------------------------------------------
+// A story line's English translates exactly its Macedonian (2026-10-16, Jake: "english translations not
+// corresponding to the macedonian"). Who speaks is named in the Macedonian too — a label („Ана: „…“") or
+// narration (вели Ана) — so the English may name a speaker only when the Macedonian does, and never adds an
+// aside in brackets. The English of a question / answer adds nothing in brackets either.
+export interface StoryGlossIssue { location: string; detail: string }
+
+export function lintStoryGlosses(pack: LanguagePack): StoryGlossIssue[] {
+  const out: StoryGlossIssue[] = [];
+  const mkLabel = /^\p{Lu}\p{L}*(\s+\p{L}+)?:\s*„/u; // Ана: „…“ / Ана вели: „…“
+  const enLabel = /^((The|A)\s+[a-z]+|[A-Z][a-z]+)(\s+[a-z]+)?:\s*"/; // Ana: "…" / The waiter says: "…"
+  for (const st of pack.stories ?? []) {
+    st.body.forEach((b, i) => {
+      const at = `${st.id}#${i}`;
+      if (/\(/.test(b.gloss)) out.push({ location: at, detail: `an aside in the English: "${b.gloss}"` });
+      if (enLabel.test(b.gloss) && !mkLabel.test(b.text)) out.push({ location: at, detail: `the English names a speaker the Macedonian doesn't: "${b.gloss}" / ${b.text}` });
+      if (mkLabel.test(b.text) && !enLabel.test(b.gloss)) out.push({ location: at, detail: `the Macedonian names a speaker the English doesn't: ${b.text} / "${b.gloss}"` });
+      const quoteOnly = /^„[^„“]*“$/.test(b.text.trim());
+      if (quoteOnly && b.gloss.replace(/"[^"]*"/g, "").replace(/[\s.,!?;:—…-]/g, "").length) out.push({ location: at, detail: `a bare quote whose English adds narration: "${b.gloss}"` });
+    });
+    for (const q of st.qa) for (const g of [q.questionGloss, q.answerGloss ?? ""]) if (/\(/.test(g)) out.push({ location: `${st.id} ${q.id}`, detail: `an aside in the English: "${g}"` });
+  }
+  return out;
+}
+
 // --- Mixed-script lint ----------------------------------------------------------------------------
 // The mirror of the translit lint: a TARGET-language word must not smuggle in a Latin look-alike (e.g.
 // "сè" typed with Latin è instead of Cyrillic ѐ). It renders fine, but breaks word matching, familiarity

@@ -38,8 +38,8 @@ export const course: Course = {
           "source": "grammar:to-be#0"
         },
         {
-          "text": "„Добро сум.“",
-          "gloss": "\"I'm well.\"",
+          "text": "Ана: „Добро сум.“",
+          "gloss": "Ana: \"I'm well.\"",
           "source": "story:gen-s0-greet-story#3"
         },
         {
@@ -70,16 +70,16 @@ export const course: Course = {
           "front": "Can сум start a sentence?",
           "back": "No. Something comes first: Добро сум.",
           "example": {
-            "text": "„Добро сум.“",
-            "gloss": "\"I'm well.\"",
+            "text": "Ана: „Добро сум.“",
+            "gloss": "Ana: \"I'm well.\"",
             "source": "story:gen-s0-greet-story#3"
           }
         },
         {
           "kind": "blank",
           "line": {
-            "text": "„Добро сум.“",
-            "gloss": "\"I'm well.\"",
+            "text": "Ана: „Добро сум.“",
+            "gloss": "Ana: \"I'm well.\"",
             "source": "story:gen-s0-greet-story#3"
           },
           "blank": "сум",
@@ -151,8 +151,8 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "„Извинете, не разбирам.“",
-          "gloss": "\"Excuse me, I don't understand.\"",
+          "text": "Ана: „Извинете, не разбирам.“",
+          "gloss": "Ana: \"Excuse me, I don't understand.\"",
           "source": "story:gen-s0-repair-story#2"
         },
         {
@@ -191,8 +191,8 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "„Извинете, не разбирам.“",
-            "gloss": "\"Excuse me, I don't understand.\"",
+            "text": "Ана: „Извинете, не разбирам.“",
+            "gloss": "Ana: \"Excuse me, I don't understand.\"",
             "source": "story:gen-s0-repair-story#2"
           },
           "blank": "не",
@@ -271,8 +271,8 @@ export const course: Course = {
       ],
       "callbacks": [
         {
-          "text": "„Аха. Што значи 'фала'?“",
-          "gloss": "\"Uh-huh. What does 'fala' mean?\"",
+          "text": "Ана: „Аха. Што значи 'фала'?“",
+          "gloss": "Ana: \"Uh-huh. What does 'fala' mean?\"",
           "source": "story:gen-s0-repair-story#6"
         },
         {
@@ -375,8 +375,8 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "„Здраво, Марко! Како си?“",
-          "gloss": "\"Hi, Marko! How are you?\"",
+          "text": "Ана: „Здраво, Марко! Како си?“",
+          "gloss": "Ana: \"Hi, Marko! How are you?\"",
           "source": "story:gen-s0-greet-story#1"
         },
         {
@@ -397,13 +397,13 @@ export const course: Course = {
       ],
       "callbacks": [
         {
-          "text": "„Можете ли да повторите?“",
-          "gloss": "\"Can you repeat?\"",
+          "text": "Ана: „Можете ли да повторите?“",
+          "gloss": "Ana: \"Can you repeat?\"",
           "source": "story:gen-s0-repair-story#5"
         },
         {
-          "text": "„Извинете, не разбирам.“",
-          "gloss": "\"Excuse me, I don't understand.\"",
+          "text": "Ана: „Извинете, не разбирам.“",
+          "gloss": "Ana: \"Excuse me, I don't understand.\"",
           "source": "story:gen-s0-repair-story#2"
         }
       ],
@@ -446,8 +446,8 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "„Здраво, Марко! Како си?“",
-            "gloss": "\"Hi, Marko! How are you?\"",
+            "text": "Ана: „Здраво, Марко! Како си?“",
+            "gloss": "Ana: \"Hi, Marko! How are you?\"",
             "source": "story:gen-s0-greet-story#1"
           },
           "blank": "си",
@@ -489,8 +489,8 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "„Можете ли да повторите?“",
-          "gloss": "\"Can you repeat?\"",
+          "text": "Ана: „Можете ли да повторите?“",
+          "gloss": "Ana: \"Can you repeat?\"",
           "source": "story:gen-s0-repair-story#5"
         },
         {
@@ -506,8 +506,8 @@ export const course: Course = {
       ],
       "callbacks": [
         {
-          "text": "„Можете ли да повторите?“",
-          "gloss": "\"Can you repeat?\"",
+          "text": "Ана: „Можете ли да повторите?“",
+          "gloss": "Ana: \"Can you repeat?\"",
           "source": "story:gen-s0-repair-story#5"
         }
       ],
@@ -517,8 +517,8 @@ export const course: Course = {
           "front": "Where does ли go in a yes/no question?",
           "back": "Right after the verb: Можете ли да повторите?",
           "example": {
-            "text": "„Можете ли да повторите?“",
-            "gloss": "\"Can you repeat?\"",
+            "text": "Ана: „Можете ли да повторите?“",
+            "gloss": "Ana: \"Can you repeat?\"",
             "source": "story:gen-s0-repair-story#5"
           }
         },
@@ -535,8 +535,8 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "„Можете ли да повторите?“",
-            "gloss": "\"Can you repeat?\"",
+            "text": "Ана: „Можете ли да повторите?“",
+            "gloss": "Ana: \"Can you repeat?\"",
             "source": "story:gen-s0-repair-story#5"
           },
           "blank": "ли",
@@ -863,8 +863,8 @@ export const course: Course = {
           "source": "qa:gen-s0-repair-story#q1:a"
         },
         {
-          "text": "„Добар ден! Сакам јаболка.“",
-          "gloss": "\"Good day! I want apples.\"",
+          "text": "Ана: „Добар ден! Сакам јаболка.“",
+          "gloss": "Ana: \"Good day! I want apples.\"",
           "source": "story:gen-s0-survive-story#1"
         },
         {
@@ -1109,8 +1109,8 @@ export const course: Course = {
           "source": "grammar:da-modals#1"
         },
         {
-          "text": "„Можете ли да повторите?“",
-          "gloss": "\"Can you repeat?\"",
+          "text": "Ана: „Можете ли да повторите?“",
+          "gloss": "Ana: \"Can you repeat?\"",
           "source": "story:gen-s0-repair-story#5"
         },
         {
@@ -1121,8 +1121,8 @@ export const course: Course = {
       ],
       "callbacks": [
         {
-          "text": "„Можете ли да повторите?“",
-          "gloss": "\"Can you repeat?\"",
+          "text": "Ана: „Можете ли да повторите?“",
+          "gloss": "Ana: \"Can you repeat?\"",
           "source": "story:gen-s0-repair-story#5"
         },
         {
@@ -1147,8 +1147,8 @@ export const course: Course = {
           "front": "Where does да go in „Можете ли да повторите?“",
           "back": "Right before the action verb (after ли in a question).",
           "example": {
-            "text": "„Можете ли да повторите?“",
-            "gloss": "\"Can you repeat?\"",
+            "text": "Ана: „Можете ли да повторите?“",
+            "gloss": "Ana: \"Can you repeat?\"",
             "source": "story:gen-s0-repair-story#5"
           }
         },
@@ -1491,8 +1491,8 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "„Сакам едно кило јаболка. Колку чини?“",
-          "gloss": "\"I'd like a kilo of apples. How much?\"",
+          "text": "Ана: „Сакам едно кило јаболка. Колку чини?“",
+          "gloss": "Ana: \"I'd like a kilo of apples. How much is it?\"",
           "source": "story:gen-s1-market-story#4"
         },
         {
@@ -1513,8 +1513,8 @@ export const course: Course = {
       ],
       "callbacks": [
         {
-          "text": "„Сакам пет јаболка и еден леб.“",
-          "gloss": "\"I want five apples and one bread.\"",
+          "text": "Ана: „Сакам пет јаболка и еден леб.“",
+          "gloss": "Ana: \"I want five apples and one bread.\"",
           "source": "story:gen-s0-survive-story#5"
         },
         {
@@ -2000,8 +2000,8 @@ export const course: Course = {
           "source": "qa:gen-s1-directions-story#q3:a"
         },
         {
-          "text": "„Потоа одете право. Тоа е близу.“",
-          "gloss": "\"Then go straight ahead. It is near.\"",
+          "text": "Човекот: „Потоа одете право. Тоа е близу.“",
+          "gloss": "The man: \"Then go straight ahead. It is near.\"",
           "source": "story:gen-s1-directions-story#3"
         },
         {
@@ -2012,8 +2012,8 @@ export const course: Course = {
       ],
       "callbacks": [
         {
-          "text": "„Извинете, не разбирам.“",
-          "gloss": "\"Excuse me, I don't understand.\"",
+          "text": "Ана: „Извинете, не разбирам.“",
+          "gloss": "Ana: \"Excuse me, I don't understand.\"",
           "source": "story:gen-s0-repair-story#2"
         },
         {
@@ -2145,8 +2145,8 @@ export const course: Course = {
       ],
       "callbacks": [
         {
-          "text": "„Побавно, ве молам.“",
-          "gloss": "\"Slower, please.\"",
+          "text": "Ана: „Побавно, ве молам.“",
+          "gloss": "Ana: \"Slower, please.\"",
           "source": "story:gen-s0-repair-story#3"
         },
         {
@@ -2267,15 +2267,15 @@ export const course: Course = {
           "source": "scenario:gen-s2-smalltalk#1"
         },
         {
-          "text": "„Јас сум Ана. Мило ми е.“",
-          "gloss": "\"I am Ana. Nice to meet you.\"",
+          "text": "Ана: „Јас сум Ана. Мило ми е.“",
+          "gloss": "Ana: \"I am Ana. Nice to meet you.\"",
           "source": "story:gen-s1-greet-intro-story#3"
         }
       ],
       "callbacks": [
         {
-          "text": "„Јас сум Ана. Мило ми е.“",
-          "gloss": "\"I am Ana. Nice to meet you.\"",
+          "text": "Ана: „Јас сум Ана. Мило ми е.“",
+          "gloss": "Ana: \"I am Ana. Nice to meet you.\"",
           "source": "story:gen-s1-greet-intro-story#3"
         },
         {
@@ -2927,8 +2927,8 @@ export const course: Course = {
           "source": "qa:gen-s2-arrange-story#q1:a"
         },
         {
-          "text": "Кога? Во колку часот?",
-          "gloss": "When? At what time?",
+          "text": "Ана: „Кога? Во колку часот?“",
+          "gloss": "Ana: \"When? At what time?\"",
           "source": "story:gen-s2-arrange-story#4"
         },
         {
@@ -2954,8 +2954,8 @@ export const course: Course = {
           "front": "How do you ask \"at what time?\"",
           "back": "Use во колку часот? — the time frame with колку.",
           "example": {
-            "text": "Кога? Во колку часот?",
-            "gloss": "When? At what time?",
+            "text": "Ана: „Кога? Во колку часот?“",
+            "gloss": "Ana: \"When? At what time?\"",
             "source": "story:gen-s2-arrange-story#4"
           }
         },
@@ -2977,8 +2977,8 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Кога? Во колку часот?",
-            "gloss": "When? At what time?",
+            "text": "Ана: „Кога? Во колку часот?“",
+            "gloss": "Ana: \"When? At what time?\"",
             "source": "story:gen-s2-arrange-story#4"
           },
           "blank": "колку",
@@ -3034,13 +3034,13 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "Ајде да се видиме денес.",
-          "gloss": "Let's meet today.",
+          "text": "Марко: „Ајде да се видиме денес.“",
+          "gloss": "Marko: \"Let's meet today.\"",
           "source": "story:gen-s2-arrange-story#3"
         },
         {
-          "text": "Во шест часот. Каде да се видиме?",
-          "gloss": "At six o'clock. Where shall we meet?",
+          "text": "Марко: „Во шест часот. Каде да се видиме?“",
+          "gloss": "Marko: \"At six o'clock. Where shall we meet?\"",
           "source": "story:gen-s2-arrange-story#5"
         },
         {
@@ -3067,8 +3067,8 @@ export const course: Course = {
           "front": "How do you say \"let's…\"?",
           "back": "Ајде да + the verb (matched to \"we\").",
           "example": {
-            "text": "Ајде да се видиме денес.",
-            "gloss": "Let's meet today.",
+            "text": "Марко: „Ајде да се видиме денес.“",
+            "gloss": "Marko: \"Let's meet today.\"",
             "source": "story:gen-s2-arrange-story#3"
           }
         },
@@ -3077,16 +3077,16 @@ export const course: Course = {
           "front": "How do you ask \"where/when shall we…\"?",
           "back": "Question word + да + verb, no ајде.",
           "example": {
-            "text": "Во шест часот. Каде да се видиме?",
-            "gloss": "At six o'clock. Where shall we meet?",
+            "text": "Марко: „Во шест часот. Каде да се видиме?“",
+            "gloss": "Marko: \"At six o'clock. Where shall we meet?\"",
             "source": "story:gen-s2-arrange-story#5"
           }
         },
         {
           "kind": "blank",
           "line": {
-            "text": "Ајде да се видиме денес.",
-            "gloss": "Let's meet today.",
+            "text": "Марко: „Ајде да се видиме денес.“",
+            "gloss": "Marko: \"Let's meet today.\"",
             "source": "story:gen-s2-arrange-story#3"
           },
           "blank": "Ајде",
@@ -3100,8 +3100,8 @@ export const course: Course = {
         {
           "kind": "blank",
           "line": {
-            "text": "Во шест часот. Каде да се видиме?",
-            "gloss": "At six o'clock. Where shall we meet?",
+            "text": "Марко: „Во шест часот. Каде да се видиме?“",
+            "gloss": "Marko: \"At six o'clock. Where shall we meet?\"",
             "source": "story:gen-s2-arrange-story#5"
           },
           "blank": "да",
@@ -3157,8 +3157,8 @@ export const course: Course = {
       },
       "examples": [
         {
-          "text": "Извинете, ама има проблем.",
-          "gloss": "Sorry, but there's a problem.",
+          "text": "Марко: „Извинете, ама има проблем.“",
+          "gloss": "Marko: \"Sorry, but there's a problem.\"",
           "source": "story:gen-s2-problems-story#1"
         },
         {
@@ -3200,8 +3200,8 @@ export const course: Course = {
           "front": "How do you say \"there is\" vs \"there isn't\"?",
           "back": "има = there is; нема = there isn't (no extra не needed).",
           "example": {
-            "text": "Извинете, ама има проблем.",
-            "gloss": "Sorry, but there's a problem.",
+            "text": "Марко: „Извинете, ама има проблем.“",
+            "gloss": "Marko: \"Sorry, but there's a problem.\"",
             "source": "story:gen-s2-problems-story#1"
           }
         },
@@ -3802,10 +3802,10 @@ export const course: Course = {
               0,
               1,
               2,
-              3,
               4,
               5,
-              6
+              6,
+              7
             ]
           },
           "build": [
@@ -3845,10 +3845,10 @@ export const course: Course = {
               0,
               1,
               2,
-              3,
               4,
               5,
-              6
+              6,
+              7
             ]
           },
           "build": [
@@ -3867,9 +3867,9 @@ export const course: Course = {
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
           "notes": [
-            "story:gen-s0-repair-story-b#7",
-            "qa:gen-s0-repair-story-b#q2:q",
-            "qa:gen-s0-repair-story-b#q2:a"
+            "story:gen-s0-repair-story-b#5",
+            "story:gen-s0-repair-story-b#8",
+            "qa:gen-s0-repair-story-b#q2:q"
           ]
         },
         {
@@ -4158,17 +4158,12 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-greet-story-a",
+            "id": "gen-s0-greet-story",
             "lens": [
               "pt-question-words"
             ],
             "highlight": [
-              0,
-              1,
-              2,
-              3,
-              5,
-              6
+              1
             ]
           },
           "build": [
@@ -4183,10 +4178,15 @@ export const course: Course = {
             "3 new words: што, каде, Здраво",
             "Ask what, where, how, how much: question words go first",
             "Say it: today's words and examples, out loud",
-            "Read “Ана, каде си?”: spot today's pattern, then a few quick exercises",
+            "Read “Ана и Марко”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
-          "next": "Next: Choose ти for friends, вие for strangers and elders"
+          "next": "Next: Choose ти for friends, вие for strangers and elders",
+          "notes": [
+            "story:gen-s0-greet-story#0",
+            "story:gen-s0-greet-story#4",
+            "story:gen-s0-greet-story#5"
+          ]
         },
         {
           "n": 2,
@@ -4210,16 +4210,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-greet-story-a",
+            "id": "gen-s0-greet-story",
             "lens": [
               "pt-ti-vie"
             ],
             "highlight": [
-              0,
               1,
               2,
-              3,
-              6
+              4
             ]
           },
           "build": [
@@ -4234,10 +4232,14 @@ export const course: Course = {
             "3 new words: Како си?, Како сте?, Добар ден",
             "Choose ти for friends, вие for strangers and elders",
             "Say it: today's words and examples, out loud",
-            "Read “Ана, каде си?”: spot today's pattern, then a few quick exercises",
+            "Read “Ана и Марко”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
-          "next": "Next: Ask yes/no questions: ли after the verb, or дали up front"
+          "next": "Next: Ask yes/no questions: ли after the verb, or дали up front",
+          "notes": [
+            "qa:gen-s0-greet-story#q1:q",
+            "qa:gen-s0-greet-story#q3:q"
+          ]
         },
         {
           "n": 3,
@@ -4287,7 +4289,9 @@ export const course: Course = {
           ],
           "next": "Next: Practice: Yes/no questions: ли or дали",
           "notes": [
-            "story:gen-s0-greet-story-b#7"
+            "story:gen-s0-greet-story-b#2",
+            "story:gen-s0-greet-story-b#3",
+            "qa:gen-s0-greet-story-b#q1:q"
           ]
         },
         {
@@ -4311,7 +4315,7 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-greet-story",
+            "id": "gen-s0-greet-story-a",
             "lens": [
               "pt-question-words",
               "pt-ti-vie",
@@ -4320,7 +4324,8 @@ export const course: Course = {
             "highlight": [
               1,
               2,
-              4
+              6,
+              7
             ]
           },
           "build": [
@@ -4336,15 +4341,15 @@ export const course: Course = {
             "3 new words: Фала, Ве молам, Да",
             "Practice: Yes/no questions: ли or дали",
             "Say it: today's words and examples, out loud",
-            "Read “Ана и Марко”: spot everything from this chapter, then a few quick exercises",
+            "Read “Ана, каде си?”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Saying hello"
           ],
           "next": "Next: Review day: nothing new",
           "notes": [
-            "story:gen-s0-greet-story#0",
-            "story:gen-s0-greet-story#4",
-            "story:gen-s0-greet-story#5"
+            "story:gen-s0-greet-story-a#0",
+            "story:gen-s0-greet-story-a#2",
+            "story:gen-s0-greet-story-a#3"
           ]
         },
         {
@@ -4402,6 +4407,47 @@ export const course: Course = {
             }
           ],
           "story": {
+            "id": "gen-s0-greet-story-a",
+            "lens": [
+              "pt-question-words",
+              "pt-ti-vie",
+              "pt-yes-no"
+            ],
+            "highlight": [
+              1,
+              2,
+              6,
+              7
+            ]
+          },
+          "build": [
+            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-greet-v4",
+            "phrase-gen-s0-greet-v5",
+            "phrase-gen-s0-greet-v2",
+            "phrase-gen-s0-greet-v6",
+            "phrase-gen-s0-greet-v8"
+          ],
+          "speak": "gen-s0-greet",
+          "agenda": [
+            "Put it together: use this chapter in a real exchange",
+            "2 new words: Не, Догледање",
+            "Read “Ана, каде си?”: spot everything from this chapter, then a few quick exercises",
+            "Build a sentence: put the words in order",
+            "Conversation: Saying hello"
+          ],
+          "next": "Next: Put it together: use this chapter in a real exchange, then in writing",
+          "notes": [
+            "story:gen-s0-greet-story-a#4",
+            "story:gen-s0-greet-story-a#5",
+            "qa:gen-s0-greet-story-a#q1:a"
+          ]
+        },
+        {
+          "n": 7,
+          "role": "use",
+          "words": [],
+          "story": {
             "id": "gen-s0-greet-story-b",
             "lens": [
               "pt-question-words",
@@ -4424,59 +4470,19 @@ export const course: Course = {
             "phrase-gen-s0-greet-v8"
           ],
           "speak": "gen-s0-greet",
-          "agenda": [
-            "Put it together: use this chapter in a real exchange",
-            "2 new words: Не, Догледање",
-            "Read “Здраво или добар ден?”: spot everything from this chapter, then a few quick exercises",
-            "Build a sentence: put the words in order",
-            "Conversation: Saying hello"
-          ],
-          "next": "Next: Put it together: use this chapter in a real exchange, then in writing",
-          "notes": [
-            "scenario:gen-s0-greet#2",
-            "scenario:gen-s0-greet#3",
-            "scenario:gen-s0-greet#4"
-          ]
-        },
-        {
-          "n": 7,
-          "role": "use",
-          "words": [],
-          "story": {
-            "id": "gen-s0-greet-story",
-            "lens": [
-              "pt-question-words",
-              "pt-ti-vie",
-              "pt-yes-no"
-            ],
-            "highlight": [
-              1,
-              2,
-              4
-            ]
-          },
-          "build": [
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-greet-v4",
-            "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-greet-v8"
-          ],
-          "speak": "gen-s0-greet",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
-            "Read “Ана и Марко”: spot everything from this chapter, then a few quick exercises",
+            "Read “Здраво или добар ден?”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Saying hello",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
           "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
-            "qa:gen-s0-greet-story#q1:q",
-            "qa:gen-s0-greet-story#q3:q",
-            "scenario:gen-s0-greet#5"
+            "qa:gen-s0-greet-story-b#q1:a",
+            "scenario:gen-s0-greet#2",
+            "scenario:gen-s0-greet#3"
           ]
         },
         {
@@ -4847,17 +4853,15 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story-a",
+            "id": "gen-s0-repair-story",
             "lens": [
               "pt-gender",
               "pt-numbers"
             ],
             "highlight": [
-              2,
-              3,
-              4,
-              5
-            ]
+              1
+            ],
+            "reuse": true
           },
           "build": [
             "phrase-v-kolku-chini",
@@ -4871,14 +4875,14 @@ export const course: Course = {
             "3 new words: Каде е …?, Колку чини?, Имате ли …?",
             "Practice: Counting things",
             "Say it: today's words and examples, out loud",
-            "Read “Две пива, ве молам”: spot everything from this chapter, then a few quick exercises",
+            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new",
           "notes": [
-            "story:gen-s0-survive-story-a#0",
-            "story:gen-s0-survive-story-a#1",
-            "qa:gen-s0-survive-story-a#q3:q"
+            "qa:gen-s0-repair-story#q2:a",
+            "qa:gen-s0-repair-story#q3:q",
+            "qa:gen-s0-repair-story#q3:a"
           ]
         },
         {
@@ -4886,13 +4890,19 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s0-repair-story",
+            "id": "gen-s0-greet-story-a",
             "lens": [
-              "pt-gender",
-              "pt-numbers"
+              "pt-sum"
             ],
             "highlight": [
-              1
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8
             ],
             "reuse": true
           },
@@ -4907,15 +4917,15 @@ export const course: Course = {
           "speak": "gen-s0-survive",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана учи македонски” from an earlier chapter: find this chapter's patterns, then a few quick exercises",
+            "Reread “Ана, каде си?” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
             "Build a sentence: put the words in order",
             "First try at the conversation: A first small purchase"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
           "notes": [
-            "qa:gen-s0-repair-story#q2:a",
-            "qa:gen-s0-repair-story#q3:q",
-            "qa:gen-s0-repair-story#q3:a"
+            "qa:gen-s0-greet-story-a#q2:a",
+            "qa:gen-s0-greet-story-a#q3:a",
+            "scenario:gen-s0-survive#0"
           ]
         },
         {
@@ -4996,17 +5006,16 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story-b",
+            "id": "gen-s0-survive-story-a",
             "lens": [
               "pt-gender",
               "pt-numbers"
             ],
             "highlight": [
-              1,
+              2,
               3,
               4,
-              5,
-              6
+              5
             ]
           },
           "build": [
@@ -5022,16 +5031,16 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
             "3 new words: дваесет, триесет, четириесет, педесет, шеесет, седумдесет, осумдесет, деведесет, дваесет и пет",
-            "Read “Пет, петнаесет, педесет”: spot everything from this chapter, then a few quick exercises",
+            "Read “Две пива, ве молам”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: A first small purchase",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
           "next": "Next: Checkpoint: every word and grammar card from this chapter",
           "notes": [
-            "qa:gen-s0-survive-story-b#q1:q",
-            "qa:gen-s0-survive-story-b#q3:q",
-            "scenario:gen-s0-survive#0"
+            "story:gen-s0-survive-story-a#0",
+            "story:gen-s0-survive-story-a#1",
+            "qa:gen-s0-survive-story-a#q1:q"
           ]
         },
         {
@@ -5228,13 +5237,18 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s1-cafe-order-story",
+            "id": "gen-s1-cafe-order-story-b",
             "lens": [
               "pt-verbs-a"
             ],
             "highlight": [
               0,
-              2
+              1,
+              2,
+              3,
+              4,
+              5,
+              8
             ]
           },
           "build": [
@@ -5249,14 +5263,13 @@ export const course: Course = {
             "3 new words: имам, давам, Едно пиво, ве молам",
             "Change the verb ending to say who wants, has, or pays.",
             "Say it: today's words and examples, out loud",
-            "Read “Марко во кафето”: spot today's pattern, then a few quick exercises",
+            "Read “Пак кај Петар”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
           "next": "Next: Practice: Verb endings: the -а verbs",
           "notes": [
-            "story:gen-s1-cafe-order-story#0",
-            "story:gen-s1-cafe-order-story#1",
-            "story:gen-s1-cafe-order-story#2"
+            "story:gen-s1-cafe-order-story-b#3",
+            "qa:gen-s1-cafe-order-story-b#q2:a"
           ]
         },
         {
@@ -5310,11 +5323,7 @@ export const course: Course = {
             "Read “Пак кај Петар”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
-          "next": "Next: Say “the”: add -от, -та or -то to the end of the noun",
-          "notes": [
-            "story:gen-s1-cafe-order-story-b#3",
-            "qa:gen-s1-cafe-order-story-b#q2:a"
-          ]
+          "next": "Next: Say “the”: add -от, -та or -то to the end of the noun"
         },
         {
           "n": 3,
@@ -5361,14 +5370,14 @@ export const course: Course = {
             "3 new words: чај, сок, сто, двесте, триста, четиристотини, петстотини",
             "Say “the”: add -от, -та or -то to the end of the noun",
             "Say it: today's words and examples, out loud",
-            "Read “Марко во кафето”: spot today's pattern, then a few quick exercises",
+            "Read “Марко во кафулето”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new",
           "notes": [
-            "story:gen-s1-cafe-order-story#3",
-            "story:gen-s1-cafe-order-story#4",
-            "story:gen-s1-cafe-order-story#5"
+            "story:gen-s1-cafe-order-story#0",
+            "story:gen-s1-cafe-order-story#1",
+            "story:gen-s1-cafe-order-story#2"
           ]
         },
         {
@@ -5500,8 +5509,7 @@ export const course: Course = {
               5,
               6,
               7,
-              8,
-              9
+              8
             ]
           },
           "build": [
@@ -5524,7 +5532,7 @@ export const course: Course = {
           "notes": [
             "story:gen-s1-cafe-order-story-a#0",
             "story:gen-s1-cafe-order-story-a#1",
-            "story:gen-s1-cafe-order-story-a#5"
+            "story:gen-s1-cafe-order-story-a#4"
           ]
         },
         {
@@ -5557,8 +5565,7 @@ export const course: Course = {
               5,
               6,
               7,
-              8,
-              9
+              8
             ]
           },
           "build": [
@@ -5932,6 +5939,7 @@ export const course: Course = {
               4,
               5,
               6,
+              7,
               8,
               9
             ]
@@ -5988,15 +5996,15 @@ export const course: Course = {
           "speak": "gen-s1-greet-intro",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Марко во кафето” from an earlier chapter: find this chapter's patterns, then a few quick exercises",
+            "Reread “Марко во кафулето” from an earlier chapter: find this chapter's patterns, then a few quick exercises",
             "Build a sentence: put the words in order",
             "First try at the conversation: Meeting someone at the bar"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange",
           "notes": [
-            "story:gen-s1-cafe-order-story#6",
-            "qa:gen-s1-cafe-order-story#q3:q",
-            "scenario:gen-s1-greet-intro#2"
+            "story:gen-s1-cafe-order-story#3",
+            "story:gen-s1-cafe-order-story#4",
+            "story:gen-s1-cafe-order-story#5"
           ]
         },
         {
@@ -6029,6 +6037,7 @@ export const course: Course = {
               4,
               5,
               6,
+              7,
               8,
               9
             ]
@@ -6875,15 +6884,13 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s1-directions-story-a",
+            "id": "gen-s1-directions-story",
             "lens": [
               "pt-commands"
             ],
             "highlight": [
-              1,
               2,
-              5,
-              6
+              3
             ]
           },
           "build": [
@@ -6898,13 +6905,10 @@ export const course: Course = {
             "3 new words: Свртете лево, десно, право",
             "Tell someone what to do: Свртете, Одете, and немој да for \"don't\".",
             "Say it: today's words and examples, out loud",
-            "Read “Оди право, Марко!”: spot today's pattern, then a few quick exercises",
+            "Read “Ана бара центар”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
-          "next": "Next: Build \"more\" and \"most\": stick по- or нај- on the front",
-          "notes": [
-            "qa:gen-s1-directions-story-a#q3:q"
-          ]
+          "next": "Next: Build \"more\" and \"most\": stick по- or нај- on the front"
         },
         {
           "n": 3,
@@ -6928,14 +6932,16 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s0-survive-story-b",
+            "id": "gen-s1-directions-story-b",
             "lens": [
               "pt-more-most"
             ],
             "highlight": [
-              2
-            ],
-            "reuse": true
+              2,
+              3,
+              4,
+              6
+            ]
           },
           "build": [
             "phrase-gen-s1-directions-v5",
@@ -6949,7 +6955,7 @@ export const course: Course = {
             "3 new words: близу / далеку, тука / таму, од",
             "Build \"more\" and \"most\": stick по- or нај- on the front",
             "Say it: today's words and examples, out loud",
-            "Reread “Пет, петнаесет, педесет” from an earlier chapter: find more and most: по- and нај-, then a few quick exercises",
+            "Read “Од Скопје до Битола”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
@@ -7016,7 +7022,7 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s1-directions-story-b",
+            "id": "gen-s1-directions-story-a",
             "lens": [
               "pt-prepositions",
               "pt-commands",
@@ -7030,7 +7036,8 @@ export const course: Course = {
               4,
               5,
               6,
-              7
+              7,
+              8
             ]
           },
           "build": [
@@ -7045,12 +7052,13 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange",
             "3 new words: автобус, такси, билет",
-            "Read “Од Скопје до Битола”: spot everything from this chapter, then a few quick exercises",
+            "Read “Оди право, Марко!”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Asking the way"
           ],
           "next": "Next: Put it together: use this chapter in a real exchange, then in writing",
           "notes": [
+            "qa:gen-s1-directions-story-a#q3:q",
             "scenario:gen-s1-directions#6"
           ]
         },
@@ -7075,7 +7083,7 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s1-directions-story-b",
+            "id": "gen-s1-directions-story-a",
             "lens": [
               "pt-prepositions",
               "pt-commands",
@@ -7089,7 +7097,8 @@ export const course: Course = {
               4,
               5,
               6,
-              7
+              7,
+              8
             ]
           },
           "build": [
@@ -7105,7 +7114,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
             "3 new words: во центарот, улица, до",
-            "Read “Од Скопје до Битола”: spot everything from this chapter, then a few quick exercises",
+            "Read “Оди право, Марко!”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: A tourist asks you",
             "Write it: short lines from English into Macedonian, one at a time"
@@ -7935,15 +7944,12 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s1-directions-story-a",
+            "id": "gen-s1-market-story-b",
             "lens": [
-              "pt-sum"
+              "pt-ne"
             ],
             "highlight": [
-              0,
-              1,
-              3,
-              4
+              3
             ],
             "reuse": true
           },
@@ -7958,7 +7964,7 @@ export const course: Course = {
           "speak": "gen-s2-pasttime",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Оди право, Марко!” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
+            "Reread “Го сакаш ли кафето?” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
             "Build a sentence: put the words in order",
             "First try at the conversation: Telling someone about your day"
           ],
@@ -8287,15 +8293,14 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s2-home-family-story-b",
+            "id": "gen-s2-home-family-story",
             "lens": [
               "pt-possessives"
             ],
             "highlight": [
-              0,
-              1,
               3,
-              6
+              4,
+              7
             ]
           },
           "build": [
@@ -8310,7 +8315,7 @@ export const course: Course = {
             "3 new words: мојот / мојата, мој, мајка / татко",
             "Say my and your to match the noun — plus the family shortcut",
             "Say it: today's words and examples, out loud",
-            "Read “Ова е мојот брат”: spot today's pattern, then a few quick exercises",
+            "Read “Мојот живот”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
           "next": "Next: Spot two odd plurals: деца (children) and луѓе (people)"
@@ -8337,11 +8342,13 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s2-home-family-story",
+            "id": "gen-s2-home-family-story-a",
             "lens": [
               "pt-irregular-plurals"
             ],
-            "highlight": []
+            "highlight": [
+              4
+            ]
           },
           "build": [
             "phrase-gen-s2-home-family-v2",
@@ -8355,10 +8362,13 @@ export const course: Course = {
             "3 new words: брат / сестра, жена / маж, дете / деца",
             "Spot two odd plurals: деца (children) and луѓе (people)",
             "Say it: today's words and examples, out loud",
-            "Read “Мојот живот”, then a few quick exercises",
+            "Read “Каде живеете?”: spot today's pattern, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
-          "next": "Next: Practice: Odd plurals: деца and луѓе"
+          "next": "Next: Practice: Odd plurals: деца and луѓе",
+          "notes": [
+            "qa:gen-s2-home-family-story-a#q2:q"
+          ]
         },
         {
           "n": 3,
@@ -8381,16 +8391,15 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s2-home-family-story-a",
+            "id": "gen-s2-home-family-story-b",
             "lens": [
               "pt-possessives",
               "pt-irregular-plurals"
             ],
             "highlight": [
+              0,
               1,
-              3,
-              4,
-              7
+              3
             ]
           },
           "build": [
@@ -8405,7 +8414,7 @@ export const course: Course = {
             "3 new words: Живеам во …, Работам како …, твој",
             "Practice: Odd plurals: деца and луѓе",
             "Say it: today's words and examples, out loud",
-            "Read “Каде живеете?”: spot everything from this chapter, then a few quick exercises",
+            "Read “Ова е мојот брат”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order"
           ],
           "next": "Next: Review day: nothing new"
@@ -8415,11 +8424,13 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s1-directions-story",
+            "id": "gen-s2-pasttime-story-a",
             "lens": [
-              "pt-ne"
+              "pt-question-words"
             ],
             "highlight": [
+              1,
+              5,
               7
             ],
             "reuse": true
@@ -8435,7 +8446,7 @@ export const course: Course = {
           "speak": "gen-s2-home-family",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Ана бара центар” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
+            "Reread “Каде беше вчера?” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
             "Build a sentence: put the words in order",
             "First try at the conversation: Talking about your family"
           ],
@@ -8503,16 +8514,15 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s2-home-family-story-b",
+            "id": "gen-s2-home-family-story",
             "lens": [
               "pt-possessives",
               "pt-irregular-plurals"
             ],
             "highlight": [
-              0,
-              1,
               3,
-              6
+              4,
+              7
             ]
           },
           "build": [
@@ -8528,7 +8538,7 @@ export const course: Course = {
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
             "1 new word: стан",
-            "Read “Ова е мојот брат”: spot everything from this chapter, then a few quick exercises",
+            "Read “Мојот живот”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Talking about your family",
             "Write it: short lines from English into Macedonian, one at a time"
@@ -8751,14 +8761,13 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s2-pasttime-story-a",
+            "id": "gen-s2-home-family-story-a",
             "lens": [
-              "pt-question-words"
+              "pt-ti-vie"
             ],
             "highlight": [
-              1,
-              5,
-              7
+              2,
+              5
             ],
             "reuse": true
           },
@@ -8773,7 +8782,7 @@ export const course: Course = {
           "speak": "gen-s2-arrange",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Каде беше вчера?” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
+            "Reread “Каде живеете?” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
             "Build a sentence: put the words in order",
             "First try at the conversation: Arranging to meet by phone"
           ],
@@ -9111,13 +9120,12 @@ export const course: Course = {
           "role": "review",
           "words": [],
           "story": {
-            "id": "gen-s2-home-family-story-a",
+            "id": "gen-s2-pasttime-story-b",
             "lens": [
-              "pt-ti-vie"
+              "pt-yes-no"
             ],
             "highlight": [
-              2,
-              5
+              4
             ],
             "reuse": true
           },
@@ -9132,7 +9140,7 @@ export const course: Course = {
           "speak": "gen-s2-problems",
           "agenda": [
             "Review day: nothing new",
-            "Reread “Каде живеете?” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
+            "Reread “Вчера на кафе” from an earlier chapter: a refresher on what you learned there, then a few quick exercises",
             "Build a sentence: put the words in order",
             "First try at the conversation: Sorting out a problem"
           ],
@@ -9166,7 +9174,7 @@ export const course: Course = {
             ],
             "highlight": [
               1,
-              4
+              3
             ]
           },
           "build": [
@@ -10885,14 +10893,6 @@ export const course: Course = {
       "pt-question-words",
       "pt-past"
     ],
-    "qa:gen-s2-pasttime-story#q1:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-pasttime-story#q2:q": [
-      "pt-question-words",
-      "pt-past",
-      "pt-prepositions"
-    ],
     "qa:gen-s2-pasttime-story#q2:a": [],
     "qa:gen-s2-pasttime-story#q3:q": [
       "pt-commands",
@@ -10991,7 +10991,6 @@ export const course: Course = {
       "pt-the",
       "pt-prepositions"
     ],
-    "qa:gen-s2-home-family-story#q2:a": [],
     "qa:gen-s2-home-family-story#q3:q": [
       "pt-commands",
       "pt-possessives",
@@ -11210,10 +11209,6 @@ export const course: Course = {
       "pt-da",
       "pt-go-ja-gi",
       "pt-the"
-    ],
-    "qa:gen-s2-problems-story#q3:a": [
-      "pt-verbs-a",
-      "pt-da"
     ],
     "scenario:gen-s2-problems#0": [
       "pt-adjectives",
@@ -11911,222 +11906,6 @@ export const course: Course = {
     "vocab:add-me-boli": [
       "pt-go-ja-gi"
     ],
-    "story:gen-s0-repair-story-a#0": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s0-repair-story-a#1": [
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-a#2": [
-      "pt-ne",
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-a#3": [
-      "pt-ne",
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-a#4": [
-      "pt-ne",
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-a#5": [
-      "pt-ne",
-      "pt-verbs-a",
-      "pt-commands"
-    ],
-    "story:gen-s0-repair-story-a#6": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s0-repair-story-a#7": [
-      "pt-ne",
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "qa:gen-s0-repair-story-a#q1:q": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-repair-story-a#q1:a": [
-      "pt-ne",
-      "pt-sum"
-    ],
-    "qa:gen-s0-repair-story-a#q2:q": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "qa:gen-s0-repair-story-a#q2:a": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "qa:gen-s0-repair-story-a#q3:q": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-repair-story-a#q3:a": [
-      "pt-ne",
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-b#0": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s0-repair-story-b#1": [
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-b#2": [
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-b#3": [
-      "pt-ne",
-      "pt-verbs-a",
-      "pt-commands",
-      "pt-more-most"
-    ],
-    "story:gen-s0-repair-story-b#4": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s0-repair-story-b#5": [
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-b#6": [
-      "pt-sum"
-    ],
-    "story:gen-s0-repair-story-b#7": [
-      "pt-question-words",
-      "pt-se",
-      "pt-prepositions"
-    ],
-    "story:gen-s0-repair-story-b#8": [],
-    "qa:gen-s0-repair-story-b#q1:q": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-repair-story-b#q1:a": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-repair-story-b#q2:q": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "qa:gen-s0-repair-story-b#q2:a": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "qa:gen-s0-repair-story-b#q3:q": [
-      "pt-question-words",
-      "pt-verbs-a",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s0-repair-story-b#q3:a": [
-      "pt-more-most",
-      "pt-verbs-a"
-    ],
-    "story:gen-s0-greet-story-a#0": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-a#1": [
-      "pt-sum",
-      "pt-question-words",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-a#2": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-a#3": [
-      "pt-sum",
-      "pt-question-words",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-a#4": [
-      "pt-sum"
-    ],
-    "story:gen-s0-greet-story-a#5": [
-      "pt-question-words",
-      "pt-sum"
-    ],
-    "story:gen-s0-greet-story-a#6": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "qa:gen-s0-greet-story-a#q1:q": [
-      "pt-question-words",
-      "pt-sum"
-    ],
-    "qa:gen-s0-greet-story-a#q1:a": [],
-    "qa:gen-s0-greet-story-a#q2:q": [
-      "pt-question-words",
-      "pt-sum"
-    ],
-    "qa:gen-s0-greet-story-a#q2:a": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-greet-story-a#q3:q": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "qa:gen-s0-greet-story-a#q3:a": [
-      "pt-sum"
-    ],
-    "story:gen-s0-greet-story-b#0": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-b#1": [
-      "pt-sum"
-    ],
-    "story:gen-s0-greet-story-b#2": [
-      "pt-sum",
-      "pt-yes-no",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-b#3": [
-      "pt-sum"
-    ],
-    "story:gen-s0-greet-story-b#4": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-b#5": [
-      "pt-sum",
-      "pt-yes-no",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-greet-story-b#6": [
-      "pt-sum"
-    ],
-    "story:gen-s0-greet-story-b#7": [
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s0-greet-story-b#q1:q": [
-      "pt-yes-no",
-      "pt-sum"
-    ],
-    "qa:gen-s0-greet-story-b#q1:a": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-greet-story-b#q2:q": [
-      "pt-question-words",
-      "pt-sum"
-    ],
-    "qa:gen-s0-greet-story-b#q2:a": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-greet-story-b#q3:q": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "qa:gen-s0-greet-story-b#q3:a": [
-      "pt-sum"
-    ],
     "vocab:add-bi-sakal": [],
     "vocab:add-days-a": [],
     "vocab:add-days-b": [],
@@ -12194,111 +11973,6 @@ export const course: Course = {
       "pt-sum"
     ],
     "scenario:gen-s0-greet-convo-b#7": [],
-    "story:gen-s0-survive-story-a#0": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s0-survive-story-a#1": [
-      "pt-yes-no",
-      "pt-verbs-a"
-    ],
-    "story:gen-s0-survive-story-a#2": [
-      "pt-gender",
-      "pt-numbers"
-    ],
-    "story:gen-s0-survive-story-a#3": [
-      "pt-numbers",
-      "pt-sum"
-    ],
-    "story:gen-s0-survive-story-a#4": [
-      "pt-question-words",
-      "pt-numbers"
-    ],
-    "story:gen-s0-survive-story-a#5": [
-      "pt-numbers"
-    ],
-    "story:gen-s0-survive-story-a#6": [
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "story:gen-s0-survive-story-a#7": [
-      "pt-ti-vie",
-      "pt-ne",
-      "pt-sum"
-    ],
-    "story:gen-s0-survive-story-a#8": [
-      "pt-ne",
-      "pt-sum"
-    ],
-    "qa:gen-s0-survive-story-a#q1:q": [
-      "pt-question-words"
-    ],
-    "qa:gen-s0-survive-story-a#q1:a": [
-      "pt-numbers"
-    ],
-    "qa:gen-s0-survive-story-a#q2:q": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-survive-story-a#q2:a": [
-      "pt-sum"
-    ],
-    "qa:gen-s0-survive-story-a#q3:q": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s0-survive-story-a#q3:a": [
-      "pt-gender"
-    ],
-    "story:gen-s0-survive-story-b#0": [
-      "pt-question-words",
-      "pt-se",
-      "pt-prepositions"
-    ],
-    "story:gen-s0-survive-story-b#1": [
-      "pt-sum",
-      "pt-numbers"
-    ],
-    "story:gen-s0-survive-story-b#2": [
-      "pt-more-most"
-    ],
-    "story:gen-s0-survive-story-b#3": [
-      "pt-numbers"
-    ],
-    "story:gen-s0-survive-story-b#4": [
-      "pt-gender",
-      "pt-sum",
-      "pt-numbers"
-    ],
-    "story:gen-s0-survive-story-b#5": [
-      "pt-numbers"
-    ],
-    "story:gen-s0-survive-story-b#6": [
-      "pt-ne",
-      "pt-verbs-a",
-      "pt-gender"
-    ],
-    "qa:gen-s0-survive-story-b#q1:q": [
-      "pt-question-words",
-      "pt-se"
-    ],
-    "qa:gen-s0-survive-story-b#q1:a": [
-      "pt-numbers"
-    ],
-    "qa:gen-s0-survive-story-b#q2:q": [
-      "pt-question-words",
-      "pt-numbers",
-      "pt-gender"
-    ],
-    "qa:gen-s0-survive-story-b#q2:a": [
-      "pt-numbers"
-    ],
-    "qa:gen-s0-survive-story-b#q3:q": [
-      "pt-commands"
-    ],
-    "qa:gen-s0-survive-story-b#q3:a": [
-      "pt-numbers"
-    ],
     "scenario:gen-s0-survive-convo-b#0": [
       "pt-question-words",
       "pt-sum",
@@ -12339,127 +12013,6 @@ export const course: Course = {
       "pt-numbers"
     ],
     "scenario:gen-s0-survive-convo-b#9": [],
-    "story:gen-s1-cafe-order-story-a#0": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-cafe-order-story-a#1": [
-      "pt-question-words",
-      "pt-future",
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-cafe-order-story-a#2": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-cafe-order-story-a#3": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-cafe-order-story-a#4": [
-      "pt-verbs-a",
-      "pt-yes-no"
-    ],
-    "story:gen-s1-cafe-order-story-a#5": [
-      "pt-verbs-a",
-      "pt-the",
-      "pt-commands"
-    ],
-    "story:gen-s1-cafe-order-story-a#6": [
-      "pt-the",
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-cafe-order-story-a#7": [
-      "pt-verbs-a",
-      "pt-numbers"
-    ],
-    "story:gen-s1-cafe-order-story-a#8": [
-      "pt-verbs-a",
-      "pt-numbers",
-      "pt-ti-vie"
-    ],
-    "story:gen-s1-cafe-order-story-a#9": [
-      "pt-verbs-a",
-      "pt-numbers",
-      "pt-ti-vie"
-    ],
-    "qa:gen-s1-cafe-order-story-a#q1:q": [
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-cafe-order-story-a#q1:a": [
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-cafe-order-story-a#q2:q": [
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-cafe-order-story-a#q2:a": [
-      "pt-numbers"
-    ],
-    "qa:gen-s1-cafe-order-story-a#q3:q": [
-      "pt-question-words",
-      "pt-verbs-a",
-      "pt-ti-vie"
-    ],
-    "qa:gen-s1-cafe-order-story-a#q3:a": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-cafe-order-story-b#0": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-cafe-order-story-b#1": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-cafe-order-story-b#2": [
-      "pt-verbs-a",
-      "pt-yes-no"
-    ],
-    "story:gen-s1-cafe-order-story-b#3": [
-      "pt-verbs-a",
-      "pt-the",
-      "pt-sum",
-      "pt-adjectives"
-    ],
-    "story:gen-s1-cafe-order-story-b#4": [
-      "pt-verbs-a",
-      "pt-numbers"
-    ],
-    "story:gen-s1-cafe-order-story-b#5": [
-      "pt-verbs-a",
-      "pt-yes-no"
-    ],
-    "story:gen-s1-cafe-order-story-b#6": [
-      "pt-question-words",
-      "pt-numbers"
-    ],
-    "story:gen-s1-cafe-order-story-b#7": [
-      "pt-numbers"
-    ],
-    "story:gen-s1-cafe-order-story-b#8": [
-      "pt-verbs-a",
-      "pt-numbers"
-    ],
-    "qa:gen-s1-cafe-order-story-b#q1:q": [
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-cafe-order-story-b#q1:a": [
-      "pt-numbers"
-    ],
-    "qa:gen-s1-cafe-order-story-b#q2:q": [
-      "pt-sum",
-      "pt-the"
-    ],
-    "qa:gen-s1-cafe-order-story-b#q2:a": [
-      "pt-sum",
-      "pt-adjectives"
-    ],
-    "qa:gen-s1-cafe-order-story-b#q3:q": [
-      "pt-verbs-a",
-      "pt-ti-vie"
-    ],
-    "qa:gen-s1-cafe-order-story-b#q3:a": [
-      "pt-verbs-a"
-    ],
     "scenario:gen-s1-cafe-order-convo-b#0": [
       "pt-sum"
     ],
@@ -12499,127 +12052,6 @@ export const course: Course = {
     ],
     "scenario:gen-s1-cafe-order-convo-b#9": [
       "pt-verbs-a"
-    ],
-    "story:gen-s1-greet-intro-story-a#0": [
-      "pt-sum",
-      "pt-the",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-greet-intro-story-a#1": [
-      "pt-question-words",
-      "pt-ti-vie",
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-greet-intro-story-a#2": [
-      "pt-sum",
-      "pt-ti-vie",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-greet-intro-story-a#3": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-greet-intro-story-a#4": [
-      "pt-question-words",
-      "pt-verbs-e-i",
-      "pt-ti-vie"
-    ],
-    "story:gen-s1-greet-intro-story-a#5": [
-      "pt-verbs-e-i",
-      "pt-ne"
-    ],
-    "story:gen-s1-greet-intro-story-a#6": [
-      "pt-ti-vie",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s1-greet-intro-story-a#7": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-greet-intro-story-a#8": [
-      "pt-sum",
-      "pt-mi-ti-mu",
-      "pt-se"
-    ],
-    "story:gen-s1-greet-intro-story-a#9": [
-      "pt-verbs-e-i",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-greet-intro-story-a#q1:q": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-greet-intro-story-a#q1:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-greet-intro-story-a#q2:q": [
-      "pt-yes-no",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-greet-intro-story-a#q2:a": [
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-greet-intro-story-a#q3:q": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-greet-intro-story-a#q3:a": [
-      "pt-prepositions",
-      "pt-sum"
-    ],
-    "story:gen-s1-greet-intro-story-b#0": [
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s1-greet-intro-story-b#1": [
-      "pt-question-words",
-      "pt-verbs-e-i",
-      "pt-ti-vie"
-    ],
-    "story:gen-s1-greet-intro-story-b#2": [
-      "pt-ne",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s1-greet-intro-story-b#3": [
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s1-greet-intro-story-b#4": [
-      "pt-question-words",
-      "pt-verbs-e-i",
-      "pt-ti-vie"
-    ],
-    "story:gen-s1-greet-intro-story-b#5": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-greet-intro-story-b#6": [
-      "pt-ti-vie",
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-greet-intro-story-b#7": [
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-greet-intro-story-b#q1:q": [
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-greet-intro-story-b#q1:a": [],
-    "qa:gen-s1-greet-intro-story-b#q2:q": [
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-greet-intro-story-b#q2:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-greet-intro-story-b#q3:q": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-greet-intro-story-b#q3:a": [
-      "pt-verbs-e-i"
     ],
     "scenario:gen-s1-greet-intro-convo-b#0": [
       "pt-sum",
@@ -12664,160 +12096,11 @@ export const course: Course = {
       "pt-verbs-e-i",
       "pt-sum"
     ],
-    "scenario:gen-s1-greet-intro-convo-b#9": [
-      "pt-sum",
-      "pt-prepositions",
-      "pt-ti-vie",
-      "pt-verbs-e-i"
-    ],
-    "scenario:gen-s1-greet-intro-convo-b#10": [
-      "pt-verbs-e-i"
-    ],
     "scenario:gen-s1-greet-intro-convo-b#11": [
       "pt-verbs-e-i",
       "pt-prepositions",
       "pt-mi-ti-mu",
       "pt-sum"
-    ],
-    "story:gen-s1-market-story-a#0": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-market-story-a#1": [
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-market-story-a#2": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-market-story-a#3": [
-      "pt-ti-vie",
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-market-story-a#4": [
-      "pt-the",
-      "pt-sum",
-      "pt-adjectives"
-    ],
-    "story:gen-s1-market-story-a#5": [
-      "pt-the",
-      "pt-sum",
-      "pt-adjectives",
-      "pt-go-ja-gi",
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-market-story-a#6": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-the"
-    ],
-    "story:gen-s1-market-story-a#7": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-the"
-    ],
-    "story:gen-s1-market-story-a#8": [],
-    "qa:gen-s1-market-story-a#q1:q": [
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-market-story-a#q1:a": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-the"
-    ],
-    "qa:gen-s1-market-story-a#q2:q": [
-      "pt-sum",
-      "pt-the"
-    ],
-    "qa:gen-s1-market-story-a#q2:a": [
-      "pt-adjectives",
-      "pt-sum"
-    ],
-    "qa:gen-s1-market-story-a#q3:q": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-market-story-a#q3:a": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-the"
-    ],
-    "story:gen-s1-market-story-b#0": [
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s1-market-story-b#1": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-yes-no",
-      "pt-the"
-    ],
-    "story:gen-s1-market-story-b#2": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-adjectives",
-      "pt-sum"
-    ],
-    "story:gen-s1-market-story-b#3": [
-      "pt-the",
-      "pt-ne",
-      "pt-sum",
-      "pt-adjectives",
-      "pt-go-ja-gi",
-      "pt-verbs-a"
-    ],
-    "story:gen-s1-market-story-b#4": [
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s1-market-story-b#5": [
-      "pt-the",
-      "pt-plurals",
-      "pt-sum",
-      "pt-adjectives"
-    ],
-    "story:gen-s1-market-story-b#6": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-yes-no",
-      "pt-the",
-      "pt-plurals"
-    ],
-    "story:gen-s1-market-story-b#7": [
-      "pt-go-ja-gi",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-market-story-b#q1:q": [
-      "pt-yes-no",
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-the"
-    ],
-    "qa:gen-s1-market-story-b#q1:a": [
-      "pt-ne",
-      "pt-go-ja-gi",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s1-market-story-b#q2:q": [
-      "pt-sum",
-      "pt-the",
-      "pt-plurals"
-    ],
-    "qa:gen-s1-market-story-b#q2:a": [
-      "pt-adjectives",
-      "pt-sum"
-    ],
-    "qa:gen-s1-market-story-b#q3:q": [
-      "pt-ti-vie",
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-yes-no",
-      "pt-the",
-      "pt-plurals"
-    ],
-    "qa:gen-s1-market-story-b#q3:a": [
-      "pt-go-ja-gi",
-      "pt-verbs-a"
     ],
     "scenario:gen-s1-market-convo-b#0": [
       "pt-adjectives",
@@ -12863,137 +12146,6 @@ export const course: Course = {
     ],
     "scenario:gen-s1-market-convo-b#9": [
       "pt-numbers"
-    ],
-    "story:gen-s1-directions-story-a#0": [
-      "pt-sum",
-      "pt-prepositions",
-      "pt-the"
-    ],
-    "story:gen-s1-directions-story-a#1": [
-      "pt-commands",
-      "pt-question-words",
-      "pt-sum",
-      "pt-the"
-    ],
-    "story:gen-s1-directions-story-a#2": [
-      "pt-ti-vie",
-      "pt-verbs-e-i",
-      "pt-prepositions",
-      "pt-commands"
-    ],
-    "story:gen-s1-directions-story-a#3": [
-      "pt-sum"
-    ],
-    "story:gen-s1-directions-story-a#4": [
-      "pt-sum"
-    ],
-    "story:gen-s1-directions-story-a#5": [
-      "pt-commands"
-    ],
-    "story:gen-s1-directions-story-a#6": [
-      "pt-ti-vie",
-      "pt-commands",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-directions-story-a#7": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-directions-story-a#8": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-directions-story-a#q1:q": [
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-directions-story-a#q1:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-directions-story-a#q2:q": [
-      "pt-prepositions",
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-directions-story-a#q2:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-directions-story-a#q3:q": [
-      "pt-commands",
-      "pt-mi-ti-mu",
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-directions-story-a#q3:a": [
-      "pt-commands"
-    ],
-    "story:gen-s1-directions-story-b#0": [
-      "pt-verbs-a",
-      "pt-da",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-directions-story-b#1": [
-      "pt-question-words",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s1-directions-story-b#2": [
-      "pt-ti-vie",
-      "pt-verbs-e-i",
-      "pt-prepositions",
-      "pt-the",
-      "pt-sum",
-      "pt-more-most"
-    ],
-    "story:gen-s1-directions-story-b#3": [
-      "pt-the",
-      "pt-sum",
-      "pt-more-most"
-    ],
-    "story:gen-s1-directions-story-b#4": [
-      "pt-more-most",
-      "pt-sum"
-    ],
-    "story:gen-s1-directions-story-b#5": [
-      "pt-verbs-e-i",
-      "pt-prepositions",
-      "pt-ti-vie"
-    ],
-    "story:gen-s1-directions-story-b#6": [
-      "pt-verbs-e-i",
-      "pt-prepositions",
-      "pt-sum",
-      "pt-more-most"
-    ],
-    "story:gen-s1-directions-story-b#7": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-directions-story-b#q1:q": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-more-most"
-    ],
-    "qa:gen-s1-directions-story-b#q1:a": [
-      "pt-the"
-    ],
-    "qa:gen-s1-directions-story-b#q2:q": [
-      "pt-prepositions",
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s1-directions-story-b#q2:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-directions-story-b#q3:q": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s1-directions-story-b#q3:a": [
-      "pt-prepositions"
     ],
     "scenario:gen-s1-directions-convo-b#0": [
       "pt-commands",
@@ -13044,141 +12196,6 @@ export const course: Course = {
       "pt-numbers",
       "pt-ti-vie",
       "pt-verbs-a"
-    ],
-    "story:gen-s2-smalltalk-story-a#0": [
-      "pt-sum",
-      "pt-prepositions",
-      "pt-the"
-    ],
-    "story:gen-s2-smalltalk-story-a#1": [
-      "pt-mi-ti-mu",
-      "pt-yes-no"
-    ],
-    "story:gen-s2-smalltalk-story-a#2": [
-      "pt-mi-ti-mu"
-    ],
-    "story:gen-s2-smalltalk-story-a#3": [
-      "pt-mi-ti-mu",
-      "pt-yes-no"
-    ],
-    "story:gen-s2-smalltalk-story-a#4": [
-      "pt-mi-ti-mu",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-smalltalk-story-a#5": [
-      "pt-mi-ti-mu",
-      "pt-prepositions",
-      "pt-the"
-    ],
-    "story:gen-s2-smalltalk-story-a#6": [
-      "pt-ne",
-      "pt-mi-ti-mu",
-      "pt-the"
-    ],
-    "story:gen-s2-smalltalk-story-a#7": [
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-smalltalk-story-a#8": [
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-smalltalk-story-a#9": [
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-smalltalk-story-a#q1:q": [
-      "pt-question-words",
-      "pt-mi-ti-mu",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-smalltalk-story-a#q1:a": [],
-    "qa:gen-s2-smalltalk-story-a#q2:q": [
-      "pt-question-words",
-      "pt-future",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-smalltalk-story-a#q2:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-smalltalk-story-a#q3:q": [
-      "pt-mi-ti-mu",
-      "pt-the"
-    ],
-    "qa:gen-s2-smalltalk-story-a#q3:a": [
-      "pt-ne",
-      "pt-mi-ti-mu"
-    ],
-    "story:gen-s2-smalltalk-story-b#0": [
-      "pt-the",
-      "pt-sum",
-      "pt-adjectives"
-    ],
-    "story:gen-s2-smalltalk-story-b#1": [
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-smalltalk-story-b#2": [
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-plurals"
-    ],
-    "story:gen-s2-smalltalk-story-b#3": [
-      "pt-future",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s2-smalltalk-story-b#4": [
-      "pt-future",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s2-smalltalk-story-b#5": [
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-ne",
-      "pt-mi-ti-mu",
-      "pt-the"
-    ],
-    "story:gen-s2-smalltalk-story-b#6": [
-      "pt-verbs-e-i",
-      "pt-sum",
-      "pt-adjectives",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-smalltalk-story-b#7": [
-      "pt-se",
-      "pt-future",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-smalltalk-story-b#q1:q": [
-      "pt-yes-no",
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-smalltalk-story-b#q1:a": [
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-smalltalk-story-b#q2:q": [
-      "pt-yes-no",
-      "pt-future",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-smalltalk-story-b#q2:a": [
-      "pt-future",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-smalltalk-story-b#q3:q": [
-      "pt-future",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-smalltalk-story-b#q3:a": [
-      "pt-future",
-      "pt-verbs-e-i"
     ],
     "scenario:gen-s2-smalltalk-convo-b#0": [
       "pt-question-words",
@@ -13235,114 +12252,6 @@ export const course: Course = {
     "vocab:add-im-se-dopagja": [
       "pt-mi-ti-mu"
     ],
-    "story:gen-s2-pasttime-story-a#0": [
-      "pt-past",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-pasttime-story-a#1": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-a#2": [
-      "pt-past",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-pasttime-story-a#3": [
-      "pt-past",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-pasttime-story-a#4": [
-      "pt-past",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-pasttime-story-a#5": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-a#6": [
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-a#7": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-a#8": [
-      "pt-past",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-pasttime-story-a#q1:q": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "qa:gen-s2-pasttime-story-a#q1:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-pasttime-story-a#q2:q": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "qa:gen-s2-pasttime-story-a#q2:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-pasttime-story-a#q3:q": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "qa:gen-s2-pasttime-story-a#q3:a": [
-      "pt-past",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-pasttime-story-b#0": [
-      "pt-past",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-pasttime-story-b#1": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-b#2": [
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-b#3": [
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-b#4": [
-      "pt-past",
-      "pt-yes-no"
-    ],
-    "story:gen-s2-pasttime-story-b#5": [
-      "pt-past",
-      "pt-prepositions",
-      "pt-the"
-    ],
-    "story:gen-s2-pasttime-story-b#6": [
-      "pt-past"
-    ],
-    "story:gen-s2-pasttime-story-b#7": [
-      "pt-past",
-      "pt-prepositions",
-      "pt-future",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-pasttime-story-b#q1:q": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "qa:gen-s2-pasttime-story-b#q1:a": [],
-    "qa:gen-s2-pasttime-story-b#q2:q": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "qa:gen-s2-pasttime-story-b#q2:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-pasttime-story-b#q3:q": [
-      "pt-question-words",
-      "pt-past"
-    ],
-    "qa:gen-s2-pasttime-story-b#q3:a": [
-      "pt-past"
-    ],
     "scenario:gen-s2-pasttime-convo-b#0": [
       "pt-question-words",
       "pt-past"
@@ -13382,129 +12291,6 @@ export const course: Course = {
     ],
     "vocab:add-past-jadevme": [
       "pt-past"
-    ],
-    "story:gen-s2-home-family-story-a#0": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-home-family-story-a#1": [
-      "pt-possessives",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s2-home-family-story-a#2": [
-      "pt-ti-vie",
-      "pt-verbs-a"
-    ],
-    "story:gen-s2-home-family-story-a#3": [
-      "pt-possessives",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-home-family-story-a#4": [
-      "pt-possessives",
-      "pt-verbs-a",
-      "pt-numbers",
-      "pt-irregular-plurals"
-    ],
-    "story:gen-s2-home-family-story-a#5": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s2-home-family-story-a#6": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-home-family-story-a#7": [
-      "pt-verbs-e-i",
-      "pt-prepositions",
-      "pt-possessives"
-    ],
-    "qa:gen-s2-home-family-story-a#q1:q": [
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-home-family-story-a#q1:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-home-family-story-a#q2:q": [
-      "pt-question-words",
-      "pt-irregular-plurals",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s2-home-family-story-a#q2:a": [
-      "pt-numbers",
-      "pt-irregular-plurals"
-    ],
-    "qa:gen-s2-home-family-story-a#q3:q": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-home-family-story-a#q3:a": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-home-family-story-b#0": [
-      "pt-possessives",
-      "pt-sum",
-      "pt-prepositions",
-      "pt-the"
-    ],
-    "story:gen-s2-home-family-story-b#1": [
-      "pt-gender",
-      "pt-sum",
-      "pt-possessives"
-    ],
-    "story:gen-s2-home-family-story-b#2": [
-      "pt-mi-ti-mu",
-      "pt-sum",
-      "pt-prepositions",
-      "pt-question-words"
-    ],
-    "story:gen-s2-home-family-story-b#3": [
-      "pt-prepositions",
-      "pt-possessives",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s2-home-family-story-b#4": [
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s2-home-family-story-b#5": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-home-family-story-b#6": [
-      "pt-possessives",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-home-family-story-b#7": [
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-home-family-story-b#q1:q": [
-      "pt-prepositions",
-      "pt-question-words",
-      "pt-sum"
-    ],
-    "qa:gen-s2-home-family-story-b#q1:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-home-family-story-b#q2:q": [
-      "pt-question-words",
-      "pt-verbs-e-i"
-    ],
-    "qa:gen-s2-home-family-story-b#q2:a": [
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-home-family-story-b#q3:q": [
-      "pt-ti-vie",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s2-home-family-story-b#q3:a": [
-      "pt-verbs-a"
     ],
     "scenario:gen-s2-home-family-convo-b#0": [
       "pt-gender",
@@ -13555,138 +12341,6 @@ export const course: Course = {
       "pt-verbs-e-i",
       "pt-prepositions"
     ],
-    "story:gen-s2-arrange-story-a#0": [
-      "pt-mi-ti-mu",
-      "pt-prepositions",
-      "pt-verbs-a"
-    ],
-    "story:gen-s2-arrange-story-a#1": [
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "story:gen-s2-arrange-story-a#2": [
-      "pt-sum"
-    ],
-    "story:gen-s2-arrange-story-a#3": [
-      "pt-ajde-da",
-      "pt-se",
-      "pt-ti-vie"
-    ],
-    "story:gen-s2-arrange-story-a#4": [
-      "pt-question-words",
-      "pt-time",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-arrange-story-a#5": [
-      "pt-time",
-      "pt-numbers",
-      "pt-the",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-arrange-story-a#6": [],
-    "story:gen-s2-arrange-story-a#7": [
-      "pt-ne",
-      "pt-verbs-e-i",
-      "pt-prepositions",
-      "pt-numbers",
-      "pt-time"
-    ],
-    "story:gen-s2-arrange-story-a#8": [
-      "pt-prepositions",
-      "pt-numbers"
-    ],
-    "qa:gen-s2-arrange-story-a#q1:q": [
-      "pt-prepositions",
-      "pt-time",
-      "pt-question-words",
-      "pt-se",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s2-arrange-story-a#q1:a": [
-      "pt-time",
-      "pt-numbers"
-    ],
-    "qa:gen-s2-arrange-story-a#q2:q": [
-      "pt-question-words",
-      "pt-verbs-e-i",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-arrange-story-a#q2:a": [
-      "pt-prepositions",
-      "pt-numbers",
-      "pt-time"
-    ],
-    "qa:gen-s2-arrange-story-a#q3:q": [
-      "pt-ti-vie",
-      "pt-question-words",
-      "pt-time"
-    ],
-    "qa:gen-s2-arrange-story-a#q3:a": [
-      "pt-time",
-      "pt-numbers"
-    ],
-    "story:gen-s2-arrange-story-b#0": [
-      "pt-time",
-      "pt-numbers",
-      "pt-sum",
-      "pt-the",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-arrange-story-b#1": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-the"
-    ],
-    "story:gen-s2-arrange-story-b#2": [
-      "pt-commands",
-      "pt-the",
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-arrange-story-b#3": [
-      "pt-sum"
-    ],
-    "story:gen-s2-arrange-story-b#4": [
-      "pt-sum"
-    ],
-    "story:gen-s2-arrange-story-b#5": [
-      "pt-sum",
-      "pt-ti-vie"
-    ],
-    "story:gen-s2-arrange-story-b#6": [
-      "pt-sum"
-    ],
-    "story:gen-s2-arrange-story-b#7": [
-      "pt-sum",
-      "pt-numbers",
-      "pt-prepositions",
-      "pt-time"
-    ],
-    "qa:gen-s2-arrange-story-b#q1:q": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-the"
-    ],
-    "qa:gen-s2-arrange-story-b#q1:a": [
-      "pt-the",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-arrange-story-b#q2:q": [
-      "pt-question-words",
-      "pt-sum"
-    ],
-    "qa:gen-s2-arrange-story-b#q2:a": [
-      "pt-sum",
-      "pt-the",
-      "pt-prepositions"
-    ],
-    "qa:gen-s2-arrange-story-b#q3:q": [
-      "pt-commands"
-    ],
-    "qa:gen-s2-arrange-story-b#q3:a": [
-      "pt-future",
-      "pt-se"
-    ],
     "scenario:gen-s2-arrange-convo-b#0": [
       "pt-yes-no",
       "pt-sum",
@@ -13736,111 +12390,6 @@ export const course: Course = {
       "pt-prepositions",
       "pt-numbers",
       "pt-time"
-    ],
-    "story:gen-s2-problems-story-a#0": [
-      "pt-sum"
-    ],
-    "story:gen-s2-problems-story-a#1": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s2-problems-story-a#2": [
-      "pt-ima-nema"
-    ],
-    "story:gen-s2-problems-story-a#3": [
-      "pt-ima-nema"
-    ],
-    "story:gen-s2-problems-story-a#4": [
-      "pt-mi-ti-mu",
-      "pt-prepositions",
-      "pt-verbs-a"
-    ],
-    "story:gen-s2-problems-story-a#5": [
-      "pt-verbs-a"
-    ],
-    "story:gen-s2-problems-story-a#6": [
-      "pt-verbs-a",
-      "pt-ajde-da",
-      "pt-da",
-      "pt-verbs-e-i"
-    ],
-    "story:gen-s2-problems-story-a#7": [
-      "pt-verbs-a",
-      "pt-ima-nema"
-    ],
-    "qa:gen-s2-problems-story-a#q1:q": [
-      "pt-yes-no",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s2-problems-story-a#q1:a": [
-      "pt-ima-nema"
-    ],
-    "qa:gen-s2-problems-story-a#q2:q": [
-      "pt-question-words",
-      "pt-ima-nema"
-    ],
-    "qa:gen-s2-problems-story-a#q2:a": [],
-    "qa:gen-s2-problems-story-a#q3:q": [
-      "pt-verbs-a"
-    ],
-    "qa:gen-s2-problems-story-a#q3:a": [
-      "pt-ima-nema"
-    ],
-    "story:gen-s2-problems-story-b#0": [
-      "pt-sum",
-      "pt-prepositions"
-    ],
-    "story:gen-s2-problems-story-b#1": [
-      "pt-commands",
-      "pt-ima-nema"
-    ],
-    "story:gen-s2-problems-story-b#2": [
-      "pt-the",
-      "pt-plurals",
-      "pt-ne",
-      "pt-sum",
-      "pt-adjectives"
-    ],
-    "story:gen-s2-problems-story-b#3": [
-      "pt-verbs-a",
-      "pt-da",
-      "pt-go-ja-gi"
-    ],
-    "story:gen-s2-problems-story-b#4": [
-      "pt-ima-nema",
-      "pt-verbs-a",
-      "pt-plurals"
-    ],
-    "story:gen-s2-problems-story-b#5": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-the"
-    ],
-    "story:gen-s2-problems-story-b#6": [],
-    "qa:gen-s2-problems-story-b#q1:q": [
-      "pt-question-words",
-      "pt-sum",
-      "pt-the",
-      "pt-plurals"
-    ],
-    "qa:gen-s2-problems-story-b#q1:a": [
-      "pt-ne",
-      "pt-sum",
-      "pt-adjectives"
-    ],
-    "qa:gen-s2-problems-story-b#q2:q": [
-      "pt-question-words",
-      "pt-verbs-a"
-    ],
-    "qa:gen-s2-problems-story-b#q2:a": [
-      "pt-go-ja-gi",
-      "pt-verbs-a",
-      "pt-the"
-    ],
-    "qa:gen-s2-problems-story-b#q3:q": [
-      "pt-commands"
-    ],
-    "qa:gen-s2-problems-story-b#q3:a": [
-      "pt-ima-nema"
     ],
     "scenario:gen-s2-problems-convo-b#0": [
       "pt-commands",
@@ -13918,6 +12467,1508 @@ export const course: Course = {
       "pt-prepositions",
       "pt-ti-vie",
       "pt-question-words"
+    ],
+    "story:gen-s0-repair-story-a#0": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-repair-story-a#1": [
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-a#2": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-a#3": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-a#4": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-a#5": [
+      "pt-commands",
+      "pt-ne",
+      "pt-verbs-a"
+    ],
+    "story:gen-s0-repair-story-a#6": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-repair-story-a#7": [
+      "pt-ne",
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-repair-story-a#q1:q": [
+      "pt-sum"
+    ],
+    "qa:gen-s0-repair-story-a#q1:a": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "qa:gen-s0-repair-story-a#q2:q": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-repair-story-a#q2:a": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-repair-story-a#q3:q": [
+      "pt-sum"
+    ],
+    "qa:gen-s0-repair-story-a#q3:a": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-b#0": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-repair-story-b#1": [
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-b#2": [
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-b#3": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s0-repair-story-b#4": [
+      "pt-commands",
+      "pt-ne",
+      "pt-verbs-a",
+      "pt-more-most"
+    ],
+    "story:gen-s0-repair-story-b#5": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-repair-story-b#6": [
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-b#7": [
+      "pt-sum"
+    ],
+    "story:gen-s0-repair-story-b#8": [
+      "pt-question-words",
+      "pt-se",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-repair-story-b#9": [],
+    "qa:gen-s0-repair-story-b#q2:q": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-repair-story-b#q2:a": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-repair-story-b#q3:q": [
+      "pt-verbs-a",
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s0-repair-story-b#q3:a": [
+      "pt-more-most",
+      "pt-verbs-a"
+    ],
+    "story:gen-s0-greet-story-a#0": [
+      "pt-mi-ti-mu",
+      "pt-prepositions",
+      "pt-verbs-a"
+    ],
+    "story:gen-s0-greet-story-a#1": [
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "story:gen-s0-greet-story-a#2": [
+      "pt-prepositions",
+      "pt-sum",
+      "pt-question-words"
+    ],
+    "story:gen-s0-greet-story-a#3": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-greet-story-a#4": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-greet-story-a#5": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-greet-story-a#6": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-ti-vie"
+    ],
+    "story:gen-s0-greet-story-a#7": [
+      "pt-sum",
+      "pt-question-words",
+      "pt-ti-vie"
+    ],
+    "story:gen-s0-greet-story-a#8": [
+      "pt-sum"
+    ],
+    "qa:gen-s0-greet-story-a#q1:q": [
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s0-greet-story-a#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-greet-story-a#q2:q": [
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s0-greet-story-a#q2:a": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-greet-story-a#q3:q": [
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s0-greet-story-a#q3:a": [
+      "pt-prepositions",
+      "pt-sum"
+    ],
+    "story:gen-s0-greet-story-b#0": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-ti-vie"
+    ],
+    "story:gen-s0-greet-story-b#1": [
+      "pt-sum"
+    ],
+    "story:gen-s0-greet-story-b#2": [
+      "pt-sum",
+      "pt-yes-no",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-greet-story-b#3": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-greet-story-b#4": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-ti-vie"
+    ],
+    "story:gen-s0-greet-story-b#5": [
+      "pt-sum",
+      "pt-yes-no",
+      "pt-ti-vie"
+    ],
+    "story:gen-s0-greet-story-b#6": [
+      "pt-sum"
+    ],
+    "story:gen-s0-greet-story-b#7": [],
+    "qa:gen-s0-greet-story-b#q1:q": [
+      "pt-yes-no",
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-greet-story-b#q1:a": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s0-greet-story-b#q2:q": [
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s0-greet-story-b#q2:a": [
+      "pt-sum"
+    ],
+    "qa:gen-s0-greet-story-b#q3:q": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-ti-vie"
+    ],
+    "qa:gen-s0-greet-story-b#q3:a": [
+      "pt-sum"
+    ],
+    "story:gen-s0-survive-story-a#0": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-survive-story-a#1": [
+      "pt-adjectives",
+      "pt-verbs-a",
+      "pt-yes-no"
+    ],
+    "story:gen-s0-survive-story-a#2": [
+      "pt-gender",
+      "pt-numbers"
+    ],
+    "story:gen-s0-survive-story-a#3": [
+      "pt-numbers",
+      "pt-sum"
+    ],
+    "story:gen-s0-survive-story-a#4": [
+      "pt-question-words",
+      "pt-numbers"
+    ],
+    "story:gen-s0-survive-story-a#5": [
+      "pt-numbers"
+    ],
+    "story:gen-s0-survive-story-a#6": [
+      "pt-sum"
+    ],
+    "story:gen-s0-survive-story-a#7": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "story:gen-s0-survive-story-a#8": [
+      "pt-ne",
+      "pt-sum"
+    ],
+    "qa:gen-s0-survive-story-a#q1:q": [
+      "pt-question-words",
+      "pt-numbers",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s0-survive-story-a#q1:a": [
+      "pt-numbers"
+    ],
+    "qa:gen-s0-survive-story-a#q2:q": [
+      "pt-the",
+      "pt-sum"
+    ],
+    "qa:gen-s0-survive-story-a#q2:a": [
+      "pt-sum"
+    ],
+    "qa:gen-s0-survive-story-a#q3:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s0-survive-story-a#q3:a": [
+      "pt-gender"
+    ],
+    "story:gen-s0-survive-story-b#0": [
+      "pt-question-words",
+      "pt-se",
+      "pt-prepositions"
+    ],
+    "story:gen-s0-survive-story-b#1": [
+      "pt-sum",
+      "pt-numbers"
+    ],
+    "story:gen-s0-survive-story-b#2": [
+      "pt-more-most"
+    ],
+    "story:gen-s0-survive-story-b#3": [
+      "pt-numbers"
+    ],
+    "story:gen-s0-survive-story-b#4": [
+      "pt-gender",
+      "pt-sum",
+      "pt-numbers"
+    ],
+    "story:gen-s0-survive-story-b#5": [
+      "pt-numbers"
+    ],
+    "story:gen-s0-survive-story-b#6": [
+      "pt-ne",
+      "pt-verbs-a",
+      "pt-gender"
+    ],
+    "qa:gen-s0-survive-story-b#q1:q": [
+      "pt-question-words",
+      "pt-se"
+    ],
+    "qa:gen-s0-survive-story-b#q1:a": [
+      "pt-numbers"
+    ],
+    "qa:gen-s0-survive-story-b#q2:q": [
+      "pt-question-words",
+      "pt-numbers",
+      "pt-gender"
+    ],
+    "qa:gen-s0-survive-story-b#q2:a": [
+      "pt-numbers"
+    ],
+    "qa:gen-s0-survive-story-b#q3:q": [
+      "pt-commands"
+    ],
+    "qa:gen-s0-survive-story-b#q3:a": [
+      "pt-numbers"
+    ],
+    "story:gen-s1-cafe-order-story-a#0": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-cafe-order-story-a#1": [
+      "pt-question-words",
+      "pt-future",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-cafe-order-story-a#2": [
+      "pt-sum",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-cafe-order-story-a#3": [
+      "pt-yes-no",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-cafe-order-story-a#4": [
+      "pt-verbs-a",
+      "pt-the",
+      "pt-commands"
+    ],
+    "story:gen-s1-cafe-order-story-a#5": [
+      "pt-the"
+    ],
+    "story:gen-s1-cafe-order-story-a#6": [
+      "pt-sum",
+      "pt-verbs-a",
+      "pt-numbers"
+    ],
+    "story:gen-s1-cafe-order-story-a#7": [
+      "pt-verbs-a",
+      "pt-numbers",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-cafe-order-story-a#8": [
+      "pt-verbs-a",
+      "pt-numbers",
+      "pt-ti-vie"
+    ],
+    "qa:gen-s1-cafe-order-story-a#q1:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-cafe-order-story-a#q1:a": [
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-cafe-order-story-a#q2:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-cafe-order-story-a#q2:a": [
+      "pt-numbers"
+    ],
+    "qa:gen-s1-cafe-order-story-a#q3:q": [
+      "pt-question-words",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "qa:gen-s1-cafe-order-story-a#q3:a": [
+      "pt-sum",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-cafe-order-story-b#0": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-cafe-order-story-b#1": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-cafe-order-story-b#2": [
+      "pt-yes-no",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-cafe-order-story-b#3": [
+      "pt-verbs-a",
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:gen-s1-cafe-order-story-b#4": [
+      "pt-verbs-a",
+      "pt-numbers"
+    ],
+    "story:gen-s1-cafe-order-story-b#5": [
+      "pt-yes-no",
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-cafe-order-story-b#6": [
+      "pt-question-words",
+      "pt-numbers"
+    ],
+    "story:gen-s1-cafe-order-story-b#7": [
+      "pt-numbers"
+    ],
+    "story:gen-s1-cafe-order-story-b#8": [
+      "pt-verbs-a",
+      "pt-numbers"
+    ],
+    "qa:gen-s1-cafe-order-story-b#q1:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-cafe-order-story-b#q1:a": [
+      "pt-numbers"
+    ],
+    "qa:gen-s1-cafe-order-story-b#q2:q": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-the"
+    ],
+    "qa:gen-s1-cafe-order-story-b#q2:a": [
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "qa:gen-s1-cafe-order-story-b#q3:q": [
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "qa:gen-s1-cafe-order-story-b#q3:a": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-greet-intro-story-a#0": [
+      "pt-sum",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story-a#1": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-ti-vie",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story-a#2": [
+      "pt-sum",
+      "pt-ti-vie",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story-a#3": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story-a#4": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-greet-intro-story-a#5": [
+      "pt-verbs-e-i",
+      "pt-ne"
+    ],
+    "story:gen-s1-greet-intro-story-a#6": [
+      "pt-verbs-e-i",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-greet-intro-story-a#7": [
+      "pt-verbs-a",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-greet-intro-story-a#8": [
+      "pt-mi-ti-mu",
+      "pt-se",
+      "pt-sum"
+    ],
+    "story:gen-s1-greet-intro-story-a#9": [
+      "pt-verbs-e-i",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-greet-intro-story-a#q1:q": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-greet-intro-story-a#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-greet-intro-story-a#q2:q": [
+      "pt-yes-no",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-greet-intro-story-a#q2:a": [
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-greet-intro-story-a#q3:q": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-ti-vie",
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-greet-intro-story-a#q3:a": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story-b#0": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-greet-intro-story-b#1": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-greet-intro-story-b#2": [
+      "pt-ne",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-greet-intro-story-b#3": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-greet-intro-story-b#4": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-greet-intro-story-b#5": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-greet-intro-story-b#6": [
+      "pt-verbs-a",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-greet-intro-story-b#7": [
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-greet-intro-story-b#q1:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-greet-intro-story-b#q1:a": [],
+    "qa:gen-s1-greet-intro-story-b#q2:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-greet-intro-story-b#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-greet-intro-story-b#q3:q": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-ti-vie"
+    ],
+    "qa:gen-s1-greet-intro-story-b#q3:a": [
+      "pt-verbs-e-i"
+    ],
+    "scenario:gen-s1-greet-intro-convo-b#9": [
+      "pt-sum",
+      "pt-ti-vie",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "scenario:gen-s1-greet-intro-convo-b#10": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-market-story-a#0": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-market-story-a#1": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-market-story-a#2": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-market-story-a#3": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-market-story-a#4": [
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:gen-s1-market-story-a#5": [
+      "pt-the",
+      "pt-plurals",
+      "pt-sum",
+      "pt-adjectives",
+      "pt-go-ja-gi",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-market-story-a#6": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the",
+      "pt-plurals"
+    ],
+    "story:gen-s1-market-story-a#7": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the"
+    ],
+    "story:gen-s1-market-story-a#8": [],
+    "qa:gen-s1-market-story-a#q1:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-market-story-a#q1:a": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the",
+      "pt-plurals"
+    ],
+    "qa:gen-s1-market-story-a#q2:q": [
+      "pt-sum",
+      "pt-the"
+    ],
+    "qa:gen-s1-market-story-a#q2:a": [
+      "pt-adjectives",
+      "pt-sum"
+    ],
+    "qa:gen-s1-market-story-a#q3:q": [
+      "pt-question-words",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-market-story-a#q3:a": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the"
+    ],
+    "story:gen-s1-market-story-b#0": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-market-story-b#1": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-yes-no",
+      "pt-the"
+    ],
+    "story:gen-s1-market-story-b#2": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-adjectives",
+      "pt-sum"
+    ],
+    "story:gen-s1-market-story-b#3": [
+      "pt-the",
+      "pt-ne",
+      "pt-sum",
+      "pt-adjectives",
+      "pt-go-ja-gi",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-market-story-b#4": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s1-market-story-b#5": [
+      "pt-the",
+      "pt-plurals",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:gen-s1-market-story-b#6": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-yes-no",
+      "pt-the",
+      "pt-plurals"
+    ],
+    "story:gen-s1-market-story-b#7": [
+      "pt-go-ja-gi",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-market-story-b#q1:q": [
+      "pt-yes-no",
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-the"
+    ],
+    "qa:gen-s1-market-story-b#q1:a": [
+      "pt-ne",
+      "pt-go-ja-gi",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s1-market-story-b#q2:q": [
+      "pt-sum",
+      "pt-the",
+      "pt-plurals"
+    ],
+    "qa:gen-s1-market-story-b#q2:a": [
+      "pt-adjectives",
+      "pt-sum"
+    ],
+    "qa:gen-s1-market-story-b#q3:q": [
+      "pt-go-ja-gi",
+      "pt-verbs-a",
+      "pt-yes-no",
+      "pt-the",
+      "pt-plurals"
+    ],
+    "qa:gen-s1-market-story-b#q3:a": [
+      "pt-go-ja-gi",
+      "pt-verbs-a"
+    ],
+    "story:gen-s1-directions-story-a#0": [
+      "pt-sum",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s1-directions-story-a#1": [
+      "pt-commands",
+      "pt-question-words",
+      "pt-sum",
+      "pt-the"
+    ],
+    "story:gen-s1-directions-story-a#2": [
+      "pt-ti-vie",
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-commands"
+    ],
+    "story:gen-s1-directions-story-a#3": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-directions-story-a#4": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-directions-story-a#5": [
+      "pt-commands"
+    ],
+    "story:gen-s1-directions-story-a#6": [
+      "pt-commands",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-directions-story-a#7": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-directions-story-a#8": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story-a#q1:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-directions-story-a#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story-a#q2:q": [
+      "pt-prepositions",
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-directions-story-a#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story-a#q3:q": [
+      "pt-commands",
+      "pt-mi-ti-mu",
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story-a#q3:a": [
+      "pt-commands"
+    ],
+    "story:gen-s1-directions-story-b#0": [
+      "pt-verbs-a",
+      "pt-da",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-directions-story-b#1": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s1-directions-story-b#2": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-the",
+      "pt-sum",
+      "pt-more-most"
+    ],
+    "story:gen-s1-directions-story-b#3": [
+      "pt-the",
+      "pt-sum",
+      "pt-more-most"
+    ],
+    "story:gen-s1-directions-story-b#4": [
+      "pt-more-most",
+      "pt-sum"
+    ],
+    "story:gen-s1-directions-story-b#5": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-ti-vie"
+    ],
+    "story:gen-s1-directions-story-b#6": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-sum",
+      "pt-more-most"
+    ],
+    "story:gen-s1-directions-story-b#7": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story-b#q1:q": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-more-most"
+    ],
+    "qa:gen-s1-directions-story-b#q1:a": [
+      "pt-the"
+    ],
+    "qa:gen-s1-directions-story-b#q2:q": [
+      "pt-prepositions",
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s1-directions-story-b#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story-b#q3:q": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s1-directions-story-b#q3:a": [
+      "pt-prepositions"
+    ],
+    "story:gen-s2-smalltalk-story-a#0": [
+      "pt-sum",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s2-smalltalk-story-a#1": [
+      "pt-mi-ti-mu",
+      "pt-yes-no"
+    ],
+    "story:gen-s2-smalltalk-story-a#2": [
+      "pt-mi-ti-mu"
+    ],
+    "story:gen-s2-smalltalk-story-a#3": [
+      "pt-mi-ti-mu",
+      "pt-yes-no"
+    ],
+    "story:gen-s2-smalltalk-story-a#4": [
+      "pt-mi-ti-mu",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-smalltalk-story-a#5": [
+      "pt-mi-ti-mu",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s2-smalltalk-story-a#6": [
+      "pt-ne",
+      "pt-mi-ti-mu",
+      "pt-the"
+    ],
+    "story:gen-s2-smalltalk-story-a#7": [
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-smalltalk-story-a#8": [
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-smalltalk-story-a#9": [
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-smalltalk-story-a#q1:q": [
+      "pt-yes-no",
+      "pt-mi-ti-mu",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-smalltalk-story-a#q1:a": [
+      "pt-mi-ti-mu"
+    ],
+    "qa:gen-s2-smalltalk-story-a#q2:q": [
+      "pt-question-words",
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-smalltalk-story-a#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-smalltalk-story-a#q3:q": [
+      "pt-mi-ti-mu",
+      "pt-the"
+    ],
+    "qa:gen-s2-smalltalk-story-a#q3:a": [
+      "pt-ne",
+      "pt-mi-ti-mu"
+    ],
+    "story:gen-s2-smalltalk-story-b#0": [
+      "pt-the",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "story:gen-s2-smalltalk-story-b#1": [
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-smalltalk-story-b#2": [
+      "pt-future",
+      "pt-plurals"
+    ],
+    "story:gen-s2-smalltalk-story-b#3": [
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story-b#4": [
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-smalltalk-story-b#5": [
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-ne",
+      "pt-mi-ti-mu",
+      "pt-the"
+    ],
+    "story:gen-s2-smalltalk-story-b#6": [
+      "pt-verbs-e-i",
+      "pt-sum",
+      "pt-adjectives",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-smalltalk-story-b#7": [
+      "pt-se",
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-smalltalk-story-b#q1:q": [
+      "pt-yes-no",
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-smalltalk-story-b#q1:a": [
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-smalltalk-story-b#q2:q": [
+      "pt-yes-no",
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-smalltalk-story-b#q2:a": [
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-smalltalk-story-b#q3:q": [
+      "pt-future",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-smalltalk-story-b#q3:a": [
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-pasttime-story-a#0": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-pasttime-story-a#1": [
+      "pt-question-words",
+      "pt-past",
+      "pt-ti-vie"
+    ],
+    "story:gen-s2-pasttime-story-a#2": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-pasttime-story-a#3": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-pasttime-story-a#4": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-pasttime-story-a#5": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story-a#6": [
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story-a#7": [
+      "pt-question-words",
+      "pt-past",
+      "pt-ti-vie"
+    ],
+    "story:gen-s2-pasttime-story-a#8": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-pasttime-story-a#q1:q": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story-a#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-pasttime-story-a#q2:q": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story-a#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-pasttime-story-a#q3:q": [
+      "pt-ti-vie",
+      "pt-question-words",
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story-a#q3:a": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-pasttime-story-b#0": [
+      "pt-past",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-pasttime-story-b#1": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story-b#2": [
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story-b#3": [
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story-b#4": [
+      "pt-past",
+      "pt-yes-no"
+    ],
+    "story:gen-s2-pasttime-story-b#5": [
+      "pt-past",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s2-pasttime-story-b#6": [
+      "pt-past"
+    ],
+    "story:gen-s2-pasttime-story-b#7": [
+      "pt-past",
+      "pt-prepositions",
+      "pt-future",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-pasttime-story-b#q1:q": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story-b#q1:a": [],
+    "qa:gen-s2-pasttime-story-b#q2:q": [
+      "pt-question-words",
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story-b#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-pasttime-story-b#q3:q": [
+      "pt-ti-vie",
+      "pt-question-words",
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story-b#q3:a": [
+      "pt-past"
+    ],
+    "qa:gen-s2-pasttime-story#q1:a": [
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "qa:gen-s2-pasttime-story#q2:q": [
+      "pt-question-words",
+      "pt-past",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s2-home-family-story-a#0": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story-a#1": [
+      "pt-possessives",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-home-family-story-a#2": [
+      "pt-ti-vie",
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-home-family-story-a#3": [
+      "pt-possessives",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story-a#4": [
+      "pt-possessives",
+      "pt-verbs-a",
+      "pt-numbers",
+      "pt-irregular-plurals"
+    ],
+    "story:gen-s2-home-family-story-a#5": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-ti-vie"
+    ],
+    "story:gen-s2-home-family-story-a#6": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story-a#7": [
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-possessives"
+    ],
+    "qa:gen-s2-home-family-story-a#q1:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-home-family-story-a#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story-a#q2:q": [
+      "pt-question-words",
+      "pt-irregular-plurals",
+      "pt-ima-nema",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story-a#q2:a": [
+      "pt-numbers",
+      "pt-irregular-plurals"
+    ],
+    "qa:gen-s2-home-family-story-a#q3:q": [
+      "pt-ti-vie",
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-home-family-story-a#q3:a": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story-b#0": [
+      "pt-possessives",
+      "pt-sum",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "story:gen-s2-home-family-story-b#1": [
+      "pt-gender",
+      "pt-sum",
+      "pt-possessives"
+    ],
+    "story:gen-s2-home-family-story-b#2": [
+      "pt-mi-ti-mu",
+      "pt-sum",
+      "pt-prepositions",
+      "pt-question-words"
+    ],
+    "story:gen-s2-home-family-story-b#3": [
+      "pt-prepositions",
+      "pt-possessives",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-home-family-story-b#4": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-home-family-story-b#5": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story-b#6": [
+      "pt-ti-vie",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-home-family-story-b#7": [
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story-b#q1:q": [
+      "pt-prepositions",
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s2-home-family-story-b#q1:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story-b#q2:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-home-family-story-b#q2:a": [
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-home-family-story-b#q3:q": [
+      "pt-ti-vie",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-home-family-story-b#q3:a": [
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-home-family-story#q2:a": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-arrange-story-a#0": [
+      "pt-mi-ti-mu",
+      "pt-prepositions",
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-arrange-story-a#1": [
+      "pt-sum",
+      "pt-ti-vie"
+    ],
+    "story:gen-s2-arrange-story-a#2": [
+      "pt-sum"
+    ],
+    "story:gen-s2-arrange-story-a#3": [
+      "pt-ajde-da",
+      "pt-da",
+      "pt-se",
+      "pt-ti-vie",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-arrange-story-a#4": [
+      "pt-time",
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-arrange-story-a#5": [
+      "pt-time",
+      "pt-numbers",
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-arrange-story-a#6": [
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-arrange-story-a#7": [
+      "pt-ne",
+      "pt-verbs-e-i",
+      "pt-prepositions",
+      "pt-numbers",
+      "pt-time"
+    ],
+    "story:gen-s2-arrange-story-a#8": [
+      "pt-numbers",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-arrange-story-a#q1:q": [
+      "pt-time",
+      "pt-question-words",
+      "pt-se",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-arrange-story-a#q1:a": [
+      "pt-time",
+      "pt-numbers"
+    ],
+    "qa:gen-s2-arrange-story-a#q2:q": [
+      "pt-question-words",
+      "pt-verbs-e-i",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-arrange-story-a#q2:a": [
+      "pt-numbers",
+      "pt-prepositions",
+      "pt-time"
+    ],
+    "qa:gen-s2-arrange-story-a#q3:q": [
+      "pt-ti-vie",
+      "pt-question-words",
+      "pt-time",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-arrange-story-a#q3:a": [
+      "pt-time",
+      "pt-numbers"
+    ],
+    "story:gen-s2-arrange-story-b#0": [
+      "pt-time",
+      "pt-numbers",
+      "pt-sum",
+      "pt-the",
+      "pt-prepositions",
+      "pt-mi-ti-mu",
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-arrange-story-b#1": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-the"
+    ],
+    "story:gen-s2-arrange-story-b#2": [
+      "pt-commands",
+      "pt-the",
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-arrange-story-b#3": [
+      "pt-sum"
+    ],
+    "story:gen-s2-arrange-story-b#4": [
+      "pt-sum"
+    ],
+    "story:gen-s2-arrange-story-b#5": [
+      "pt-ti-vie",
+      "pt-sum"
+    ],
+    "story:gen-s2-arrange-story-b#6": [
+      "pt-sum"
+    ],
+    "story:gen-s2-arrange-story-b#7": [
+      "pt-sum",
+      "pt-numbers",
+      "pt-prepositions",
+      "pt-time"
+    ],
+    "qa:gen-s2-arrange-story-b#q1:q": [
+      "pt-question-words",
+      "pt-sum",
+      "pt-the"
+    ],
+    "qa:gen-s2-arrange-story-b#q1:a": [
+      "pt-the",
+      "pt-prepositions"
+    ],
+    "qa:gen-s2-arrange-story-b#q2:q": [
+      "pt-question-words",
+      "pt-sum"
+    ],
+    "qa:gen-s2-arrange-story-b#q2:a": [
+      "pt-sum",
+      "pt-prepositions",
+      "pt-the"
+    ],
+    "qa:gen-s2-arrange-story-b#q3:q": [
+      "pt-commands"
+    ],
+    "qa:gen-s2-arrange-story-b#q3:a": [
+      "pt-future",
+      "pt-se",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-problems-story-a#0": [
+      "pt-sum"
+    ],
+    "story:gen-s2-problems-story-a#1": [
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-problems-story-a#2": [
+      "pt-ima-nema"
+    ],
+    "story:gen-s2-problems-story-a#3": [
+      "pt-ima-nema"
+    ],
+    "story:gen-s2-problems-story-a#4": [
+      "pt-mi-ti-mu",
+      "pt-prepositions",
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-problems-story-a#5": [
+      "pt-ti-vie",
+      "pt-verbs-a"
+    ],
+    "story:gen-s2-problems-story-a#6": [
+      "pt-verbs-a",
+      "pt-ajde-da",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-problems-story-a#7": [
+      "pt-verbs-a",
+      "pt-ima-nema"
+    ],
+    "qa:gen-s2-problems-story-a#q1:q": [
+      "pt-yes-no",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-problems-story-a#q1:a": [
+      "pt-ima-nema"
+    ],
+    "qa:gen-s2-problems-story-a#q2:q": [
+      "pt-yes-no",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-problems-story-a#q2:a": [
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-problems-story-a#q3:q": [
+      "pt-ti-vie",
+      "pt-verbs-a"
+    ],
+    "qa:gen-s2-problems-story-a#q3:a": [
+      "pt-ima-nema"
+    ],
+    "story:gen-s2-problems-story-b#0": [
+      "pt-sum",
+      "pt-prepositions"
+    ],
+    "story:gen-s2-problems-story-b#1": [
+      "pt-commands",
+      "pt-ima-nema"
+    ],
+    "story:gen-s2-problems-story-b#2": [
+      "pt-plurals",
+      "pt-the",
+      "pt-ne",
+      "pt-sum",
+      "pt-adjectives",
+      "pt-verbs-a",
+      "pt-da",
+      "pt-go-ja-gi",
+      "pt-verbs-e-i"
+    ],
+    "story:gen-s2-problems-story-b#3": [
+      "pt-ima-nema",
+      "pt-verbs-a",
+      "pt-plurals"
+    ],
+    "story:gen-s2-problems-story-b#4": [
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "story:gen-s2-problems-story-b#5": [
+      "pt-commands"
+    ],
+    "qa:gen-s2-problems-story-b#q1:q": [
+      "pt-sum",
+      "pt-the",
+      "pt-plurals"
+    ],
+    "qa:gen-s2-problems-story-b#q1:a": [
+      "pt-ne",
+      "pt-sum",
+      "pt-adjectives"
+    ],
+    "qa:gen-s2-problems-story-b#q2:q": [
+      "pt-question-words",
+      "pt-verbs-e-i"
+    ],
+    "qa:gen-s2-problems-story-b#q2:a": [
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "qa:gen-s2-problems-story-b#q3:q": [
+      "pt-commands"
+    ],
+    "qa:gen-s2-problems-story-b#q3:a": [
+      "pt-ima-nema"
+    ],
+    "qa:gen-s2-problems-story#q3:a": [
+      "pt-verbs-a",
+      "pt-da",
+      "pt-go-ja-gi",
+      "pt-verbs-e-i",
+      "pt-the"
+    ],
+    "qa:gen-s0-repair-story-b#q1:q": [
+      "pt-sum"
+    ],
+    "qa:gen-s0-repair-story-b#q1:a": [
+      "pt-sum"
     ]
   },
   "chunkNotes": [
@@ -13932,7 +13983,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-repair-story#2",
-      "text": "„Извинете, не разбирам.“",
+      "text": "Ана: „Извинете, не разбирам.“",
       "pointIds": [
         "pt-commands",
         "pt-verbs-a"
@@ -13941,7 +13992,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-repair-story#3",
-      "text": "„Побавно, ве молам.“",
+      "text": "Ана: „Побавно, ве молам.“",
       "pointIds": [
         "pt-more-most"
       ],
@@ -14099,7 +14150,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-survive-story#1",
-      "text": "„Добар ден! Сакам јаболка.“",
+      "text": "Ана: „Добар ден! Сакам јаболка.“",
       "pointIds": [
         "pt-verbs-a",
         "pt-plurals"
@@ -14108,7 +14159,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-survive-story#2",
-      "text": "„Имате ли јаболка?“",
+      "text": "Ана: „Имате ли јаболка?“",
       "pointIds": [
         "pt-verbs-a",
         "pt-plurals"
@@ -14134,7 +14185,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-survive-story#5",
-      "text": "„Сакам пет јаболка и еден леб.“",
+      "text": "Ана: „Сакам пет јаболка и еден леб.“",
       "pointIds": [
         "pt-verbs-a"
       ],
@@ -14142,7 +14193,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-survive-story#6",
-      "text": "„Колку чини ова?“",
+      "text": "Ана: „Колку чини ова?“",
       "pointIds": [
         "pt-verbs-e-i"
       ],
@@ -14268,7 +14319,7 @@ export const course: Course = {
     },
     {
       "source": "story:ana-coffee#3",
-      "text": "Конобарот вели: „Повелете.“",
+      "text": "Келнерот вели: „Повелете.“",
       "pointIds": [
         "pt-verbs-e-i",
         "pt-commands"
@@ -14476,7 +14527,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s1-greet-intro-story#3",
-      "text": "„Јас сум Ана. Мило ми е.“",
+      "text": "Ана: „Јас сум Ана. Мило ми е.“",
       "pointIds": [
         "pt-mi-ti-mu"
       ],
@@ -14492,7 +14543,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s1-greet-intro-story#5",
-      "text": "„Од Англија сум. Учам македонски.“",
+      "text": "Ана: „Од Англија сум. Учам македонски.“",
       "pointIds": [
         "pt-prepositions"
       ],
@@ -14712,7 +14763,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-repair-story#5",
-      "text": "„Можете ли да повторите?“",
+      "text": "Ана: „Можете ли да повторите?“",
       "pointIds": [
         "pt-yes-no",
         "pt-da",
@@ -14722,7 +14773,7 @@ export const course: Course = {
     },
     {
       "source": "story:gen-s0-repair-story#6",
-      "text": "„Аха. Што значи 'фала'?“",
+      "text": "Ана: „Аха. Што значи 'фала'?“",
       "pointIds": [
         "pt-question-words",
         "pt-verbs-e-i"
@@ -14944,134 +14995,6 @@ export const course: Course = {
       "note": "од means “from”; chapter 7 explains these little linking words."
     },
     {
-      "source": "story:gen-s0-repair-story-a#0",
-      "text": "Ана е во Скопје.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "story:gen-s0-repair-story-a#5",
-      "text": "„Извинете. Не разбирам…“",
-      "pointIds": [
-        "pt-verbs-a",
-        "pt-commands"
-      ],
-      "note": "Извинете is a polite command (chapter 7) and разбирам is an -а verb (chapter 4)."
-    },
-    {
-      "source": "story:gen-s0-repair-story-a#6",
-      "text": "„Марко? Јас сум во Скопје!“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "story:gen-s0-repair-story-a#7",
-      "text": "„Јас не сум во Скопје. Јас сум во Битола!“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "qa:gen-s0-repair-story-a#q2:q",
-      "text": "Марко е во Скопје?",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "qa:gen-s0-repair-story-a#q2:a",
-      "text": "Не, тој е во Битола.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "story:gen-s0-repair-story-b#0",
-      "text": "„Ние сме во Скопје!“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "story:gen-s0-repair-story-b#3",
-      "text": "„Извинете, не разбирам. Побавно, ве молам.“",
-      "pointIds": [
-        "pt-verbs-a",
-        "pt-commands",
-        "pt-more-most"
-      ],
-      "note": "Извинете is a command (chapter 7), разбирам/молам are -а verbs (chapter 4), and Побавно uses по- (chapter 7)."
-    },
-    {
-      "source": "story:gen-s0-repair-story-b#4",
-      "text": "„Јас… сум… Ема. Вие… сте… во Скопје.“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "story:gen-s0-repair-story-b#7",
-      "text": "„Како се вели „cheers“ на македонски?“",
-      "pointIds": [
-        "pt-question-words",
-        "pt-se",
-        "pt-prepositions"
-      ],
-      "note": "Како opens a question (chapter 2), се вели uses се (chapter 5), and на is a preposition (chapter 7)."
-    },
-    {
-      "source": "qa:gen-s0-repair-story-b#q2:q",
-      "text": "Вие сте во Скопје?",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "qa:gen-s0-repair-story-b#q2:a",
-      "text": "Ние сме во Скопје.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "qa:gen-s0-repair-story-b#q3:q",
-      "text": "Ема зборува брзо. Што велиш?",
-      "pointIds": [
-        "pt-question-words",
-        "pt-verbs-a",
-        "pt-verbs-e-i"
-      ],
-      "note": "Што opens a question (chapter 2), зборува is an -а verb (chapter 4), and велиш is an -и verb (chapter 5)."
-    },
-    {
-      "source": "qa:gen-s0-repair-story-b#q3:a",
-      "text": "Побавно, ве молам.",
-      "pointIds": [
-        "pt-more-most",
-        "pt-verbs-a"
-      ],
-      "note": "Побавно uses по- (chapter 7) and молам is an -а verb (chapter 4)."
-    },
-    {
-      "source": "story:gen-s0-greet-story-b#7",
-      "text": "„Здраво!“ вели Марко. „Догледање!“ вели Ана.",
-      "pointIds": [
-        "pt-verbs-e-i"
-      ],
-      "note": "вели means \"says\"; chapter 5 explains these verb endings."
-    },
-    {
       "source": "scenario:gen-s0-repair-convo-b#1",
       "text": "Извинете, не разбирам. Побавно, ве молам.",
       "pointIds": [
@@ -15131,71 +15054,6 @@ export const course: Course = {
       "note": "во means “in”; chapter 7 explains prepositions."
     },
     {
-      "source": "story:gen-s0-survive-story-a#0",
-      "text": "Вера и Ана се во Скопје.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во means “in”; prepositions come in chapter 7."
-    },
-    {
-      "source": "story:gen-s0-survive-story-a#1",
-      "text": "„Добар ден! Имате ли пиво?“",
-      "pointIds": [
-        "pt-verbs-a"
-      ],
-      "note": "Имате is an а-verb ending; chapter 4 explains verb endings."
-    },
-    {
-      "source": "qa:gen-s0-survive-story-a#q3:q",
-      "text": "А ти? Што сакаш?",
-      "pointIds": [
-        "pt-verbs-a"
-      ],
-      "note": "сакаш is an а-verb ending; chapter 4 explains verb endings."
-    },
-    {
-      "source": "story:gen-s0-survive-story-b#0",
-      "text": "„Марко, како се вели „five“ на македонски?“",
-      "pointIds": [
-        "pt-se",
-        "pt-prepositions"
-      ],
-      "note": "“се вели” (chapter 5) and “на” a preposition (chapter 7)."
-    },
-    {
-      "source": "story:gen-s0-survive-story-b#2",
-      "text": "„Побавно, ве молам!“",
-      "pointIds": [
-        "pt-more-most"
-      ],
-      "note": "Побавно means “slower” using по-; chapter 7 explains comparatives."
-    },
-    {
-      "source": "story:gen-s0-survive-story-b#6",
-      "text": "„Не знам. Сакам едно пиво!“",
-      "pointIds": [
-        "pt-verbs-a"
-      ],
-      "note": "Сакам is an а-verb ending; chapter 4 explains verb endings."
-    },
-    {
-      "source": "qa:gen-s0-survive-story-b#q1:q",
-      "text": "Како се вели „five“?",
-      "pointIds": [
-        "pt-se"
-      ],
-      "note": "“се вели” uses се with the verb; chapter 5 explains it."
-    },
-    {
-      "source": "qa:gen-s0-survive-story-b#q3:q",
-      "text": "Кажи: fifteen, fifty.",
-      "pointIds": [
-        "pt-commands"
-      ],
-      "note": "Кажи is a command “say”; chapter 7 explains imperatives."
-    },
-    {
       "source": "scenario:gen-s0-survive-convo-b#5",
       "text": "Тие се во Битола. Јас сум во Скопје.",
       "pointIds": [
@@ -15210,46 +15068,6 @@ export const course: Course = {
         "pt-verbs-a"
       ],
       "note": "сакате is an а-verb ending; chapter 4 explains verb endings."
-    },
-    {
-      "source": "story:gen-s1-cafe-order-story-a#0",
-      "text": "Ана, Марко и Вера се на кафе.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "на means “at” here; chapter 7 explains prepositions."
-    },
-    {
-      "source": "story:gen-s1-cafe-order-story-a#1",
-      "text": "„Што ќе сакате?“",
-      "pointIds": [
-        "pt-future"
-      ],
-      "note": "ќе marks the future; chapter 8 explains it."
-    },
-    {
-      "source": "story:gen-s1-cafe-order-story-a#5",
-      "text": "„Имаме. Повелете: кафето, чајот и сокот.“",
-      "pointIds": [
-        "pt-commands"
-      ],
-      "note": "Повелете is a polite command (“here you go”); chapter 7 explains commands."
-    },
-    {
-      "source": "story:gen-s1-cafe-order-story-b#3",
-      "text": "„Имам. Пивото е добро.“",
-      "pointIds": [
-        "pt-adjectives"
-      ],
-      "note": "добро matches the noun; chapter 6 explains adjective agreement."
-    },
-    {
-      "source": "qa:gen-s1-cafe-order-story-b#q2:a",
-      "text": "Добро е.",
-      "pointIds": [
-        "pt-adjectives"
-      ],
-      "note": "добро matches the noun; chapter 6 explains adjective agreement."
     },
     {
       "source": "scenario:gen-s1-cafe-order-convo-b#1",
@@ -15274,94 +15092,6 @@ export const course: Course = {
         "pt-commands"
       ],
       "note": "Повелете is a polite command (“here you go”); chapter 7 explains commands."
-    },
-    {
-      "source": "story:gen-s1-greet-intro-story-a#0",
-      "text": "Ана и Марко се во барот.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во (“in/at”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "story:gen-s1-greet-intro-story-a#1",
-      "text": "„Здраво! Од каде сте?“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "story:gen-s1-greet-intro-story-a#2",
-      "text": "„Ние сме од Охрид. А вие?“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "story:gen-s1-greet-intro-story-a#3",
-      "text": "„Јас сум од Англија. Марко е од Битола.“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "story:gen-s1-greet-intro-story-a#8",
-      "text": "„Мило ми е! Јас се викам Сара.“",
-      "pointIds": [
-        "pt-mi-ti-mu"
-      ],
-      "note": "“Мило ми е” means nice to meet you; ми is explained in chapter 8."
-    },
-    {
-      "source": "qa:gen-s1-greet-intro-story-a#q1:q",
-      "text": "Од каде се Сара и Иван?",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "qa:gen-s1-greet-intro-story-a#q1:a",
-      "text": "Од Охрид.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "Од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "qa:gen-s1-greet-intro-story-a#q3:q",
-      "text": "А ти? Од каде си?",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "Од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "qa:gen-s1-greet-intro-story-a#q3:a",
-      "text": "Од Лондон сум.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "Од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "story:gen-s1-greet-intro-story-b#5",
-      "text": "„Одиме во Битола.“",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "во (“to”) is a preposition; chapter 7 explains these."
-    },
-    {
-      "source": "qa:gen-s1-greet-intro-story-b#q2:a",
-      "text": "Во Битола.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "Во (“to”) is a preposition; chapter 7 explains these."
     },
     {
       "source": "scenario:gen-s1-greet-intro-convo-b#1",
@@ -15404,14 +15134,6 @@ export const course: Course = {
       "note": "од (“from”) is a preposition; chapter 7 explains these."
     },
     {
-      "source": "scenario:gen-s1-greet-intro-convo-b#9",
-      "text": "Марко, тие се од Охрид! Ти знаеш Охрид?",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "од (“from”) is a preposition; chapter 7 explains these."
-    },
-    {
       "source": "scenario:gen-s1-greet-intro-convo-b#11",
       "text": "Ние одиме во Охрид! Мило ми е.",
       "pointIds": [
@@ -15421,28 +15143,12 @@ export const course: Course = {
       "note": "во means \"to/in\"; chapter 7 explains it. And \"Мило ми е\" uses ми (to me), from chapter 8."
     },
     {
-      "source": "story:gen-s1-market-story-a#0",
-      "text": "Ана, Вера и Петар се на пазар.",
-      "pointIds": [
-        "pt-prepositions"
-      ],
-      "note": "на here means “at”; chapter 7 explains these little linking words."
-    },
-    {
       "source": "scenario:gen-s1-market-convo-b#7",
       "text": "Повелете: јаболката и сирењето. Ана, ти земаш и млеко?",
       "pointIds": [
         "pt-commands"
       ],
       "note": "Повелете means “here you go”; chapter 7 explains these command forms."
-    },
-    {
-      "source": "qa:gen-s1-directions-story-a#q3:q",
-      "text": "Кажи му на Марко: go straight!",
-      "pointIds": [
-        "pt-mi-ti-mu"
-      ],
-      "note": "му means “to him”; chapter 8 explains these to-whom pronouns."
     },
     {
       "source": "scenario:gen-s1-directions-convo-b#2",
@@ -15483,6 +15189,474 @@ export const course: Course = {
         "pt-prepositions"
       ],
       "note": "од means \"from\"; chapter 7 explains these little linking words."
+    },
+    {
+      "source": "story:gen-s0-repair-story-a#0",
+      "text": "Ана е во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s0-repair-story-a#5",
+      "text": "Ана: „Извинете. Не разбирам…“",
+      "pointIds": [
+        "pt-commands",
+        "pt-verbs-a"
+      ],
+      "note": "Извинете is a command (chapter 7) and разбирам is an -а verb (chapter 4)."
+    },
+    {
+      "source": "story:gen-s0-repair-story-a#6",
+      "text": "Ана: „Ало, Марко? Јас сум во Скопје!“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s0-repair-story-a#7",
+      "text": "Марко: „Јас не сум во Скопје. Јас сум во Битола!“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s0-repair-story-a#q2:q",
+      "text": "Марко е во Скопје?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s0-repair-story-a#q2:a",
+      "text": "Не, тој е во Битола.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s0-repair-story-b#0",
+      "text": "Марко: „Ние сме во Скопје!“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s0-repair-story-b#3",
+      "text": "Ема зборува брзо.",
+      "pointIds": [
+        "pt-verbs-a"
+      ],
+      "note": "зборува is an -а verb; chapter 4 explains these endings."
+    },
+    {
+      "source": "story:gen-s0-repair-story-b#4",
+      "text": "Марко: „Извинете, не разбирам. Побавно, ве молам.“",
+      "pointIds": [
+        "pt-commands",
+        "pt-verbs-a",
+        "pt-more-most"
+      ],
+      "note": "Извинете and Побавно come in chapter 7; разбирам/молам are -а verbs from chapter 4."
+    },
+    {
+      "source": "story:gen-s0-repair-story-b#5",
+      "text": "Ема: „Јас… сум… Ема. Вие… сте… во Скопје.“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "story:gen-s0-repair-story-b#8",
+      "text": "Марко: „Како се вели „cheers“ на македонски?“",
+      "pointIds": [
+        "pt-question-words",
+        "pt-se",
+        "pt-prepositions"
+      ],
+      "note": "Како opens questions (chapter 2), се вели uses се (chapter 5), на is a preposition (chapter 7)."
+    },
+    {
+      "source": "qa:gen-s0-repair-story-b#q2:q",
+      "text": "Вие сте во Скопје?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s0-repair-story-b#q2:a",
+      "text": "Да, ние сме во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s0-repair-story-b#q3:q",
+      "text": "Ема зборува брзо. Што велиш?",
+      "pointIds": [
+        "pt-verbs-a",
+        "pt-question-words",
+        "pt-verbs-e-i"
+      ],
+      "note": "Што opens questions (chapter 2); зборува is -а (chapter 4) and велиш is an -и verb (chapter 5)."
+    },
+    {
+      "source": "qa:gen-s0-repair-story-b#q3:a",
+      "text": "Побавно, ве молам.",
+      "pointIds": [
+        "pt-more-most",
+        "pt-verbs-a"
+      ],
+      "note": "Побавно uses по- (chapter 7) and молам is an -а verb (chapter 4)."
+    },
+    {
+      "source": "story:gen-s0-greet-story-a#0",
+      "text": "Марко ѝ телефонира на Ана.",
+      "pointIds": [
+        "pt-mi-ti-mu",
+        "pt-prepositions",
+        "pt-verbs-a"
+      ],
+      "note": "ѝ means “to her” (chapter 8), на marks the person (chapter 7), телефонира is chapter 4."
+    },
+    {
+      "source": "story:gen-s0-greet-story-a#2",
+      "text": "Ана: „Во Скопје сум. Ти каде си?“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:gen-s0-greet-story-a#3",
+      "text": "Марко: „Ние сме во Битола, Петар и јас.“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:gen-s0-greet-story-a#4",
+      "text": "Ана: „Вие сте во Битола? Вера и јас сме во Скопје.“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:gen-s0-greet-story-a#5",
+      "text": "Ана: „Вера, тие се во Битола!“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "qa:gen-s0-greet-story-a#q1:a",
+      "text": "Во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "qa:gen-s0-greet-story-a#q2:a",
+      "text": "Тие се во Битола.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "qa:gen-s0-greet-story-a#q3:a",
+      "text": "Во Скопје сум.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:gen-s0-greet-story-b#2",
+      "text": "Ана: „Добро сум. Дали Петар е во Скопје?“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:gen-s0-greet-story-b#3",
+      "text": "Марко: „Да, тој е во Скопје.“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "qa:gen-s0-greet-story-b#q1:q",
+      "text": "Дали Петар е во Скопје?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "qa:gen-s0-greet-story-b#q1:a",
+      "text": "Да, тој е во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 covers prepositions."
+    },
+    {
+      "source": "story:gen-s0-survive-story-a#0",
+      "text": "Вера и Ана се во Скопје.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "во means “in”; chapter 7 explains these little linking words."
+    },
+    {
+      "source": "story:gen-s0-survive-story-a#1",
+      "text": "Вера: „Добар ден! Имате ли пиво?“",
+      "pointIds": [
+        "pt-adjectives",
+        "pt-verbs-a"
+      ],
+      "note": "добар changes to match its noun (chapter 6); Имате is an а-verb ending (chapter 4); ли makes a yes/no question (chapter 2)."
+    },
+    {
+      "source": "qa:gen-s0-survive-story-a#q1:q",
+      "text": "Колку пива сакаат?",
+      "pointIds": [
+        "pt-verbs-a"
+      ],
+      "note": "Колку opens a question (chapter 2); сакаат is an а-verb ending (chapter 4)."
+    },
+    {
+      "source": "qa:gen-s0-survive-story-a#q2:q",
+      "text": "Продавачот е Марко?",
+      "pointIds": [
+        "pt-the"
+      ],
+      "note": "Продавачот has “the” stuck on the end; chapter 4 explains it."
+    },
+    {
+      "source": "qa:gen-s0-survive-story-a#q3:q",
+      "text": "А ти? Што сакаш?",
+      "pointIds": [
+        "pt-verbs-a"
+      ],
+      "note": "Што opens a question (chapter 2); сакаш is an а-verb ending (chapter 4)."
+    },
+    {
+      "source": "story:gen-s0-survive-story-b#0",
+      "text": "Ана: „Марко, како се вели „five“ на македонски?“",
+      "pointIds": [
+        "pt-se",
+        "pt-prepositions"
+      ],
+      "note": "како opens a question (chapter 2); се вели uses се (chapter 5); на is a linking word (chapter 7)."
+    },
+    {
+      "source": "story:gen-s0-survive-story-b#2",
+      "text": "Ана: „Побавно, ве молам!“",
+      "pointIds": [
+        "pt-more-most"
+      ],
+      "note": "по- makes “slower”; chapter 7 explains по- comparatives."
+    },
+    {
+      "source": "story:gen-s0-survive-story-b#6",
+      "text": "Ана: „Не знам. Сакам едно пиво!“",
+      "pointIds": [
+        "pt-verbs-a"
+      ],
+      "note": "Сакам is an а-verb ending; chapter 4 explains verb endings."
+    },
+    {
+      "source": "qa:gen-s0-survive-story-b#q1:q",
+      "text": "Како се вели „five“?",
+      "pointIds": [
+        "pt-se"
+      ],
+      "note": "како opens a question (chapter 2); се вели uses се (chapter 5)."
+    },
+    {
+      "source": "qa:gen-s0-survive-story-b#q3:q",
+      "text": "Кажи: fifteen, fifty.",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Кажи is a command (“say”); chapter 7 explains commands."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story-a#0",
+      "text": "Ана, Марко и Вера се на кафе. Петар е келнер.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "на means “at/for”; prepositions come in chapter 7."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story-a#1",
+      "text": "Петар: „Што ќе сакате?“",
+      "pointIds": [
+        "pt-future"
+      ],
+      "note": "ќе marks the future; chapter 8 explains it."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story-a#4",
+      "text": "Петар: „Имаме. Повелете: кафето, чајот и сокот.“",
+      "pointIds": [
+        "pt-commands"
+      ],
+      "note": "Повелете is a polite command meaning “here you go”; chapter 7 explains commands."
+    },
+    {
+      "source": "story:gen-s1-cafe-order-story-b#3",
+      "text": "Петар: „Имам. Пивото е добро.“",
+      "pointIds": [
+        "pt-adjectives"
+      ],
+      "note": "добро agrees with the noun; adjective agreement is chapter 6."
+    },
+    {
+      "source": "qa:gen-s1-cafe-order-story-b#q2:a",
+      "text": "Добро е.",
+      "pointIds": [
+        "pt-adjectives"
+      ],
+      "note": "Добро agrees with the noun; adjective agreement is chapter 6."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story-a#0",
+      "text": "Ана и Марко се во барот. Сара и Иван се во барот.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“во” means “in/at”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story-a#1",
+      "text": "Ана: „Здраво! Од каде сте?“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“Од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story-a#2",
+      "text": "Сара: „Ние сме од Охрид. А вие?“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story-a#3",
+      "text": "Ана: „Јас сум од Англија. Марко е од Битола.“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story-a#8",
+      "text": "Сара: „Мило ми е! Јас се викам Сара.“",
+      "pointIds": [
+        "pt-mi-ti-mu"
+      ],
+      "note": "“Мило ми е” means “nice to meet you”; “ми” is a to-whom pronoun explained in chapter 8."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story-a#q1:q",
+      "text": "Од каде се Сара и Иван?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“Од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story-a#q1:a",
+      "text": "Од Охрид.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“Од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story-a#q3:q",
+      "text": "А ти? Од каде си?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“Од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story-a#q3:a",
+      "text": "Од Лондон сум.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“Од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "story:gen-s1-greet-intro-story-b#5",
+      "text": "Марко: „Одиме во Битола.“",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“во” means “to/in”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "qa:gen-s1-greet-intro-story-b#q2:a",
+      "text": "Во Битола.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“Во” means “to/in”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "scenario:gen-s1-greet-intro-convo-b#9",
+      "text": "Тие се од Охрид, Марко! Вие знаете Битола?",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "“од” means “from”; prepositions are explained in chapter 7."
+    },
+    {
+      "source": "story:gen-s1-market-story-a#0",
+      "text": "Ана, Вера и Петар се на пазар.",
+      "pointIds": [
+        "pt-prepositions"
+      ],
+      "note": "на means \"at\" here; chapter 7 explains prepositions."
+    },
+    {
+      "source": "qa:gen-s1-directions-story-a#q3:q",
+      "text": "Кажи му на Марко: go straight!",
+      "pointIds": [
+        "pt-mi-ti-mu"
+      ],
+      "note": "му means “to him”; chapter 8 explains it."
+    },
+    {
+      "source": "qa:gen-s2-home-family-story-a#q2:q",
+      "text": "Колку деца има братот на Ема?",
+      "pointIds": [
+        "pt-ima-nema"
+      ],
+      "note": "има here means \"has\"; chapter 12 explains има."
     }
   ],
   "version": "1vx4d6w",
@@ -17477,7 +17651,7 @@ export const course: Course = {
     "story:ana-coffee#3": {
       "pt-the": {
         "words": [
-          "Конобарот"
+          "Келнерот"
         ]
       },
       "pt-verbs-e-i": {
@@ -21934,66 +22108,6 @@ export const course: Course = {
         }
       }
     },
-    "qa:gen-s2-pasttime-story#q1:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "Од"
-          ],
-          "why": "into the park → Во."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "'What' → Што."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "јадеше"
-        ],
-        "blank": {
-          "word": "јадеше",
-          "options": [
-            "јадеше",
-            "јадев",
-            "беше"
-          ],
-          "why": "'he ate' → јадеше."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "in the park → во."
-        }
-      }
-    },
     "qa:gen-s2-pasttime-story#q3:q": {
       "pt-commands": {
         "words": [
@@ -24212,36 +24326,6 @@ export const course: Course = {
         }
       }
     },
-    "qa:gen-s2-problems-story#q3:a": {
-      "pt-verbs-a": {
-        "words": [
-          "Сакам"
-        ],
-        "blank": {
-          "word": "Сакам",
-          "options": [
-            "Сакам",
-            "Сакаш",
-            "Сакаме"
-          ],
-          "why": "The -ам ending means ‘I’."
-        }
-      },
-      "pt-da": {
-        "words": [
-          "да"
-        ],
-        "blank": {
-          "word": "да",
-          "options": [
-            "да",
-            "ли",
-            "не"
-          ],
-          "why": "да links to the next verb."
-        }
-      }
-    },
     "scenario:gen-s2-problems#0": {
       "pt-adjectives": {
         "words": [
@@ -26240,1589 +26324,6 @@ export const course: Course = {
         ]
       }
     },
-    "story:gen-s0-repair-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "сме"
-          ],
-          "why": "Ана is one other person, so it takes е."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-a#1": {
-      "pt-sum": {
-        "words": [
-          "Ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "With ти you use си."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-a#2": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before the verb makes it negative."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "\"I am\" is сум."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-a#3": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before си negates it."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "Ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "With ти you use си."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-a#4": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before сум negates it."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "Јас",
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "With Јас you use сум."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-a#5": {
-      "pt-ne": {
-        "words": [
-          "Не"
-        ],
-        "blank": {
-          "word": "Не",
-          "options": [
-            "Не",
-            "да",
-            "ли"
-          ],
-          "why": "Не before the verb makes it negative."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "разбирам"
-        ]
-      },
-      "pt-commands": {
-        "words": [
-          "Извинете"
-        ],
-        "blank": {
-          "word": "Извинете",
-          "options": [
-            "Извинете",
-            "Одете",
-            "Кажете"
-          ],
-          "why": "Извинете is the polite way to say sorry/excuse me."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-a#6": {
-      "pt-sum": {
-        "words": [
-          "Јас",
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "With Јас you use сум."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-a#7": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before сум negates it."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "Јас",
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "With Јас you use сум."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-a#q1:q": {
-      "pt-sum": {
-        "words": [
-          "Тој",
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "си",
-            "сум"
-          ],
-          "why": "With тој you use е."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-a#q1:a": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before е negates it."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "си",
-            "сум"
-          ],
-          "why": "With тој you use е."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-a#q2:q": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "сте"
-          ],
-          "why": "Марко is one other person, so е."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-a#q2:a": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "си",
-            "сум"
-          ],
-          "why": "With тој you use е."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-a#q3:q": {
-      "pt-sum": {
-        "words": [
-          "Ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "With ти you use си."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-a#q3:a": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before сум negates it."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "јас",
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "With јас you use сум."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#0": {
-      "pt-sum": {
-        "words": [
-          "Ние",
-          "сме"
-        ],
-        "blank": {
-          "word": "сме",
-          "options": [
-            "сме",
-            "сум",
-            "сте"
-          ],
-          "why": "With Ние you use сме."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#1": {
-      "pt-sum": {
-        "words": [
-          "Јас",
-          "сум",
-          "Тој",
-          "е"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "With Јас you use сум."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#2": {
-      "pt-sum": {
-        "words": [
-          "сум",
-          "Ти",
-          "си",
-          "Тој",
-          "е"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "With Ти you use си."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#3": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before the verb makes it negative."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "разбирам"
-        ]
-      },
-      "pt-commands": {
-        "words": [
-          "Извинете"
-        ],
-        "blank": {
-          "word": "Извинете",
-          "options": [
-            "Извинете",
-            "Одете",
-            "Кажете"
-          ],
-          "why": "Извинете is the polite way to say sorry."
-        }
-      },
-      "pt-more-most": {
-        "words": [
-          "Побавно"
-        ],
-        "blank": {
-          "word": "Побавно",
-          "options": [
-            "Побавно",
-            "побрзо",
-            "подобро"
-          ],
-          "why": "по- plus bavno means \"slower\"."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#4": {
-      "pt-sum": {
-        "words": [
-          "Јас",
-          "сум",
-          "Вие",
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "сум",
-            "си"
-          ],
-          "why": "With Вие you use сте."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#5": {
-      "pt-sum": {
-        "words": [
-          "Таа",
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "си"
-          ],
-          "why": "With таа you use е."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#6": {
-      "pt-sum": {
-        "words": [
-          "Тие",
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "сум",
-            "сте"
-          ],
-          "why": "With Тие you use се."
-        }
-      }
-    },
-    "story:gen-s0-repair-story-b#7": {
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Што",
-            "Каде"
-          ],
-          "why": "\"How\" is Како."
-        }
-      },
-      "pt-se": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "This verb always carries се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "со"
-          ],
-          "why": "\"in Macedonian\" uses на."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-b#q1:q": {
-      "pt-sum": {
-        "words": [
-          "Таа",
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "си"
-          ],
-          "why": "With таа you use е."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-b#q1:a": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "си"
-          ],
-          "why": "With таа you use е."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-b#q2:q": {
-      "pt-sum": {
-        "words": [
-          "Вие",
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "сум",
-            "си"
-          ],
-          "why": "With Вие you use сте."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-b#q2:a": {
-      "pt-sum": {
-        "words": [
-          "Ние",
-          "сме"
-        ],
-        "blank": {
-          "word": "сме",
-          "options": [
-            "сме",
-            "сум",
-            "сте"
-          ],
-          "why": "With Ние you use сме."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"in\" a place is во."
-        }
-      }
-    },
-    "qa:gen-s0-repair-story-b#q3:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Како"
-          ],
-          "why": "\"What\" is Што."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "зборува"
-        ],
-        "blank": {
-          "word": "зборува",
-          "options": [
-            "зборува",
-            "зборувам",
-            "зборуваш"
-          ],
-          "why": "Ема is one other person, so the verb ends in -а."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "велиш"
-        ]
-      }
-    },
-    "qa:gen-s0-repair-story-b#q3:a": {
-      "pt-more-most": {
-        "words": [
-          "Побавно"
-        ],
-        "blank": {
-          "word": "Побавно",
-          "options": [
-            "Побавно",
-            "побрзо",
-            "подобро"
-          ],
-          "why": "по- plus bavno means \"slower\"."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "молам"
-        ]
-      }
-    },
-    "story:gen-s0-greet-story-a#0": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Кога",
-            "Што"
-          ],
-          "why": "\"Where\" is Каде."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "With ти you use си."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сме"
-          ],
-          "why": "Talking to one friend uses the informal си."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-a#1": {
-      "pt-sum": {
-        "words": [
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "\"I am\" is сум."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Каде",
-            "Што"
-          ],
-          "why": "\"How\" is Како."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сме"
-          ],
-          "why": "To one friend you use the informal си."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-a#2": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Како"
-          ],
-          "why": "Asking about place = where."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "сум",
-            "е"
-          ],
-          "why": "Talking to 'you' (plural/polite) uses сте."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "Polite form to a teacher uses сте."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-a#3": {
-      "pt-sum": {
-        "words": [
-          "сум",
-          "сте"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "'I am' = сум."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Како"
-          ],
-          "why": "Asking about place = where."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "вие",
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "Addressing 'you' politely/plural uses сте."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-a#4": {
-      "pt-sum": {
-        "words": [
-          "Јас",
-          "сум",
-          "се"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "'I am' = сум."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-a#5": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Како"
-          ],
-          "why": "'What?' = Што."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "Тие",
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "'They are' = се."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-a#6": {
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "како"
-          ],
-          "why": "Asking about place = where."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "е"
-          ],
-          "why": "Talking to two people = сте."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "Plural 'you' uses сте."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Како"
-          ],
-          "why": "Asking about place = where."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "One person (Marko) = е."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-a#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Како"
-          ],
-          "why": "Asking about place = where."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "Two people = се."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-a#q2:a": {
-      "pt-sum": {
-        "words": [
-          "Тие",
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "'They are' = се."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-a#q3:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Како"
-          ],
-          "why": "Asking about place = where."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "'You are' (one friend) = си."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сме"
-          ],
-          "why": "Informal 'you' uses си."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-a#q3:a": {
-      "pt-sum": {
-        "words": [
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "'I am' = сум."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#0": {
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Каде",
-            "Што"
-          ],
-          "why": "'How are you?' = Како."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "'You are' (one friend) = си."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сме"
-          ],
-          "why": "Informal 'you' uses си."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#1": {
-      "pt-sum": {
-        "words": [
-          "сум",
-          "ти"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "'I am' = сум."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#2": {
-      "pt-sum": {
-        "words": [
-          "сум",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "'You are' (one friend) = си."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "ли",
-            "да"
-          ],
-          "why": "A сум-form question opens with Дали, not ли."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сме"
-          ],
-          "why": "Informal 'you' uses си."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#3": {
-      "pt-sum": {
-        "words": [
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "'I am' = сум."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#4": {
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Каде",
-            "Што"
-          ],
-          "why": "'How are you?' = Како."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "е"
-          ],
-          "why": "Polite 'you' = сте."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "Polite form to Vera uses сте."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#5": {
-      "pt-sum": {
-        "words": [
-          "сум",
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "Plural/polite 'you' = сте."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "ли",
-            "да"
-          ],
-          "why": "A сум-form question opens with Дали, not ли."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "Addressing two people uses сте."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#6": {
-      "pt-sum": {
-        "words": [
-          "сме"
-        ],
-        "blank": {
-          "word": "сме",
-          "options": [
-            "сме",
-            "сум",
-            "се"
-          ],
-          "why": "'We are' = сме."
-        }
-      }
-    },
-    "story:gen-s0-greet-story-b#7": {
-      "pt-verbs-e-i": {
-        "words": [
-          "вели",
-          "вели"
-        ]
-      }
-    },
-    "qa:gen-s0-greet-story-b#q1:q": {
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "ли",
-            "да"
-          ],
-          "why": "A сум-form question opens with Дали, not ли."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "One person (Marko) = е."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-b#q1:a": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "'He is' = е."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-b#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Каде",
-            "Што"
-          ],
-          "why": "Asking about state = how."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "One person (Vera) = е."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-b#q2:a": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "'She is' = е."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-b#q3:q": {
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Каде",
-            "Што"
-          ],
-          "why": "'How are you?' = Како."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "'You are' (one friend) = си."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сме"
-          ],
-          "why": "Informal 'you' uses си."
-        }
-      }
-    },
-    "qa:gen-s0-greet-story-b#q3:a": {
-      "pt-sum": {
-        "words": [
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "'I am' = сум."
-        }
-      }
-    },
     "scenario:gen-s0-repair-convo-b#0": {
       "pt-sum": {
         "words": [
@@ -28286,673 +26787,6 @@ export const course: Course = {
         }
       }
     },
-    "story:gen-s0-survive-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "сме",
-            "е"
-          ],
-          "why": "With two people (they) you use се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "во means in a place."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-a#1": {
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "ли goes right after the verb to make a yes/no question."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "Имате"
-        ],
-        "blank": {
-          "word": "Имате",
-          "options": [
-            "Имате",
-            "Имаш",
-            "Имам"
-          ],
-          "why": "To вие (you plural) the а-verb ends in -те."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-a#2": {
-      "pt-gender": {
-        "words": [
-          "Едно"
-        ],
-        "blank": {
-          "word": "Едно",
-          "options": [
-            "Едно",
-            "Еден",
-            "Една"
-          ],
-          "why": "пиво is neuter, so едно."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "две"
-        ],
-        "blank": {
-          "word": "две",
-          "options": [
-            "две",
-            "два",
-            "три"
-          ],
-          "why": "Beer uses две, not два."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-a#3": {
-      "pt-numbers": {
-        "words": [
-          "Две",
-          "пива",
-          "две"
-        ],
-        "blank": {
-          "word": "Две",
-          "options": [
-            "Две",
-            "Два",
-            "Три"
-          ],
-          "why": "With these nouns you use две, not два."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сме"
-        ],
-        "blank": {
-          "word": "сме",
-          "options": [
-            "сме",
-            "сте",
-            "е"
-          ],
-          "why": "With Ние (we) you use сме."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-a#4": {
-      "pt-question-words": {
-        "words": [
-          "Колку"
-        ],
-        "blank": {
-          "word": "Колку",
-          "options": [
-            "Колку",
-            "Каде",
-            "Кога"
-          ],
-          "why": "Колку asks how much."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "чини"
-        ]
-      }
-    },
-    "story:gen-s0-survive-story-a#5": {
-      "pt-numbers": {
-        "words": [
-          "денари"
-        ],
-        "blank": {
-          "word": "денари",
-          "options": [
-            "денари",
-            "денар",
-            "пива"
-          ],
-          "why": "After a number the noun goes plural: денари."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-a#6": {
-      "pt-sum": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "е"
-          ],
-          "why": "With Вие (you plural) you use сте."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "To several people (or politely) use сте."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-a#7": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сме"
-          ],
-          "why": "With informal ти you use си."
-        }
-      },
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before си makes it negative."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "е"
-          ],
-          "why": "With ти (you, informal) you use си."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-a#8": {
-      "pt-ne": {
-        "words": [
-          "Не",
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before сум makes it negative."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сум",
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "With Јас (I) you use сум."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Колку"
-        ],
-        "blank": {
-          "word": "Колку",
-          "options": [
-            "Колку",
-            "Каде",
-            "Што"
-          ],
-          "why": "Колку asks how many."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-a#q1:a": {
-      "pt-numbers": {
-        "words": [
-          "Две",
-          "пива"
-        ],
-        "blank": {
-          "word": "Две",
-          "options": [
-            "Две",
-            "Два",
-            "Три"
-          ],
-          "why": "Beer uses две, not два."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-a#q2:q": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "си",
-            "сте"
-          ],
-          "why": "With Тој (he) you use е."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-a#q2:a": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "си",
-            "сте"
-          ],
-          "why": "With тој (he) you use е."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-a#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "сакаш"
-        ]
-      },
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Како"
-          ],
-          "why": "Asking 'what' do you want."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакаш"
-        ],
-        "blank": {
-          "word": "сакаш",
-          "options": [
-            "сакаш",
-            "сакам",
-            "сакате"
-          ],
-          "why": "-ш ending means 'you' (one friend)."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-a#q3:a": {
-      "pt-gender": {
-        "words": [
-          "Едно"
-        ],
-        "blank": {
-          "word": "Едно",
-          "options": [
-            "Едно",
-            "Еден",
-            "Една"
-          ],
-          "why": "пиво is neuter, so 'one' is едно."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-b#0": {
-      "pt-question-words": {
-        "words": [
-          "како"
-        ],
-        "blank": {
-          "word": "како",
-          "options": [
-            "како",
-            "што",
-            "каде"
-          ],
-          "why": "Asking 'how' you say it."
-        }
-      },
-      "pt-se": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "вели always comes with се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "со"
-          ],
-          "why": "'in Macedonian' uses на."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-b#1": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "'it is' is third person singular е."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "Пет",
-          "петнаесет"
-        ]
-      }
-    },
-    "story:gen-s0-survive-story-b#2": {
-      "pt-more-most": {
-        "words": [
-          "Побавно"
-        ]
-      }
-    },
-    "story:gen-s0-survive-story-b#3": {
-      "pt-numbers": {
-        "words": [
-          "Пет",
-          "петнаесет",
-          "педесет"
-        ]
-      }
-    },
-    "story:gen-s0-survive-story-b#4": {
-      "pt-gender": {
-        "words": [
-          "Едно"
-        ],
-        "blank": {
-          "word": "Едно",
-          "options": [
-            "Едно",
-            "Еден",
-            "Една"
-          ],
-          "why": "пиво is neuter, so едно."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "'is' is third person singular е."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "педесет",
-          "денари"
-        ]
-      }
-    },
-    "story:gen-s0-survive-story-b#5": {
-      "pt-numbers": {
-        "words": [
-          "две",
-          "пива"
-        ],
-        "blank": {
-          "word": "две",
-          "options": [
-            "две",
-            "два",
-            "три"
-          ],
-          "why": "пива is neuter, so 'two' is две."
-        }
-      }
-    },
-    "story:gen-s0-survive-story-b#6": {
-      "pt-ne": {
-        "words": [
-          "Не"
-        ],
-        "blank": {
-          "word": "Не",
-          "options": [
-            "Не",
-            "Да",
-            "Ли"
-          ],
-          "why": "Не before the verb makes it negative."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "Сакам"
-        ],
-        "blank": {
-          "word": "Сакам",
-          "options": [
-            "Сакам",
-            "Сакаш",
-            "Сакате"
-          ],
-          "why": "-м ending means 'I'."
-        }
-      },
-      "pt-gender": {
-        "words": [
-          "едно"
-        ],
-        "blank": {
-          "word": "едно",
-          "options": [
-            "едно",
-            "еден",
-            "една"
-          ],
-          "why": "пиво is neuter, so едно."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-b#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Што",
-            "Каде"
-          ],
-          "why": "Asking 'how' you say it."
-        }
-      },
-      "pt-se": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "вели always comes with се."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-b#q1:a": {
-      "pt-numbers": {
-        "words": [
-          "Пет"
-        ]
-      }
-    },
-    "qa:gen-s0-survive-story-b#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Колку"
-        ],
-        "blank": {
-          "word": "Колку",
-          "options": [
-            "Колку",
-            "Што",
-            "Каде"
-          ],
-          "why": "Asking 'how much'."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "Колку",
-          "чини"
-        ]
-      },
-      "pt-gender": {
-        "words": [
-          "едно"
-        ],
-        "blank": {
-          "word": "едно",
-          "options": [
-            "едно",
-            "еден",
-            "една"
-          ],
-          "why": "пиво is neuter, so едно."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-b#q2:a": {
-      "pt-numbers": {
-        "words": [
-          "Педесет",
-          "денари"
-        ]
-      }
-    },
-    "qa:gen-s0-survive-story-b#q3:q": {
-      "pt-commands": {
-        "words": [
-          "Кажи"
-        ],
-        "blank": {
-          "word": "Кажи",
-          "options": [
-            "Кажи",
-            "Кажете",
-            "Одете"
-          ],
-          "why": "Telling one friend uses the informal Кажи."
-        }
-      }
-    },
-    "qa:gen-s0-survive-story-b#q3:a": {
-      "pt-numbers": {
-        "words": [
-          "Петнаесет",
-          "педесет"
-        ]
-      }
-    },
     "scenario:gen-s0-survive-convo-b#0": {
       "pt-question-words": {
         "words": [
@@ -29232,806 +27066,6 @@ export const course: Course = {
           "Сто",
           "денари"
         ]
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "сме",
-            "сте"
-          ],
-          "why": "Plural subject takes се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "со"
-          ],
-          "why": "'out for coffee' uses на."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#1": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Како"
-          ],
-          "why": "Asking 'what' you'll have."
-        }
-      },
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "да"
-          ],
-          "why": "ќе plus the verb makes the future."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакате"
-        ]
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#2": {
-      "pt-verbs-a": {
-        "words": [
-          "сакам"
-        ],
-        "blank": {
-          "word": "сакам",
-          "options": [
-            "сакам",
-            "сакаш",
-            "сака"
-          ],
-          "why": "-м ending means 'I'."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#3": {
-      "pt-verbs-a": {
-        "words": [
-          "сакаат"
-        ],
-        "blank": {
-          "word": "сакаат",
-          "options": [
-            "сакаат",
-            "сака",
-            "сакам"
-          ],
-          "why": "They (plural) take the -аат ending."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#4": {
-      "pt-verbs-a": {
-        "words": [
-          "Имате"
-        ],
-        "blank": {
-          "word": "Имате",
-          "options": [
-            "Имате",
-            "Имаш",
-            "Имам"
-          ],
-          "why": "-те ending means 'you' (plural/polite)."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "ли right after the verb makes a yes/no question."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#5": {
-      "pt-verbs-a": {
-        "words": [
-          "Имаме"
-        ],
-        "blank": {
-          "word": "Имаме",
-          "options": [
-            "Имаме",
-            "Имам",
-            "Имате"
-          ],
-          "why": "-ме ending means 'we'."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "кафето",
-          "сокот"
-        ],
-        "blank": {
-          "word": "кафето",
-          "options": [
-            "кафето",
-            "кафеот",
-            "токафе"
-          ],
-          "why": "Neuter кафе takes -то on the end."
-        }
-      },
-      "pt-commands": {
-        "words": [
-          "Повелете"
-        ],
-        "blank": {
-          "word": "Повелете",
-          "options": [
-            "Повелете",
-            "Кажете",
-            "Одете"
-          ],
-          "why": "'Here you go' is the polite form Повелете."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#6": {
-      "pt-the": {
-        "words": [
-          "Сметката"
-        ],
-        "blank": {
-          "word": "Сметката",
-          "options": [
-            "Сметката",
-            "сметкаот",
-            "тасметка"
-          ],
-          "why": "Feminine nouns take -та on the end for \"the\"."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "молам"
-        ]
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#7": {
-      "pt-verbs-a": {
-        "words": [
-          "давам"
-        ],
-        "blank": {
-          "word": "давам",
-          "options": [
-            "давам",
-            "даваш",
-            "дава"
-          ],
-          "why": "The -ам ending means \"I\"."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "сто",
-          "денари"
-        ],
-        "blank": {
-          "word": "денари",
-          "options": [
-            "денари",
-            "денар",
-            "пива"
-          ],
-          "why": "After a number the noun goes plural."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#8": {
-      "pt-verbs-a": {
-        "words": [
-          "давам",
-          "даваш"
-        ],
-        "blank": {
-          "word": "даваш",
-          "options": [
-            "даваш",
-            "давам",
-            "дава"
-          ],
-          "why": "The -аш ending means \"you\"."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "сто"
-        ]
-      },
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "даваш"
-        ]
-      }
-    },
-    "story:gen-s1-cafe-order-story-a#9": {
-      "pt-verbs-a": {
-        "words": [
-          "давате"
-        ],
-        "blank": {
-          "word": "давате",
-          "options": [
-            "давате",
-            "даваш",
-            "давам"
-          ],
-          "why": "The -ате ending is the plural/polite \"you\"."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "двесте"
-        ]
-      },
-      "pt-ti-vie": {
-        "words": [
-          "Вие",
-          "давате"
-        ]
-      }
-    },
-    "qa:gen-s1-cafe-order-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Како"
-          ],
-          "why": "\"Што\" asks \"what\"."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакаат"
-        ],
-        "blank": {
-          "word": "сакаат",
-          "options": [
-            "сакаат",
-            "сака",
-            "сакам"
-          ],
-          "why": "The -аат ending means \"they\"."
-        }
-      }
-    },
-    "qa:gen-s1-cafe-order-story-a#q1:a": {
-      "pt-verbs-a": {
-        "words": [
-          "Сакаат"
-        ],
-        "blank": {
-          "word": "Сакаат",
-          "options": [
-            "Сакаат",
-            "Сакам",
-            "Сака"
-          ],
-          "why": "The -аат ending means \"they\"."
-        }
-      }
-    },
-    "qa:gen-s1-cafe-order-story-a#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Колку"
-        ],
-        "blank": {
-          "word": "Колку",
-          "options": [
-            "Колку",
-            "Што",
-            "Каде"
-          ],
-          "why": "\"Колку\" asks \"how much\"."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "дава"
-        ],
-        "blank": {
-          "word": "дава",
-          "options": [
-            "дава",
-            "давам",
-            "даваш"
-          ],
-          "why": "The bare -а form means \"he/she\"."
-        }
-      }
-    },
-    "qa:gen-s1-cafe-order-story-a#q2:a": {
-      "pt-numbers": {
-        "words": [
-          "Сто",
-          "денари"
-        ],
-        "blank": {
-          "word": "денари",
-          "options": [
-            "денари",
-            "денар",
-            "пива"
-          ],
-          "why": "After a number the noun goes plural."
-        }
-      }
-    },
-    "qa:gen-s1-cafe-order-story-a#q3:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Како"
-          ],
-          "why": "\"Што\" asks \"what\"."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакаш"
-        ],
-        "blank": {
-          "word": "сакаш",
-          "options": [
-            "сакаш",
-            "сакам",
-            "сака"
-          ],
-          "why": "The -аш ending means \"you\"."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "сакаш"
-        ]
-      }
-    },
-    "qa:gen-s1-cafe-order-story-a#q3:a": {
-      "pt-verbs-a": {
-        "words": [
-          "сакам"
-        ],
-        "blank": {
-          "word": "сакам",
-          "options": [
-            "сакам",
-            "сакаш",
-            "сака"
-          ],
-          "why": "The -ам ending means \"I\"."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#0": {
-      "pt-verbs-a": {
-        "words": [
-          "има"
-        ],
-        "blank": {
-          "word": "има",
-          "options": [
-            "има",
-            "имам",
-            "имаш"
-          ],
-          "why": "The bare form means \"he/she\"."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#1": {
-      "pt-verbs-a": {
-        "words": [
-          "сакаат"
-        ],
-        "blank": {
-          "word": "сакаат",
-          "options": [
-            "сакаат",
-            "сака",
-            "сакам"
-          ],
-          "why": "The -аат ending means \"they\"."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#2": {
-      "pt-verbs-a": {
-        "words": [
-          "Имаш"
-        ],
-        "blank": {
-          "word": "Имаш",
-          "options": [
-            "Имаш",
-            "Имам",
-            "Има"
-          ],
-          "why": "The -аш ending means \"you\"."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "\"ли\" goes right after the verb to make a yes/no question."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#3": {
-      "pt-verbs-a": {
-        "words": [
-          "Имам"
-        ],
-        "blank": {
-          "word": "Имам",
-          "options": [
-            "Имам",
-            "Имаш",
-            "Има"
-          ],
-          "why": "The -ам ending means \"I\"."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "Пивото"
-        ],
-        "blank": {
-          "word": "Пивото",
-          "options": [
-            "Пивото",
-            "пивата",
-            "пиво"
-          ],
-          "why": "Neuter nouns take -то for \"the\"."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "\"е\" is used for \"it is\"."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "добро"
-        ],
-        "blank": {
-          "word": "добро",
-          "options": [
-            "добро",
-            "добра",
-            "добри"
-          ],
-          "why": "The adjective takes the neuter -о to match пиво."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#4": {
-      "pt-verbs-a": {
-        "words": [
-          "сакаме"
-        ],
-        "blank": {
-          "word": "сакаме",
-          "options": [
-            "сакаме",
-            "сакам",
-            "сакаат"
-          ],
-          "why": "The -аме ending means \"we\"."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "две",
-          "пива"
-        ],
-        "blank": {
-          "word": "две",
-          "options": [
-            "две",
-            "два",
-            "три"
-          ],
-          "why": "\"две\" is used with feminine/neuter nouns like пива."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#5": {
-      "pt-verbs-a": {
-        "words": [
-          "Сакате"
-        ],
-        "blank": {
-          "word": "Сакате",
-          "options": [
-            "Сакате",
-            "Сакаш",
-            "Сакам"
-          ],
-          "why": "The -ате ending is the plural/polite \"you\"."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "\"ли\" goes right after the verb to make a yes/no question."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#6": {
-      "pt-question-words": {
-        "words": [
-          "Колку"
-        ],
-        "blank": {
-          "word": "Колку",
-          "options": [
-            "Колку",
-            "Што",
-            "Каде"
-          ],
-          "why": "\"Колку\" asks \"how much\"."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "чини"
-        ]
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#7": {
-      "pt-numbers": {
-        "words": [
-          "Двесте",
-          "денари"
-        ],
-        "blank": {
-          "word": "денари",
-          "options": [
-            "денари",
-            "денар",
-            "пива"
-          ],
-          "why": "After a number the noun goes plural."
-        }
-      }
-    },
-    "story:gen-s1-cafe-order-story-b#8": {
-      "pt-verbs-a": {
-        "words": [
-          "дава"
-        ],
-        "blank": {
-          "word": "дава",
-          "options": [
-            "дава",
-            "давам",
-            "даваш"
-          ],
-          "why": "The bare -а form means \"he/she\"."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "сто"
-        ]
-      }
-    },
-    "qa:gen-s1-cafe-order-story-b#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Како"
-          ],
-          "why": "\"Што\" asks \"what\"."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакаат"
-        ],
-        "blank": {
-          "word": "сакаат",
-          "options": [
-            "сакаат",
-            "сака",
-            "сакам"
-          ],
-          "why": "The -аат ending means \"they\"."
-        }
-      }
-    },
-    "qa:gen-s1-cafe-order-story-b#q1:a": {
-      "pt-numbers": {
-        "words": [
-          "Две",
-          "пива"
-        ]
-      }
-    },
-    "qa:gen-s1-cafe-order-story-b#q2:q": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "\"е\" is used for \"it is\"."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "пивото"
-        ],
-        "blank": {
-          "word": "пивото",
-          "options": [
-            "пивото",
-            "пивата",
-            "пиво"
-          ],
-          "why": "Neuter nouns take -то for \"the\"."
-        }
-      }
-    },
-    "qa:gen-s1-cafe-order-story-b#q2:a": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "\"е\" is used for \"it is\"."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "Добро"
-        ],
-        "blank": {
-          "word": "Добро",
-          "options": [
-            "Добро",
-            "Добра",
-            "Добри"
-          ],
-          "why": "The neuter -о form matches пиво."
-        }
-      }
-    },
-    "qa:gen-s1-cafe-order-story-b#q3:q": {
-      "pt-verbs-a": {
-        "words": [
-          "имаш"
-        ],
-        "blank": {
-          "word": "имаш",
-          "options": [
-            "имаш",
-            "имам",
-            "има"
-          ],
-          "why": "The -аш ending means \"you\"."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "Ти",
-          "имаш"
-        ]
-      }
-    },
-    "qa:gen-s1-cafe-order-story-b#q3:a": {
-      "pt-verbs-a": {
-        "words": [
-          "имам"
-        ],
-        "blank": {
-          "word": "имам",
-          "options": [
-            "имам",
-            "имаш",
-            "има"
-          ],
-          "why": "The -ам ending means \"I\"."
-        }
       }
     },
     "scenario:gen-s1-cafe-order-convo-b#0": {
@@ -30314,825 +27348,6 @@ export const course: Course = {
             "сакам"
           ],
           "why": "Two people (they) take the -аат ending."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сме"
-          ],
-          "why": "Two people (they) take \"се\"."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "барот"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" means in/at."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#1": {
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "кој"
-          ],
-          "why": "\"каде\" asks where."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "Addressing a couple politely uses \"сте\"."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сте"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "Со"
-          ],
-          "why": "\"Од\" means from."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#2": {
-      "pt-sum": {
-        "words": [
-          "сме"
-        ],
-        "blank": {
-          "word": "сме",
-          "options": [
-            "сме",
-            "сте",
-            "се"
-          ],
-          "why": "\"ние\" (we) takes \"сме\"."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "вие"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "од"
-        ],
-        "blank": {
-          "word": "од",
-          "options": [
-            "од",
-            "во",
-            "со"
-          ],
-          "why": "\"од\" means from."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#3": {
-      "pt-sum": {
-        "words": [
-          "сум",
-          "е"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "\"јас\" (I) takes \"сум\"."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "од"
-        ],
-        "blank": {
-          "word": "од",
-          "options": [
-            "од",
-            "во",
-            "со"
-          ],
-          "why": "\"од\" means from."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#4": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кој"
-          ],
-          "why": "\"Што\" asks what."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "работите"
-        ]
-      },
-      "pt-ti-vie": {
-        "words": [
-          "работите"
-        ]
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#5": {
-      "pt-verbs-e-i": {
-        "words": [
-          "работи",
-          "работам",
-          "учам"
-        ],
-        "blank": {
-          "word": "учам",
-          "options": [
-            "учам",
-            "учиш",
-            "учи"
-          ],
-          "why": "\"јас\" (I) takes the -ам ending."
-        }
-      },
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "\"не\" before the verb makes it negative."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#6": {
-      "pt-ti-vie": {
-        "words": [
-          "Ти",
-          "знаеш"
-        ]
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "знаеш"
-        ],
-        "blank": {
-          "word": "знаеш",
-          "options": [
-            "знаеш",
-            "знам",
-            "знае"
-          ],
-          "why": "\"ти\" (you) takes the -еш ending."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#7": {
-      "pt-verbs-a": {
-        "words": [
-          "Зборувам"
-        ],
-        "blank": {
-          "word": "Зборувам",
-          "options": [
-            "Зборувам",
-            "Зборуваш",
-            "Зборува"
-          ],
-          "why": "\"I speak\" uses the -ам ending."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#8": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "си"
-          ],
-          "why": "\"Мило ми е\" uses the third-person \"е\"."
-        }
-      },
-      "pt-mi-ti-mu": {
-        "words": [
-          "ми"
-        ],
-        "blank": {
-          "word": "ми",
-          "options": [
-            "ми",
-            "ти",
-            "му"
-          ],
-          "why": "\"ми\" means \"to me\"."
-        }
-      },
-      "pt-se": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "викам always comes with \"се\"."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-a#9": {
-      "pt-verbs-e-i": {
-        "words": [
-          "јадат",
-          "пијат"
-        ],
-        "blank": {
-          "word": "јадат",
-          "options": [
-            "јадат",
-            "јаде",
-            "јадеш"
-          ],
-          "why": "\"тие\" (they) takes the -ат ending."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "зборуваат"
-        ],
-        "blank": {
-          "word": "зборуваат",
-          "options": [
-            "зборуваат",
-            "зборува",
-            "зборувам"
-          ],
-          "why": "\"тие\" (they) takes the -аат ending."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "кој"
-          ],
-          "why": "\"каде\" asks where."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "Two people (they) take \"се\"."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "Со"
-          ],
-          "why": "\"Од\" means from."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-a#q1:a": {
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "Со"
-          ],
-          "why": "\"Од\" means from."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-a#q2:q": {
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "Што",
-            "Каде"
-          ],
-          "why": "A yes/no question can open with \"Дали\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работиш",
-            "оди"
-          ],
-          "why": "\"Сара\" (she) takes the -и ending."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-a#q2:a": {
-      "pt-verbs-e-i": {
-        "words": [
-          "учи"
-        ],
-        "blank": {
-          "word": "учи",
-          "options": [
-            "учи",
-            "учиш",
-            "учам"
-          ],
-          "why": "\"таа\" (she) takes the -и ending."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-a#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сум"
-          ],
-          "why": "Informal singular \"you\" takes \"си\"."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "кој"
-          ],
-          "why": "\"каде\" asks where."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "си"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "Со"
-          ],
-          "why": "\"Од\" means from."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-a#q3:a": {
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "Со"
-          ],
-          "why": "\"Од\" means from."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "си",
-            "е"
-          ],
-          "why": "\"I am\" is \"сум\"."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#0": {
-      "pt-verbs-e-i": {
-        "words": [
-          "пијат"
-        ],
-        "blank": {
-          "word": "пијат",
-          "options": [
-            "пијат",
-            "пие",
-            "пиеш"
-          ],
-          "why": "\"they\" takes the -ат ending."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#1": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кој"
-          ],
-          "why": "\"Што\" asks what."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "јадеш"
-        ],
-        "blank": {
-          "word": "јадеш",
-          "options": [
-            "јадеш",
-            "јаде",
-            "јадам"
-          ],
-          "why": "\"you\" takes the -еш ending."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "јадеш"
-        ]
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#2": {
-      "pt-ne": {
-        "words": [
-          "Не"
-        ],
-        "blank": {
-          "word": "Не",
-          "options": [
-            "Не",
-            "Да",
-            "Ли"
-          ],
-          "why": "\"Не\" before the verb makes it negative."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "јадам",
-          "Пијам"
-        ],
-        "blank": {
-          "word": "јадам",
-          "options": [
-            "јадам",
-            "јадеш",
-            "јаде"
-          ],
-          "why": "\"I\" takes the -ам ending."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#3": {
-      "pt-verbs-e-i": {
-        "words": [
-          "јадат",
-          "пие"
-        ],
-        "blank": {
-          "word": "јадат",
-          "options": [
-            "јадат",
-            "јаде",
-            "јадеш"
-          ],
-          "why": "\"they\" (two people) takes the -ат ending."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#4": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кој"
-          ],
-          "why": "\"Каде\" asks where."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одите"
-        ]
-      },
-      "pt-ti-vie": {
-        "words": [
-          "одите"
-        ]
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#5": {
-      "pt-verbs-e-i": {
-        "words": [
-          "Одиме"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" means to/into here."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#6": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "зборуваш"
-        ]
-      },
-      "pt-verbs-a": {
-        "words": [
-          "зборуваш"
-        ],
-        "blank": {
-          "word": "зборуваш",
-          "options": [
-            "зборуваш",
-            "зборува",
-            "зборувам"
-          ],
-          "why": "\"ти\" (you) takes the -аш ending."
-        }
-      }
-    },
-    "story:gen-s1-greet-intro-story-b#7": {
-      "pt-verbs-e-i": {
-        "words": [
-          "учам"
-        ],
-        "blank": {
-          "word": "учам",
-          "options": [
-            "учам",
-            "учиш",
-            "учи"
-          ],
-          "why": "\"I\" takes the -ам ending."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-b#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кој"
-          ],
-          "why": "\"Што\" asks what."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "пие"
-        ],
-        "blank": {
-          "word": "пие",
-          "options": [
-            "пие",
-            "пиеш",
-            "пијам"
-          ],
-          "why": "\"Ана\" (she) takes the -е ending."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-b#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "\"Каде\" asks where someone is going."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ],
-        "blank": {
-          "word": "одат",
-          "options": [
-            "одат",
-            "оди",
-            "одиш"
-          ],
-          "why": "Two people (they) go takes the -ат ending."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-b#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "од",
-            "до"
-          ],
-          "why": "\"Во\" means into/to a town."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-b#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "пиеш"
-        ]
-      },
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "\"Што\" asks what."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "пиеш"
-        ],
-        "blank": {
-          "word": "пиеш",
-          "options": [
-            "пиеш",
-            "пијам",
-            "пие"
-          ],
-          "why": "Talking to one friend (ти) uses the -ш ending."
-        }
-      }
-    },
-    "qa:gen-s1-greet-intro-story-b#q3:a": {
-      "pt-verbs-e-i": {
-        "words": [
-          "Пијам"
-        ],
-        "blank": {
-          "word": "Пијам",
-          "options": [
-            "Пијам",
-            "пиеш",
-            "пие"
-          ],
-          "why": "\"I\" form ends in -м."
         }
       }
     },
@@ -31467,72 +27682,6 @@ export const course: Course = {
         }
       }
     },
-    "scenario:gen-s1-greet-intro-convo-b#9": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "сте",
-            "сме"
-          ],
-          "why": "With тие (they) you use се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "од"
-        ],
-        "blank": {
-          "word": "од",
-          "options": [
-            "од",
-            "во",
-            "до"
-          ],
-          "why": "\"од\" means from."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "Ти",
-          "знаеш"
-        ]
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "знаеш"
-        ],
-        "blank": {
-          "word": "знаеш",
-          "options": [
-            "знаеш",
-            "знае",
-            "знам"
-          ],
-          "why": "With ти (you, friend) the verb ends in -ш."
-        }
-      }
-    },
-    "scenario:gen-s1-greet-intro-convo-b#10": {
-      "pt-verbs-e-i": {
-        "words": [
-          "знам"
-        ],
-        "blank": {
-          "word": "знам",
-          "options": [
-            "знам",
-            "знаеш",
-            "знае"
-          ],
-          "why": "\"I know\" ends in -м."
-        }
-      }
-    },
     "scenario:gen-s1-greet-intro-convo-b#11": {
       "pt-verbs-e-i": {
         "words": [
@@ -31588,1059 +27737,6 @@ export const course: Course = {
             "си"
           ],
           "why": "\"Мило ... е\" uses е."
-        }
-      }
-    },
-    "story:gen-s1-market-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "сме",
-            "сте"
-          ],
-          "why": "With several people (they) you use се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "од"
-          ],
-          "why": "\"на пазар\" means at the market."
-        }
-      }
-    },
-    "story:gen-s1-market-story-a#1": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "\"Што\" asks what."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакате"
-        ],
-        "blank": {
-          "word": "сакате",
-          "options": [
-            "сакате",
-            "сакаш",
-            "сака"
-          ],
-          "why": "Polite/plural you takes the -те ending."
-        }
-      }
-    },
-    "story:gen-s1-market-story-a#2": {
-      "pt-verbs-a": {
-        "words": [
-          "земам"
-        ],
-        "blank": {
-          "word": "земам",
-          "options": [
-            "земам",
-            "земаш",
-            "зема"
-          ],
-          "why": "With јас (I) the verb ends in -м."
-        }
-      }
-    },
-    "story:gen-s1-market-story-a#3": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "земаш"
-        ]
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земаш"
-        ],
-        "blank": {
-          "word": "земаш",
-          "options": [
-            "земаш",
-            "земам",
-            "земате"
-          ],
-          "why": "With ти (you, friend) the verb ends in -ш."
-        }
-      }
-    },
-    "story:gen-s1-market-story-a#4": {
-      "pt-the": {
-        "words": [
-          "Сирењето",
-          "Лебот"
-        ],
-        "blank": {
-          "word": "Лебот",
-          "options": [
-            "Лебот",
-            "лебта",
-            "леб"
-          ],
-          "why": "Леб is masculine, so \"the\" is -от."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е",
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "One thing (it) uses е."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "скапо",
-          "евтин"
-        ]
-      }
-    },
-    "story:gen-s1-market-story-a#5": {
-      "pt-the": {
-        "words": [
-          "Јаболката"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сте"
-          ],
-          "why": "With plural (they) you use се."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "евтини"
-        ]
-      },
-      "pt-go-ja-gi": {
-        "words": [
-          "Ги"
-        ],
-        "blank": {
-          "word": "Ги",
-          "options": [
-            "Ги",
-            "го",
-            "ја"
-          ],
-          "why": "Apples are plural, so \"them\" is ги."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земаме"
-        ],
-        "blank": {
-          "word": "земаме",
-          "options": [
-            "земаме",
-            "земам",
-            "земаат"
-          ],
-          "why": "With ние (we) the verb ends in -ме."
-        }
-      }
-    },
-    "story:gen-s1-market-story-a#6": {
-      "pt-go-ja-gi": {
-        "words": [
-          "ги"
-        ],
-        "blank": {
-          "word": "ги",
-          "options": [
-            "ги",
-            "го",
-            "ја"
-          ],
-          "why": "Apples are plural, so \"them\" is ги."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земаат"
-        ],
-        "blank": {
-          "word": "земаат",
-          "options": [
-            "земаат",
-            "земам",
-            "земаме"
-          ],
-          "why": "With they the verb ends in -аат."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "јаболката"
-        ]
-      }
-    },
-    "story:gen-s1-market-story-a#7": {
-      "pt-go-ja-gi": {
-        "words": [
-          "го"
-        ],
-        "blank": {
-          "word": "го",
-          "options": [
-            "го",
-            "ја",
-            "ги"
-          ],
-          "why": "One thing (the cheese) is го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "зема"
-        ],
-        "blank": {
-          "word": "зема",
-          "options": [
-            "зема",
-            "земам",
-            "земаат"
-          ],
-          "why": "With Петар (he) the verb has no extra ending."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "сирењето"
-        ]
-      }
-    },
-    "qa:gen-s1-market-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "\"Што\" asks what."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земаат"
-        ],
-        "blank": {
-          "word": "земаат",
-          "options": [
-            "земаат",
-            "зема",
-            "земам"
-          ],
-          "why": "With they the verb ends in -аат."
-        }
-      }
-    },
-    "qa:gen-s1-market-story-a#q1:a": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Ги"
-        ],
-        "blank": {
-          "word": "Ги",
-          "options": [
-            "Ги",
-            "го",
-            "ја"
-          ],
-          "why": "Apples are plural, so \"them\" is ги."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земаат"
-        ],
-        "blank": {
-          "word": "земаат",
-          "options": [
-            "земаат",
-            "земам",
-            "зема"
-          ],
-          "why": "With they the verb ends in -аат."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "јаболката"
-        ]
-      }
-    },
-    "qa:gen-s1-market-story-a#q2:q": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "One thing (it) uses е."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "сирењето"
-        ]
-      }
-    },
-    "qa:gen-s1-market-story-a#q2:a": {
-      "pt-adjectives": {
-        "words": [
-          "Скапо"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "One thing (it) uses е."
-        }
-      }
-    },
-    "qa:gen-s1-market-story-a#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "земаш"
-        ]
-      },
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "\"Што\" asks what."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земаш"
-        ],
-        "blank": {
-          "word": "земаш",
-          "options": [
-            "земаш",
-            "земам",
-            "зема"
-          ],
-          "why": "With ти (you, friend) the verb ends in -ш."
-        }
-      }
-    },
-    "qa:gen-s1-market-story-a#q3:a": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Го"
-        ],
-        "blank": {
-          "word": "Го",
-          "options": [
-            "Го",
-            "ја",
-            "ги"
-          ],
-          "why": "One thing (the bread) is го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земам"
-        ],
-        "blank": {
-          "word": "земам",
-          "options": [
-            "земам",
-            "земаш",
-            "зема"
-          ],
-          "why": "With јас (I) the verb ends in -м."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "лебот"
-        ],
-        "blank": {
-          "word": "лебот",
-          "options": [
-            "лебот",
-            "лебта",
-            "леб"
-          ],
-          "why": "Леб is masculine, so \"the\" is -от."
-        }
-      }
-    },
-    "story:gen-s1-market-story-b#0": {
-      "pt-verbs-e-i": {
-        "words": [
-          "пијат"
-        ],
-        "blank": {
-          "word": "пијат",
-          "options": [
-            "пијат",
-            "пие",
-            "пиеш"
-          ],
-          "why": "They (two people) drink → пијат."
-        }
-      }
-    },
-    "story:gen-s1-market-story-b#1": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Го"
-        ],
-        "blank": {
-          "word": "Го",
-          "options": [
-            "Го",
-            "Ја",
-            "Ги"
-          ],
-          "why": "Coffee is one masculine thing → го (it)."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакаш"
-        ],
-        "blank": {
-          "word": "сакаш",
-          "options": [
-            "сакаш",
-            "сакам",
-            "сака"
-          ],
-          "why": "You (one friend) → сакаш."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "ли goes right after the verb to make a yes/no question."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "кафето"
-        ],
-        "blank": {
-          "word": "кафето",
-          "options": [
-            "кафето",
-            "кафеот",
-            "токафе"
-          ],
-          "why": "кафе is neuter, so 'the' is -то."
-        }
-      }
-    },
-    "story:gen-s1-market-story-b#2": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Го"
-        ],
-        "blank": {
-          "word": "Го",
-          "options": [
-            "Го",
-            "Ја",
-            "Ги"
-          ],
-          "why": "It (the coffee, masculine) → го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакам"
-        ],
-        "blank": {
-          "word": "сакам",
-          "options": [
-            "сакам",
-            "сакаш",
-            "сака"
-          ],
-          "why": "I like → сакам."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "Добро"
-        ],
-        "blank": {
-          "word": "Добро",
-          "options": [
-            "Добро",
-            "Добра",
-            "Добри"
-          ],
-          "why": "Describes coffee (neuter) → добро."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "It (one thing) is → е."
-        }
-      }
-    },
-    "story:gen-s1-market-story-b#3": {
-      "pt-the": {
-        "words": [
-          "Чајот"
-        ]
-      },
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before the verb says 'not'."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "It (one thing) is → е."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "добар"
-        ],
-        "blank": {
-          "word": "добар",
-          "options": [
-            "добар",
-            "добра",
-            "добро"
-          ],
-          "why": "Describes tea (masculine) → добар."
-        }
-      },
-      "pt-go-ja-gi": {
-        "words": [
-          "го"
-        ],
-        "blank": {
-          "word": "го",
-          "options": [
-            "го",
-            "ја",
-            "ги"
-          ],
-          "why": "It (the tea, masculine) → го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакам"
-        ],
-        "blank": {
-          "word": "сакам",
-          "options": [
-            "сакам",
-            "сакаш",
-            "сака"
-          ],
-          "why": "I like → сакам."
-        }
-      }
-    },
-    "story:gen-s1-market-story-b#4": {
-      "pt-verbs-e-i": {
-        "words": [
-          "пијат"
-        ],
-        "blank": {
-          "word": "пијат",
-          "options": [
-            "пијат",
-            "пие",
-            "пиеш"
-          ],
-          "why": "They (two people) drink → пијат."
-        }
-      }
-    },
-    "story:gen-s1-market-story-b#5": {
-      "pt-the": {
-        "words": [
-          "Пивата"
-        ],
-        "blank": {
-          "word": "Пивата",
-          "options": [
-            "Пивата",
-            "Пивото",
-            "Пиво"
-          ],
-          "why": "More than one with 'the' → plural ending -та."
-        }
-      },
-      "pt-plurals": {
-        "words": [
-          "Пивата"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "They (plural) are → се."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "евтини"
-        ]
-      }
-    },
-    "story:gen-s1-market-story-b#6": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Ги"
-        ],
-        "blank": {
-          "word": "Ги",
-          "options": [
-            "Ги",
-            "Го",
-            "Ја"
-          ],
-          "why": "Them (the beers, plural) → ги."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакате"
-        ],
-        "blank": {
-          "word": "сакате",
-          "options": [
-            "сакате",
-            "сакаш",
-            "сакаме"
-          ],
-          "why": "You (more than one) → сакате."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "ли right after the verb makes a yes/no question."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "пивата"
-        ],
-        "blank": {
-          "word": "пивата",
-          "options": [
-            "пивата",
-            "пивото",
-            "пиво"
-          ],
-          "why": "More than one with 'the' → plural ending -та."
-        }
-      },
-      "pt-plurals": {
-        "words": [
-          "пивата"
-        ]
-      }
-    },
-    "story:gen-s1-market-story-b#7": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Ги"
-        ],
-        "blank": {
-          "word": "Ги",
-          "options": [
-            "Ги",
-            "Го",
-            "Ја"
-          ],
-          "why": "Them (plural) → ги."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакаме"
-        ],
-        "blank": {
-          "word": "сакаме",
-          "options": [
-            "сакаме",
-            "сакам",
-            "сакате"
-          ],
-          "why": "We → сакаме."
-        }
-      }
-    },
-    "qa:gen-s1-market-story-b#q1:q": {
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "Што",
-            "Каде"
-          ],
-          "why": "Дали at the start makes a yes/no question."
-        }
-      },
-      "pt-go-ja-gi": {
-        "words": [
-          "го"
-        ],
-        "blank": {
-          "word": "го",
-          "options": [
-            "го",
-            "ја",
-            "ги"
-          ],
-          "why": "It (the tea, masculine) → го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сака"
-        ],
-        "blank": {
-          "word": "сака",
-          "options": [
-            "сака",
-            "сакам",
-            "сакаш"
-          ],
-          "why": "He (Marko) → сака."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "чајот"
-        ]
-      }
-    },
-    "qa:gen-s1-market-story-b#q1:a": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before the verb says 'doesn't'."
-        }
-      },
-      "pt-go-ja-gi": {
-        "words": [
-          "го"
-        ],
-        "blank": {
-          "word": "го",
-          "options": [
-            "го",
-            "ја",
-            "ги"
-          ],
-          "why": "It (the tea, masculine) → го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сака"
-        ],
-        "blank": {
-          "word": "сака",
-          "options": [
-            "сака",
-            "сакам",
-            "сакаш"
-          ],
-          "why": "He → сака."
-        }
-      }
-    },
-    "qa:gen-s1-market-story-b#q2:q": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "They (plural) are → се."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "пивата"
-        ],
-        "blank": {
-          "word": "пивата",
-          "options": [
-            "пивата",
-            "пивото",
-            "пиво"
-          ],
-          "why": "Plural with 'the' → -та."
-        }
-      },
-      "pt-plurals": {
-        "words": [
-          "пивата"
-        ]
-      }
-    },
-    "qa:gen-s1-market-story-b#q2:a": {
-      "pt-adjectives": {
-        "words": [
-          "Евтини"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "They (plural) are → се."
-        }
-      }
-    },
-    "qa:gen-s1-market-story-b#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "вие",
-          "сакате"
-        ]
-      },
-      "pt-go-ja-gi": {
-        "words": [
-          "Ги"
-        ],
-        "blank": {
-          "word": "Ги",
-          "options": [
-            "Ги",
-            "Го",
-            "Ја"
-          ],
-          "why": "Them (the beers) → ги."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакате"
-        ],
-        "blank": {
-          "word": "сакате",
-          "options": [
-            "сакате",
-            "сакаш",
-            "сакаме"
-          ],
-          "why": "You (more than one) → сакате."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "ли after the verb makes a yes/no question."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "пивата"
-        ],
-        "blank": {
-          "word": "пивата",
-          "options": [
-            "пивата",
-            "пивото",
-            "пиво"
-          ],
-          "why": "Plural with 'the' → -та."
-        }
-      },
-      "pt-plurals": {
-        "words": [
-          "пивата"
-        ]
-      }
-    },
-    "qa:gen-s1-market-story-b#q3:a": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Ги"
-        ],
-        "blank": {
-          "word": "Ги",
-          "options": [
-            "Ги",
-            "Го",
-            "Ја"
-          ],
-          "why": "Them (plural) → ги."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "сакаме"
-        ],
-        "blank": {
-          "word": "сакаме",
-          "options": [
-            "сакаме",
-            "сакам",
-            "сакате"
-          ],
-          "why": "We → сакаме."
         }
       }
     },
@@ -32954,889 +28050,6 @@ export const course: Course = {
             "пиво"
           ],
           "why": "After a number the noun goes plural → денари."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "They (two people) are → се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "Being inside somewhere → во (in)."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "центарот"
-        ]
-      }
-    },
-    "story:gen-s1-directions-story-a#1": {
-      "pt-commands": {
-        "words": [
-          "Извинете"
-        ],
-        "blank": {
-          "word": "Извинете",
-          "options": [
-            "Извинете",
-            "Свртете",
-            "Одете"
-          ],
-          "why": "Polite 'excuse me' → Извинете."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "кој"
-          ],
-          "why": "Asking where → каде."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "It (one place) is → е."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "пазарот"
-        ]
-      }
-    },
-    "story:gen-s1-directions-story-a#2": {
-      "pt-ti-vie": {
-        "words": [
-          "Вие",
-          "одите"
-        ]
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одите"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "до"
-          ],
-          "why": "Going to the market → на."
-        }
-      },
-      "pt-commands": {
-        "words": [
-          "Одете",
-          "свртете"
-        ],
-        "blank": {
-          "word": "свртете",
-          "options": [
-            "свртете",
-            "одете",
-            "кажете"
-          ],
-          "why": "'Turn' as a polite command → свртете."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-a#3": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "It (one place) is → е."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-a#4": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "It (one place) is → е."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-a#5": {
-      "pt-commands": {
-        "words": [
-          "оди"
-        ]
-      }
-    },
-    "story:gen-s1-directions-story-a#6": {
-      "pt-ti-vie": {
-        "words": [
-          "ти"
-        ]
-      },
-      "pt-commands": {
-        "words": [
-          "оди"
-        ],
-        "blank": {
-          "word": "оди",
-          "options": [
-            "оди",
-            "одете",
-            "одиш"
-          ],
-          "why": "Talking to one friend casually, so the short informal command."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одам"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "од"
-          ],
-          "why": "со means 'by' for a means of transport."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-a#7": {
-      "pt-verbs-e-i": {
-        "words": [
-          "одиме"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "од"
-          ],
-          "why": "со means 'by' for transport."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-a#8": {
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "на",
-          "со"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "од"
-          ],
-          "why": "на means 'to' a place like the market."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Asking about place = where."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      }
-    },
-    "qa:gen-s1-directions-story-a#q1:a": {
-      "pt-prepositions": {
-        "words": [
-          "На"
-        ],
-        "blank": {
-          "word": "На",
-          "options": [
-            "На",
-            "Во",
-            "Од"
-          ],
-          "why": "На means 'to' the market."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-a#q2:q": {
-      "pt-prepositions": {
-        "words": [
-          "Со"
-        ],
-        "blank": {
-          "word": "Со",
-          "options": [
-            "Со",
-            "Во",
-            "Од"
-          ],
-          "why": "Со што means 'by what' (transport)."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "што"
-        ],
-        "blank": {
-          "word": "што",
-          "options": [
-            "што",
-            "каде",
-            "кога"
-          ],
-          "why": "Asking 'what'."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      }
-    },
-    "qa:gen-s1-directions-story-a#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "Со"
-        ],
-        "blank": {
-          "word": "Со",
-          "options": [
-            "Со",
-            "Во",
-            "Од"
-          ],
-          "why": "Со means 'by' for transport."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-a#q3:q": {
-      "pt-commands": {
-        "words": [
-          "Кажи"
-        ]
-      },
-      "pt-mi-ti-mu": {
-        "words": [
-          "му"
-        ],
-        "blank": {
-          "word": "му",
-          "options": [
-            "му",
-            "ми",
-            "ти"
-          ],
-          "why": "Tell it to Marko = to him."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "од"
-          ],
-          "why": "на Марко marks the person told."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-a#q3:a": {
-      "pt-commands": {
-        "words": [
-          "Оди"
-        ],
-        "blank": {
-          "word": "Оди",
-          "options": [
-            "Оди",
-            "Одете",
-            "Одиш"
-          ],
-          "why": "Telling one friend casually = short command."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-b#0": {
-      "pt-verbs-a": {
-        "words": [
-          "сака"
-        ],
-        "blank": {
-          "word": "сака",
-          "options": [
-            "сака",
-            "сакам",
-            "сакаш"
-          ],
-          "why": "Ана (she) = сака."
-        }
-      },
-      "pt-da": {
-        "words": [
-          "да"
-        ],
-        "blank": {
-          "word": "да",
-          "options": [
-            "да",
-            "ли",
-            "не"
-          ],
-          "why": "да links 'wants' with the next verb."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "оди"
-        ],
-        "blank": {
-          "word": "оди",
-          "options": [
-            "оди",
-            "одиш",
-            "учи"
-          ],
-          "why": "Ана (she) = оди."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "од",
-          "до"
-        ],
-        "blank": {
-          "word": "од",
-          "options": [
-            "од",
-            "во",
-            "со"
-          ],
-          "why": "од means 'from'."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-b#1": {
-      "pt-question-words": {
-        "words": [
-          "како"
-        ],
-        "blank": {
-          "word": "како",
-          "options": [
-            "како",
-            "каде",
-            "кога"
-          ],
-          "why": "Asking 'how'."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одам"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "до"
-        ],
-        "blank": {
-          "word": "до",
-          "options": [
-            "до",
-            "од",
-            "во"
-          ],
-          "why": "до means 'to' Bitola."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-b#2": {
-      "pt-ti-vie": {
-        "words": [
-          "Ти",
-          "одиш"
-        ]
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одиш"
-        ],
-        "blank": {
-          "word": "одиш",
-          "options": [
-            "одиш",
-            "оди",
-            "работиш"
-          ],
-          "why": "Ти (you) = одиш."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "од"
-          ],
-          "why": "со means 'by' bus."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "Автобусот"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "сте"
-          ],
-          "why": "The bus (it) is = е."
-        }
-      },
-      "pt-more-most": {
-        "words": [
-          "подобар"
-        ],
-        "blank": {
-          "word": "подобар",
-          "options": [
-            "подобар",
-            "најдобар",
-            "добар"
-          ],
-          "why": "'Better' = по- comparative."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-b#3": {
-      "pt-the": {
-        "words": [
-          "Таксито"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "The taxi (it) is = е."
-        }
-      },
-      "pt-more-most": {
-        "words": [
-          "побрзо"
-        ],
-        "blank": {
-          "word": "побрзо",
-          "options": [
-            "побрзо",
-            "најбрзо",
-            "брзо"
-          ],
-          "why": "'Faster' = по- comparative."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-b#4": {
-      "pt-more-most": {
-        "words": [
-          "побрзо"
-        ],
-        "blank": {
-          "word": "побрзо",
-          "options": [
-            "побрзо",
-            "најбрзо",
-            "брзо"
-          ],
-          "why": "'Faster' = по- comparative."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "It is = е."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-b#5": {
-      "pt-verbs-e-i": {
-        "words": [
-          "одиме",
-          "одите"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "од"
-          ],
-          "why": "со means 'by' transport."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "Вие",
-          "одите"
-        ]
-      }
-    },
-    "story:gen-s1-directions-story-b#6": {
-      "pt-verbs-e-i": {
-        "words": [
-          "одиме"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "од"
-          ],
-          "why": "со means 'by' bus."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "Тоа",
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "That (it) is = е."
-        }
-      },
-      "pt-more-most": {
-        "words": [
-          "најдобро"
-        ],
-        "blank": {
-          "word": "најдобро",
-          "options": [
-            "најдобро",
-            "подобро",
-            "добар"
-          ],
-          "why": "'Best' = нај- superlative."
-        }
-      }
-    },
-    "story:gen-s1-directions-story-b#7": {
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "со",
-          "до"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "од"
-          ],
-          "why": "со means 'by' bus."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-b#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "Asking 'what'."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "It is = е."
-        }
-      },
-      "pt-more-most": {
-        "words": [
-          "побрзо"
-        ],
-        "blank": {
-          "word": "побрзо",
-          "options": [
-            "побрзо",
-            "најбрзо",
-            "брзо"
-          ],
-          "why": "'Faster' = по- comparative."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-b#q1:a": {
-      "pt-the": {
-        "words": [
-          "Таксито"
-        ]
-      }
-    },
-    "qa:gen-s1-directions-story-b#q2:q": {
-      "pt-prepositions": {
-        "words": [
-          "Со"
-        ],
-        "blank": {
-          "word": "Со",
-          "options": [
-            "Со",
-            "Во",
-            "Од"
-          ],
-          "why": "Со што means 'by what'."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "што"
-        ],
-        "blank": {
-          "word": "што",
-          "options": [
-            "што",
-            "каде",
-            "кога"
-          ],
-          "why": "Asking 'what'."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      }
-    },
-    "qa:gen-s1-directions-story-b#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "Со"
-        ],
-        "blank": {
-          "word": "Со",
-          "options": [
-            "Со",
-            "Во",
-            "Од"
-          ],
-          "why": "Со means 'by' bus."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-b#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "одиш"
-        ]
-      },
-      "pt-question-words": {
-        "words": [
-          "Како"
-        ],
-        "blank": {
-          "word": "Како",
-          "options": [
-            "Како",
-            "Каде",
-            "Кога"
-          ],
-          "why": "Asking 'how'."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одиш"
-        ],
-        "blank": {
-          "word": "одиш",
-          "options": [
-            "одиш",
-            "оди",
-            "работиш"
-          ],
-          "why": "Ти (you) = одиш."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "до"
-        ],
-        "blank": {
-          "word": "до",
-          "options": [
-            "до",
-            "од",
-            "во"
-          ],
-          "why": "до means 'to' Bitola."
-        }
-      }
-    },
-    "qa:gen-s1-directions-story-b#q3:a": {
-      "pt-prepositions": {
-        "words": [
-          "Со"
-        ],
-        "blank": {
-          "word": "Со",
-          "options": [
-            "Со",
-            "Во",
-            "Од"
-          ],
-          "why": "Со means 'by' bus."
         }
       }
     },
@@ -34184,941 +28397,6 @@ export const course: Course = {
             "имате"
           ],
           "why": "Ти (you, informal) takes the -ш ending: имаш."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сме"
-          ],
-          "why": "Several people (they) take се."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "со",
-            "на"
-          ],
-          "why": "\"in the centre\" uses во."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "центарот"
-        ]
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#1": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "Ви",
-          "се",
-          "допаѓа"
-        ]
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "ли goes right after the verb to make a yes/no question."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#2": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "ни"
-        ],
-        "blank": {
-          "word": "ни",
-          "options": [
-            "ни",
-            "ми",
-            "ти"
-          ],
-          "why": "ни means \"to us\" — we like it."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#3": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "ти"
-        ],
-        "blank": {
-          "word": "ти",
-          "options": [
-            "ти",
-            "ми",
-            "му"
-          ],
-          "why": "ти means \"to you\" — you like it."
-        }
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "ли sits after the verb for a yes/no question."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#4": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "Ми",
-          "ѝ"
-        ],
-        "blank": {
-          "word": "ѝ",
-          "options": [
-            "ѝ",
-            "му",
-            "ми"
-          ],
-          "why": "ѝ means \"to her\" — Ana likes it."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "На"
-        ],
-        "blank": {
-          "word": "На",
-          "options": [
-            "На",
-            "Со",
-            "Од"
-          ],
-          "why": "На marks \"as for Ana\"."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#5": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "им"
-        ],
-        "blank": {
-          "word": "им",
-          "options": [
-            "им",
-            "ми",
-            "му"
-          ],
-          "why": "им means \"to them\" — Vera and Petar like it."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "На"
-        ],
-        "blank": {
-          "word": "На",
-          "options": [
-            "На",
-            "Со",
-            "Од"
-          ],
-          "why": "На marks \"as for Vera and Petar\"."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "дождот"
-        ]
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#6": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "нема",
-            "да"
-          ],
-          "why": "не before the verb makes it negative."
-        }
-      },
-      "pt-mi-ti-mu": {
-        "words": [
-          "ни"
-        ],
-        "blank": {
-          "word": "ни",
-          "options": [
-            "ни",
-            "ми",
-            "му"
-          ],
-          "why": "ни means \"to us\"."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "дождот"
-        ]
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#7": {
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "не"
-          ],
-          "why": "ќе + verb makes the future \"we will go\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одиме"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "со",
-            "на"
-          ],
-          "why": "\"to Ohrid\" uses во here."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#8": {
-      "pt-future": {
-        "words": [
-          "Ќе"
-        ],
-        "blank": {
-          "word": "Ќе",
-          "options": [
-            "Ќе",
-            "Нема",
-            "Не"
-          ],
-          "why": "Ќе + verb makes the future \"will you go\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одите"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "на"
-          ],
-          "why": "\"by bus\" uses со."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-a#9": {
-      "pt-future": {
-        "words": [
-          "нема",
-          "да",
-          "Ќе"
-        ],
-        "blank": {
-          "word": "нема",
-          "options": [
-            "нема",
-            "ќе",
-            "не"
-          ],
-          "why": "нема да is the negative future \"won't\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одиме"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "на"
-          ],
-          "why": "\"by bus/taxi\" uses со."
-        }
-      }
-    },
-    "qa:gen-s2-smalltalk-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кој"
-          ],
-          "why": "Што asks \"what\"."
-        }
-      },
-      "pt-mi-ti-mu": {
-        "words": [
-          "им"
-        ],
-        "blank": {
-          "word": "им",
-          "options": [
-            "им",
-            "ми",
-            "му"
-          ],
-          "why": "им means \"to them\"."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "со",
-            "од"
-          ],
-          "why": "на marks \"as for Vera and Petar\"."
-        }
-      }
-    },
-    "qa:gen-s2-smalltalk-story-a#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Каде asks \"where\"."
-        }
-      },
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "не"
-          ],
-          "why": "ќе + verb makes the future."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      }
-    },
-    "qa:gen-s2-smalltalk-story-a#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "Со",
-            "Од"
-          ],
-          "why": "\"to Ohrid\" uses Во."
-        }
-      }
-    },
-    "qa:gen-s2-smalltalk-story-a#q3:q": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "Ти"
-        ],
-        "blank": {
-          "word": "Ти",
-          "options": [
-            "Ти",
-            "Ми",
-            "Му"
-          ],
-          "why": "Ти means \"to you\" — you like it."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "дождот"
-        ]
-      }
-    },
-    "qa:gen-s2-smalltalk-story-a#q3:a": {
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "нема",
-            "да"
-          ],
-          "why": "не before the verb makes it negative."
-        }
-      },
-      "pt-mi-ti-mu": {
-        "words": [
-          "ми"
-        ],
-        "blank": {
-          "word": "ми",
-          "options": [
-            "ми",
-            "ти",
-            "му"
-          ],
-          "why": "ми means \"to me\" — I like it."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#0": {
-      "pt-the": {
-        "words": [
-          "времето"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "времето (it) takes е."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "убаво"
-        ]
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#1": {
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "не"
-          ],
-          "why": "ќе + verb makes the future."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одиш"
-        ],
-        "blank": {
-          "word": "одиш",
-          "options": [
-            "одиш",
-            "оди",
-            "работи"
-          ],
-          "why": "Talking to one friend (ти) uses the -иш form одиш."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "со",
-            "од"
-          ],
-          "why": "\"to the market\" uses на."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#2": {
-      "pt-future": {
-        "words": [
-          "Ќе"
-        ],
-        "blank": {
-          "word": "Ќе",
-          "options": [
-            "Ќе",
-            "Нема",
-            "Не"
-          ],
-          "why": "Ќе + verb makes the future."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "земам"
-        ]
-      },
-      "pt-plurals": {
-        "words": [
-          "јаболка"
-        ]
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#3": {
-      "pt-future": {
-        "words": [
-          "нема",
-          "да"
-        ],
-        "blank": {
-          "word": "нема",
-          "options": [
-            "нема",
-            "ќе",
-            "не"
-          ],
-          "why": "нема да is the negative future \"won't\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "оди",
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работиш",
-            "оди"
-          ],
-          "why": "Тој (he) takes the -и form работи."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#4": {
-      "pt-future": {
-        "words": [
-          "нема",
-          "да"
-        ],
-        "blank": {
-          "word": "нема",
-          "options": [
-            "нема",
-            "ќе",
-            "не"
-          ],
-          "why": "нема да is the negative future \"won't\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одите"
-        ]
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#5": {
-      "pt-future": {
-        "words": [
-          "нема",
-          "да"
-        ],
-        "blank": {
-          "word": "нема",
-          "options": [
-            "нема",
-            "ќе",
-            "не"
-          ],
-          "why": "нема да is the negative future \"won't\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одиме"
-        ]
-      },
-      "pt-ne": {
-        "words": [
-          "Не"
-        ]
-      },
-      "pt-mi-ti-mu": {
-        "words": [
-          "ни"
-        ],
-        "blank": {
-          "word": "ни",
-          "options": [
-            "ни",
-            "ми",
-            "му"
-          ],
-          "why": "ни means \"to us\"."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "пазарот"
-        ]
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#6": {
-      "pt-verbs-e-i": {
-        "words": [
-          "Мислам"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "\"it is\" uses е."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "убаво"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "со",
-            "од"
-          ],
-          "why": "\"at the market\" uses на."
-        }
-      }
-    },
-    "story:gen-s2-smalltalk-story-b#7": {
-      "pt-se": {
-        "words": [
-          "Се",
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "видиме always carries се (\"see each other\")."
-        }
-      },
-      "pt-future": {
-        "words": [
-          "Ќе"
-        ],
-        "blank": {
-          "word": "Ќе",
-          "options": [
-            "Ќе",
-            "Нема",
-            "Не"
-          ],
-          "why": "Ќе + verb makes the future."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "видиме"
-        ]
-      }
-    },
-    "qa:gen-s2-smalltalk-story-b#q1:q": {
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "Што",
-            "Каде"
-          ],
-          "why": "Дали opens a yes/no question at the start."
-        }
-      },
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "не"
-          ],
-          "why": "ќе + verb makes the future."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "оди"
-        ],
-        "blank": {
-          "word": "оди",
-          "options": [
-            "оди",
-            "одиш",
-            "работи"
-          ],
-          "why": "Петар (he) takes the -и form оди."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "со",
-            "од"
-          ],
-          "why": "\"to the market\" uses на."
-        }
-      }
-    },
-    "qa:gen-s2-smalltalk-story-b#q1:a": {
-      "pt-verbs-e-i": {
-        "words": [
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работиш",
-            "оди"
-          ],
-          "why": "тој (he) takes the -и form работи."
-        }
-      }
-    },
-    "qa:gen-s2-smalltalk-story-b#q2:q": {
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "Што",
-            "Каде"
-          ],
-          "why": "Дали opens a yes/no question at the start."
-        }
-      },
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "не"
-          ],
-          "why": "ќе + verb makes the future."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      }
-    },
-    "qa:gen-s2-smalltalk-story-b#q2:a": {
-      "pt-future": {
-        "words": [
-          "нема",
-          "да"
-        ],
-        "blank": {
-          "word": "нема",
-          "options": [
-            "нема",
-            "ќе",
-            "не"
-          ],
-          "why": "нема да is the negative future \"won't\"."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одат"
-        ]
-      }
-    },
-    "qa:gen-s2-smalltalk-story-b#q3:q": {
-      "pt-future": {
-        "words": [
-          "Ќе"
-        ],
-        "blank": {
-          "word": "Ќе",
-          "options": [
-            "Ќе",
-            "Нема",
-            "Не"
-          ],
-          "why": "„Ќе“ marks a future action."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одиш"
-        ],
-        "blank": {
-          "word": "одиш",
-          "options": [
-            "одиш",
-            "одам",
-            "оди"
-          ],
-          "why": "„ти“ (you) takes the -иш ending."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "од"
-          ],
-          "why": "„на пазар“ = to the market."
-        }
-      }
-    },
-    "qa:gen-s2-smalltalk-story-b#q3:a": {
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "не"
-          ],
-          "why": "„ќе“ marks a future action."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "одам"
-        ],
-        "blank": {
-          "word": "одам",
-          "options": [
-            "одам",
-            "одиш",
-            "оди"
-          ],
-          "why": "The -ам ending means „I“."
         }
       }
     },
@@ -35479,690 +28757,6 @@ export const course: Course = {
         ]
       }
     },
-    "story:gen-s2-pasttime-story-a#0": {
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "бевме"
-          ],
-          "why": "„Ана“ (she) was = беше."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "„во Охрид“ = in Ohrid."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-a#1": {
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "кога"
-          ],
-          "why": "„каде“ asks where."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "беа"
-          ],
-          "why": "„ти“ (you) were = беше."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-a#2": {
-      "pt-past": {
-        "words": [
-          "Бев",
-          "Јадев",
-          "читав"
-        ],
-        "blank": {
-          "word": "Бев",
-          "options": [
-            "Бев",
-            "Беше",
-            "Бевме"
-          ],
-          "why": "„I was“ = Бев."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "„во Скопје“ = in Skopje."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-a#3": {
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "беа"
-          ],
-          "why": "„Вера“ (she) was = беше."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "„во Скопје“ = in Skopje."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-a#4": {
-      "pt-past": {
-        "words": [
-          "отиде"
-        ],
-        "blank": {
-          "word": "отиде",
-          "options": [
-            "отиде",
-            "отидов",
-            "бев"
-          ],
-          "why": "„таа отиде“ = she went."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "од"
-          ],
-          "why": "„на пазар“ = to the market."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-a#5": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "„Што“ asks what."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "правеше"
-        ]
-      }
-    },
-    "story:gen-s2-pasttime-story-a#6": {
-      "pt-past": {
-        "words": [
-          "Јадеше"
-        ]
-      }
-    },
-    "story:gen-s2-pasttime-story-a#7": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "„Каде“ asks where."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "бевте"
-        ]
-      }
-    },
-    "story:gen-s2-pasttime-story-a#8": {
-      "pt-past": {
-        "words": [
-          "бевме"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "„во Охрид“ = in Ohrid."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "„Каде“ asks where."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "беа"
-          ],
-          "why": "„Марко“ (he) was = беше."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-a#q1:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "Од"
-          ],
-          "why": "„Во Скопје“ = in Skopje."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-a#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "„Каде“ asks where."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "беа"
-        ]
-      }
-    },
-    "qa:gen-s2-pasttime-story-a#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "Од"
-          ],
-          "why": "„Во Охрид“ = in Ohrid."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-a#q3:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "„Каде“ asks where."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "беа"
-          ],
-          "why": "„ти“ (you) were = беше."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-a#q3:a": {
-      "pt-past": {
-        "words": [
-          "Бев"
-        ],
-        "blank": {
-          "word": "Бев",
-          "options": [
-            "Бев",
-            "Беше",
-            "Беа"
-          ],
-          "why": "„I was“ = Бев."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "„во Скопје“ = in Skopje."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-b#0": {
-      "pt-past": {
-        "words": [
-          "беа"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "од"
-          ],
-          "why": "„на кафе“ = out for coffee."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-b#1": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "„Што“ asks what."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "имавте"
-        ]
-      }
-    },
-    "story:gen-s2-pasttime-story-b#2": {
-      "pt-past": {
-        "words": [
-          "имав",
-          "имаше"
-        ],
-        "blank": {
-          "word": "имав",
-          "options": [
-            "имав",
-            "имаше",
-            "беше"
-          ],
-          "why": "„Јас имав“ = I had."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-b#3": {
-      "pt-past": {
-        "words": [
-          "имаа"
-        ]
-      }
-    },
-    "story:gen-s2-pasttime-story-b#4": {
-      "pt-past": {
-        "words": [
-          "Јадевте"
-        ]
-      },
-      "pt-yes-no": {
-        "words": [
-          "ли"
-        ],
-        "blank": {
-          "word": "ли",
-          "options": [
-            "ли",
-            "дали",
-            "да"
-          ],
-          "why": "„ли“ after the verb makes a yes/no question."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-b#5": {
-      "pt-past": {
-        "words": [
-          "јадевме",
-          "Отидовме"
-        ],
-        "blank": {
-          "word": "Отидовме",
-          "options": [
-            "Отидовме",
-            "Отидов",
-            "Отиде"
-          ],
-          "why": "The subject is \"we\", so the -вме form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" means into/to a place like the centre."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "центарот"
-        ]
-      }
-    },
-    "story:gen-s2-pasttime-story-b#6": {
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "беа"
-          ],
-          "why": "\"Petar\" is one other person, so the he/she form."
-        }
-      }
-    },
-    "story:gen-s2-pasttime-story-b#7": {
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "беа"
-          ],
-          "why": "One other person (Petar) was."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" = in a town."
-        }
-      },
-      "pt-future": {
-        "words": [
-          "ќе"
-        ],
-        "blank": {
-          "word": "ќе",
-          "options": [
-            "ќе",
-            "нема",
-            "не"
-          ],
-          "why": "\"ќе\" makes the future: he will go."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "оди"
-        ],
-        "blank": {
-          "word": "оди",
-          "options": [
-            "оди",
-            "одам",
-            "одиш"
-          ],
-          "why": "He goes = the -и form."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-b#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кој"
-          ],
-          "why": "Asking what they had."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "имаа"
-        ],
-        "blank": {
-          "word": "имаа",
-          "options": [
-            "имаа",
-            "имав",
-            "имаше"
-          ],
-          "why": "Two people had, so the they form."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-b#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Asking where."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "беше"
-        ],
-        "blank": {
-          "word": "беше",
-          "options": [
-            "беше",
-            "бев",
-            "беа"
-          ],
-          "why": "One other person (Petar) was."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-b#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "Од"
-          ],
-          "why": "\"Во\" = in a town."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-b#q3:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "Asking what."
-        }
-      },
-      "pt-past": {
-        "words": [
-          "јадевте"
-        ],
-        "blank": {
-          "word": "јадевте",
-          "options": [
-            "јадевте",
-            "јадев",
-            "јадевме"
-          ],
-          "why": "\"You two\" ate = the -вте form."
-        }
-      }
-    },
-    "qa:gen-s2-pasttime-story-b#q3:a": {
-      "pt-past": {
-        "words": [
-          "Јадевме"
-        ],
-        "blank": {
-          "word": "Јадевме",
-          "options": [
-            "Јадевме",
-            "Јадев",
-            "Јадевте"
-          ],
-          "why": "\"We\" ate = the -вме form."
-        }
-      }
-    },
     "scenario:gen-s2-pasttime-convo-b#0": {
       "pt-question-words": {
         "words": [
@@ -36366,943 +28960,6 @@ export const course: Course = {
             "одиш"
           ],
           "why": "We go = the -ме form."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#0": {
-      "pt-verbs-e-i": {
-        "words": [
-          "живеат"
-        ],
-        "blank": {
-          "word": "живеат",
-          "options": [
-            "живеат",
-            "живее",
-            "живеам"
-          ],
-          "why": "Two people live = the they form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" = in a town."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#1": {
-      "pt-possessives": {
-        "words": [
-          "Мојата",
-          "мојот"
-        ],
-        "blank": {
-          "word": "Мојата",
-          "options": [
-            "Мојата",
-            "Мојот",
-            "Моето"
-          ],
-          "why": "\"мајка\" is feminine, so the -та form."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "живеат"
-        ],
-        "blank": {
-          "word": "живеат",
-          "options": [
-            "живеат",
-            "живее",
-            "живеам"
-          ],
-          "why": "Two people live = the they form."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#2": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "имаш"
-        ]
-      },
-      "pt-verbs-a": {
-        "words": [
-          "имаш"
-        ],
-        "blank": {
-          "word": "имаш",
-          "options": [
-            "имаш",
-            "имам",
-            "имаат"
-          ],
-          "why": "You have = the -ш form."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#3": {
-      "pt-possessives": {
-        "words": [
-          "мојот"
-        ],
-        "blank": {
-          "word": "мојот",
-          "options": [
-            "мојот",
-            "мојата",
-            "моето"
-          ],
-          "why": "\"брат\" is masculine, so the -от form."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "живее"
-        ],
-        "blank": {
-          "word": "живее",
-          "options": [
-            "живее",
-            "живеам",
-            "живеат"
-          ],
-          "why": "He lives = the he form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" = in a town."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#4": {
-      "pt-possessives": {
-        "words": [
-          "неговата"
-        ]
-      },
-      "pt-verbs-a": {
-        "words": [
-          "имаат"
-        ],
-        "blank": {
-          "word": "имаат",
-          "options": [
-            "имаат",
-            "има",
-            "имам"
-          ],
-          "why": "They have = the -аат form."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "две"
-        ],
-        "blank": {
-          "word": "две",
-          "options": [
-            "две",
-            "два",
-            "еден"
-          ],
-          "why": "\"деца\" takes две, not два."
-        }
-      },
-      "pt-irregular-plurals": {
-        "words": [
-          "деца"
-        ],
-        "blank": {
-          "word": "деца",
-          "options": [
-            "деца",
-            "дете",
-            "луѓе"
-          ],
-          "why": "Plural of дете is деца."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#5": {
-      "pt-ti-vie": {
-        "words": [
-          "вие",
-          "живеете"
-        ]
-      },
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Asking where."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "живеете"
-        ],
-        "blank": {
-          "word": "живеете",
-          "options": [
-            "живеете",
-            "живее",
-            "живеам"
-          ],
-          "why": "You two live = the -ете form."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#6": {
-      "pt-verbs-e-i": {
-        "words": [
-          "живееме"
-        ],
-        "blank": {
-          "word": "живееме",
-          "options": [
-            "живееме",
-            "живеам",
-            "живеат"
-          ],
-          "why": "We live = the -ме form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" = in a town."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-a#7": {
-      "pt-verbs-e-i": {
-        "words": [
-          "живеам"
-        ],
-        "blank": {
-          "word": "живеам",
-          "options": [
-            "живеам",
-            "живее",
-            "живееме"
-          ],
-          "why": "I live = the -ам form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "со"
-        ],
-        "blank": {
-          "word": "со",
-          "options": [
-            "со",
-            "во",
-            "на"
-          ],
-          "why": "\"со\" = with (my sister)."
-        }
-      },
-      "pt-possessives": {
-        "words": [
-          "мојата"
-        ],
-        "blank": {
-          "word": "мојата",
-          "options": [
-            "мојата",
-            "мојот",
-            "моето"
-          ],
-          "why": "\"сестра\" is feminine, so the -та form."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-a#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Asking where."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "живеат"
-        ],
-        "blank": {
-          "word": "живеат",
-          "options": [
-            "живеат",
-            "живее",
-            "живеам"
-          ],
-          "why": "Two people live = the they form."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-a#q1:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "Од"
-          ],
-          "why": "\"Во\" = in a town."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-a#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Колку"
-        ],
-        "blank": {
-          "word": "Колку",
-          "options": [
-            "Колку",
-            "Каде",
-            "Што"
-          ],
-          "why": "Asking how many."
-        }
-      },
-      "pt-irregular-plurals": {
-        "words": [
-          "деца"
-        ],
-        "blank": {
-          "word": "деца",
-          "options": [
-            "деца",
-            "дете",
-            "луѓе"
-          ],
-          "why": "Plural of дете is деца."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "имаат"
-        ],
-        "blank": {
-          "word": "имаат",
-          "options": [
-            "имаат",
-            "има",
-            "имам"
-          ],
-          "why": "They have = the -аат form."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-a#q2:a": {
-      "pt-numbers": {
-        "words": [
-          "Две"
-        ],
-        "blank": {
-          "word": "Две",
-          "options": [
-            "Две",
-            "Два",
-            "Еден"
-          ],
-          "why": "\"деца\" takes две, not два."
-        }
-      },
-      "pt-irregular-plurals": {
-        "words": [
-          "деца"
-        ],
-        "blank": {
-          "word": "деца",
-          "options": [
-            "деца",
-            "дете",
-            "луѓе"
-          ],
-          "why": "Plural of дете is деца."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-a#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "живееш"
-        ]
-      },
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Asking where."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "живееш"
-        ],
-        "blank": {
-          "word": "живееш",
-          "options": [
-            "живееш",
-            "живее",
-            "живеам"
-          ],
-          "why": "You (one friend) live = the -ш form."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-a#q3:a": {
-      "pt-verbs-e-i": {
-        "words": [
-          "Живеам"
-        ],
-        "blank": {
-          "word": "Живеам",
-          "options": [
-            "Живеам",
-            "Живее",
-            "Живееме"
-          ],
-          "why": "I live = the -ам form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "\"во\" = in a town."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-b#0": {
-      "pt-possessives": {
-        "words": [
-          "нејзиниот"
-        ],
-        "blank": {
-          "word": "нејзиниот",
-          "options": [
-            "нејзиниот",
-            "мојот",
-            "твојот"
-          ],
-          "why": "\"Her\" brother, so the 'her' form is needed."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сме"
-          ],
-          "why": "Vera and her brother are a plural subject, so \"are\"."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"In\" the centre."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "центарот"
-        ]
-      }
-    },
-    "story:gen-s2-home-family-story-b#1": {
-      "pt-gender": {
-        "words": [
-          "ова"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "\"This is\" with a singular subject."
-        }
-      },
-      "pt-possessives": {
-        "words": [
-          "мојот"
-        ],
-        "blank": {
-          "word": "мојот",
-          "options": [
-            "мојот",
-            "мојата",
-            "моето"
-          ],
-          "why": "\"Брат\" is masculine, so the masculine 'my' form."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-b#2": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "ми"
-        ],
-        "blank": {
-          "word": "ми",
-          "options": [
-            "ми",
-            "ти",
-            "му"
-          ],
-          "why": "\"Nice to me\" uses the to-me word."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "сте"
-          ],
-          "why": "\"Where are you\" to one person informally."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "До"
-          ],
-          "why": "\"From\" where."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "кога"
-          ],
-          "why": "Asking \"where\" from."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-b#3": {
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "До"
-          ],
-          "why": "\"From\" Ohrid."
-        }
-      },
-      "pt-possessives": {
-        "words": [
-          "Мојата"
-        ],
-        "blank": {
-          "word": "Мојата",
-          "options": [
-            "Мојата",
-            "Мојот",
-            "Моето"
-          ],
-          "why": "\"Мајка\" is feminine, so the feminine 'my'."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "живее"
-        ],
-        "blank": {
-          "word": "живее",
-          "options": [
-            "живее",
-            "живеам",
-            "живееш"
-          ],
-          "why": "\"My mother\" is she, so the he/she form."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-b#4": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Каде",
-            "Кога"
-          ],
-          "why": "Asking \"what\" you do."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "работиш"
-        ],
-        "blank": {
-          "word": "работиш",
-          "options": [
-            "работиш",
-            "работи",
-            "работам"
-          ],
-          "why": "Talking to one person: \"you work\"."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-b#5": {
-      "pt-verbs-e-i": {
-        "words": [
-          "Работам"
-        ],
-        "blank": {
-          "word": "Работам",
-          "options": [
-            "Работам",
-            "Работиш",
-            "Работи"
-          ],
-          "why": "\"I work\" ends in -м."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"In\" Skopje."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-b#6": {
-      "pt-possessives": {
-        "words": [
-          "Твојата"
-        ],
-        "blank": {
-          "word": "Твојата",
-          "options": [
-            "Твојата",
-            "Твојот",
-            "Твоето"
-          ],
-          "why": "\"Сестра\" is feminine, so the feminine 'your'."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работам",
-            "работиш"
-          ],
-          "why": "\"Sister\" is she, so the he/she form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"In\" Skopje."
-        }
-      }
-    },
-    "story:gen-s2-home-family-story-b#7": {
-      "pt-verbs-e-i": {
-        "words": [
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работам",
-            "работиш"
-          ],
-          "why": "\"She works\" uses the he/she form."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "\"In\" Bitola."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-b#q1:q": {
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "До"
-          ],
-          "why": "\"From\" where."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "каде"
-        ],
-        "blank": {
-          "word": "каде",
-          "options": [
-            "каде",
-            "што",
-            "кога"
-          ],
-          "why": "Asking \"where\"."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "си"
-          ],
-          "why": "\"Ivan is\" with a singular subject."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-b#q1:a": {
-      "pt-prepositions": {
-        "words": [
-          "Од"
-        ],
-        "blank": {
-          "word": "Од",
-          "options": [
-            "Од",
-            "Во",
-            "До"
-          ],
-          "why": "\"From\" Ohrid."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-b#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Asking \"where\" Vera works."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работам",
-            "работиш"
-          ],
-          "why": "\"Vera\" is she, so the he/she form."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-b#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "До"
-          ],
-          "why": "\"In\" Bitola."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-b#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "Имаш"
-        ]
-      },
-      "pt-verbs-a": {
-        "words": [
-          "Имаш"
-        ],
-        "blank": {
-          "word": "Имаш",
-          "options": [
-            "Имаш",
-            "Имам",
-            "Има"
-          ],
-          "why": "Talking to one person: \"you have\"."
-        }
-      }
-    },
-    "qa:gen-s2-home-family-story-b#q3:a": {
-      "pt-verbs-a": {
-        "words": [
-          "Имам"
-        ],
-        "blank": {
-          "word": "Имам",
-          "options": [
-            "Имам",
-            "Имаш",
-            "Има"
-          ],
-          "why": "\"I have\" ends in -м."
         }
       }
     },
@@ -37689,936 +29346,6 @@ export const course: Course = {
             "до"
           ],
           "why": "\"In\" Bitola."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-a#0": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "им"
-        ],
-        "blank": {
-          "word": "им",
-          "options": [
-            "им",
-            "ми",
-            "му"
-          ],
-          "why": "\"To them\" (Vera and Petar) uses the to-them word."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "до"
-          ],
-          "why": "\"To\" Vera and Petar."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "телефонира"
-        ]
-      }
-    },
-    "story:gen-s2-arrange-story-a#1": {
-      "pt-sum": {
-        "words": [
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сум",
-            "е"
-          ],
-          "why": "\"You are\" to one person."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "си"
-        ],
-        "blank": {
-          "word": "си",
-          "options": [
-            "си",
-            "сте",
-            "сум"
-          ],
-          "why": "Informal \"ти\" takes си, not polite сте."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-a#2": {
-      "pt-sum": {
-        "words": [
-          "е",
-          "сме"
-        ],
-        "blank": {
-          "word": "сме",
-          "options": [
-            "сме",
-            "сум",
-            "се"
-          ],
-          "why": "\"We are\" home."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-a#3": {
-      "pt-ajde-da": {
-        "words": [
-          "Ајде",
-          "да"
-        ],
-        "blank": {
-          "word": "да",
-          "options": [
-            "да",
-            "ли",
-            "ќе"
-          ],
-          "why": "\"Let's\" uses ајде да + verb."
-        }
-      },
-      "pt-se": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "This verb always carries се."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "Вие",
-          "можете"
-        ]
-      }
-    },
-    "story:gen-s2-arrange-story-a#4": {
-      "pt-question-words": {
-        "words": [
-          "колку"
-        ],
-        "blank": {
-          "word": "колку",
-          "options": [
-            "колку",
-            "каде",
-            "кога"
-          ],
-          "why": "Asking \"how much\" (what time)."
-        }
-      },
-      "pt-time": {
-        "words": [
-          "часот"
-        ],
-        "blank": {
-          "word": "часот",
-          "options": [
-            "часот",
-            "кафулето",
-            "плоштадот"
-          ],
-          "why": "Telling time uses часот (o'clock)."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "До"
-          ],
-          "why": "\"At\" what time uses во."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-a#5": {
-      "pt-time": {
-        "words": [
-          "Во",
-          "седум",
-          "часот"
-        ],
-        "blank": {
-          "word": "часот",
-          "options": [
-            "часот",
-            "кафулето",
-            "плоштадот"
-          ],
-          "why": "Telling time uses часот (o'clock)."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "седум"
-        ]
-      },
-      "pt-the": {
-        "words": [
-          "кафулето",
-          "плоштадот"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во",
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "до"
-          ],
-          "why": "\"On\" the square."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-a#7": {
-      "pt-ne": {
-        "words": [
-          "Не"
-        ],
-        "blank": {
-          "word": "Не",
-          "options": [
-            "Не",
-            "Да",
-            "Ли"
-          ],
-          "why": "Не before the verb says you do not know."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работиш",
-            "одиш"
-          ],
-          "why": "Marko is he, so the и-verb ends in -и."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "до"
-        ],
-        "blank": {
-          "word": "до",
-          "options": [
-            "до",
-            "во",
-            "од"
-          ],
-          "why": "до means 'until' here."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "осум"
-        ]
-      },
-      "pt-time": {
-        "words": [
-          "часот"
-        ],
-        "blank": {
-          "word": "часот",
-          "options": [
-            "часот",
-            "кафулето",
-            "плоштадот"
-          ],
-          "why": "часот means o'clock when telling time."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-a#8": {
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "во is used with a clock time."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "осум"
-        ]
-      }
-    },
-    "qa:gen-s2-arrange-story-a#q1:q": {
-      "pt-prepositions": {
-        "words": [
-          "Во"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "До"
-          ],
-          "why": "Во is used with a clock time."
-        }
-      },
-      "pt-time": {
-        "words": [
-          "Во",
-          "колку",
-          "часот"
-        ],
-        "blank": {
-          "word": "часот",
-          "options": [
-            "часот",
-            "кафулето",
-            "плоштадот"
-          ],
-          "why": "часот means o'clock when asking the time."
-        }
-      },
-      "pt-question-words": {
-        "words": [
-          "колку"
-        ],
-        "blank": {
-          "word": "колку",
-          "options": [
-            "колку",
-            "што",
-            "каде"
-          ],
-          "why": "колку asks 'how much', used here for what time."
-        }
-      },
-      "pt-se": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "this verb always carries се."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "гледаат"
-        ]
-      }
-    },
-    "qa:gen-s2-arrange-story-a#q1:a": {
-      "pt-time": {
-        "words": [
-          "Во",
-          "часот"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "До"
-          ],
-          "why": "Во is used with a clock time."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "осум"
-        ]
-      }
-    },
-    "qa:gen-s2-arrange-story-a#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "кога"
-        ],
-        "blank": {
-          "word": "кога",
-          "options": [
-            "кога",
-            "каде",
-            "што"
-          ],
-          "why": "кога asks 'when'."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "работи"
-        ],
-        "blank": {
-          "word": "работи",
-          "options": [
-            "работи",
-            "работиш",
-            "одиш"
-          ],
-          "why": "Marko is he, so the и-verb ends in -и."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "До"
-        ],
-        "blank": {
-          "word": "До",
-          "options": [
-            "До",
-            "Во",
-            "Од"
-          ],
-          "why": "До means 'until' here."
-        }
-      }
-    },
-    "qa:gen-s2-arrange-story-a#q2:a": {
-      "pt-prepositions": {
-        "words": [
-          "До"
-        ],
-        "blank": {
-          "word": "До",
-          "options": [
-            "До",
-            "Во",
-            "Од"
-          ],
-          "why": "До means 'until' here."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "осум"
-        ]
-      },
-      "pt-time": {
-        "words": [
-          "часот"
-        ],
-        "blank": {
-          "word": "часот",
-          "options": [
-            "часот",
-            "кафулето",
-            "плоштадот"
-          ],
-          "why": "часот means o'clock."
-        }
-      }
-    },
-    "qa:gen-s2-arrange-story-a#q3:q": {
-      "pt-ti-vie": {
-        "words": [
-          "ти",
-          "можеш"
-        ]
-      },
-      "pt-question-words": {
-        "words": [
-          "колку"
-        ],
-        "blank": {
-          "word": "колку",
-          "options": [
-            "колку",
-            "каде",
-            "што"
-          ],
-          "why": "колку asks 'how much', used here for what time."
-        }
-      },
-      "pt-time": {
-        "words": [
-          "Во",
-          "часот"
-        ],
-        "blank": {
-          "word": "часот",
-          "options": [
-            "часот",
-            "кафулето",
-            "плоштадот"
-          ],
-          "why": "часот means o'clock."
-        }
-      }
-    },
-    "qa:gen-s2-arrange-story-a#q3:a": {
-      "pt-time": {
-        "words": [
-          "Во",
-          "часот"
-        ],
-        "blank": {
-          "word": "часот",
-          "options": [
-            "часот",
-            "кафулето",
-            "плоштадот"
-          ],
-          "why": "часот means o'clock."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "седум"
-        ]
-      }
-    },
-    "story:gen-s2-arrange-story-b#0": {
-      "pt-time": {
-        "words": [
-          "Во",
-          "часот"
-        ],
-        "blank": {
-          "word": "Во",
-          "options": [
-            "Во",
-            "На",
-            "До"
-          ],
-          "why": "Во is used with a clock time."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "шест"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "Ема is she, so use е."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "центарот"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "од"
-          ],
-          "why": "во means 'in' the centre."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-b#1": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Каде asks 'where'."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "the café is 'it', so use е."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "кафулето"
-        ]
-      }
-    },
-    "story:gen-s2-arrange-story-b#2": {
-      "pt-commands": {
-        "words": [
-          "Оди"
-        ]
-      },
-      "pt-the": {
-        "words": [
-          "Кафулето"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "the café is 'it', so use е."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "до"
-        ],
-        "blank": {
-          "word": "до",
-          "options": [
-            "до",
-            "во",
-            "од"
-          ],
-          "why": "до means 'next to' the square."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-b#3": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "си"
-          ],
-          "why": "'it' is far, so use е."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-b#4": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "'it' is near, so use е."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-b#5": {
-      "pt-sum": {
-        "words": [
-          "Вие",
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "сум",
-            "е"
-          ],
-          "why": "Вие goes with сте."
-        }
-      },
-      "pt-ti-vie": {
-        "words": [
-          "Вие",
-          "сте"
-        ],
-        "blank": {
-          "word": "сте",
-          "options": [
-            "сте",
-            "си",
-            "сме"
-          ],
-          "why": "polite/plural Вие takes сте."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-b#6": {
-      "pt-sum": {
-        "words": [
-          "сме",
-          "се"
-        ],
-        "blank": {
-          "word": "сме",
-          "options": [
-            "сме",
-            "сте",
-            "сум"
-          ],
-          "why": "ние (we) goes with сме."
-        }
-      }
-    },
-    "story:gen-s2-arrange-story-b#7": {
-      "pt-sum": {
-        "words": [
-          "сум"
-        ],
-        "blank": {
-          "word": "сум",
-          "options": [
-            "сум",
-            "е",
-            "сме"
-          ],
-          "why": "'I' goes with сум."
-        }
-      },
-      "pt-numbers": {
-        "words": [
-          "шест",
-          "десет"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "во is used with a clock time."
-        }
-      },
-      "pt-time": {
-        "words": [
-          "во",
-          "шест",
-          "десет"
-        ]
-      }
-    },
-    "qa:gen-s2-arrange-story-b#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Каде asks 'where'."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "сум",
-            "се"
-          ],
-          "why": "the café is 'it', so use е."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "кафулето"
-        ]
-      }
-    },
-    "qa:gen-s2-arrange-story-b#q1:a": {
-      "pt-the": {
-        "words": [
-          "плоштадот"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "до"
-        ],
-        "blank": {
-          "word": "до",
-          "options": [
-            "до",
-            "во",
-            "од"
-          ],
-          "why": "до means 'next to' the square."
-        }
-      }
-    },
-    "qa:gen-s2-arrange-story-b#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Каде"
-        ],
-        "blank": {
-          "word": "Каде",
-          "options": [
-            "Каде",
-            "Што",
-            "Кога"
-          ],
-          "why": "Каде asks 'where'."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "сме",
-            "е"
-          ],
-          "why": "two people (they) take се."
-        }
-      }
-    },
-    "qa:gen-s2-arrange-story-b#q2:a": {
-      "pt-sum": {
-        "words": [
-          "Тие",
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "сме",
-            "сте"
-          ],
-          "why": "Тие (they) goes with се."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "кафулето"
-        ]
-      },
-      "pt-prepositions": {
-        "words": [
-          "во"
-        ],
-        "blank": {
-          "word": "во",
-          "options": [
-            "во",
-            "на",
-            "до"
-          ],
-          "why": "во means 'at/in' the café."
-        }
-      }
-    },
-    "qa:gen-s2-arrange-story-b#q3:q": {
-      "pt-commands": {
-        "words": [
-          "Кажи"
-        ]
-      }
-    },
-    "qa:gen-s2-arrange-story-b#q3:a": {
-      "pt-future": {
-        "words": [
-          "Ќе"
-        ],
-        "blank": {
-          "word": "Ќе",
-          "options": [
-            "Ќе",
-            "Нема",
-            "Да"
-          ],
-          "why": "Ќе makes the future tense."
-        }
-      },
-      "pt-se": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "го",
-            "ми"
-          ],
-          "why": "this verb always carries се."
         }
       }
     },
@@ -39020,712 +29747,6 @@ export const course: Course = {
         "words": [
           "часот"
         ]
-      }
-    },
-    "story:gen-s2-problems-story-a#0": {
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сме"
-          ],
-          "why": "Two people (they) take се."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-a#1": {
-      "pt-verbs-a": {
-        "words": [
-          "имаш"
-        ],
-        "blank": {
-          "word": "имаш",
-          "options": [
-            "имаш",
-            "имам",
-            "имаме"
-          ],
-          "why": "Talking to one person (you) uses имаш."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-a#2": {
-      "pt-ima-nema": {
-        "words": [
-          "Немам",
-          "Нема"
-        ],
-        "blank": {
-          "word": "Нема",
-          "options": [
-            "Нема",
-            "Има",
-            "Немам"
-          ],
-          "why": "\"there's no water\" uses Нема."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-a#3": {
-      "pt-ima-nema": {
-        "words": [
-          "немаме",
-          "немаме"
-        ],
-        "blank": {
-          "word": "немаме",
-          "options": [
-            "немаме",
-            "нема",
-            "Немам"
-          ],
-          "why": "\"we\" don't have uses немаме."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-a#4": {
-      "pt-mi-ti-mu": {
-        "words": [
-          "им"
-        ],
-        "blank": {
-          "word": "им",
-          "options": [
-            "им",
-            "ми",
-            "му"
-          ],
-          "why": "Phoning two people (to them) uses им."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "со"
-          ],
-          "why": "на marks who is called."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "телефонира"
-        ]
-      }
-    },
-    "story:gen-s2-problems-story-a#5": {
-      "pt-verbs-a": {
-        "words": [
-          "имате"
-        ],
-        "blank": {
-          "word": "имате",
-          "options": [
-            "имате",
-            "имам",
-            "има"
-          ],
-          "why": "\"you (plural)\" uses имате."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-a#6": {
-      "pt-verbs-a": {
-        "words": [
-          "Имаме"
-        ],
-        "blank": {
-          "word": "Имаме",
-          "options": [
-            "Имаме",
-            "Имам",
-            "Имаат"
-          ],
-          "why": "\"we\" have uses Имаме."
-        }
-      },
-      "pt-ajde-da": {
-        "words": [
-          "Ајде",
-          "да"
-        ],
-        "blank": {
-          "word": "Ајде",
-          "options": [
-            "Ајде",
-            "Може",
-            "Треба"
-          ],
-          "why": "\"Let's…\" starts with Ајде."
-        }
-      },
-      "pt-da": {
-        "words": [
-          "да"
-        ],
-        "blank": {
-          "word": "да",
-          "options": [
-            "да",
-            "не",
-            "ли"
-          ],
-          "why": "да links to the next verb."
-        }
-      },
-      "pt-verbs-e-i": {
-        "words": [
-          "пиеме"
-        ],
-        "blank": {
-          "word": "пиеме",
-          "options": [
-            "пиеме",
-            "пијам",
-            "пиете"
-          ],
-          "why": "\"we\" drink uses пиеме."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-a#7": {
-      "pt-verbs-a": {
-        "words": [
-          "имаат"
-        ],
-        "blank": {
-          "word": "имаат",
-          "options": [
-            "имаат",
-            "има",
-            "имаме"
-          ],
-          "why": "Two people (they) have uses имаат."
-        }
-      },
-      "pt-ima-nema": {
-        "words": [
-          "Нема"
-        ],
-        "blank": {
-          "word": "Нема",
-          "options": [
-            "Нема",
-            "Има",
-            "Немам"
-          ],
-          "why": "\"no problem\" uses Нема."
-        }
-      }
-    },
-    "qa:gen-s2-problems-story-a#q1:q": {
-      "pt-yes-no": {
-        "words": [
-          "Дали"
-        ],
-        "blank": {
-          "word": "Дали",
-          "options": [
-            "Дали",
-            "Што",
-            "Каде"
-          ],
-          "why": "A yes/no question can start with Дали."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "имаат"
-        ],
-        "blank": {
-          "word": "имаат",
-          "options": [
-            "имаат",
-            "има",
-            "имам"
-          ],
-          "why": "They have uses имаат."
-        }
-      }
-    },
-    "qa:gen-s2-problems-story-a#q1:a": {
-      "pt-ima-nema": {
-        "words": [
-          "немаат"
-        ],
-        "blank": {
-          "word": "немаат",
-          "options": [
-            "немаат",
-            "нема",
-            "Немам"
-          ],
-          "why": "\"they\" don't have uses немаат."
-        }
-      }
-    },
-    "qa:gen-s2-problems-story-a#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Кој"
-        ],
-        "blank": {
-          "word": "Кој",
-          "options": [
-            "Кој",
-            "Што",
-            "Каде"
-          ],
-          "why": "Asking \"who\" uses Кој."
-        }
-      },
-      "pt-ima-nema": {
-        "words": [
-          "има"
-        ],
-        "blank": {
-          "word": "има",
-          "options": [
-            "има",
-            "нема",
-            "немам"
-          ],
-          "why": "\"has\" uses има."
-        }
-      }
-    },
-    "qa:gen-s2-problems-story-a#q3:q": {
-      "pt-verbs-a": {
-        "words": [
-          "Имате"
-        ],
-        "blank": {
-          "word": "Имате",
-          "options": [
-            "Имате",
-            "Имам",
-            "Има"
-          ],
-          "why": "\"you (plural)\" uses Имате."
-        }
-      }
-    },
-    "qa:gen-s2-problems-story-a#q3:a": {
-      "pt-ima-nema": {
-        "words": [
-          "Немаме"
-        ],
-        "blank": {
-          "word": "Немаме",
-          "options": [
-            "Немаме",
-            "Немам",
-            "Нема"
-          ],
-          "why": "\"we\" don't have uses Немаме."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-b#0": {
-      "pt-sum": {
-        "words": [
-          "е"
-        ],
-        "blank": {
-          "word": "е",
-          "options": [
-            "е",
-            "се",
-            "сум"
-          ],
-          "why": "One person (she) takes е."
-        }
-      },
-      "pt-prepositions": {
-        "words": [
-          "на"
-        ],
-        "blank": {
-          "word": "на",
-          "options": [
-            "на",
-            "во",
-            "од"
-          ],
-          "why": "\"at the market\" uses на."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-b#1": {
-      "pt-commands": {
-        "words": [
-          "Извинете"
-        ],
-        "blank": {
-          "word": "Извинете",
-          "options": [
-            "Извинете",
-            "Свртете",
-            "Кажете"
-          ],
-          "why": "Polite \"excuse me\" is Извинете."
-        }
-      },
-      "pt-ima-nema": {
-        "words": [
-          "има"
-        ],
-        "blank": {
-          "word": "има",
-          "options": [
-            "има",
-            "нема",
-            "немам"
-          ],
-          "why": "\"there's a problem\" uses има."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-b#2": {
-      "pt-the": {
-        "words": [
-          "Јаболката"
-        ]
-      },
-      "pt-plurals": {
-        "words": [
-          "Јаболката"
-        ]
-      },
-      "pt-ne": {
-        "words": [
-          "не"
-        ],
-        "blank": {
-          "word": "не",
-          "options": [
-            "не",
-            "да",
-            "ли"
-          ],
-          "why": "не before се negates it."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "Plural (they) takes се."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "добри"
-        ],
-        "blank": {
-          "word": "добри",
-          "options": [
-            "добри",
-            "добар",
-            "добра"
-          ],
-          "why": "Plural noun needs the plural добри."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-b#3": {
-      "pt-verbs-a": {
-        "words": [
-          "Сакам"
-        ],
-        "blank": {
-          "word": "Сакам",
-          "options": [
-            "Сакам",
-            "Сакаш",
-            "Сака"
-          ],
-          "why": "\"I\" want uses Сакам."
-        }
-      },
-      "pt-da": {
-        "words": [
-          "да"
-        ],
-        "blank": {
-          "word": "да",
-          "options": [
-            "да",
-            "не",
-            "ли"
-          ],
-          "why": "да links сакам to the verb."
-        }
-      },
-      "pt-go-ja-gi": {
-        "words": [
-          "ги"
-        ],
-        "blank": {
-          "word": "ги",
-          "options": [
-            "ги",
-            "го",
-            "ја"
-          ],
-          "why": "\"them\" (the apples) uses ги."
-        }
-      }
-    },
-    "story:gen-s2-problems-story-b#4": {
-      "pt-ima-nema": {
-        "words": [
-          "Нема",
-          "Немам"
-        ],
-        "blank": {
-          "word": "Немам",
-          "options": [
-            "Немам",
-            "Нема",
-            "Има"
-          ],
-          "why": "\"I\" don't have uses Немам."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "имам"
-        ],
-        "blank": {
-          "word": "имам",
-          "options": [
-            "имам",
-            "имаш",
-            "има"
-          ],
-          "why": "\"I\" have uses имам."
-        }
-      },
-      "pt-plurals": {
-        "words": [
-          "јаболка"
-        ]
-      }
-    },
-    "story:gen-s2-problems-story-b#5": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Го"
-        ],
-        "blank": {
-          "word": "Го",
-          "options": [
-            "Го",
-            "Ја",
-            "Ги"
-          ],
-          "why": "\"it\" (the cheese) uses Го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "земам"
-        ],
-        "blank": {
-          "word": "земам",
-          "options": [
-            "земам",
-            "земаш",
-            "зема"
-          ],
-          "why": "\"I\" take uses земам."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "сирењето"
-        ]
-      }
-    },
-    "qa:gen-s2-problems-story-b#q1:q": {
-      "pt-question-words": {
-        "words": [
-          "Какви"
-        ]
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "Plural (they) takes се."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "јаболката"
-        ]
-      },
-      "pt-plurals": {
-        "words": [
-          "јаболката"
-        ]
-      }
-    },
-    "qa:gen-s2-problems-story-b#q1:a": {
-      "pt-ne": {
-        "words": [
-          "Не"
-        ],
-        "blank": {
-          "word": "Не",
-          "options": [
-            "Не",
-            "Да",
-            "Ли"
-          ],
-          "why": "Не before се makes it negative."
-        }
-      },
-      "pt-sum": {
-        "words": [
-          "се"
-        ],
-        "blank": {
-          "word": "се",
-          "options": [
-            "се",
-            "е",
-            "сум"
-          ],
-          "why": "Plural (they) takes се."
-        }
-      },
-      "pt-adjectives": {
-        "words": [
-          "добри"
-        ],
-        "blank": {
-          "word": "добри",
-          "options": [
-            "добри",
-            "добар",
-            "добра"
-          ],
-          "why": "Plural noun needs the plural добри."
-        }
-      }
-    },
-    "qa:gen-s2-problems-story-b#q2:q": {
-      "pt-question-words": {
-        "words": [
-          "Што"
-        ],
-        "blank": {
-          "word": "Што",
-          "options": [
-            "Што",
-            "Кој",
-            "Каде"
-          ],
-          "why": "Asking \"what\" uses Што."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "зема"
-        ],
-        "blank": {
-          "word": "зема",
-          "options": [
-            "зема",
-            "земам",
-            "земаш"
-          ],
-          "why": "\"she\" takes uses зема."
-        }
-      }
-    },
-    "qa:gen-s2-problems-story-b#q2:a": {
-      "pt-go-ja-gi": {
-        "words": [
-          "Го"
-        ],
-        "blank": {
-          "word": "Го",
-          "options": [
-            "Го",
-            "Ја",
-            "Ги"
-          ],
-          "why": "\"it\" (the cheese) uses Го."
-        }
-      },
-      "pt-verbs-a": {
-        "words": [
-          "зема"
-        ],
-        "blank": {
-          "word": "зема",
-          "options": [
-            "зема",
-            "земам",
-            "земаш"
-          ],
-          "why": "\"she\" takes uses зема."
-        }
-      },
-      "pt-the": {
-        "words": [
-          "сирењето"
-        ]
-      }
-    },
-    "qa:gen-s2-problems-story-b#q3:q": {
-      "pt-commands": {
-        "words": [
-          "Кажи"
-        ]
-      }
-    },
-    "qa:gen-s2-problems-story-b#q3:a": {
-      "pt-ima-nema": {
-        "words": [
-          "Има"
-        ],
-        "blank": {
-          "word": "Има",
-          "options": [
-            "Има",
-            "Нема",
-            "Немам"
-          ],
-          "why": "\"there is\" uses Има."
-        }
       }
     },
     "scenario:gen-s2-problems-convo-b#0": {
@@ -40345,6 +30366,10489 @@ export const course: Course = {
             "кога"
           ],
           "why": "каде asks where."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "сме"
+          ],
+          "why": "Ана is one other person, so 'е'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-a#1": {
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сум",
+            "е"
+          ],
+          "why": "Ти (you) goes with 'си'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-a#2": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "'не' before the verb makes it negative."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "'I am' uses 'сум'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-a#3": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "'не' before the verb makes it negative."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сум",
+            "е"
+          ],
+          "why": "Ти (you) goes with 'си'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-a#4": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "'не' before the verb makes it negative."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "Јас (I) goes with 'сум'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-a#5": {
+      "pt-commands": {
+        "words": [
+          "Извинете"
+        ],
+        "blank": {
+          "word": "Извинете",
+          "options": [
+            "Извинете",
+            "Одете",
+            "Кажете"
+          ],
+          "why": "'Извинете' is the polite way to say excuse me/sorry."
+        }
+      },
+      "pt-ne": {
+        "words": [
+          "Не"
+        ]
+      },
+      "pt-verbs-a": {
+        "words": [
+          "разбирам"
+        ]
+      }
+    },
+    "story:gen-s0-repair-story-a#6": {
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "Јас (I) goes with 'сум'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-a#7": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "'не' before the verb makes it negative."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сум",
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "е",
+            "си"
+          ],
+          "why": "Јас (I) goes with 'сум'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во",
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-a#q1:q": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "Петар is one other person, so 'е'."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-a#q1:a": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "'не' before the verb makes it negative."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "си"
+          ],
+          "why": "Петар is one other person, so 'е'."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-a#q2:q": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "Марко is one other person, so 'е'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-a#q2:a": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "си"
+          ],
+          "why": "тој (he) goes with 'е'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-a#q3:q": {
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сум",
+            "е"
+          ],
+          "why": "Ти (you) goes with 'си'."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-a#q3:a": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "'не' before the verb makes it negative."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "јас (I) goes with 'сум'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#0": {
+      "pt-sum": {
+        "words": [
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сте",
+            "е"
+          ],
+          "why": "Ние (we) goes with 'сме'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#1": {
+      "pt-sum": {
+        "words": [
+          "сум",
+          "е"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "е",
+            "си"
+          ],
+          "why": "Јас (I) goes with 'сум'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#2": {
+      "pt-sum": {
+        "words": [
+          "сум",
+          "си",
+          "е"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сум",
+            "е"
+          ],
+          "why": "Ти (you) goes with 'си'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#3": {
+      "pt-verbs-a": {
+        "words": [
+          "зборува"
+        ],
+        "blank": {
+          "word": "зборува",
+          "options": [
+            "зборува",
+            "зборувам",
+            "зборуваш"
+          ],
+          "why": "Ема (she) takes the -а ending."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#4": {
+      "pt-commands": {
+        "words": [
+          "Извинете"
+        ],
+        "blank": {
+          "word": "Извинете",
+          "options": [
+            "Извинете",
+            "Одете",
+            "Кажете"
+          ],
+          "why": "'Извинете' is the polite way to say excuse me/sorry."
+        }
+      },
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "'не' before the verb makes it negative."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "разбирам",
+          "молам"
+        ]
+      },
+      "pt-more-most": {
+        "words": [
+          "Побавно"
+        ],
+        "blank": {
+          "word": "Побавно",
+          "options": [
+            "Побавно",
+            "Побрзо",
+            "Подобро"
+          ],
+          "why": "по- makes it 'more slow' = slower."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#5": {
+      "pt-sum": {
+        "words": [
+          "сум",
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сме"
+          ],
+          "why": "Вие (you) goes with 'сте'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#6": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "Таа (she) goes with 'е'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#7": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "сте",
+            "е"
+          ],
+          "why": "Тие (they) goes with 'се'."
+        }
+      }
+    },
+    "story:gen-s0-repair-story-b#8": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Што",
+            "Каде"
+          ],
+          "why": "'Како' asks how."
+        }
+      },
+      "pt-se": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "'вели' always carries 'се'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "'на македонски' uses 'на' for in a language."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-b#q2:q": {
+      "pt-sum": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сме"
+          ],
+          "why": "Вие (you) goes with 'сте'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-b#q2:a": {
+      "pt-sum": {
+        "words": [
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сте",
+            "е"
+          ],
+          "why": "ние (we) goes with 'сме'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "'во' means in a place."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-b#q3:q": {
+      "pt-verbs-a": {
+        "words": [
+          "зборува"
+        ],
+        "blank": {
+          "word": "зборува",
+          "options": [
+            "зборува",
+            "зборувам",
+            "зборуваш"
+          ],
+          "why": "Ема (she) takes the -а ending."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Како",
+            "Каде"
+          ],
+          "why": "'Што' asks what."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "велиш"
+        ]
+      }
+    },
+    "qa:gen-s0-repair-story-b#q3:a": {
+      "pt-more-most": {
+        "words": [
+          "Побавно"
+        ],
+        "blank": {
+          "word": "Побавно",
+          "options": [
+            "Побавно",
+            "Побрзо",
+            "Подобро"
+          ],
+          "why": "по- makes it 'more slow' = slower."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "молам"
+        ]
+      }
+    },
+    "story:gen-s0-greet-story-a#0": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "ѝ"
+        ],
+        "blank": {
+          "word": "ѝ",
+          "options": [
+            "ѝ",
+            "му",
+            "ми"
+          ],
+          "why": "'to her' is 'ѝ'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "до"
+          ],
+          "why": "'на' marks the person called/to."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "телефонира"
+        ]
+      }
+    },
+    "story:gen-s0-greet-story-a#1": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Како",
+            "Што"
+          ],
+          "why": "Asking about a place means 'where'."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сум",
+            "е"
+          ],
+          "why": "'You' (one friend) takes си."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-a#2": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "До"
+          ],
+          "why": "Being inside a city uses во (in)."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сум",
+          "си"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "'I am' takes сум."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "како",
+            "што"
+          ],
+          "why": "Asking about a place means 'where'."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-a#3": {
+      "pt-sum": {
+        "words": [
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сум",
+            "сте"
+          ],
+          "why": "'We are' takes сме."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a town uses во."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-a#4": {
+      "pt-sum": {
+        "words": [
+          "сте",
+          "сме"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "сме",
+            "си"
+          ],
+          "why": "'You' (plural) takes сте."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a town uses во."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-a#5": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "сме",
+            "сте"
+          ],
+          "why": "'They are' takes се."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a town uses во."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-a#6": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Каде",
+            "Што"
+          ],
+          "why": "Asking 'how (are you)' uses како."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "е"
+          ],
+          "why": "Polite/plural 'you are' takes сте."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сум"
+          ],
+          "why": "Polite form uses сте, not casual си."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-a#7": {
+      "pt-sum": {
+        "words": [
+          "сме",
+          "сте"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сум",
+            "сте"
+          ],
+          "why": "'We are (well)' takes сме."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Каде",
+            "Што"
+          ],
+          "why": "Asking 'how are you' uses како."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сум"
+          ],
+          "why": "With вие you use сте."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-a#8": {
+      "pt-sum": {
+        "words": [
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сум",
+            "сте"
+          ],
+          "why": "'We are' takes сме."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Како",
+            "Што"
+          ],
+          "why": "Asking about a place means 'where'."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "One person (Ана) takes е."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-a#q1:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "До"
+          ],
+          "why": "Being in a city uses во."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-a#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Како"
+          ],
+          "why": "Asking about a place means 'where'."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "Two people take се."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-a#q2:a": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "сме",
+            "сте"
+          ],
+          "why": "'They are' takes се."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a town uses во."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-a#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Како",
+            "Што"
+          ],
+          "why": "Asking about a place means 'where'."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сум",
+            "е"
+          ],
+          "why": "'You' (one friend) takes си."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-a#q3:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "До"
+          ],
+          "why": "Being in a city uses во."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "'I am' takes сум."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-b#0": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Каде",
+            "Што"
+          ],
+          "why": "Asking 'how are you' uses како."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сте",
+            "е"
+          ],
+          "why": "'You' (one friend) takes си."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сте",
+            "сум"
+          ],
+          "why": "With a friend you use casual си."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-b#1": {
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "'I am' takes сум."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-b#2": {
+      "pt-sum": {
+        "words": [
+          "сум",
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "One person (Петар) takes е."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "ли",
+            "да"
+          ],
+          "why": "A yes/no question with е starts with дали."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a city uses во."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-b#3": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "'He is' (тој) takes е."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a city uses во."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-b#4": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Каде",
+            "Што"
+          ],
+          "why": "Asking 'how are you' uses како."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "е"
+          ],
+          "why": "Polite 'you are' takes сте."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сум"
+          ],
+          "why": "With an elder you use polite сте."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-b#5": {
+      "pt-sum": {
+        "words": [
+          "сум",
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сум"
+          ],
+          "why": "Polite/plural 'you are' takes сте."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "ли",
+            "да"
+          ],
+          "why": "A yes/no question with сте starts with дали."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сум"
+          ],
+          "why": "Polite form uses сте."
+        }
+      }
+    },
+    "story:gen-s0-greet-story-b#6": {
+      "pt-sum": {
+        "words": [
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сум",
+            "сте"
+          ],
+          "why": "'We are' takes сме."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-b#q1:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "ли",
+            "да"
+          ],
+          "why": "A yes/no question with е starts with дали."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "One person (Петар) takes е."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a city uses во."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-b#q1:a": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "'He is' (тој) takes е."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a city uses во."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Каде",
+            "Што"
+          ],
+          "why": "Asking 'how is' uses како."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "One person (Вера) takes е."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-b#q2:a": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "'She is' takes е."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-b#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Каде",
+            "Што"
+          ],
+          "why": "Asking 'how are you' uses како."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сте",
+            "е"
+          ],
+          "why": "'You' (one friend) takes си."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сте",
+            "сум"
+          ],
+          "why": "With a friend you use casual си."
+        }
+      }
+    },
+    "qa:gen-s0-greet-story-b#q3:a": {
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "'I am' takes сум."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "сме",
+            "сте"
+          ],
+          "why": "Two people take се."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "до"
+          ],
+          "why": "Being in a city uses во."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#1": {
+      "pt-adjectives": {
+        "words": [
+          "Добар"
+        ],
+        "blank": {
+          "word": "Добар",
+          "options": [
+            "Добар",
+            "Добра",
+            "Добро"
+          ],
+          "why": "Ден is masculine, so the adjective is добар."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Имате"
+        ],
+        "blank": {
+          "word": "Имате",
+          "options": [
+            "Имате",
+            "Имам",
+            "Има"
+          ],
+          "why": "Asking 'you' (plural) uses the -те form имате."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "A yes/no question with a verb puts ли right after it."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#2": {
+      "pt-gender": {
+        "words": [
+          "Едно"
+        ],
+        "blank": {
+          "word": "Едно",
+          "options": [
+            "Едно",
+            "Еден",
+            "Една"
+          ],
+          "why": "Пиво is neuter, so 'one' is едно."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "две"
+        ],
+        "blank": {
+          "word": "две",
+          "options": [
+            "две",
+            "два",
+            "еден"
+          ],
+          "why": "For пиво you use две, not два."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#3": {
+      "pt-numbers": {
+        "words": [
+          "Две",
+          "пива",
+          "две"
+        ],
+        "blank": {
+          "word": "Две",
+          "options": [
+            "Две",
+            "Два",
+            "Три"
+          ],
+          "why": "пива is neuter, so two is \"две\" not \"два\"."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "Ние",
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сте",
+            "се"
+          ],
+          "why": "\"Ние\" (we) takes the form сме."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#4": {
+      "pt-question-words": {
+        "words": [
+          "Колку"
+        ],
+        "blank": {
+          "word": "Колку",
+          "options": [
+            "Колку",
+            "Што",
+            "Каде"
+          ],
+          "why": "\"Колку\" asks how much."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "чини"
+        ]
+      }
+    },
+    "story:gen-s0-survive-story-a#5": {
+      "pt-numbers": {
+        "words": [
+          "Педесет",
+          "денари"
+        ],
+        "blank": {
+          "word": "денари",
+          "options": [
+            "денари",
+            "денар",
+            "пиво"
+          ],
+          "why": "After a number the noun is plural: денари."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#6": {
+      "pt-sum": {
+        "words": [
+          "Вие",
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сме"
+          ],
+          "why": "\"Вие\" (you, polite/plural) takes сте."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#7": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "не goes before the verb to say \"not\"."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "ти",
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сте",
+            "е"
+          ],
+          "why": "\"ти\" (you) takes the form си."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-a#8": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "не before сум negates it."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сум",
+          "Јас",
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "\"Јас\" (I) takes the form сум."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Колку"
+        ],
+        "blank": {
+          "word": "Колку",
+          "options": [
+            "Колку",
+            "Што",
+            "Каде"
+          ],
+          "why": "\"Колку\" asks how many."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "пива"
+        ],
+        "blank": {
+          "word": "пива",
+          "options": [
+            "пива",
+            "пиво",
+            "пивото"
+          ],
+          "why": "More than one beer is пива."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаат"
+        ],
+        "blank": {
+          "word": "сакаат",
+          "options": [
+            "сакаат",
+            "сакам",
+            "сакаме"
+          ],
+          "why": "\"they\" (тие) takes the ending -аат."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-a#q1:a": {
+      "pt-numbers": {
+        "words": [
+          "Две",
+          "пива"
+        ],
+        "blank": {
+          "word": "Две",
+          "options": [
+            "Две",
+            "Два",
+            "Три"
+          ],
+          "why": "пива is neuter, so two is \"две\"."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-a#q2:q": {
+      "pt-the": {
+        "words": [
+          "Продавачот"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One person (he/it) takes е."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-a#q2:a": {
+      "pt-sum": {
+        "words": [
+          "тој",
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "си"
+          ],
+          "why": "\"тој\" (he) takes е."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-a#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Колку",
+            "Каде"
+          ],
+          "why": "\"Што\" asks what."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаш"
+        ],
+        "blank": {
+          "word": "сакаш",
+          "options": [
+            "сакаш",
+            "сакам",
+            "сака"
+          ],
+          "why": "\"ти\" (you) takes the ending -аш."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-a#q3:a": {
+      "pt-gender": {
+        "words": [
+          "Едно",
+          "пиво"
+        ],
+        "blank": {
+          "word": "Едно",
+          "options": [
+            "Едно",
+            "Еден",
+            "Една"
+          ],
+          "why": "пиво is neuter, so \"one\" is Едно."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-b#0": {
+      "pt-question-words": {
+        "words": [
+          "како"
+        ],
+        "blank": {
+          "word": "како",
+          "options": [
+            "како",
+            "што",
+            "каде"
+          ],
+          "why": "\"како\" asks how."
+        }
+      },
+      "pt-se": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "This verb always carries се: се вели."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "со"
+          ],
+          "why": "\"на македонски\" = in Macedonian."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-b#1": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing (it) takes е."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "Пет",
+          "петнаесет"
+        ]
+      }
+    },
+    "story:gen-s0-survive-story-b#2": {
+      "pt-more-most": {
+        "words": [
+          "Побавно"
+        ]
+      }
+    },
+    "story:gen-s0-survive-story-b#3": {
+      "pt-numbers": {
+        "words": [
+          "Пет",
+          "петнаесет",
+          "педесет"
+        ]
+      }
+    },
+    "story:gen-s0-survive-story-b#4": {
+      "pt-gender": {
+        "words": [
+          "Едно",
+          "пиво"
+        ],
+        "blank": {
+          "word": "Едно",
+          "options": [
+            "Едно",
+            "Еден",
+            "Една"
+          ],
+          "why": "пиво is neuter, so \"one\" is Едно."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing (it) takes е."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "педесет",
+          "денари"
+        ],
+        "blank": {
+          "word": "денари",
+          "options": [
+            "денари",
+            "денар",
+            "пиво"
+          ],
+          "why": "After a number the noun is plural: денари."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-b#5": {
+      "pt-numbers": {
+        "words": [
+          "две",
+          "пива"
+        ],
+        "blank": {
+          "word": "две",
+          "options": [
+            "две",
+            "два",
+            "три"
+          ],
+          "why": "пива is neuter, so two is \"две\"."
+        }
+      }
+    },
+    "story:gen-s0-survive-story-b#6": {
+      "pt-ne": {
+        "words": [
+          "Не"
+        ]
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Сакам"
+        ]
+      },
+      "pt-gender": {
+        "words": [
+          "едно",
+          "пиво"
+        ],
+        "blank": {
+          "word": "едно",
+          "options": [
+            "едно",
+            "еден",
+            "една"
+          ],
+          "why": "пиво is neuter, so \"one\" is едно."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-b#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Што",
+            "Каде"
+          ],
+          "why": "\"Како\" asks how."
+        }
+      },
+      "pt-se": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "This verb always carries се: се вели."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-b#q1:a": {
+      "pt-numbers": {
+        "words": [
+          "Пет"
+        ]
+      }
+    },
+    "qa:gen-s0-survive-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Колку"
+        ],
+        "blank": {
+          "word": "Колку",
+          "options": [
+            "Колку",
+            "Што",
+            "Каде"
+          ],
+          "why": "\"Колку\" asks how much."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "чини"
+        ]
+      },
+      "pt-gender": {
+        "words": [
+          "едно",
+          "пиво"
+        ],
+        "blank": {
+          "word": "едно",
+          "options": [
+            "едно",
+            "еден",
+            "една"
+          ],
+          "why": "пиво is neuter, so \"one\" is едно."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-b#q2:a": {
+      "pt-numbers": {
+        "words": [
+          "Педесет",
+          "денари"
+        ],
+        "blank": {
+          "word": "денари",
+          "options": [
+            "денари",
+            "денар",
+            "пиво"
+          ],
+          "why": "After a number the noun is plural: денари."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-b#q3:q": {
+      "pt-commands": {
+        "words": [
+          "Кажи"
+        ],
+        "blank": {
+          "word": "Кажи",
+          "options": [
+            "Кажи",
+            "Свртете",
+            "Одете"
+          ],
+          "why": "\"Кажи\" is the command \"say/tell\"."
+        }
+      }
+    },
+    "qa:gen-s0-survive-story-b#q3:a": {
+      "pt-numbers": {
+        "words": [
+          "Петнаесет",
+          "педесет"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "се",
+          "е"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "сме",
+            "сте"
+          ],
+          "why": "\"they\" (three people) takes се."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "со"
+          ],
+          "why": "\"на кафе\" = out for coffee."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#1": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Колку",
+            "Каде"
+          ],
+          "why": "\"Што\" asks what."
+        }
+      },
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "нема",
+            "да"
+          ],
+          "why": "ќе + verb makes the future."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакате"
+        ],
+        "blank": {
+          "word": "сакате",
+          "options": [
+            "сакате",
+            "сакаш",
+            "сакам"
+          ],
+          "why": "\"Вие\" (you, polite) takes the ending -ате."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "сакате"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#2": {
+      "pt-sum": {
+        "words": [
+          "Јас"
+        ],
+        "blank": {
+          "word": "Јас",
+          "options": [
+            "Јас",
+            "Ние",
+            "Вие"
+          ],
+          "why": "сакам is the \"I\" form, so the subject is Јас."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакам",
+          "сакаат"
+        ],
+        "blank": {
+          "word": "сакаат",
+          "options": [
+            "сакаат",
+            "сакам",
+            "сакаме"
+          ],
+          "why": "\"they\" (тие) takes the ending -аат."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#3": {
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "ли right after the verb makes a yes/no question."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Имате"
+        ]
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Имате"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#4": {
+      "pt-verbs-a": {
+        "words": [
+          "Имаме"
+        ]
+      },
+      "pt-the": {
+        "words": [
+          "кафето",
+          "чајот",
+          "сокот"
+        ],
+        "blank": {
+          "word": "кафето",
+          "options": [
+            "кафето",
+            "кафеот",
+            "токафе"
+          ],
+          "why": "кафе is neuter, so \"the\" is -то: кафето."
+        }
+      },
+      "pt-commands": {
+        "words": [
+          "Повелете"
+        ],
+        "blank": {
+          "word": "Повелете",
+          "options": [
+            "Повелете",
+            "Одете",
+            "Свртете"
+          ],
+          "why": "\"Повелете\" means \"here you go\"."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#5": {
+      "pt-the": {
+        "words": [
+          "Сметката"
+        ],
+        "blank": {
+          "word": "Сметката",
+          "options": [
+            "Сметката",
+            "Сметкаот",
+            "Тасметка"
+          ],
+          "why": "\"The\" attaches to the end, and this feminine noun takes -та."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#6": {
+      "pt-sum": {
+        "words": [
+          "Јас"
+        ],
+        "blank": {
+          "word": "Јас",
+          "options": [
+            "Јас",
+            "Ние",
+            "Вие"
+          ],
+          "why": "\"давам\" means \"I give,\" so the subject is Јас."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "давам"
+        ]
+      },
+      "pt-numbers": {
+        "words": [
+          "сто",
+          "денари"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#7": {
+      "pt-verbs-a": {
+        "words": [
+          "давам",
+          "даваш"
+        ],
+        "blank": {
+          "word": "даваш",
+          "options": [
+            "даваш",
+            "давам",
+            "дава"
+          ],
+          "why": "The -аш ending means \"you\" (one person)."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "сто",
+          "педесет"
+        ]
+      },
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "даваш"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-a#8": {
+      "pt-verbs-a": {
+        "words": [
+          "давате"
+        ],
+        "blank": {
+          "word": "давате",
+          "options": [
+            "давате",
+            "даваш",
+            "даваат"
+          ],
+          "why": "Вие (plural/polite) takes the -ате ending."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "двесте",
+          "педесет"
+        ]
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Вие",
+          "давате"
+        ]
+      }
+    },
+    "qa:gen-s1-cafe-order-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Колку"
+          ],
+          "why": "\"Што\" means \"what.\""
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаат"
+        ],
+        "blank": {
+          "word": "сакаат",
+          "options": [
+            "сакаат",
+            "сака",
+            "сакате"
+          ],
+          "why": "Two people (they) take the -аат ending."
+        }
+      }
+    },
+    "qa:gen-s1-cafe-order-story-a#q1:a": {
+      "pt-verbs-a": {
+        "words": [
+          "Сакаат"
+        ],
+        "blank": {
+          "word": "Сакаат",
+          "options": [
+            "Сакаат",
+            "Сака",
+            "Сакате"
+          ],
+          "why": "\"They\" takes the -аат ending."
+        }
+      }
+    },
+    "qa:gen-s1-cafe-order-story-a#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Колку"
+        ],
+        "blank": {
+          "word": "Колку",
+          "options": [
+            "Колку",
+            "Што",
+            "Каде"
+          ],
+          "why": "\"Колку\" means \"how much.\""
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "дава"
+        ],
+        "blank": {
+          "word": "дава",
+          "options": [
+            "дава",
+            "давам",
+            "даваат"
+          ],
+          "why": "One person (he) takes the -а ending."
+        }
+      }
+    },
+    "qa:gen-s1-cafe-order-story-a#q2:a": {
+      "pt-numbers": {
+        "words": [
+          "Сто",
+          "денари"
+        ]
+      }
+    },
+    "qa:gen-s1-cafe-order-story-a#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Како",
+            "Каде"
+          ],
+          "why": "\"Што\" means \"what.\""
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаш"
+        ],
+        "blank": {
+          "word": "сакаш",
+          "options": [
+            "сакаш",
+            "сакам",
+            "сака"
+          ],
+          "why": "The -аш ending means \"you\" (one person)."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "сакаш"
+        ]
+      }
+    },
+    "qa:gen-s1-cafe-order-story-a#q3:a": {
+      "pt-sum": {
+        "words": [
+          "Јас"
+        ],
+        "blank": {
+          "word": "Јас",
+          "options": [
+            "Јас",
+            "Ние",
+            "Вие"
+          ],
+          "why": "\"сакам\" means \"I want,\" so the subject is Јас."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакам"
+        ],
+        "blank": {
+          "word": "сакам",
+          "options": [
+            "сакам",
+            "сакаш",
+            "сака"
+          ],
+          "why": "The -ам ending means \"I.\""
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#0": {
+      "pt-verbs-a": {
+        "words": [
+          "има"
+        ],
+        "blank": {
+          "word": "има",
+          "options": [
+            "има",
+            "имам",
+            "имаат"
+          ],
+          "why": "One person (he) takes the -а ending."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#1": {
+      "pt-verbs-a": {
+        "words": [
+          "сакаат"
+        ],
+        "blank": {
+          "word": "сакаат",
+          "options": [
+            "сакаат",
+            "сака",
+            "сакате"
+          ],
+          "why": "\"They\" takes the -аат ending."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#2": {
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "\"ли\" right after the verb makes a yes/no question."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Имаш"
+        ],
+        "blank": {
+          "word": "Имаш",
+          "options": [
+            "Имаш",
+            "Имам",
+            "Има"
+          ],
+          "why": "The -аш ending means \"you\" (one person)."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Имаш"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#3": {
+      "pt-verbs-a": {
+        "words": [
+          "Имам"
+        ],
+        "blank": {
+          "word": "Имам",
+          "options": [
+            "Имам",
+            "Имаш",
+            "Има"
+          ],
+          "why": "The -ам ending means \"I.\""
+        }
+      },
+      "pt-the": {
+        "words": [
+          "Пивото"
+        ],
+        "blank": {
+          "word": "Пивото",
+          "options": [
+            "Пивото",
+            "Пивата",
+            "Пиво"
+          ],
+          "why": "This neuter noun takes -то for \"the.\""
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "се",
+            "сум"
+          ],
+          "why": "\"It is\" uses е."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "добро"
+        ],
+        "blank": {
+          "word": "добро",
+          "options": [
+            "добро",
+            "добра",
+            "добри"
+          ],
+          "why": "The adjective matches the neuter noun пиво."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#4": {
+      "pt-verbs-a": {
+        "words": [
+          "сакаме"
+        ],
+        "blank": {
+          "word": "сакаме",
+          "options": [
+            "сакаме",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "Ние (we) takes the -аме ending."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "две",
+          "пива",
+          "вода"
+        ],
+        "blank": {
+          "word": "две",
+          "options": [
+            "две",
+            "два",
+            "три"
+          ],
+          "why": "The neuter noun пива uses две, not два."
+        }
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#5": {
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "\"ли\" right after the verb makes a yes/no question."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Сакате"
+        ],
+        "blank": {
+          "word": "Сакате",
+          "options": [
+            "Сакате",
+            "Сакаш",
+            "Сакаат"
+          ],
+          "why": "Вие (plural/polite) takes the -ате ending."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Сакате"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#6": {
+      "pt-question-words": {
+        "words": [
+          "Колку"
+        ],
+        "blank": {
+          "word": "Колку",
+          "options": [
+            "Колку",
+            "Што",
+            "Каде"
+          ],
+          "why": "\"Колку\" means \"how much.\""
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "чини"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#7": {
+      "pt-numbers": {
+        "words": [
+          "Двесте",
+          "денари"
+        ]
+      }
+    },
+    "story:gen-s1-cafe-order-story-b#8": {
+      "pt-verbs-a": {
+        "words": [
+          "дава"
+        ],
+        "blank": {
+          "word": "дава",
+          "options": [
+            "дава",
+            "давам",
+            "даваат"
+          ],
+          "why": "One person (she) takes the -а ending."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "сто"
+        ]
+      }
+    },
+    "qa:gen-s1-cafe-order-story-b#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Колку"
+          ],
+          "why": "\"Што\" means \"what.\""
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаат"
+        ],
+        "blank": {
+          "word": "сакаат",
+          "options": [
+            "сакаат",
+            "сака",
+            "сакате"
+          ],
+          "why": "\"They\" takes the -аат ending."
+        }
+      }
+    },
+    "qa:gen-s1-cafe-order-story-b#q1:a": {
+      "pt-numbers": {
+        "words": [
+          "Две",
+          "пива",
+          "вода"
+        ],
+        "blank": {
+          "word": "Две",
+          "options": [
+            "Две",
+            "Два",
+            "Три"
+          ],
+          "why": "The neuter noun пива uses две, not два."
+        }
+      }
+    },
+    "qa:gen-s1-cafe-order-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Какво"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "се",
+            "сум"
+          ],
+          "why": "\"It is\" uses е."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "пивото"
+        ],
+        "blank": {
+          "word": "пивото",
+          "options": [
+            "пивото",
+            "пивата",
+            "пиво"
+          ],
+          "why": "This neuter noun takes -то for \"the.\""
+        }
+      }
+    },
+    "qa:gen-s1-cafe-order-story-b#q2:a": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "се",
+            "сум"
+          ],
+          "why": "\"It is\" uses е."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "Добро"
+        ],
+        "blank": {
+          "word": "Добро",
+          "options": [
+            "Добро",
+            "Добра",
+            "Добри"
+          ],
+          "why": "The adjective matches the neuter noun пиво."
+        }
+      }
+    },
+    "qa:gen-s1-cafe-order-story-b#q3:q": {
+      "pt-verbs-a": {
+        "words": [
+          "имаш"
+        ],
+        "blank": {
+          "word": "имаш",
+          "options": [
+            "имаш",
+            "имам",
+            "има"
+          ],
+          "why": "The -аш ending means \"you\" (one person)."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Ти",
+          "имаш"
+        ]
+      }
+    },
+    "qa:gen-s1-cafe-order-story-b#q3:a": {
+      "pt-verbs-a": {
+        "words": [
+          "имам"
+        ],
+        "blank": {
+          "word": "имам",
+          "options": [
+            "имам",
+            "имаш",
+            "има"
+          ],
+          "why": "The -ам ending means \"I.\""
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "Plural subjects (they) use се."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "барот"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "\"во\" means \"in/at.\""
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#1": {
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "кога",
+            "колку"
+          ],
+          "why": "\"каде\" means \"where.\""
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сме"
+          ],
+          "why": "\"You\" (plural) uses сте."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сме"
+          ],
+          "why": "Addressing more than one person uses the -сте form."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "До",
+            "На"
+          ],
+          "why": "\"Од\" means \"from.\""
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#2": {
+      "pt-sum": {
+        "words": [
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сте",
+            "се"
+          ],
+          "why": "Ние (we) uses сме."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "вие"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "од"
+        ],
+        "blank": {
+          "word": "од",
+          "options": [
+            "од",
+            "во",
+            "со"
+          ],
+          "why": "\"од\" means \"from.\""
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#3": {
+      "pt-sum": {
+        "words": [
+          "сум",
+          "е"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "\"I am\" uses сум."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "од",
+          "од"
+        ],
+        "blank": {
+          "word": "од",
+          "options": [
+            "од",
+            "во",
+            "до"
+          ],
+          "why": "\"од\" means \"from.\""
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#4": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Како"
+          ],
+          "why": "\"Што\" means \"what.\""
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "работите"
+        ]
+      },
+      "pt-ti-vie": {
+        "words": [
+          "работите"
+        ]
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#5": {
+      "pt-verbs-e-i": {
+        "words": [
+          "работи",
+          "работам",
+          "учам"
+        ],
+        "blank": {
+          "word": "работам",
+          "options": [
+            "работам",
+            "работиш",
+            "работи"
+          ],
+          "why": "\"јас\" (I) takes the -ам ending."
+        }
+      },
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "\"не\" before the verb makes it negative."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#6": {
+      "pt-verbs-e-i": {
+        "words": [
+          "знаеш"
+        ],
+        "blank": {
+          "word": "знаеш",
+          "options": [
+            "знаеш",
+            "знам",
+            "знае"
+          ],
+          "why": "\"Ти\" (you) takes the -еш ending."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Ти",
+          "знаеш"
+        ]
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#7": {
+      "pt-verbs-a": {
+        "words": [
+          "Зборувам"
+        ],
+        "blank": {
+          "word": "Зборувам",
+          "options": [
+            "Зборувам",
+            "зборуваш",
+            "зборува"
+          ],
+          "why": "\"I\" takes the -ам ending."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "Знам"
+        ],
+        "blank": {
+          "word": "Знам",
+          "options": [
+            "Знам",
+            "знаеш",
+            "знае"
+          ],
+          "why": "\"I\" form of this verb."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#8": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "ми"
+        ],
+        "blank": {
+          "word": "ми",
+          "options": [
+            "ми",
+            "ти",
+            "му"
+          ],
+          "why": "\"ми\" means \"to me\" — it pleases me."
+        }
+      },
+      "pt-se": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "\"викам\" always comes with \"се\"."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "си"
+          ],
+          "why": "\"it is\" uses the third-person \"е\"."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-a#9": {
+      "pt-verbs-e-i": {
+        "words": [
+          "јадат",
+          "пијат"
+        ],
+        "blank": {
+          "word": "јадат",
+          "options": [
+            "јадат",
+            "јаде",
+            "јадеш"
+          ],
+          "why": "\"Тие\" (they) takes the -ат ending."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "зборуваат"
+        ],
+        "blank": {
+          "word": "зборуваат",
+          "options": [
+            "зборуваат",
+            "зборува",
+            "зборуваш"
+          ],
+          "why": "\"Тие\" (they) takes the -аат ending."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "\"каде\" asks where."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "two people (they) take \"се\"."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "\"Од\" means from."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-a#q1:a": {
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "\"Од\" means from."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-a#q2:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "ли",
+            "да"
+          ],
+          "why": "\"Дали\" opens a yes/no question at the start."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "работи"
+        ],
+        "blank": {
+          "word": "работи",
+          "options": [
+            "работи",
+            "работиш",
+            "работам"
+          ],
+          "why": "\"Сара\" (she) takes the -и ending."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-a#q2:a": {
+      "pt-verbs-e-i": {
+        "words": [
+          "учи"
+        ],
+        "blank": {
+          "word": "учи",
+          "options": [
+            "учи",
+            "учиш",
+            "учам"
+          ],
+          "why": "\"таа\" (she) takes the -и ending."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-a#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "\"каде\" asks where."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "е",
+            "сум"
+          ],
+          "why": "\"ти\" (you) takes \"си\"."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сте",
+            "сме"
+          ],
+          "why": "speaking casually to one person uses \"си\"."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "\"Од\" means from."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-a#q3:a": {
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "си",
+            "е"
+          ],
+          "why": "\"I am\" uses \"сум\"."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "\"Од\" means from."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#0": {
+      "pt-verbs-e-i": {
+        "words": [
+          "пијат"
+        ],
+        "blank": {
+          "word": "пијат",
+          "options": [
+            "пијат",
+            "пие",
+            "пиеш"
+          ],
+          "why": "two people (they) take the -ат ending."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#1": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "\"Што\" asks what."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "јадеш"
+        ],
+        "blank": {
+          "word": "јадеш",
+          "options": [
+            "јадеш",
+            "јадам",
+            "јаде"
+          ],
+          "why": "\"you\" takes the -еш ending."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "јадеш"
+        ]
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#2": {
+      "pt-ne": {
+        "words": [
+          "Не"
+        ],
+        "blank": {
+          "word": "Не",
+          "options": [
+            "Не",
+            "Да",
+            "Ли"
+          ],
+          "why": "\"Не\" before the verb makes it negative."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "јадам",
+          "Пијам"
+        ],
+        "blank": {
+          "word": "јадам",
+          "options": [
+            "јадам",
+            "јадеш",
+            "јаде"
+          ],
+          "why": "\"I\" takes the -ам ending."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#3": {
+      "pt-verbs-e-i": {
+        "words": [
+          "јадат",
+          "пие"
+        ],
+        "blank": {
+          "word": "пие",
+          "options": [
+            "пие",
+            "пијат",
+            "пиеш"
+          ],
+          "why": "\"Петар\" (he) takes the -е ending."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#4": {
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "\"каде\" asks where."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одите"
+        ],
+        "blank": {
+          "word": "одите",
+          "options": [
+            "одите",
+            "одиш",
+            "одам"
+          ],
+          "why": "speaking to two people takes the -ите ending."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "одите"
+        ]
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#5": {
+      "pt-verbs-e-i": {
+        "words": [
+          "Одиме"
+        ],
+        "blank": {
+          "word": "Одиме",
+          "options": [
+            "Одиме",
+            "Одам",
+            "Одиш"
+          ],
+          "why": "\"we\" takes the -име ending."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "од",
+            "со"
+          ],
+          "why": "\"во\" means to/into a place."
+        }
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#6": {
+      "pt-verbs-a": {
+        "words": [
+          "зборуваш"
+        ],
+        "blank": {
+          "word": "зборуваш",
+          "options": [
+            "зборуваш",
+            "зборувам",
+            "зборува"
+          ],
+          "why": "\"ти\" (you) takes the -аш ending."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "зборуваш"
+        ]
+      }
+    },
+    "story:gen-s1-greet-intro-story-b#7": {
+      "pt-verbs-e-i": {
+        "words": [
+          "учам"
+        ],
+        "blank": {
+          "word": "учам",
+          "options": [
+            "учам",
+            "учиш",
+            "учи"
+          ],
+          "why": "\"I\" takes the -ам ending."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-b#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "\"Што\" asks what."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "пие"
+        ],
+        "blank": {
+          "word": "пие",
+          "options": [
+            "пие",
+            "пијат",
+            "пиеш"
+          ],
+          "why": "\"Ана\" (she) takes the -е ending."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "\"Каде\" asks where."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ],
+        "blank": {
+          "word": "одат",
+          "options": [
+            "одат",
+            "оди",
+            "одиш"
+          ],
+          "why": "two people (they) take the -ат ending."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-b#q2:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "Од",
+            "До"
+          ],
+          "why": "\"Во\" means to/into a place."
+        }
+      }
+    },
+    "qa:gen-s1-greet-intro-story-b#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "\"Што\" asks what."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "пиеш"
+        ],
+        "blank": {
+          "word": "пиеш",
+          "options": [
+            "пиеш",
+            "пијам",
+            "пие"
+          ],
+          "why": "\"you\" takes the -еш ending."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "пиеш"
+        ]
+      }
+    },
+    "qa:gen-s1-greet-intro-story-b#q3:a": {
+      "pt-verbs-e-i": {
+        "words": [
+          "Пијам"
+        ],
+        "blank": {
+          "word": "Пијам",
+          "options": [
+            "Пијам",
+            "Пиеш",
+            "Пие"
+          ],
+          "why": "\"I\" takes the -ам ending."
+        }
+      }
+    },
+    "scenario:gen-s1-greet-intro-convo-b#9": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сум"
+          ],
+          "why": "\"Тие\" (they) take \"се\"."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Вие",
+          "знаете"
+        ]
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "знаете"
+        ],
+        "blank": {
+          "word": "знаете",
+          "options": [
+            "знаете",
+            "знаеш",
+            "знам"
+          ],
+          "why": "\"Вие\" (you plural) takes the -ете ending."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "од"
+        ],
+        "blank": {
+          "word": "од",
+          "options": [
+            "од",
+            "во",
+            "со"
+          ],
+          "why": "\"од\" means from."
+        }
+      }
+    },
+    "scenario:gen-s1-greet-intro-convo-b#10": {
+      "pt-verbs-e-i": {
+        "words": [
+          "знаеме"
+        ],
+        "blank": {
+          "word": "знаеме",
+          "options": [
+            "знаеме",
+            "знаеш",
+            "знам"
+          ],
+          "why": "\"we\" takes the -еме ending."
+        }
+      }
+    },
+    "story:gen-s1-market-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "three people (they) take \"се\"."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "\"на\" means at (the market)."
+        }
+      }
+    },
+    "story:gen-s1-market-story-a#1": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "\"Што\" asks what."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакате"
+        ],
+        "blank": {
+          "word": "сакате",
+          "options": [
+            "сакате",
+            "сакаш",
+            "сакам"
+          ],
+          "why": "polite/plural \"you\" takes the -ате ending."
+        }
+      }
+    },
+    "story:gen-s1-market-story-a#2": {
+      "pt-verbs-a": {
+        "words": [
+          "земам"
+        ],
+        "blank": {
+          "word": "земам",
+          "options": [
+            "земам",
+            "земаш",
+            "зема"
+          ],
+          "why": "\"Јас\" (I) takes the -ам ending."
+        }
+      }
+    },
+    "story:gen-s1-market-story-a#3": {
+      "pt-verbs-a": {
+        "words": [
+          "земаш"
+        ],
+        "blank": {
+          "word": "земаш",
+          "options": [
+            "земаш",
+            "земам",
+            "зема"
+          ],
+          "why": "\"ти\" (you) takes the -аш ending."
+        }
+      }
+    },
+    "story:gen-s1-market-story-a#4": {
+      "pt-the": {
+        "words": [
+          "Сирењето",
+          "Лебот"
+        ],
+        "blank": {
+          "word": "Лебот",
+          "options": [
+            "Лебот",
+            "Леб",
+            "Лебта"
+          ],
+          "why": "\"Bread\" is masculine, so \"the\" is the ending -от."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е",
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing (the bread) uses е."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "скапо",
+          "евтин"
+        ]
+      }
+    },
+    "story:gen-s1-market-story-a#5": {
+      "pt-the": {
+        "words": [
+          "Јаболката"
+        ]
+      },
+      "pt-plurals": {
+        "words": [
+          "Јаболката"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сте"
+          ],
+          "why": "More than one (apples) uses се."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "евтини"
+        ]
+      },
+      "pt-go-ja-gi": {
+        "words": [
+          "Ги"
+        ],
+        "blank": {
+          "word": "Ги",
+          "options": [
+            "Ги",
+            "Го",
+            "Ја"
+          ],
+          "why": "\"Them\" (the apples) is ги."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "земаме"
+        ],
+        "blank": {
+          "word": "земаме",
+          "options": [
+            "земаме",
+            "земам",
+            "земаат"
+          ],
+          "why": "\"We\" take ends in -ме."
+        }
+      }
+    },
+    "story:gen-s1-market-story-a#6": {
+      "pt-go-ja-gi": {
+        "words": [
+          "ги"
+        ],
+        "blank": {
+          "word": "ги",
+          "options": [
+            "ги",
+            "го",
+            "ја"
+          ],
+          "why": "\"Them\" (apples) is ги."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "земаат"
+        ],
+        "blank": {
+          "word": "земаат",
+          "options": [
+            "земаат",
+            "земам",
+            "земаме"
+          ],
+          "why": "\"They\" take ends in -ат."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "јаболката"
+        ]
+      },
+      "pt-plurals": {
+        "words": [
+          "јаболката"
+        ]
+      }
+    },
+    "story:gen-s1-market-story-a#7": {
+      "pt-go-ja-gi": {
+        "words": [
+          "го"
+        ],
+        "blank": {
+          "word": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "The cheese is one neuter thing, so го."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "зема"
+        ],
+        "blank": {
+          "word": "зема",
+          "options": [
+            "зема",
+            "земам",
+            "земаат"
+          ],
+          "why": "\"He\" takes has no personal ending: зема."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "сирењето"
+        ]
+      }
+    },
+    "qa:gen-s1-market-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кој"
+          ],
+          "why": "Asking \"what\" uses Што."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "земаат"
+        ],
+        "blank": {
+          "word": "земаат",
+          "options": [
+            "земаат",
+            "земам",
+            "земаме"
+          ],
+          "why": "\"They\" take ends in -ат."
+        }
+      }
+    },
+    "qa:gen-s1-market-story-a#q1:a": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Ги"
+        ],
+        "blank": {
+          "word": "Ги",
+          "options": [
+            "Ги",
+            "Го",
+            "Ја"
+          ],
+          "why": "\"Them\" (apples) is ги."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "земаат"
+        ],
+        "blank": {
+          "word": "земаат",
+          "options": [
+            "земаат",
+            "земам",
+            "земаме"
+          ],
+          "why": "\"They\" take ends in -ат."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "јаболката"
+        ]
+      },
+      "pt-plurals": {
+        "words": [
+          "јаболката"
+        ]
+      }
+    },
+    "qa:gen-s1-market-story-a#q2:q": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing (the cheese) uses е."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "сирењето"
+        ]
+      }
+    },
+    "qa:gen-s1-market-story-a#q2:a": {
+      "pt-adjectives": {
+        "words": [
+          "Скапо"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing uses е."
+        }
+      }
+    },
+    "qa:gen-s1-market-story-a#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "Asking \"what\" uses Што."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "земаш"
+        ],
+        "blank": {
+          "word": "земаш",
+          "options": [
+            "земаш",
+            "земам",
+            "земаат"
+          ],
+          "why": "\"You\" take ends in -ш."
+        }
+      }
+    },
+    "qa:gen-s1-market-story-a#q3:a": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Го"
+        ],
+        "blank": {
+          "word": "Го",
+          "options": [
+            "Го",
+            "Ја",
+            "Ги"
+          ],
+          "why": "The bread is one masculine thing, so го."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "земам"
+        ],
+        "blank": {
+          "word": "земам",
+          "options": [
+            "земам",
+            "земаш",
+            "земаат"
+          ],
+          "why": "\"I\" take ends in -м."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "лебот"
+        ],
+        "blank": {
+          "word": "лебот",
+          "options": [
+            "лебот",
+            "леб",
+            "лебта"
+          ],
+          "why": "\"Bread\" is masculine, so \"the\" is -от."
+        }
+      }
+    },
+    "story:gen-s1-market-story-b#0": {
+      "pt-verbs-e-i": {
+        "words": [
+          "пијат"
+        ],
+        "blank": {
+          "word": "пијат",
+          "options": [
+            "пијат",
+            "пијам",
+            "пие"
+          ],
+          "why": "\"They\" drink ends in -ат."
+        }
+      }
+    },
+    "story:gen-s1-market-story-b#1": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Го"
+        ],
+        "blank": {
+          "word": "Го",
+          "options": [
+            "Го",
+            "Ја",
+            "Ги"
+          ],
+          "why": "The coffee is one neuter thing, so го."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаш"
+        ],
+        "blank": {
+          "word": "сакаш",
+          "options": [
+            "сакаш",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"You\" like ends in -ш."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "A yes/no question uses ли right after the verb."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "кафето"
+        ],
+        "blank": {
+          "word": "кафето",
+          "options": [
+            "кафето",
+            "кафеот",
+            "сокот"
+          ],
+          "why": "\"Coffee\" is neuter, so \"the\" is -то."
+        }
+      }
+    },
+    "story:gen-s1-market-story-b#2": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Го"
+        ],
+        "blank": {
+          "word": "Го",
+          "options": [
+            "Го",
+            "Ја",
+            "Ги"
+          ],
+          "why": "\"It\" (the coffee) is го."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакам"
+        ],
+        "blank": {
+          "word": "сакам",
+          "options": [
+            "сакам",
+            "сакаш",
+            "сака"
+          ],
+          "why": "\"I\" like ends in -м."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "Добро"
+        ],
+        "blank": {
+          "word": "Добро",
+          "options": [
+            "Добро",
+            "Добар",
+            "Добра"
+          ],
+          "why": "It (coffee, neuter) takes добро."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing uses е."
+        }
+      }
+    },
+    "story:gen-s1-market-story-b#3": {
+      "pt-the": {
+        "words": [
+          "Чајот"
+        ]
+      },
+      "pt-ne": {
+        "words": [
+          "не",
+          "Не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "Put не before the verb to say \"not\"."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing (the tea) uses е."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "добар"
+        ],
+        "blank": {
+          "word": "добар",
+          "options": [
+            "добар",
+            "добра",
+            "добро"
+          ],
+          "why": "Tea is masculine, so добар."
+        }
+      },
+      "pt-go-ja-gi": {
+        "words": [
+          "го"
+        ],
+        "blank": {
+          "word": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "\"It\" (the tea) is го."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакам"
+        ],
+        "blank": {
+          "word": "сакам",
+          "options": [
+            "сакам",
+            "сакаш",
+            "сака"
+          ],
+          "why": "\"I\" like ends in -м."
+        }
+      }
+    },
+    "story:gen-s1-market-story-b#4": {
+      "pt-verbs-e-i": {
+        "words": [
+          "пијат"
+        ],
+        "blank": {
+          "word": "пијат",
+          "options": [
+            "пијат",
+            "пијам",
+            "пие"
+          ],
+          "why": "\"They\" drink ends in -ат."
+        }
+      }
+    },
+    "story:gen-s1-market-story-b#5": {
+      "pt-the": {
+        "words": [
+          "Пивата"
+        ],
+        "blank": {
+          "word": "Пивата",
+          "options": [
+            "Пивата",
+            "Пивото",
+            "Пива"
+          ],
+          "why": "\"The beers\" (plural) takes -та."
+        }
+      },
+      "pt-plurals": {
+        "words": [
+          "Пивата"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сте"
+          ],
+          "why": "More than one (beers) uses се."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "евтини"
+        ]
+      }
+    },
+    "story:gen-s1-market-story-b#6": {
+      "pt-go-ja-gi": {
+        "words": [
+          "ги"
+        ],
+        "blank": {
+          "word": "ги",
+          "options": [
+            "ги",
+            "го",
+            "ја"
+          ],
+          "why": "\"Them\" (the beers) is ги."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакате"
+        ],
+        "blank": {
+          "word": "сакате",
+          "options": [
+            "сакате",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"You\" (plural) like ends in -те."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "A yes/no question uses ли after the verb."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "пивата"
+        ],
+        "blank": {
+          "word": "пивата",
+          "options": [
+            "пивата",
+            "пивото",
+            "пива"
+          ],
+          "why": "\"The beers\" (plural) takes -та."
+        }
+      },
+      "pt-plurals": {
+        "words": [
+          "пивата"
+        ]
+      }
+    },
+    "story:gen-s1-market-story-b#7": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Ги"
+        ],
+        "blank": {
+          "word": "Ги",
+          "options": [
+            "Ги",
+            "Го",
+            "Ја"
+          ],
+          "why": "\"Them\" (the beers) is ги."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаме"
+        ],
+        "blank": {
+          "word": "сакаме",
+          "options": [
+            "сакаме",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"We\" like ends in -ме."
+        }
+      }
+    },
+    "qa:gen-s1-market-story-b#q1:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "Што",
+            "Каде"
+          ],
+          "why": "A yes/no question can start with Дали."
+        }
+      },
+      "pt-go-ja-gi": {
+        "words": [
+          "го"
+        ],
+        "blank": {
+          "word": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "\"It\" (the tea) is го."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сака"
+        ],
+        "blank": {
+          "word": "сака",
+          "options": [
+            "сака",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"He\" likes has no personal ending: сака."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "чајот"
+        ]
+      }
+    },
+    "qa:gen-s1-market-story-b#q1:a": {
+      "pt-ne": {
+        "words": [
+          "Не",
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "Put не before the verb to say \"doesn't\"."
+        }
+      },
+      "pt-go-ja-gi": {
+        "words": [
+          "го"
+        ],
+        "blank": {
+          "word": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "\"It\" (the tea) is го."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сака"
+        ],
+        "blank": {
+          "word": "сака",
+          "options": [
+            "сака",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"He\" likes has no personal ending: сака."
+        }
+      }
+    },
+    "qa:gen-s1-market-story-b#q2:q": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сте"
+          ],
+          "why": "More than one (beers) uses се."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "пивата"
+        ],
+        "blank": {
+          "word": "пивата",
+          "options": [
+            "пивата",
+            "пивото",
+            "пива"
+          ],
+          "why": "\"The beers\" (plural) takes -та."
+        }
+      },
+      "pt-plurals": {
+        "words": [
+          "пивата"
+        ]
+      }
+    },
+    "qa:gen-s1-market-story-b#q2:a": {
+      "pt-adjectives": {
+        "words": [
+          "Евтини"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сте"
+          ],
+          "why": "\"They\" uses се."
+        }
+      }
+    },
+    "qa:gen-s1-market-story-b#q3:q": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Ги"
+        ],
+        "blank": {
+          "word": "Ги",
+          "options": [
+            "Ги",
+            "Го",
+            "Ја"
+          ],
+          "why": "\"Them\" (the beers) is ги."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакате"
+        ],
+        "blank": {
+          "word": "сакате",
+          "options": [
+            "сакате",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"You\" (plural) like ends in -те."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "A yes/no question uses ли after the verb."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "пивата"
+        ],
+        "blank": {
+          "word": "пивата",
+          "options": [
+            "пивата",
+            "пивото",
+            "пива"
+          ],
+          "why": "\"The beers\" (plural) takes -та."
+        }
+      },
+      "pt-plurals": {
+        "words": [
+          "пивата"
+        ]
+      }
+    },
+    "qa:gen-s1-market-story-b#q3:a": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Ги"
+        ],
+        "blank": {
+          "word": "Ги",
+          "options": [
+            "Ги",
+            "Го",
+            "Ја"
+          ],
+          "why": "\"Them\" (the beers) is ги."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "сакаме"
+        ],
+        "blank": {
+          "word": "сакаме",
+          "options": [
+            "сакаме",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"We\" like ends in -ме."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сте"
+          ],
+          "why": "More than one (Ana and Marko) uses се."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "\"In\" the centre uses во."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "центарот"
+        ]
+      }
+    },
+    "story:gen-s1-directions-story-a#1": {
+      "pt-commands": {
+        "words": [
+          "Извинете"
+        ],
+        "blank": {
+          "word": "Извинете",
+          "options": [
+            "Извинете",
+            "Кажете",
+            "Свртете"
+          ],
+          "why": "\"Excuse me\" (polite) is Извинете."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "Asking \"where\" uses каде."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing (the market) uses е."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "пазарот"
+        ]
+      }
+    },
+    "story:gen-s1-directions-story-a#2": {
+      "pt-ti-vie": {
+        "words": [
+          "Вие",
+          "одите"
+        ]
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одите"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "Going \"to\" the market uses на."
+        }
+      },
+      "pt-commands": {
+        "words": [
+          "Одете",
+          "свртете"
+        ],
+        "blank": {
+          "word": "Одете",
+          "options": [
+            "Одете",
+            "Свртете",
+            "Кажете"
+          ],
+          "why": "A polite \"go\" command is Одете."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-a#3": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing uses е."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "Близу"
+        ]
+      }
+    },
+    "story:gen-s1-directions-story-a#4": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "One thing uses е."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "близу"
+        ]
+      }
+    },
+    "story:gen-s1-directions-story-a#5": {
+      "pt-commands": {
+        "words": [
+          "оди"
+        ],
+        "blank": {
+          "word": "оди",
+          "options": [
+            "оди",
+            "одете",
+            "одиш"
+          ],
+          "why": "An informal \"go!\" command to one friend is оди."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-a#6": {
+      "pt-commands": {
+        "words": [
+          "оди"
+        ],
+        "blank": {
+          "word": "оди",
+          "options": [
+            "оди",
+            "одете",
+            "одиш"
+          ],
+          "why": "Telling one friend, so the informal command."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одам"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "на"
+          ],
+          "why": "\"with/by\" bus uses со."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-a#7": {
+      "pt-verbs-e-i": {
+        "words": [
+          "одиме"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "на"
+          ],
+          "why": "\"by\" bus uses со."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-a#8": {
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "на",
+          "со"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "до"
+          ],
+          "why": "going to the market uses на."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Како"
+          ],
+          "why": "Asking about a place: where."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      }
+    },
+    "qa:gen-s1-directions-story-a#q1:a": {
+      "pt-prepositions": {
+        "words": [
+          "На"
+        ],
+        "blank": {
+          "word": "На",
+          "options": [
+            "На",
+            "Во",
+            "До"
+          ],
+          "why": "\"to the market\" uses на."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-a#q2:q": {
+      "pt-prepositions": {
+        "words": [
+          "Со"
+        ],
+        "blank": {
+          "word": "Со",
+          "options": [
+            "Со",
+            "Во",
+            "На"
+          ],
+          "why": "\"by what\" uses со."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "што"
+        ],
+        "blank": {
+          "word": "што",
+          "options": [
+            "што",
+            "кој",
+            "каде"
+          ],
+          "why": "Asking about a thing: what."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      }
+    },
+    "qa:gen-s1-directions-story-a#q2:a": {
+      "pt-prepositions": {
+        "words": [
+          "Со"
+        ],
+        "blank": {
+          "word": "Со",
+          "options": [
+            "Со",
+            "Во",
+            "На"
+          ],
+          "why": "\"by\" bus uses со."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-a#q3:q": {
+      "pt-commands": {
+        "words": [
+          "Кажи"
+        ],
+        "blank": {
+          "word": "Кажи",
+          "options": [
+            "Кажи",
+            "Кажете",
+            "Свртете"
+          ],
+          "why": "Telling one friend, informal command."
+        }
+      },
+      "pt-mi-ti-mu": {
+        "words": [
+          "му"
+        ],
+        "blank": {
+          "word": "му",
+          "options": [
+            "му",
+            "ми",
+            "ѝ"
+          ],
+          "why": "\"to him\" (Marko) is му."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "со"
+          ],
+          "why": "on/to a person uses на."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-a#q3:a": {
+      "pt-commands": {
+        "words": [
+          "Оди"
+        ],
+        "blank": {
+          "word": "Оди",
+          "options": [
+            "Оди",
+            "Одете",
+            "Одиш"
+          ],
+          "why": "Informal command to one person."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-b#0": {
+      "pt-verbs-a": {
+        "words": [
+          "сака"
+        ],
+        "blank": {
+          "word": "сака",
+          "options": [
+            "сака",
+            "сакам",
+            "сакаат"
+          ],
+          "why": "\"she wants\" ends in -а."
+        }
+      },
+      "pt-da": {
+        "words": [
+          "да"
+        ],
+        "blank": {
+          "word": "да",
+          "options": [
+            "да",
+            "не",
+            "ли"
+          ],
+          "why": "да links \"wants\" to the next verb."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "оди"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "од",
+          "до"
+        ],
+        "blank": {
+          "word": "од",
+          "options": [
+            "од",
+            "до",
+            "со"
+          ],
+          "why": "\"from\" Skopje uses од."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-b#1": {
+      "pt-question-words": {
+        "words": [
+          "како"
+        ],
+        "blank": {
+          "word": "како",
+          "options": [
+            "како",
+            "каде",
+            "што"
+          ],
+          "why": "Asking in what way: how."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одам"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "до"
+        ],
+        "blank": {
+          "word": "до",
+          "options": [
+            "до",
+            "од",
+            "со"
+          ],
+          "why": "\"to\" Bitola uses до."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-b#2": {
+      "pt-verbs-e-i": {
+        "words": [
+          "одиш"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "на"
+          ],
+          "why": "\"by\" bus uses со."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "Автобусот"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "\"the bus\" is one thing: е."
+        }
+      },
+      "pt-more-most": {
+        "words": [
+          "подобар"
+        ],
+        "blank": {
+          "word": "подобар",
+          "options": [
+            "подобар",
+            "најдобар",
+            "добар"
+          ],
+          "why": "Comparing two: better = по-."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-b#3": {
+      "pt-the": {
+        "words": [
+          "Таксито"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "one thing (the taxi) takes е."
+        }
+      },
+      "pt-more-most": {
+        "words": [
+          "побрзо"
+        ],
+        "blank": {
+          "word": "побрзо",
+          "options": [
+            "побрзо",
+            "најбрзо",
+            "брзо"
+          ],
+          "why": "\"faster\" uses по-."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-b#4": {
+      "pt-more-most": {
+        "words": [
+          "побрзо"
+        ],
+        "blank": {
+          "word": "побрзо",
+          "options": [
+            "побрзо",
+            "најбрзо",
+            "брзо"
+          ],
+          "why": "\"faster\" uses по-."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "one thing takes е."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-b#5": {
+      "pt-verbs-e-i": {
+        "words": [
+          "одиме",
+          "одите"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со",
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "на"
+          ],
+          "why": "\"by\" bus/taxi uses со."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "вие",
+          "одите"
+        ]
+      }
+    },
+    "story:gen-s1-directions-story-b#6": {
+      "pt-verbs-e-i": {
+        "words": [
+          "одиме"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "на"
+          ],
+          "why": "\"by\" bus uses со."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "Тоа",
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "се",
+            "сум"
+          ],
+          "why": "\"that\" is one thing: е."
+        }
+      },
+      "pt-more-most": {
+        "words": [
+          "најдобро"
+        ],
+        "blank": {
+          "word": "најдобро",
+          "options": [
+            "најдобро",
+            "подобро",
+            "добро"
+          ],
+          "why": "\"best\" uses нај-."
+        }
+      }
+    },
+    "story:gen-s1-directions-story-b#7": {
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со",
+          "до"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "на"
+          ],
+          "why": "\"by\" bus uses со."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-b#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Кој",
+            "Каде"
+          ],
+          "why": "Asking about a thing: what."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "се",
+            "сум"
+          ],
+          "why": "one thing takes е."
+        }
+      },
+      "pt-more-most": {
+        "words": [
+          "побрзо"
+        ],
+        "blank": {
+          "word": "побрзо",
+          "options": [
+            "побрзо",
+            "најбрзо",
+            "брзо"
+          ],
+          "why": "\"faster\" uses по-."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-b#q1:a": {
+      "pt-the": {
+        "words": [
+          "Таксито"
+        ]
+      }
+    },
+    "qa:gen-s1-directions-story-b#q2:q": {
+      "pt-prepositions": {
+        "words": [
+          "Со"
+        ],
+        "blank": {
+          "word": "Со",
+          "options": [
+            "Со",
+            "Во",
+            "На"
+          ],
+          "why": "\"by what\" uses со."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "што"
+        ],
+        "blank": {
+          "word": "што",
+          "options": [
+            "што",
+            "кој",
+            "каде"
+          ],
+          "why": "Asking about a thing: what."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      }
+    },
+    "qa:gen-s1-directions-story-b#q2:a": {
+      "pt-prepositions": {
+        "words": [
+          "Со"
+        ],
+        "blank": {
+          "word": "Со",
+          "options": [
+            "Со",
+            "Во",
+            "На"
+          ],
+          "why": "\"by\" bus uses со."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-b#q3:q": {
+      "pt-question-words": {
+        "words": [
+          "Како"
+        ],
+        "blank": {
+          "word": "Како",
+          "options": [
+            "Како",
+            "Каде",
+            "Што"
+          ],
+          "why": "Asking in what way: how."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одиш"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "до"
+        ],
+        "blank": {
+          "word": "до",
+          "options": [
+            "до",
+            "од",
+            "со"
+          ],
+          "why": "\"to\" Bitola uses до."
+        }
+      }
+    },
+    "qa:gen-s1-directions-story-b#q3:a": {
+      "pt-prepositions": {
+        "words": [
+          "Со"
+        ],
+        "blank": {
+          "word": "Со",
+          "options": [
+            "Со",
+            "Во",
+            "На"
+          ],
+          "why": "\"by\" bus uses со."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "сме",
+            "е"
+          ],
+          "why": "Several people (they) take се."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "\"in\" the centre uses во."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "центарот"
+        ]
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#1": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "ви",
+          "се"
+        ],
+        "blank": {
+          "word": "ви",
+          "options": [
+            "ви",
+            "ми",
+            "ни"
+          ],
+          "why": "\"to you\" (both of them) is ви."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "ли after the verb makes a yes/no question."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#2": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "ни",
+          "се"
+        ],
+        "blank": {
+          "word": "ни",
+          "options": [
+            "ни",
+            "ми",
+            "ти"
+          ],
+          "why": "\"to us\" is ни."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#3": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "ти",
+          "се"
+        ],
+        "blank": {
+          "word": "ти",
+          "options": [
+            "ти",
+            "ми",
+            "му"
+          ],
+          "why": "\"to you\" (one person) is ти."
+        }
+      },
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "ли after the verb makes a yes/no question."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#4": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "Ми",
+          "ѝ"
+        ],
+        "blank": {
+          "word": "Ми",
+          "options": [
+            "Ми",
+            "Ти",
+            "Му"
+          ],
+          "why": "\"to me\" is ми."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "На"
+        ],
+        "blank": {
+          "word": "На",
+          "options": [
+            "На",
+            "Во",
+            "Со"
+          ],
+          "why": "on/for a person uses на."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#5": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "им"
+        ],
+        "blank": {
+          "word": "им",
+          "options": [
+            "им",
+            "ми",
+            "му"
+          ],
+          "why": "\"to them\" is им."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "На"
+        ],
+        "blank": {
+          "word": "На",
+          "options": [
+            "На",
+            "Во",
+            "Со"
+          ],
+          "why": "on/for people uses на."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "дождот"
+        ]
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#6": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "не before the verb makes it negative."
+        }
+      },
+      "pt-mi-ti-mu": {
+        "words": [
+          "ни",
+          "се"
+        ],
+        "blank": {
+          "word": "ни",
+          "options": [
+            "ни",
+            "ми",
+            "ти"
+          ],
+          "why": "\"to us\" is ни."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "дождот"
+        ]
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#7": {
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "да",
+            "не"
+          ],
+          "why": "ќе marks the future 'will'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одиме"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "во means into/to a place."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#8": {
+      "pt-future": {
+        "words": [
+          "Ќе"
+        ]
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одите"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "на"
+          ],
+          "why": "со means with/by (by bus)."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-a#9": {
+      "pt-future": {
+        "words": [
+          "нема",
+          "Ќе"
+        ],
+        "blank": {
+          "word": "нема",
+          "options": [
+            "нема",
+            "ќе",
+            "да"
+          ],
+          "why": "нема да makes the negative future 'won't'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одиме"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "до"
+          ],
+          "why": "со means by (by taxi)."
+        }
+      }
+    },
+    "qa:gen-s2-smalltalk-story-a#q1:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "Што",
+            "Каде"
+          ],
+          "why": "Дали opens a yes/no question."
+        }
+      },
+      "pt-mi-ti-mu": {
+        "words": [
+          "им"
+        ],
+        "blank": {
+          "word": "им",
+          "options": [
+            "им",
+            "ми",
+            "ни"
+          ],
+          "why": "им means 'to them'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "до"
+          ],
+          "why": "на marks 'to' the people here."
+        }
+      }
+    },
+    "qa:gen-s2-smalltalk-story-a#q1:a": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "им"
+        ],
+        "blank": {
+          "word": "им",
+          "options": [
+            "им",
+            "ми",
+            "му"
+          ],
+          "why": "им means 'to them'."
+        }
+      }
+    },
+    "qa:gen-s2-smalltalk-story-a#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "Каде asks 'where'."
+        }
+      },
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "да",
+            "не"
+          ],
+          "why": "ќе marks the future 'will'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      }
+    },
+    "qa:gen-s2-smalltalk-story-a#q2:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ]
+      }
+    },
+    "qa:gen-s2-smalltalk-story-a#q3:q": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "Ти"
+        ],
+        "blank": {
+          "word": "Ти",
+          "options": [
+            "Ти",
+            "Ми",
+            "Му"
+          ],
+          "why": "Ти means 'to you'."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "дождот"
+        ]
+      }
+    },
+    "qa:gen-s2-smalltalk-story-a#q3:a": {
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "не before the verb says 'not'."
+        }
+      },
+      "pt-mi-ti-mu": {
+        "words": [
+          "ми"
+        ],
+        "blank": {
+          "word": "ми",
+          "options": [
+            "ми",
+            "ти",
+            "му"
+          ],
+          "why": "ми means 'to me'."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#0": {
+      "pt-the": {
+        "words": [
+          "времето"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "сте"
+          ],
+          "why": "е is the 'is' form for it."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "убаво"
+        ],
+        "blank": {
+          "word": "убаво",
+          "options": [
+            "убаво",
+            "добра",
+            "добри"
+          ],
+          "why": "neuter -о to match времето."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#1": {
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "да",
+            "не"
+          ],
+          "why": "ќе marks the future 'will'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одиш"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "на means to/at the market."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#2": {
+      "pt-future": {
+        "words": [
+          "Ќе"
+        ]
+      },
+      "pt-plurals": {
+        "words": [
+          "јаболка"
+        ]
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#3": {
+      "pt-future": {
+        "words": [
+          "нема"
+        ],
+        "blank": {
+          "word": "нема",
+          "options": [
+            "нема",
+            "ќе",
+            "да"
+          ],
+          "why": "нема да makes 'won't go'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "оди",
+          "работи"
+        ],
+        "blank": {
+          "word": "работи",
+          "options": [
+            "работи",
+            "работиш",
+            "оди"
+          ],
+          "why": "работи is the he-form ending -и."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#4": {
+      "pt-future": {
+        "words": [
+          "нема"
+        ],
+        "blank": {
+          "word": "нема",
+          "options": [
+            "нема",
+            "ќе",
+            "да"
+          ],
+          "why": "нема да makes 'won't'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одите"
+        ]
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#5": {
+      "pt-future": {
+        "words": [
+          "нема"
+        ],
+        "blank": {
+          "word": "нема",
+          "options": [
+            "нема",
+            "ќе",
+            "да"
+          ],
+          "why": "нема да makes 'won't go'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одиме"
+        ]
+      },
+      "pt-ne": {
+        "words": [
+          "Не"
+        ]
+      },
+      "pt-mi-ti-mu": {
+        "words": [
+          "ни"
+        ],
+        "blank": {
+          "word": "ни",
+          "options": [
+            "ни",
+            "ми",
+            "ти"
+          ],
+          "why": "ни means 'to us'."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "пазарот"
+        ]
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#6": {
+      "pt-verbs-e-i": {
+        "words": [
+          "Мислам"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "сте"
+          ],
+          "why": "е is the 'is' form."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "убаво"
+        ],
+        "blank": {
+          "word": "убаво",
+          "options": [
+            "убаво",
+            "добра",
+            "добри"
+          ],
+          "why": "neuter -о form for 'it is nice'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "со"
+          ],
+          "why": "на means at the market."
+        }
+      }
+    },
+    "story:gen-s2-smalltalk-story-b#7": {
+      "pt-se": {
+        "words": [
+          "Се",
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "this verb always carries се."
+        }
+      },
+      "pt-future": {
+        "words": [
+          "Ќе"
+        ]
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "видиме"
+        ]
+      }
+    },
+    "qa:gen-s2-smalltalk-story-b#q1:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "Што",
+            "Каде"
+          ],
+          "why": "Дали opens a yes/no question."
+        }
+      },
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "да",
+            "не"
+          ],
+          "why": "ќе marks the future 'will'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "оди"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "на means to the market."
+        }
+      }
+    },
+    "qa:gen-s2-smalltalk-story-b#q1:a": {
+      "pt-verbs-e-i": {
+        "words": [
+          "работи"
+        ],
+        "blank": {
+          "word": "работи",
+          "options": [
+            "работи",
+            "работиш",
+            "оди"
+          ],
+          "why": "работи is the he-form ending -и."
+        }
+      }
+    },
+    "qa:gen-s2-smalltalk-story-b#q2:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "Што",
+            "Каде"
+          ],
+          "why": "Дали opens a yes/no question."
+        }
+      },
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "да",
+            "не"
+          ],
+          "why": "ќе marks the future 'will'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      }
+    },
+    "qa:gen-s2-smalltalk-story-b#q2:a": {
+      "pt-future": {
+        "words": [
+          "нема"
+        ],
+        "blank": {
+          "word": "нема",
+          "options": [
+            "нема",
+            "ќе",
+            "да"
+          ],
+          "why": "нема да makes 'won't'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одат"
+        ]
+      }
+    },
+    "qa:gen-s2-smalltalk-story-b#q3:q": {
+      "pt-future": {
+        "words": [
+          "Ќе"
+        ]
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одиш"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "на means to the market."
+        }
+      }
+    },
+    "qa:gen-s2-smalltalk-story-b#q3:a": {
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "да",
+            "не"
+          ],
+          "why": "ќе marks the future 'will'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "одам"
+        ]
+      }
+    },
+    "story:gen-s2-pasttime-story-a#0": {
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "имаше"
+          ],
+          "why": "беше = she was."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "во means in Ohrid."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-a#1": {
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кој"
+          ],
+          "why": "каде asks 'where'."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "имаше"
+          ],
+          "why": "беше = you/he were."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "ти"
+        ]
+      }
+    },
+    "story:gen-s2-pasttime-story-a#2": {
+      "pt-past": {
+        "words": [
+          "Бев",
+          "Јадев",
+          "читав"
+        ],
+        "blank": {
+          "word": "читав",
+          "options": [
+            "читав",
+            "чита",
+            "гледав"
+          ],
+          "why": "-в ending means 'I' in the past."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "во means in Skopje."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-a#3": {
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "имаше"
+          ],
+          "why": "беше = she was."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "од"
+          ],
+          "why": "во means in Skopje."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-a#4": {
+      "pt-past": {
+        "words": [
+          "отиде"
+        ],
+        "blank": {
+          "word": "отиде",
+          "options": [
+            "отиде",
+            "Отидов",
+            "имаше"
+          ],
+          "why": "отиде = she went."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "на means to the market."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-a#5": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "Што asks 'what'."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "правеше"
+        ]
+      }
+    },
+    "story:gen-s2-pasttime-story-a#6": {
+      "pt-past": {
+        "words": [
+          "Јадеше"
+        ]
+      }
+    },
+    "story:gen-s2-pasttime-story-a#7": {
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "„каде“ asks about place — where."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "бевте"
+        ],
+        "blank": {
+          "word": "бевте",
+          "options": [
+            "бевте",
+            "бев",
+            "беше"
+          ],
+          "why": "„бевте“ is the past 'you (plural) were'."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "бевте",
+          "вие"
+        ]
+      }
+    },
+    "story:gen-s2-pasttime-story-a#8": {
+      "pt-past": {
+        "words": [
+          "бевме"
+        ],
+        "blank": {
+          "word": "бевме",
+          "options": [
+            "бевме",
+            "бев",
+            "беше"
+          ],
+          "why": "„бевме“ is 'we were'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means in a place."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "„Каде“ asks where."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "беа"
+          ],
+          "why": "„беше“ is 'he was'."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-a#q1:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "Со"
+          ],
+          "why": "„Во“ means in a place."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-a#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "„Каде“ asks where."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "беа"
+        ],
+        "blank": {
+          "word": "беа",
+          "options": [
+            "беа",
+            "беше",
+            "бев"
+          ],
+          "why": "„беа“ is 'they were'."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-a#q2:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "Со"
+          ],
+          "why": "„Во“ means in a place."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-a#q3:q": {
+      "pt-ti-vie": {
+        "words": [
+          "ти"
+        ]
+      },
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "„Каде“ asks where."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "бевте"
+          ],
+          "why": "„беше“ is 'you (one person) were'."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-a#q3:a": {
+      "pt-past": {
+        "words": [
+          "Бев"
+        ],
+        "blank": {
+          "word": "Бев",
+          "options": [
+            "Бев",
+            "Беше",
+            "Бевме"
+          ],
+          "why": "„Бев“ is 'I was'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means in a place."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-b#0": {
+      "pt-past": {
+        "words": [
+          "беа"
+        ],
+        "blank": {
+          "word": "беа",
+          "options": [
+            "беа",
+            "беше",
+            "бев"
+          ],
+          "why": "„беа“ is 'they were' for several people."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "со"
+          ],
+          "why": "„на кафе“ uses на for being out at something."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-b#1": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "„Што“ asks what."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "имавте"
+        ],
+        "blank": {
+          "word": "имавте",
+          "options": [
+            "имавте",
+            "имав",
+            "имаше"
+          ],
+          "why": "„имавте“ is 'you (plural) had'."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-b#2": {
+      "pt-past": {
+        "words": [
+          "имав"
+        ],
+        "blank": {
+          "word": "имав",
+          "options": [
+            "имав",
+            "имаше",
+            "имавте"
+          ],
+          "why": "„имав“ is 'I had'."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-b#3": {
+      "pt-past": {
+        "words": [
+          "имавме"
+        ],
+        "blank": {
+          "word": "имавме",
+          "options": [
+            "имавме",
+            "имав",
+            "имаше"
+          ],
+          "why": "„имавме“ is 'we had'."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-b#4": {
+      "pt-past": {
+        "words": [
+          "Јадевте"
+        ]
+      },
+      "pt-yes-no": {
+        "words": [
+          "ли"
+        ],
+        "blank": {
+          "word": "ли",
+          "options": [
+            "ли",
+            "дали",
+            "да"
+          ],
+          "why": "„ли“ right after the verb makes a yes/no question."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-b#5": {
+      "pt-past": {
+        "words": [
+          "јадевме",
+          "Отидовме"
+        ],
+        "blank": {
+          "word": "Отидовме",
+          "options": [
+            "Отидовме",
+            "Отидов",
+            "отиде"
+          ],
+          "why": "„Отидовме“ is 'we went'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means into/in a place."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "центарот"
+        ]
+      }
+    },
+    "story:gen-s2-pasttime-story-b#6": {
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "беа"
+          ],
+          "why": "„беше“ is 'he was'."
+        }
+      }
+    },
+    "story:gen-s2-pasttime-story-b#7": {
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "беа"
+          ],
+          "why": "„беше“ is 'he was'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means in a place."
+        }
+      },
+      "pt-future": {
+        "words": [
+          "ќе"
+        ],
+        "blank": {
+          "word": "ќе",
+          "options": [
+            "ќе",
+            "нема",
+            "не"
+          ],
+          "why": "„ќе“ makes the plain future."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "оди"
+        ]
+      }
+    },
+    "qa:gen-s2-pasttime-story-b#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "„Што“ asks what."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "имаше"
+        ],
+        "blank": {
+          "word": "имаше",
+          "options": [
+            "имаше",
+            "имав",
+            "имавме"
+          ],
+          "why": "„имаше“ is 'he had'."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "„Каде“ asks where."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "беше"
+        ],
+        "blank": {
+          "word": "беше",
+          "options": [
+            "беше",
+            "бев",
+            "беа"
+          ],
+          "why": "„беше“ is 'he was'."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-b#q2:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "Со"
+          ],
+          "why": "„Во“ means in a place."
+        }
+      }
+    },
+    "qa:gen-s2-pasttime-story-b#q3:q": {
+      "pt-ti-vie": {
+        "words": [
+          "вие"
+        ]
+      },
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "„Што“ asks what."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "јадевте"
+        ]
+      }
+    },
+    "qa:gen-s2-pasttime-story-b#q3:a": {
+      "pt-past": {
+        "words": [
+          "Јадевме"
+        ]
+      }
+    },
+    "qa:gen-s2-pasttime-story#q1:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "Со"
+          ],
+          "why": "„Во“ means to/in a place."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "паркот"
+        ]
+      }
+    },
+    "qa:gen-s2-pasttime-story#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "„Што“ asks what."
+        }
+      },
+      "pt-past": {
+        "words": [
+          "јадеше"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means in a place."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "паркот"
+        ]
+      }
+    },
+    "story:gen-s2-home-family-story-a#0": {
+      "pt-verbs-e-i": {
+        "words": [
+          "живеат"
+        ],
+        "blank": {
+          "word": "живеат",
+          "options": [
+            "живеат",
+            "живее",
+            "живееме"
+          ],
+          "why": "„живеат“ is 'they live'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means in a place."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-a#1": {
+      "pt-possessives": {
+        "words": [
+          "Мојата",
+          "мојот"
+        ],
+        "blank": {
+          "word": "Мојата",
+          "options": [
+            "Мојата",
+            "Мојот",
+            "Моето"
+          ],
+          "why": "„Мојата“ matches мајка, a feminine noun."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "живеат"
+        ],
+        "blank": {
+          "word": "живеат",
+          "options": [
+            "живеат",
+            "живее",
+            "живееме"
+          ],
+          "why": "„живеат“ is 'they live'."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-a#2": {
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "имаш"
+        ]
+      },
+      "pt-verbs-a": {
+        "words": [
+          "имаш"
+        ],
+        "blank": {
+          "word": "имаш",
+          "options": [
+            "имаш",
+            "имам",
+            "имате"
+          ],
+          "why": "„имаш“ is 'you (one person) have'."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-a#3": {
+      "pt-possessives": {
+        "words": [
+          "мојот"
+        ],
+        "blank": {
+          "word": "мојот",
+          "options": [
+            "мојот",
+            "мојата",
+            "моето"
+          ],
+          "why": "„мојот“ matches брат, a masculine noun."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "живее"
+        ],
+        "blank": {
+          "word": "живее",
+          "options": [
+            "живее",
+            "живеат",
+            "живееме"
+          ],
+          "why": "„живее“ is 'he lives'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means in a place."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-a#4": {
+      "pt-possessives": {
+        "words": [
+          "неговата"
+        ]
+      },
+      "pt-verbs-a": {
+        "words": [
+          "имаат"
+        ],
+        "blank": {
+          "word": "имаат",
+          "options": [
+            "имаат",
+            "има",
+            "имаме"
+          ],
+          "why": "„имаат“ is 'they have'."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "две"
+        ],
+        "blank": {
+          "word": "две",
+          "options": [
+            "две",
+            "два",
+            "три"
+          ],
+          "why": "„две“ is the form of 'two' used with деца."
+        }
+      },
+      "pt-irregular-plurals": {
+        "words": [
+          "деца"
+        ],
+        "blank": {
+          "word": "деца",
+          "options": [
+            "деца",
+            "дете",
+            "луѓе"
+          ],
+          "why": "„деца“ is the odd plural of дете (child)."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-a#5": {
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "„каде“ asks where."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "живеете"
+        ],
+        "blank": {
+          "word": "живеете",
+          "options": [
+            "живеете",
+            "живее",
+            "живееме"
+          ],
+          "why": "„живеете“ is 'you (plural) live'."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "живеете",
+          "вие"
+        ]
+      }
+    },
+    "story:gen-s2-home-family-story-a#6": {
+      "pt-verbs-e-i": {
+        "words": [
+          "живееме"
+        ],
+        "blank": {
+          "word": "живееме",
+          "options": [
+            "живееме",
+            "живее",
+            "живеат"
+          ],
+          "why": "„живееме“ is 'we live'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "„во“ means in a place."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-a#7": {
+      "pt-verbs-e-i": {
+        "words": [
+          "живеам"
+        ],
+        "blank": {
+          "word": "живеам",
+          "options": [
+            "живеам",
+            "живееш",
+            "живее"
+          ],
+          "why": "-ам means I (live)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "со"
+        ],
+        "blank": {
+          "word": "со",
+          "options": [
+            "со",
+            "во",
+            "од"
+          ],
+          "why": "со means with (my sister)."
+        }
+      },
+      "pt-possessives": {
+        "words": [
+          "мојата"
+        ],
+        "blank": {
+          "word": "мојата",
+          "options": [
+            "мојата",
+            "мојот",
+            "моето"
+          ],
+          "why": "сестра is feminine, so мојата."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-a#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "Каде asks where."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "живеат"
+        ],
+        "blank": {
+          "word": "живеат",
+          "options": [
+            "живеат",
+            "живее",
+            "живеам"
+          ],
+          "why": "Two people → they-form живеат."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-a#q1:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "Од",
+            "До"
+          ],
+          "why": "Во means in."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-a#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Колку"
+        ],
+        "blank": {
+          "word": "Колку",
+          "options": [
+            "Колку",
+            "Каде",
+            "Кога"
+          ],
+          "why": "Колку asks how many."
+        }
+      },
+      "pt-irregular-plurals": {
+        "words": [
+          "деца"
+        ],
+        "blank": {
+          "word": "деца",
+          "options": [
+            "деца",
+            "дете",
+            "луѓе"
+          ],
+          "why": "Plural of дете is деца."
+        }
+      },
+      "pt-ima-nema": {
+        "words": [
+          "има"
+        ],
+        "blank": {
+          "word": "има",
+          "options": [
+            "има",
+            "нема",
+            "Немам"
+          ],
+          "why": "има = has."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "братот"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "на shows possession (Ema's)."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-a#q2:a": {
+      "pt-numbers": {
+        "words": [
+          "Две"
+        ],
+        "blank": {
+          "word": "Две",
+          "options": [
+            "Две",
+            "Два",
+            "три"
+          ],
+          "why": "деца is non-masculine, so две."
+        }
+      },
+      "pt-irregular-plurals": {
+        "words": [
+          "деца"
+        ],
+        "blank": {
+          "word": "деца",
+          "options": [
+            "деца",
+            "дете",
+            "луѓе"
+          ],
+          "why": "Plural of дете is деца."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-a#q3:q": {
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "живееш"
+        ],
+        "blank": {
+          "word": "живееш",
+          "options": [
+            "живееш",
+            "живеете",
+            "живее"
+          ],
+          "why": "To one friend use the -ш form."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "Каде asks where."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "живееш"
+        ],
+        "blank": {
+          "word": "живееш",
+          "options": [
+            "живееш",
+            "живеам",
+            "живее"
+          ],
+          "why": "-ш means you (live)."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-a#q3:a": {
+      "pt-verbs-e-i": {
+        "words": [
+          "Живеам"
+        ],
+        "blank": {
+          "word": "Живеам",
+          "options": [
+            "Живеам",
+            "Живееш",
+            "Живее"
+          ],
+          "why": "-ам means I (live)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "од",
+            "до"
+          ],
+          "why": "во means in."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-b#0": {
+      "pt-possessives": {
+        "words": [
+          "нејзиниот"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "Two people → се."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "од",
+            "до"
+          ],
+          "why": "во means in."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "центарот"
+        ]
+      }
+    },
+    "story:gen-s2-home-family-story-b#1": {
+      "pt-gender": {
+        "words": [
+          "ова"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "се",
+            "сум"
+          ],
+          "why": "One person → е."
+        }
+      },
+      "pt-possessives": {
+        "words": [
+          "мојот"
+        ],
+        "blank": {
+          "word": "мојот",
+          "options": [
+            "мојот",
+            "мојата",
+            "моето"
+          ],
+          "why": "брат is masculine → мојот."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-b#2": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "ми"
+        ],
+        "blank": {
+          "word": "ми",
+          "options": [
+            "ми",
+            "ти",
+            "му"
+          ],
+          "why": "ми means to me (it pleases me)."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е",
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "е",
+            "сте"
+          ],
+          "why": "ти → си."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "Од means from."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "каде asks where."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-b#3": {
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "Од means from."
+        }
+      },
+      "pt-possessives": {
+        "words": [
+          "Мојата"
+        ],
+        "blank": {
+          "word": "Мојата",
+          "options": [
+            "Мојата",
+            "Мојот",
+            "Моето"
+          ],
+          "why": "мајка is feminine → Мојата."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "живее"
+        ],
+        "blank": {
+          "word": "живее",
+          "options": [
+            "живее",
+            "живеам",
+            "живееш"
+          ],
+          "why": "She lives → third-person живее."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-b#4": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Каде",
+            "Кога"
+          ],
+          "why": "Што asks what."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "работиш"
+        ],
+        "blank": {
+          "word": "работиш",
+          "options": [
+            "работиш",
+            "работи",
+            "работам"
+          ],
+          "why": "-ш means you (do)."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-b#5": {
+      "pt-verbs-e-i": {
+        "words": [
+          "Работам"
+        ],
+        "blank": {
+          "word": "Работам",
+          "options": [
+            "Работам",
+            "Работиш",
+            "Работи"
+          ],
+          "why": "-ам means I (work)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "од",
+            "до"
+          ],
+          "why": "во means in."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-b#6": {
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "работиш"
+        ]
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "работиш"
+        ],
+        "blank": {
+          "word": "работиш",
+          "options": [
+            "работиш",
+            "работам",
+            "работи"
+          ],
+          "why": "-ш means you (work)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "од",
+            "до"
+          ],
+          "why": "во means in."
+        }
+      }
+    },
+    "story:gen-s2-home-family-story-b#7": {
+      "pt-verbs-e-i": {
+        "words": [
+          "работам"
+        ],
+        "blank": {
+          "word": "работам",
+          "options": [
+            "работам",
+            "работиш",
+            "работи"
+          ],
+          "why": "-ам means I (work)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "од",
+            "до"
+          ],
+          "why": "во means in."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-b#q1:q": {
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "Од means from."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "каде"
+        ],
+        "blank": {
+          "word": "каде",
+          "options": [
+            "каде",
+            "што",
+            "кога"
+          ],
+          "why": "каде asks where."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "си",
+            "сум"
+          ],
+          "why": "One person Ivan → е."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-b#q1:a": {
+      "pt-prepositions": {
+        "words": [
+          "Од"
+        ],
+        "blank": {
+          "word": "Од",
+          "options": [
+            "Од",
+            "Во",
+            "До"
+          ],
+          "why": "Од means from."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Кога"
+          ],
+          "why": "Каде asks where."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "работи"
+        ],
+        "blank": {
+          "word": "работи",
+          "options": [
+            "работи",
+            "работиш",
+            "работам"
+          ],
+          "why": "She works → third-person работи."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-b#q2:a": {
+      "pt-prepositions": {
+        "words": [
+          "Во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "Од",
+            "До"
+          ],
+          "why": "Во means in."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-b#q3:q": {
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "Имаш"
+        ],
+        "blank": {
+          "word": "Имаш",
+          "options": [
+            "Имаш",
+            "Имате",
+            "Има"
+          ],
+          "why": "To one friend use the -ш form."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Имаш"
+        ],
+        "blank": {
+          "word": "Имаш",
+          "options": [
+            "Имаш",
+            "Имам",
+            "Имаат"
+          ],
+          "why": "-ш means you (have)."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story-b#q3:a": {
+      "pt-verbs-a": {
+        "words": [
+          "Имам"
+        ],
+        "blank": {
+          "word": "Имам",
+          "options": [
+            "Имам",
+            "Имаш",
+            "Има"
+          ],
+          "why": "-ам means I (have)."
+        }
+      }
+    },
+    "qa:gen-s2-home-family-story#q2:a": {
+      "pt-verbs-e-i": {
+        "words": [
+          "Работи"
+        ],
+        "blank": {
+          "word": "Работи",
+          "options": [
+            "Работи",
+            "Работиш",
+            "Работам"
+          ],
+          "why": "She works → third-person работи."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#0": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "им"
+        ],
+        "blank": {
+          "word": "им",
+          "options": [
+            "им",
+            "ми",
+            "му"
+          ],
+          "why": "им means to them (two people)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "на here marks who is phoned."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "телефонира"
+        ]
+      }
+    },
+    "story:gen-s2-arrange-story-a#1": {
+      "pt-sum": {
+        "words": [
+          "ти",
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "е",
+            "сум"
+          ],
+          "why": "ти → си."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "си"
+        ],
+        "blank": {
+          "word": "си",
+          "options": [
+            "си",
+            "сте",
+            "сме"
+          ],
+          "why": "Talking to friend Vera → си."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#2": {
+      "pt-sum": {
+        "words": [
+          "е",
+          "сме"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "се",
+            "сте"
+          ],
+          "why": "Ние → сме."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#3": {
+      "pt-ajde-da": {
+        "words": [
+          "Ајде",
+          "да"
+        ],
+        "blank": {
+          "word": "Ајде",
+          "options": [
+            "Ајде",
+            "Може",
+            "Треба"
+          ],
+          "why": "Ајде да means let's."
+        }
+      },
+      "pt-da": {
+        "words": [
+          "да"
+        ],
+        "blank": {
+          "word": "да",
+          "options": [
+            "да",
+            "ли",
+            "не"
+          ],
+          "why": "да links to the verb (no infinitive)."
+        }
+      },
+      "pt-se": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "видиме always carries се."
+        }
+      },
+      "pt-ti-vie": {
+        "words": [
+          "Вие",
+          "можете"
+        ],
+        "blank": {
+          "word": "можете",
+          "options": [
+            "можете",
+            "можеш",
+            "може"
+          ],
+          "why": "вие takes the -те form."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "можете"
+        ],
+        "blank": {
+          "word": "можете",
+          "options": [
+            "можете",
+            "можам",
+            "можат"
+          ],
+          "why": "-те means you (plural)."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#4": {
+      "pt-time": {
+        "words": [
+          "Во",
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "часот is used for clock time."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "колку"
+        ],
+        "blank": {
+          "word": "колку",
+          "options": [
+            "колку",
+            "каде",
+            "кога"
+          ],
+          "why": "во колку часот asks what time."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "Можеме"
+        ],
+        "blank": {
+          "word": "Можеме",
+          "options": [
+            "Можеме",
+            "Можам",
+            "Може"
+          ],
+          "why": "-ме means we (can)."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#5": {
+      "pt-time": {
+        "words": [
+          "Во",
+          "седум",
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "во + number + часот tells the time."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "седум"
+        ]
+      },
+      "pt-the": {
+        "words": [
+          "кафулето",
+          "плоштадот"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "Во",
+          "во",
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "на means on/at (the square)."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#6": {
+      "pt-verbs-e-i": {
+        "words": [
+          "можат"
+        ],
+        "blank": {
+          "word": "можат",
+          "options": [
+            "можат",
+            "може",
+            "можам"
+          ],
+          "why": "Two people → they-form можат."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#7": {
+      "pt-ne": {
+        "words": [
+          "Не"
+        ],
+        "blank": {
+          "word": "Не",
+          "options": [
+            "Не",
+            "да",
+            "ли"
+          ],
+          "why": "Не negates (I don't know)."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "знам",
+          "работи"
+        ],
+        "blank": {
+          "word": "работи",
+          "options": [
+            "работи",
+            "работиш",
+            "работам"
+          ],
+          "why": "Marko works → third-person работи."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "до"
+        ],
+        "blank": {
+          "word": "до",
+          "options": [
+            "до",
+            "во",
+            "од"
+          ],
+          "why": "до means until/to."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "осум"
+        ]
+      },
+      "pt-time": {
+        "words": [
+          "до",
+          "осум",
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "часот is used for clock time."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-a#8": {
+      "pt-numbers": {
+        "words": [
+          "осум"
+        ],
+        "blank": {
+          "word": "осум",
+          "options": [
+            "осум",
+            "три",
+            "еден"
+          ],
+          "why": "'осум' is the number eight."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "'во' means at/in with a time."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-a#q1:q": {
+      "pt-time": {
+        "words": [
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "Clock times use 'часот' (o'clock)."
+        }
+      },
+      "pt-question-words": {
+        "words": [
+          "колку"
+        ],
+        "blank": {
+          "word": "колку",
+          "options": [
+            "колку",
+            "каде",
+            "кога"
+          ],
+          "why": "'колку' asks how much/what (time)."
+        }
+      },
+      "pt-se": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "This verb always carries 'се'."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "гледаат"
+        ]
+      }
+    },
+    "qa:gen-s2-arrange-story-a#q1:a": {
+      "pt-time": {
+        "words": [
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "Clock times use 'часот'."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "осум"
+        ],
+        "blank": {
+          "word": "осум",
+          "options": [
+            "осум",
+            "три",
+            "еден"
+          ],
+          "why": "'осум' is eight."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-a#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "кога"
+        ],
+        "blank": {
+          "word": "кога",
+          "options": [
+            "кога",
+            "каде",
+            "колку"
+          ],
+          "why": "'кога' asks when."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "работи"
+        ],
+        "blank": {
+          "word": "работи",
+          "options": [
+            "работи",
+            "работиш",
+            "оди"
+          ],
+          "why": "'работи' = he/she works (third person)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "До"
+        ],
+        "blank": {
+          "word": "До",
+          "options": [
+            "До",
+            "Во",
+            "Со"
+          ],
+          "why": "'до' means until/up to."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-a#q2:a": {
+      "pt-numbers": {
+        "words": [
+          "осум"
+        ],
+        "blank": {
+          "word": "осум",
+          "options": [
+            "осум",
+            "три",
+            "еден"
+          ],
+          "why": "'осум' is eight."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "До"
+        ],
+        "blank": {
+          "word": "До",
+          "options": [
+            "До",
+            "Во",
+            "Со"
+          ],
+          "why": "'до' means until/up to."
+        }
+      },
+      "pt-time": {
+        "words": [
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "Clock times use 'часот'."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-a#q3:q": {
+      "pt-ti-vie": {
+        "words": [
+          "ти",
+          "можеш"
+        ]
+      },
+      "pt-question-words": {
+        "words": [
+          "колку"
+        ],
+        "blank": {
+          "word": "колку",
+          "options": [
+            "колку",
+            "каде",
+            "кога"
+          ],
+          "why": "'колку' asks what/how much (time)."
+        }
+      },
+      "pt-time": {
+        "words": [
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "Clock times use 'часот'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "можеш"
+        ],
+        "blank": {
+          "word": "можеш",
+          "options": [
+            "можеш",
+            "можам",
+            "може"
+          ],
+          "why": "'можеш' = you can (ти)."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-a#q3:a": {
+      "pt-time": {
+        "words": [
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "Clock times use 'часот'."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "седум"
+        ],
+        "blank": {
+          "word": "седум",
+          "options": [
+            "седум",
+            "три",
+            "еден"
+          ],
+          "why": "'седум' is seven."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-b#0": {
+      "pt-time": {
+        "words": [
+          "часот"
+        ],
+        "blank": {
+          "word": "часот",
+          "options": [
+            "часот",
+            "кафулето",
+            "плоштадот"
+          ],
+          "why": "Clock times use 'часот'."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "шест"
+        ],
+        "blank": {
+          "word": "шест",
+          "options": [
+            "шест",
+            "три",
+            "еден"
+          ],
+          "why": "'шест' is six."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "Ема (she) takes 'е'."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "центарот"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "Во",
+          "во"
+        ],
+        "blank": {
+          "word": "Во",
+          "options": [
+            "Во",
+            "На",
+            "Со"
+          ],
+          "why": "'во' means in/at."
+        }
+      },
+      "pt-mi-ti-mu": {
+        "words": [
+          "ѝ"
+        ],
+        "blank": {
+          "word": "ѝ",
+          "options": [
+            "ѝ",
+            "му",
+            "ми"
+          ],
+          "why": "'ѝ' means to her."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "телефонира"
+        ]
+      }
+    },
+    "story:gen-s2-arrange-story-b#1": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Како"
+          ],
+          "why": "'Каде' asks where."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "The café (it) takes 'е'."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "кафулето"
+        ]
+      }
+    },
+    "story:gen-s2-arrange-story-b#2": {
+      "pt-commands": {
+        "words": [
+          "Оди"
+        ],
+        "blank": {
+          "word": "Оди",
+          "options": [
+            "Оди",
+            "Одете",
+            "Свртете"
+          ],
+          "why": "Telling one friend to go uses 'Оди'."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "Кафулето",
+          "плоштадот"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "The café (it) takes 'е'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "до"
+        ],
+        "blank": {
+          "word": "до",
+          "options": [
+            "до",
+            "во",
+            "со"
+          ],
+          "why": "'до' means next to/by."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-b#3": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "'it is' uses 'е'."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-b#4": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "'it is' uses 'е'."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-b#5": {
+      "pt-ti-vie": {
+        "words": [
+          "сте"
+        ],
+        "blank": {
+          "word": "сте",
+          "options": [
+            "сте",
+            "си",
+            "сме"
+          ],
+          "why": "Polite/plural 'Вие' takes 'сте'."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "сте"
+        ]
+      }
+    },
+    "story:gen-s2-arrange-story-b#6": {
+      "pt-sum": {
+        "words": [
+          "сме",
+          "се"
+        ],
+        "blank": {
+          "word": "сме",
+          "options": [
+            "сме",
+            "сте",
+            "се"
+          ],
+          "why": "'ние' takes 'сме'."
+        }
+      }
+    },
+    "story:gen-s2-arrange-story-b#7": {
+      "pt-sum": {
+        "words": [
+          "сум"
+        ],
+        "blank": {
+          "word": "сум",
+          "options": [
+            "сум",
+            "е",
+            "си"
+          ],
+          "why": "'јас' (I) takes 'сум'."
+        }
+      },
+      "pt-numbers": {
+        "words": [
+          "шест",
+          "десет"
+        ],
+        "blank": {
+          "word": "шест",
+          "options": [
+            "шест",
+            "три",
+            "еден"
+          ],
+          "why": "'шест' is six."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "'во' means at with a time."
+        }
+      },
+      "pt-time": {
+        "words": [
+          "шест",
+          "десет"
+        ]
+      }
+    },
+    "qa:gen-s2-arrange-story-b#q1:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Како"
+          ],
+          "why": "'Каде' asks where."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "се"
+          ],
+          "why": "The café (it) takes 'е'."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "кафулето"
+        ]
+      }
+    },
+    "qa:gen-s2-arrange-story-b#q1:a": {
+      "pt-the": {
+        "words": [
+          "плоштадот"
+        ]
+      },
+      "pt-prepositions": {
+        "words": [
+          "до"
+        ],
+        "blank": {
+          "word": "до",
+          "options": [
+            "до",
+            "во",
+            "со"
+          ],
+          "why": "'до' means by/next to."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Каде"
+        ],
+        "blank": {
+          "word": "Каде",
+          "options": [
+            "Каде",
+            "Што",
+            "Како"
+          ],
+          "why": "'Каде' asks where."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "Two people (they) take 'се'."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-b#q2:a": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "'Тие' (they) take 'се'."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "во"
+        ],
+        "blank": {
+          "word": "во",
+          "options": [
+            "во",
+            "на",
+            "со"
+          ],
+          "why": "'во' means at/in."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "кафулето"
+        ]
+      }
+    },
+    "qa:gen-s2-arrange-story-b#q3:q": {
+      "pt-commands": {
+        "words": [
+          "Кажи"
+        ],
+        "blank": {
+          "word": "Кажи",
+          "options": [
+            "Кажи",
+            "Кажете",
+            "Дојди"
+          ],
+          "why": "Telling one friend to say uses 'Кажи'."
+        }
+      }
+    },
+    "qa:gen-s2-arrange-story-b#q3:a": {
+      "pt-future": {
+        "words": [
+          "Ќе"
+        ],
+        "blank": {
+          "word": "Ќе",
+          "options": [
+            "Ќе",
+            "Да",
+            "Не"
+          ],
+          "why": "'Ќе' makes the future tense."
+        }
+      },
+      "pt-se": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "го",
+            "ми"
+          ],
+          "why": "This verb always carries 'се'."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "видиме"
+        ]
+      }
+    },
+    "story:gen-s2-problems-story-a#0": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "Two people (they) take 'се'."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-a#1": {
+      "pt-verbs-a": {
+        "words": [
+          "имаш"
+        ],
+        "blank": {
+          "word": "имаш",
+          "options": [
+            "имаш",
+            "имам",
+            "има"
+          ],
+          "why": "'имаш' = you have (ти)."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-a#2": {
+      "pt-ima-nema": {
+        "words": [
+          "Немам",
+          "Нема"
+        ],
+        "blank": {
+          "word": "Нема",
+          "options": [
+            "Нема",
+            "Има",
+            "Немам"
+          ],
+          "why": "'Нема' = there isn't any."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-a#3": {
+      "pt-ima-nema": {
+        "words": [
+          "немаме",
+          "немаме"
+        ],
+        "blank": {
+          "word": "немаме",
+          "options": [
+            "немаме",
+            "нема",
+            "немам"
+          ],
+          "why": "'ние' → 'немаме' (we don't have)."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-a#4": {
+      "pt-mi-ti-mu": {
+        "words": [
+          "им"
+        ],
+        "blank": {
+          "word": "им",
+          "options": [
+            "им",
+            "му",
+            "ми"
+          ],
+          "why": "'им' means to them (plural)."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "со"
+          ],
+          "why": "'на' marks who she phones."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "телефонира"
+        ]
+      }
+    },
+    "story:gen-s2-problems-story-a#5": {
+      "pt-ti-vie": {
+        "words": [
+          "Вие",
+          "имате"
+        ]
+      },
+      "pt-verbs-a": {
+        "words": [
+          "имате"
+        ],
+        "blank": {
+          "word": "имате",
+          "options": [
+            "имате",
+            "имаш",
+            "имаме"
+          ],
+          "why": "'вие' → 'имате' (you all have)."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-a#6": {
+      "pt-verbs-a": {
+        "words": [
+          "Имаме"
+        ],
+        "blank": {
+          "word": "Имаме",
+          "options": [
+            "Имаме",
+            "Имам",
+            "Имаш"
+          ],
+          "why": "'ние' → 'имаме' (we have)."
+        }
+      },
+      "pt-ajde-da": {
+        "words": [
+          "Ајде",
+          "да"
+        ],
+        "blank": {
+          "word": "Ајде",
+          "options": [
+            "Ајде",
+            "Може",
+            "Треба"
+          ],
+          "why": "'Ајде да' means let's."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "пиеме"
+        ],
+        "blank": {
+          "word": "пиеме",
+          "options": [
+            "пиеме",
+            "пиеш",
+            "пијам"
+          ],
+          "why": "'ние' → 'пиеме' (we drink)."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-a#7": {
+      "pt-verbs-a": {
+        "words": [
+          "имаат"
+        ],
+        "blank": {
+          "word": "имаат",
+          "options": [
+            "имаат",
+            "има",
+            "имам"
+          ],
+          "why": "Two people (they) → 'имаат'."
+        }
+      },
+      "pt-ima-nema": {
+        "words": [
+          "Нема"
+        ],
+        "blank": {
+          "word": "Нема",
+          "options": [
+            "Нема",
+            "Има",
+            "Немам"
+          ],
+          "why": "'Нема проблем' = no problem."
+        }
+      }
+    },
+    "qa:gen-s2-problems-story-a#q1:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "Што",
+            "Каде"
+          ],
+          "why": "'Дали' opens a yes/no question."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "имаат"
+        ],
+        "blank": {
+          "word": "имаат",
+          "options": [
+            "имаат",
+            "има",
+            "имам"
+          ],
+          "why": "Two people (they) → 'имаат'."
+        }
+      }
+    },
+    "qa:gen-s2-problems-story-a#q1:a": {
+      "pt-ima-nema": {
+        "words": [
+          "немаат"
+        ]
+      }
+    },
+    "qa:gen-s2-problems-story-a#q2:q": {
+      "pt-yes-no": {
+        "words": [
+          "Дали"
+        ],
+        "blank": {
+          "word": "Дали",
+          "options": [
+            "Дали",
+            "Што",
+            "Каде"
+          ],
+          "why": "A yes/no question opens with Дали, not a wh-word."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "имаат"
+        ],
+        "blank": {
+          "word": "имаат",
+          "options": [
+            "имаат",
+            "има",
+            "имаме"
+          ],
+          "why": "They (two people) → имаат."
+        }
+      }
+    },
+    "qa:gen-s2-problems-story-a#q2:a": {
+      "pt-verbs-a": {
+        "words": [
+          "имаат"
+        ],
+        "blank": {
+          "word": "имаат",
+          "options": [
+            "имаат",
+            "имам",
+            "имаме"
+          ],
+          "why": "They → имаат."
+        }
+      }
+    },
+    "qa:gen-s2-problems-story-a#q3:q": {
+      "pt-ti-vie": {
+        "words": [
+          "вие",
+          "Имате"
+        ]
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Имате"
+        ],
+        "blank": {
+          "word": "Имате",
+          "options": [
+            "Имате",
+            "Имаш",
+            "Имаме"
+          ],
+          "why": "You (plural) → Имате."
+        }
+      }
+    },
+    "qa:gen-s2-problems-story-a#q3:a": {
+      "pt-ima-nema": {
+        "words": [
+          "Немаме"
+        ]
+      }
+    },
+    "story:gen-s2-problems-story-b#0": {
+      "pt-sum": {
+        "words": [
+          "е"
+        ],
+        "blank": {
+          "word": "е",
+          "options": [
+            "е",
+            "сум",
+            "си"
+          ],
+          "why": "Ana (she) → е."
+        }
+      },
+      "pt-prepositions": {
+        "words": [
+          "на"
+        ],
+        "blank": {
+          "word": "на",
+          "options": [
+            "на",
+            "во",
+            "од"
+          ],
+          "why": "\"at the market\" uses на."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-b#1": {
+      "pt-commands": {
+        "words": [
+          "Извинете"
+        ],
+        "blank": {
+          "word": "Извинете",
+          "options": [
+            "Извинете",
+            "Свртете",
+            "Кажете"
+          ],
+          "why": "\"Excuse me\" is Извинете."
+        }
+      },
+      "pt-ima-nema": {
+        "words": [
+          "има"
+        ],
+        "blank": {
+          "word": "има",
+          "options": [
+            "има",
+            "нема",
+            "Немам"
+          ],
+          "why": "There IS a problem → има."
+        }
+      }
+    },
+    "story:gen-s2-problems-story-b#2": {
+      "pt-plurals": {
+        "words": [
+          "Јаболката"
+        ]
+      },
+      "pt-the": {
+        "words": [
+          "Јаболката"
+        ]
+      },
+      "pt-ne": {
+        "words": [
+          "не"
+        ],
+        "blank": {
+          "word": "не",
+          "options": [
+            "не",
+            "да",
+            "ли"
+          ],
+          "why": "\"not\" → не before the verb."
+        }
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сум"
+          ],
+          "why": "The apples (plural) → се."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "добри"
+        ],
+        "blank": {
+          "word": "добри",
+          "options": [
+            "добри",
+            "добра",
+            "добро"
+          ],
+          "why": "Plural noun → добри."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "Сакам"
+        ],
+        "blank": {
+          "word": "Сакам",
+          "options": [
+            "Сакам",
+            "Сакаш",
+            "Сакаме"
+          ],
+          "why": "I → Сакам."
+        }
+      },
+      "pt-da": {
+        "words": [
+          "да"
+        ],
+        "blank": {
+          "word": "да",
+          "options": [
+            "да",
+            "ли",
+            "не"
+          ],
+          "why": "да before the verb after сакам."
+        }
+      },
+      "pt-go-ja-gi": {
+        "words": [
+          "ги"
+        ],
+        "blank": {
+          "word": "ги",
+          "options": [
+            "ги",
+            "го",
+            "ја"
+          ],
+          "why": "them (the apples) → ги."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "вратам"
+        ]
+      }
+    },
+    "story:gen-s2-problems-story-b#3": {
+      "pt-ima-nema": {
+        "words": [
+          "Нема",
+          "Немам"
+        ],
+        "blank": {
+          "word": "Нема",
+          "options": [
+            "Нема",
+            "Има",
+            "Немам"
+          ],
+          "why": "\"No problem\" → Нема проблем."
+        }
+      },
+      "pt-verbs-a": {
+        "words": [
+          "имам"
+        ],
+        "blank": {
+          "word": "имам",
+          "options": [
+            "имам",
+            "имаш",
+            "има"
+          ],
+          "why": "I have → имам."
+        }
+      },
+      "pt-plurals": {
+        "words": [
+          "јаболка"
+        ]
+      }
+    },
+    "story:gen-s2-problems-story-b#4": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Го"
+        ],
+        "blank": {
+          "word": "Го",
+          "options": [
+            "Го",
+            "Ја",
+            "Ги"
+          ],
+          "why": "it (the cheese, singular) → Го."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "земам"
+        ]
+      },
+      "pt-the": {
+        "words": [
+          "сирењето"
+        ]
+      }
+    },
+    "story:gen-s2-problems-story-b#5": {
+      "pt-commands": {
+        "words": [
+          "Повелете"
+        ]
+      }
+    },
+    "qa:gen-s2-problems-story-b#q1:q": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сум"
+          ],
+          "why": "The apples (plural) → се."
+        }
+      },
+      "pt-the": {
+        "words": [
+          "јаболката"
+        ]
+      },
+      "pt-plurals": {
+        "words": [
+          "јаболката"
+        ]
+      }
+    },
+    "qa:gen-s2-problems-story-b#q1:a": {
+      "pt-ne": {
+        "words": [
+          "Не"
+        ]
+      },
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сум"
+          ],
+          "why": "They (plural) → се."
+        }
+      },
+      "pt-adjectives": {
+        "words": [
+          "добри"
+        ],
+        "blank": {
+          "word": "добри",
+          "options": [
+            "добри",
+            "добра",
+            "добро"
+          ],
+          "why": "Plural noun → добри."
+        }
+      }
+    },
+    "qa:gen-s2-problems-story-b#q2:q": {
+      "pt-question-words": {
+        "words": [
+          "Што"
+        ],
+        "blank": {
+          "word": "Што",
+          "options": [
+            "Што",
+            "Кој",
+            "Каде"
+          ],
+          "why": "\"What\" does Ana take → Што."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "зема"
+        ]
+      }
+    },
+    "qa:gen-s2-problems-story-b#q2:a": {
+      "pt-go-ja-gi": {
+        "words": [
+          "Го"
+        ],
+        "blank": {
+          "word": "Го",
+          "options": [
+            "Го",
+            "Ја",
+            "Ги"
+          ],
+          "why": "it (the cheese) → Го."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "зема"
+        ]
+      },
+      "pt-the": {
+        "words": [
+          "сирењето"
+        ]
+      }
+    },
+    "qa:gen-s2-problems-story-b#q3:q": {
+      "pt-commands": {
+        "words": [
+          "Кажи"
+        ]
+      }
+    },
+    "qa:gen-s2-problems-story-b#q3:a": {
+      "pt-ima-nema": {
+        "words": [
+          "Има"
+        ],
+        "blank": {
+          "word": "Има",
+          "options": [
+            "Има",
+            "Нема",
+            "Немам"
+          ],
+          "why": "There IS a problem → Има."
+        }
+      }
+    },
+    "qa:gen-s2-problems-story#q3:a": {
+      "pt-verbs-a": {
+        "words": [
+          "Сакам"
+        ],
+        "blank": {
+          "word": "Сакам",
+          "options": [
+            "Сакам",
+            "Сакаш",
+            "Сакаме"
+          ],
+          "why": "I → Сакам."
+        }
+      },
+      "pt-da": {
+        "words": [
+          "да"
+        ],
+        "blank": {
+          "word": "да",
+          "options": [
+            "да",
+            "ли",
+            "не"
+          ],
+          "why": "да before the verb after сакам."
+        }
+      },
+      "pt-go-ja-gi": {
+        "words": [
+          "го"
+        ],
+        "blank": {
+          "word": "го",
+          "options": [
+            "го",
+            "ја",
+            "ги"
+          ],
+          "why": "it (the coffee) → го."
+        }
+      },
+      "pt-verbs-e-i": {
+        "words": [
+          "вратам"
+        ]
+      },
+      "pt-the": {
+        "words": [
+          "кафето"
+        ],
+        "blank": {
+          "word": "кафето",
+          "options": [
+            "кафето",
+            "кафеот",
+            "токафе"
+          ],
+          "why": "Neuter noun takes -то → кафето."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-b#q1:q": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сте"
+          ],
+          "why": "\"тие\" (they) takes се."
+        }
+      }
+    },
+    "qa:gen-s0-repair-story-b#q1:a": {
+      "pt-sum": {
+        "words": [
+          "се"
+        ],
+        "blank": {
+          "word": "се",
+          "options": [
+            "се",
+            "е",
+            "сме"
+          ],
+          "why": "\"тие\" (they) takes се."
         }
       }
     }

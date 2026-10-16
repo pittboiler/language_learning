@@ -1,6 +1,6 @@
-# New Macedonian for review — story variety (2026-10-14)
+# New Macedonian for review — story variety (updated 2026-10-16)
 
-Everything new from DESIGN-story-variety.md: stories, second conversations, writing lines and the new words, chapter by chapter. Each line was checked against what's taught by the session it's first used in (lint), and every chapter covers all six persons in what's read and what's said.
+Every new story, second conversation, writing set and new word, chapter by chapter, with the sessions each plays in. Each spoken line names its speaker in the Macedonian, and the English translates exactly the Macedonian (lint: story English). Older stories got the same treatment (pack-mk/src/story-fixes.ts).
 
 ---
 
@@ -9,29 +9,30 @@ Everything new from DESIGN-story-variety.md: stories, second conversations, writ
 **Story: Ти не си Марко?** — *You're not Marko?* (read in s2, s3)
 
 1. Ана е во Скопје. — *Ana is in Skopje.*
-2. „Ти си Марко?“ — *"Are you Marko?" Ana asks a man.*
-3. „Не, не сум Марко.“ — *"No, I'm not Marko."*
-4. „Ти не си Марко?“ — *"You're not Marko?"*
-5. „Не! Јас не сум Марко!“ — *"No! I'm not Marko!"*
-6. „Извинете. Не разбирам…“ — *"Sorry. I don't understand…"*
-7. „Марко? Јас сум во Скопје!“ — *(On the phone) "Marko? I'm in Skopje!"*
-8. „Јас не сум во Скопје. Јас сум во Битола!“ — *(Marko) "I'm not in Skopje. I'm in Bitola!"*
+2. Ана: „Ти си Марко?“ — *Ana: "Are you Marko?"*
+3. Петар: „Не, не сум Марко.“ — *Petar: "No, I'm not Marko."*
+4. Ана: „Ти не си Марко?“ — *Ana: "You're not Marko?"*
+5. Петар: „Не! Јас не сум Марко!“ — *Petar: "No! I'm not Marko!"*
+6. Ана: „Извинете. Не разбирам…“ — *Ana: "Sorry. I don't understand…"*
+7. Ана: „Ало, Марко? Јас сум во Скопје!“ — *Ana: "Hello, Marko? I'm in Skopje!"*
+8. Марко: „Јас не сум во Скопје. Јас сум во Битола!“ — *Marko: "I'm not in Skopje. I'm in Bitola!"*
 
-Questions: Тој е Марко? → Не, тој не е Марко. · Марко е во Скопје? → Не, тој е во Битола. · А ти? Ти си Марко? → Не, јас не сум Марко.
+Questions: Петар е Марко? → Не, Петар не е Марко. · Марко е во Скопје? → Не, тој е во Битола. · А ти? Ти си Марко? → Не, јас не сум Марко.
 
 **Story: Ние сме во Скопје** — *We're in Skopje* (read in s4, s5)
 
-1. „Ние сме во Скопје!“ — *"We're in Skopje!" (Marko made it.)*
-2. „Јас сум Ана. Тој е Марко.“ — *"I'm Ana. He's Marko."*
-3. „Јас сум Ема. Ти си Ана? Тој е Марко?“ — *"I'm Ema. You're Ana? He's Marko?" Ema talks fast.*
-4. „Извинете, не разбирам. Побавно, ве молам.“ — *Marko: "Sorry, I don't understand. Slower, please."*
-5. „Јас… сум… Ема. Вие… сте… во Скопје.“ — *"I… am… Ema. You… are… in Skopje."*
-6. „Таа е Ема, Марко!“ — *Ana: "She's Ema, Marko!"*
-7. „Тие се Вера и Петар.“ — *Ema: "They're Vera and Petar." (her two friends)*
-8. „Како се вели „cheers“ на македонски?“ — *Marko: "How do you say 'cheers' in Macedonian?"*
-9. „Наздравје!“ — *All five: "Наздравје!" (You'll meet it again at the café in chapter 4.)*
+1. Марко: „Ние сме во Скопје!“ — *Marko: "We're in Skopje!"*
+2. Ана: „Јас сум Ана. Тој е Марко.“ — *Ana: "I'm Ana. He's Marko."*
+3. Ема: „Јас сум Ема. Ти си Ана? Тој е Марко?“ — *Ema: "I'm Ema. You're Ana? He's Marko?"*
+4. Ема зборува брзо. — *Ema talks fast.*
+5. Марко: „Извинете, не разбирам. Побавно, ве молам.“ — *Marko: "Sorry, I don't understand. Slower, please."*
+6. Ема: „Јас… сум… Ема. Вие… сте… во Скопје.“ — *Ema: "I… am… Ema. You… are… in Skopje."*
+7. Ана: „Таа е Ема, Марко!“ — *Ana: "She's Ema, Marko!"*
+8. Ема: „Тие се Вера и Петар.“ — *Ema: "They're Vera and Petar."*
+9. Марко: „Како се вели „cheers“ на македонски?“ — *Marko: "How do you say 'cheers' in Macedonian?"*
+10. Ема: „Наздравје!“ — *Ema: "Cheers!"*
 
-Questions: Таа е Ана? → Не, таа е Ема. · Вие сте во Скопје? → Ние сме во Скопје. · Ема зборува брзо. Што велиш? → Побавно, ве молам.
+Questions: Тие се Вера и Петар? → Да, тие се Вера и Петар. · Вие сте во Скопје? → Да, ние сме во Скопје. · Ема зборува брзо. Што велиш? → Побавно, ве молам.
 
 **Conversation: Who's who?** (played in s7) — Ema talks fast and mixes everyone up. Ask her to slow down, then sort out who's who — you, Ana, Marko and her friends.
 
@@ -61,30 +62,32 @@ Questions: Таа е Ана? → Не, таа е Ема. · Вие сте во �
 
 ## Chapter 2: Hello, how are you?
 
-**Story: Ана, каде си?** — *Ana, where are you?* (read in s1, s2)
+**Story: Ана, каде си?** — *Ana, where are you?* (read in s4, s6)
 
-1. „Здраво, Марко! Каде си?“ — *Ana texts Marko: "Hi, Marko! Where are you?"*
-2. „Во Битола сум. Како си?“ — *"I'm in Bitola. How are you?"*
-3. „Добар ден! Каде сте?“ — *Ana texts her teacher, Vera: "Good day! Where are you?"*
-4. „Во Скопје сум. А вие? Каде сте?“ — *"I'm in Skopje. And you two? Where are you?"*
-5. „Јас сум во Скопје. Марко и Петар се во Битола.“ — *"I'm in Skopje. Marko and Petar are in Bitola."*
-6. „Што? Тие се во Битола?“ — *"What? They're in Bitola?"*
-7. „Марко, Петар, каде сте?!“ — *"Marko, Petar, where are you?!"*
+1. Марко ѝ телефонира на Ана. — *Marko phones Ana.*
+2. Марко: „Здраво, Ана! Каде си?“ — *Marko: "Hi, Ana! Where are you?"*
+3. Ана: „Во Скопје сум. Ти каде си?“ — *Ana: "I'm in Skopje. Where are you?"*
+4. Марко: „Ние сме во Битола, Петар и јас.“ — *Marko: "We're in Bitola, Petar and I."*
+5. Ана: „Вие сте во Битола? Вера и јас сме во Скопје.“ — *Ana: "You two are in Bitola? Vera and I are in Skopje."*
+6. Ана: „Вера, тие се во Битола!“ — *Ana: "Vera, they're in Bitola!"*
+7. Вера: „Добар ден, Марко! Како сте?“ — *Vera: "Good day, Marko! How are you two?"*
+8. Марко: „Добро сме, фала. Како сте вие?“ — *Marko: "We're well, thanks. How are you two?"*
+9. Вера: „Добро сме. Догледање!“ — *Vera: "We're well. Goodbye!"*
 
-Questions: Каде е Марко? → Во Битола. · Каде се Марко и Петар? → Тие се во Битола. · А ти? Каде си? → Во Скопје сум.
+Questions: Каде е Ана? → Во Скопје. · Каде се Марко и Петар? → Тие се во Битола. · А ти? Каде си? → Во Скопје сум.
 
-**Story: Здраво или добар ден?** — *Hi, or good day?* (read in s3, s6)
+**Story: Здраво или добар ден?** — *Hi, or good day?* (read in s3, s7)
 
-1. „Здраво, Марко! Како си?“ — *"Hi, Marko! How are you?"*
-2. „Добро сум, фала. А ти?“ — *"I'm well, thanks. And you?"*
-3. „Добро сум. Дали си во Скопје?“ — *"I'm well. Are you in Skopje?"*
-4. „Да, во Скопје сум!“ — *"Yes, I'm in Skopje!"*
-5. „Добар ден, Вера! Како сте?“ — *"Good day, Vera! How are you?" (Ana, politely)*
-6. „Добро сум, фала. Дали сте добро?“ — *"I'm well, thanks. Are you two well?"*
-7. „Добро сме, фала!“ — *"We're well, thanks!"*
-8. „Здраво!“ вели Марко. „Догледање!“ вели Ана. — *"Bye!" says Marko. "Goodbye!" says Ana. (Casual vs polite, once more.)*
+1. Ана: „Здраво, Марко! Како си?“ — *Ana: "Hi, Marko! How are you?"*
+2. Марко: „Добро сум, фала. А ти?“ — *Marko: "I'm well, thanks. And you?"*
+3. Ана: „Добро сум. Дали Петар е во Скопје?“ — *Ana: "I'm well. Is Petar in Skopje?"*
+4. Марко: „Да, тој е во Скопје.“ — *Marko: "Yes, he's in Skopje."*
+5. Ана: „Добар ден, Вера! Како сте?“ — *Ana: "Good day, Vera! How are you?"*
+6. Вера: „Добро сум, фала. Дали сте добро?“ — *Vera: "I'm well, thanks. Are you two well?"*
+7. Ана: „Добро сме, фала!“ — *Ana: "We're well, thanks!"*
+8. Марко: „Здраво!“ Ана: „Догледање!“ — *Marko: "Bye!" Ana: "Goodbye!"*
 
-Questions: Дали Марко е во Скопје? → Да, во Скопје е. · Како е Вера? → Добро е. · А ти? Како си? → Добро сум, фала.
+Questions: Дали Петар е во Скопје? → Да, тој е во Скопје. · Како е Вера? → Добро е. · А ти? Како си? → Добро сум, фала.
 
 **Conversation: Hello to you both** (played in s5) — Ema and Petar say hello to you both. Say how you two are, where Ana and the others are, and ask how they are.
 
@@ -112,29 +115,29 @@ Questions: Дали Марко е во Скопје? → Да, во Скопје
 
 ## Chapter 3: Numbers and a first purchase
 
-**Story: Две пива, ве молам** — *Two beers, please* (read in s3)
+**Story: Две пива, ве молам** — *Two beers, please* (read in s6)
 
 1. Вера и Ана се во Скопје. — *Vera and Ana are in Skopje.*
-2. „Добар ден! Имате ли пиво?“ — *Vera, at a kiosk: "Good day! Do you have beer?"*
-3. „Да. Едно пиво или две?“ — *The seller: "Yes. One beer or two?"*
-4. „Две пива, ве молам. Ние сме две.“ — *"Two beers, please. There are two of us." (две: two women)*
-5. „Колку чини?“ — *"How much is it?"*
-6. „Педесет денари.“ — *"Fifty denars."*
-7. „Вие сте Ана и Вера?“ — *The seller: "Are you Ana and Vera?"*
-8. „Да! А ти… ти не си Марко!“ — *Ana: "Yes! And you… you're not Marko!" (the man from chapter 1)*
-9. „Не, не сум Марко. Јас сум Петар.“ — *"No, I'm not Marko. I'm Petar."*
+2. Вера: „Добар ден! Имате ли пиво?“ — *Vera: "Good day! Do you have beer?"*
+3. Продавачот: „Да. Едно пиво или две?“ — *The seller: "Yes. One beer or two?"*
+4. Вера: „Две пива, ве молам. Ние сме две.“ — *Vera: "Two beers, please. There are two of us."*
+5. Ана: „Колку чини?“ — *Ana: "How much is it?"*
+6. Продавачот: „Педесет денари.“ — *The seller: "Fifty denars."*
+7. Продавачот: „Вие сте Ана и Вера?“ — *The seller: "Are you Ana and Vera?"*
+8. Ана: „Да! А ти… ти не си Марко!“ — *Ana: "Yes! And you… you're not Marko!"*
+9. Продавачот: „Не, не сум Марко. Јас сум Петар.“ — *The seller: "No, I'm not Marko. I'm Petar."*
 
-Questions: Колку пива? → Две пива. · Тој е Марко? → Не, тој е Петар. · А ти? Што сакаш? → Едно пиво, ве молам.
+Questions: Колку пива сакаат? → Две пива. · Продавачот е Марко? → Не, тој е Петар. · А ти? Што сакаш? → Едно пиво, ве молам.
 
-**Story: Пет, петнаесет, педесет** — *Five, fifteen, fifty* (read in s5, s6)
+**Story: Пет, петнаесет, педесет** — *Five, fifteen, fifty* (read in s5)
 
-1. „Марко, како се вели „five“ на македонски?“ — *Ana: "Marko, how do you say 'five' in Macedonian?"*
-2. „Пет. И „fifteen“ е петнаесет.“ — *"Пет. And 'fifteen' is петнаесет."*
-3. „Побавно, ве молам!“ — *"Slower, please!"*
-4. „Пет… петнаесет… педесет.“ — *"Five… fifteen… fifty."*
-5. „Аха! Едно пиво е педесет денари.“ — *"Aha! One beer is fifty denars."*
-6. „А две пива?“ — *"And two beers?"*
-7. „Не знам. Сакам едно пиво!“ — *Ana: "I don't know. I want one beer!"*
+1. Ана: „Марко, како се вели „five“ на македонски?“ — *Ana: "Marko, how do you say 'five' in Macedonian?"*
+2. Марко: „Пет. И „fifteen“ е петнаесет.“ — *Marko: "Пет. And 'fifteen' is петнаесет."*
+3. Ана: „Побавно, ве молам!“ — *Ana: "Slower, please!"*
+4. Марко: „Пет… петнаесет… педесет.“ — *Marko: "Five… fifteen… fifty."*
+5. Ана: „Аха! Едно пиво е педесет денари.“ — *Ana: "Aha! One beer is fifty denars."*
+6. Марко: „А две пива?“ — *Marko: "And two beers?"*
+7. Ана: „Не знам. Сакам едно пиво!“ — *Ana: "I don't know. I want one beer!"*
 
 Questions: Како се вели „five“? → Пет. · Колку чини едно пиво? → Педесет денари. · Кажи: fifteen, fifty. → Петнаесет, педесет.
 
@@ -153,12 +156,13 @@ Questions: Како се вели „five“? → Пет. · Колку чини
 
 **Writing** — You're at a kiosk in Skopje, buying something to drink.
 
-1. Good day! Do you have beer? → Добар ден! Имате ли пиво?
+1. (To the seller) Good day! Do you have beer? → Добар ден! Имате ли пиво?
 2. I want two beers. → Сакам две пива.
 3. (Pointing) I want this one, not that one. → Сакам ова, не тоа.
 4. How much is it? → Колку чини?
 5. (The seller) Eighty-five denars. → Осумдесет и пет денари.
-6. Can I have this? → Може ли ова?
+6. (To Ana) Are you OK? → Дали си добро?
+7. (Ana) We're fine. Vera and Petar are in Bitola. → Добро сме. Вера и Петар се во Битола.
 
 ---
 
@@ -166,29 +170,28 @@ Questions: Како се вели „five“? → Пет. · Колку чини
 
 **Story: Сметката, ве молам** — *The bill, please* (read in s6, s7)
 
-1. Ана, Марко и Вера се на кафе. — *Ana, Marko and Vera are out for coffee.*
-2. „Што ќе сакате?“ — *Petar, the waiter: "What would you like?"*
-3. „Јас сакам кафе.“ — *Marko: "I'd like a coffee."*
-4. „Ана и Вера сакаат чај.“ — *"Ana and Vera want tea."*
-5. „Имате ли сок?“ — *Vera: "Do you have juice?"*
-6. „Имаме. Повелете: кафето, чајот и сокот.“ — *Petar: "We do. Here you go: the coffee, the tea and the juice."*
-7. „Сметката, ве молам.“ — *"The bill, please."*
-8. „Јас давам сто денари.“ — *Marko: "I'll give a hundred denars."*
-9. „И јас давам сто. Ана, ти даваш педесет.“ — *Vera: "I'll give a hundred too. Ana, you give fifty."*
-10. „Вие давате двесте и педесет. Фала!“ — *Petar: "You're giving two hundred and fifty. Thanks!"*
+1. Ана, Марко и Вера се на кафе. Петар е келнер. — *Ana, Marko and Vera are out for coffee. Petar is the waiter.*
+2. Петар: „Што ќе сакате?“ — *Petar: "What would you like?"*
+3. Марко: „Јас сакам кафе. Ана и Вера сакаат чај.“ — *Marko: "I'd like a coffee. Ana and Vera want tea."*
+4. Вера: „Имате ли сок?“ — *Vera: "Do you have juice?"*
+5. Петар: „Имаме. Повелете: кафето, чајот и сокот.“ — *Petar: "We do. Here you go: the coffee, the tea and the juice."*
+6. Ана: „Сметката, ве молам.“ — *Ana: "The bill, please."*
+7. Марко: „Јас давам сто денари.“ — *Marko: "I'll give a hundred denars."*
+8. Вера: „И јас давам сто. Ана, ти даваш педесет.“ — *Vera: "I'll give a hundred too. Ana, you give fifty."*
+9. Петар: „Вие давате двесте и педесет. Фала!“ — *Petar: "You're giving two hundred and fifty. Thanks!"*
 
 Questions: Што сакаат Ана и Вера? → Сакаат чај. · Колку дава Марко? → Сто денари. · А ти? Што сакаш? → Јас сакам кафе.
 
-**Story: Пак кај Петар** — *Back at Petar's* (read in s2)
+**Story: Пак кај Петар** — *Back at Petar's* (read in s1, s2)
 
 1. Петар има продавница. — *Petar has a shop.*
 2. Ана и Вера сакаат пиво. — *Ana and Vera want beer.*
-3. „Имаш ли пиво, Петар?“ — *"Do you have beer, Petar?"*
-4. „Имам. Пивото е добро.“ — *"I do. The beer is good."*
-5. „Ние сакаме две пива и вода.“ — *"We'd like two beers and a water."*
-6. „Сакате ли и сок?“ — *"Would you like juice too?"*
-7. „Не, фала. Колку чини?“ — *"No, thanks. How much is it?"*
-8. „Двесте денари.“ — *"Two hundred denars."*
+3. Ана: „Имаш ли пиво, Петар?“ — *Ana: "Do you have beer, Petar?"*
+4. Петар: „Имам. Пивото е добро.“ — *Petar: "I do. The beer is good."*
+5. Вера: „Ние сакаме две пива и вода.“ — *Vera: "We'd like two beers and a water."*
+6. Петар: „Сакате ли и сок?“ — *Petar: "Would you like juice too?"*
+7. Ана: „Не, фала. Колку чини?“ — *Ana: "No, thanks. How much is it?"*
+8. Петар: „Двесте денари.“ — *Petar: "Two hundred denars."*
 9. Ана дава сто, Вера дава сто. — *Ana gives a hundred, Vera gives a hundred.*
 
 Questions: Што сакаат Ана и Вера? → Две пива и вода. · Какво е пивото? → Добро е. · Ти имаш пиво? → Да, имам пиво.
@@ -222,15 +225,15 @@ Questions: Што сакаат Ана и Вера? → Две пива и вод
 
 **Story: Од каде сте?** — *Where are you from?* (read in s4, s6)
 
-1. Ана и Марко се во барот. — *Ana and Marko are at the bar.*
-2. „Здраво! Од каде сте?“ — *Ana asks a couple: "Hi! Where are you from?"*
-3. „Ние сме од Охрид. А вие?“ — *"We're from Ohrid. And you?"*
-4. „Јас сум од Англија. Марко е од Битола.“ — *"I'm from England. Marko is from Bitola."*
-5. „Што работите?“ — *"What do you do?"*
-6. „Иван работи. Јас не работам, јас учам.“ — *Sara: "Ivan works. I don't work, I study."*
-7. „Ти знаеш македонски?“ — *Ivan asks Ana: "Do you know Macedonian?"*
-8. „Знам малку. Зборувам малку.“ — *"I know a little. I speak a little."*
-9. „Мило ми е! Јас се викам Сара.“ — *"Nice to meet you! My name is Sara."*
+1. Ана и Марко се во барот. Сара и Иван се во барот. — *Ana and Marko are at the bar. Sara and Ivan are at the bar.*
+2. Ана: „Здраво! Од каде сте?“ — *Ana: "Hi! Where are you two from?"*
+3. Сара: „Ние сме од Охрид. А вие?“ — *Sara: "We're from Ohrid. And you two?"*
+4. Ана: „Јас сум од Англија. Марко е од Битола.“ — *Ana: "I'm from England. Marko is from Bitola."*
+5. Ана: „Што работите?“ — *Ana: "What do you two do?"*
+6. Сара: „Иван работи. Јас не работам, јас учам.“ — *Sara: "Ivan works. I don't work, I study."*
+7. Иван: „Ти знаеш македонски?“ — *Ivan: "Do you know Macedonian?"*
+8. Ана: „Знам малку. Зборувам малку.“ — *Ana: "I know a little. I speak a little."*
+9. Сара: „Мило ми е! Јас се викам Сара.“ — *Sara: "Nice to meet you! My name is Sara."*
 10. Тие јадат, пијат и зборуваат. — *They eat, drink and talk.*
 
 Questions: Од каде се Сара и Иван? → Од Охрид. · Дали Сара работи? → Не, таа учи. · А ти? Од каде си? → Од Лондон сум.
@@ -238,13 +241,13 @@ Questions: Од каде се Сара и Иван? → Од Охрид. · Да
 **Story: Кафе со Вера** — *Coffee with Vera* (read in s1, s2)
 
 1. Ана и Вера пијат кафе. — *Ana and Vera are drinking coffee.*
-2. „Што јадеш?“ — *Vera: "What are you eating?"*
-3. „Не јадам. Пијам кафе.“ — *"I'm not eating. I'm drinking coffee."*
+2. Вера: „Што јадеш?“ — *Vera: "What are you eating?"*
+3. Ана: „Не јадам. Пијам кафе.“ — *Ana: "I'm not eating. I'm drinking coffee."*
 4. Марко и Петар јадат. Петар пие пиво. — *Marko and Petar are eating. Petar is drinking beer.*
-5. „Каде одите?“ — *Vera asks Marko and Petar: "Where are you going?"*
-6. „Одиме во Битола.“ — *"We're going to Bitola."*
-7. „Ана, ти зборуваш македонски!“ — *Marko: "Ana, you speak Macedonian!"*
-8. „Малку. Сѐ уште учам.“ — *"A little. I'm still learning."*
+5. Вера: „Марко, Петар, каде одите?“ — *Vera: "Marko, Petar, where are you going?"*
+6. Марко: „Одиме во Битола.“ — *Marko: "We're going to Bitola."*
+7. Марко: „Ана, ти зборуваш македонски!“ — *Marko: "Ana, you speak Macedonian!"*
+8. Ана: „Малку. Сѐ уште учам.“ — *Ana: "A little. I'm still learning."*
 
 Questions: Што пие Ана? → Кафе. · Каде одат Марко и Петар? → Во Битола. · А ти? Што пиеш? → Пијам кафе.
 
@@ -259,18 +262,18 @@ Questions: Што пие Ана? → Кафе. · Каде одат Марко �
 - partner: Супер! Ние сме од Охрид. — *Great! We're from Ohrid.*
 - **you:** Вие сте од Охрид? Што работите вие? — *You're from Ohrid? What do you do?*
 - partner: Иван работи. Јас сум студентка. — *Ivan works. I'm a student.*
-- **you:** Марко, тие се од Охрид! Ти знаеш Охрид? — *Marko, they're from Ohrid! Do you know Ohrid?*
-- partner: Да, знам. — *(Marko) Yes, I do.*
+- **you:** Тие се од Охрид, Марко! Вие знаете Битола? — *They're from Ohrid, Marko! Do you two know Bitola?*
+- partner: Да, знаеме Битола. — *Yes, we know Bitola.*
 - **you:** Ние одиме во Охрид! Мило ми е. — *We're going to Ohrid! Nice to meet you.*
 
 **Writing** — At a bar, you meet someone new. Write both sides of the conversation.
 
-1. Hi! What's your name? → Здраво! Како се викаш?
+1. (To someone your age) Hi! What's your name? → Здраво! Како се викаш?
 2. My name is Marko. Nice to meet you. → Јас се викам Марко. Мило ми е. (also: Се викам Марко. Мило ми е.)
-3. Where are you from? → Од каде си?
+3. (Back to him, casually) Where are you from? → Од каде си?
 4. I'm from London. I speak a little Macedonian. → Од Лондон сум. Зборувам малку македонски. (also: Јас сум од Лондон. Зборувам малку македонски.)
-5. What do you do? → Што работиш?
-6. I'm a student. → Јас сум студент.
+5. (To him, casually) What do you do? → Што работиш?
+6. (About Sara and Ivan) They're from Ohrid. They work in Skopje. → Тие се од Охрид. Работат во Скопје.
 7. (To two friends) Do you know where Ana is? → Знаете ли каде е Ана?
 8. (They answer) We don't know. We're eating and drinking! → Не знаеме. Јадеме и пиеме!
 
@@ -281,27 +284,27 @@ Questions: Што пие Ана? → Кафе. · Каде одат Марко �
 **Story: Пазар за тројца** — *Shopping for three* (read in s5, s6)
 
 1. Ана, Вера и Петар се на пазар. — *Ana, Vera and Petar are at the market.*
-2. „Што сакате?“ — *The seller: "What would you like?"*
-3. „Јас земам леб и млеко.“ — *Ana: "I'll take bread and milk."*
-4. „Петар, ти земаш сирење.“ — *Vera: "Petar, you get cheese."*
-5. „Сирењето е скапо. Лебот е евтин.“ — *"The cheese is expensive. The bread is cheap."*
-6. „Јаболката се евтини. Ги земаме!“ — *"The apples are cheap. We'll take them!"*
+2. Продавачот: „Што сакате?“ — *The seller: "What would you like?"*
+3. Ана: „Јас земам леб и млеко.“ — *Ana: "I'll take bread and milk."*
+4. Вера: „Петар, ти земаш сирење.“ — *Vera: "Petar, you take cheese."*
+5. Петар: „Сирењето е скапо. Лебот е евтин.“ — *Petar: "The cheese is expensive. The bread is cheap."*
+6. Вера: „Јаболката се евтини. Ги земаме!“ — *Vera: "The apples are cheap. We'll take them!"*
 7. Вера и Ана ги земаат јаболката. — *Vera and Ana take the apples.*
 8. Петар го зема сирењето. — *Petar takes the cheese.*
-9. „Само тоа, благодарам!“ — *"That's all, thank you!"*
+9. Ана: „Само тоа, благодарам!“ — *Ana: "That's all, thank you!"*
 
 Questions: Што земаат Вера и Ана? → Ги земаат јаболката. · Какво е сирењето? → Скапо е. · А ти? Што земаш? → Го земам лебот.
 
 **Story: Го сакаш ли кафето?** — *Do you like the coffee?* (read in s2, s3)
 
 1. Ана и Марко пијат кафе. — *Ana and Marko are drinking coffee.*
-2. „Го сакаш ли кафето?“ — *Marko: "Do you like the coffee?"*
-3. „Го сакам. Добро е!“ — *"I like it. It's good!"*
-4. „Чајот не е добар. Не го сакам.“ — *Marko: "The tea isn't good. I don't like it."*
+2. Марко: „Го сакаш ли кафето?“ — *Marko: "Do you like the coffee?"*
+3. Ана: „Го сакам. Добро е!“ — *Ana: "I like it. It's good!"*
+4. Марко: „Чајот не е добар. Не го сакам.“ — *Marko: "The tea isn't good. I don't like it."*
 5. Вера и Петар пијат пиво. — *Vera and Petar are drinking beer.*
-6. „Пивата се евтини!“ — *Vera: "The beers are cheap!"*
-7. „Ги сакате ли пивата?“ — *Ana asks them: "Do you like the beers?"*
-8. „Ги сакаме!“ — *"We love them!"*
+6. Вера: „Пивата се евтини!“ — *Vera: "The beers are cheap!"*
+7. Ана: „Вера, Петар, ги сакате ли пивата?“ — *Ana: "Vera, Petar, do you like the beers?"*
+8. Петар: „Ги сакаме!“ — *Petar: "We love them!"*
 
 Questions: Дали Марко го сака чајот? → Не, не го сака. · Какви се пивата? → Евтини се. · А вие? Ги сакате ли пивата? → Ги сакаме!
 
@@ -320,7 +323,7 @@ Questions: Дали Марко го сака чајот? → Не, не го с�
 
 **Writing** — Saturday at the market with Ana.
 
-1. Good day! Do you have bread and milk? → Добар ден! Имате ли леб и млеко?
+1. (To the seller) Good day! Do you have bread and milk? → Добар ден! Имате ли леб и млеко?
 2. We'd like a kilo of apples. → Сакаме едно кило јаболка.
 3. The cheese is expensive. → Сирењето е скапо.
 4. The apples are cheap. → Јаболката се евтини.
@@ -332,29 +335,29 @@ Questions: Дали Марко го сака чајот? → Не, не го с�
 
 ## Chapter 7: Finding your way
 
-**Story: Оди право, Марко!** — *Go straight, Marko!* (read in s2)
+**Story: Оди право, Марко!** — *Go straight, Marko!* (read in s5, s6)
 
 1. Ана и Марко се во центарот. — *Ana and Marko are in the centre.*
-2. „Извинете, каде е пазарот?“ — *Marko asks a woman: "Excuse me, where's the market?"*
-3. „Вие одите на пазар? Одете право и свртете десно.“ — *"You're going to the market? Go straight and turn right."*
-4. „Близу е?“ — *"Is it near?"*
-5. „Да, близу е.“ — *"Yes, it's near."*
-6. „Ана, оди право!“ — *Marko, to Ana: "Go straight!" (casual)*
-7. „Не, ти оди право! Јас одам со автобус.“ — *Ana: "No, you go straight! I'm going by bus."*
-8. „Добро, одиме со автобус!“ — *"OK, we're going by bus!"*
+2. Марко: „Извинете, каде е пазарот?“ — *Marko: "Excuse me, where's the market?"*
+3. Жената: „Вие одите на пазар? Одете право и свртете десно.“ — *The woman: "You're going to the market? Go straight and turn right."*
+4. Марко: „Близу е?“ — *Marko: "Is it near?"*
+5. Жената: „Да, близу е.“ — *The woman: "Yes, it's near."*
+6. Марко: „Ана, оди право!“ — *Marko: "Ana, go straight!"*
+7. Ана: „Не, ти оди право! Јас одам со автобус.“ — *Ana: "No, you go straight! I'm going by bus."*
+8. Марко: „Добро, одиме со автобус!“ — *Marko: "OK, we're going by bus!"*
 9. Тие одат на пазар со автобус. — *They go to the market by bus.*
 
 Questions: Каде одат Ана и Марко? → На пазар. · Со што одат? → Со автобус. · Кажи му на Марко: go straight! → Оди право!
 
-**Story: Од Скопје до Битола** — *From Skopje to Bitola* (read in s5, s6)
+**Story: Од Скопје до Битола** — *From Skopje to Bitola* (read in s3)
 
 1. Ана сака да оди од Скопје до Битола. — *Ana wants to go from Skopje to Bitola.*
-2. „Марко, како одам до Битола?“ — *"Marko, how do I get to Bitola?"*
-3. „Ти одиш со автобус. Автобусот е подобар.“ — *"You go by bus. The bus is better."*
-4. „Таксито е побрзо?“ — *"Is the taxi faster?"*
-5. „Да, побрзо е. И скапо!“ — *"Yes, it's faster. And expensive!"*
-6. „Ние одиме со автобус. Вие одите со такси?“ — *Marko asks Vera and Petar: "We're going by bus. Are you going by taxi?"*
-7. „Не, и ние одиме со автобус. Тоа е најдобро!“ — *"No, we're going by bus too. That's best!"*
+2. Ана: „Марко, како одам до Битола?“ — *Ana: "Marko, how do I get to Bitola?"*
+3. Марко: „Ти одиш со автобус. Автобусот е подобар.“ — *Marko: "You go by bus. The bus is better."*
+4. Ана: „Таксито е побрзо?“ — *Ana: "Is the taxi faster?"*
+5. Марко: „Да, побрзо е. И скапо!“ — *Marko: "Yes, it's faster. And expensive!"*
+6. Марко: „Ние одиме со автобус. Вера, Петар, вие одите со такси?“ — *Marko: "We're going by bus. Vera, Petar, are you going by taxi?"*
+7. Вера: „Не, и ние одиме со автобус. Тоа е најдобро!“ — *Vera: "No, we're going by bus too. That's best!"*
 8. Тие одат со автобус до Битола. — *They go to Bitola by bus.*
 
 Questions: Што е побрзо? → Таксито. · Со што одат тие? → Со автобус. · А ти? Како одиш до Битола? → Со автобус.
@@ -372,15 +375,16 @@ Questions: Што е побрзо? → Таксито. · Со што одат �
 - partner: Супер. Колку чини билетот? — *Great. How much is the ticket?*
 - **you:** Шеесет денари. Ти имаш билет? — *Sixty denars. Do you have a ticket?*
 
-**Writing** — You and Ana are looking for the centre.
+**Writing** — You and Ana are looking for the centre; Marko and Ana are taking a taxi.
 
 1. (To a stranger) Excuse me, where is the centre? → Извинете, каде е центарот?
-2. Is it far from here? → Дали е далеку од тука? (also: Далеку ли е од тука?)
+2. (To the stranger) We're going to the centre. Is it far from here? → Одиме во центарот. Дали е далеку од тука? (also: Одиме во центарот. Далеку ли е од тука?)
 3. (She answers, politely) Go straight. Turn left. → Одете право. Свртете лево.
 4. It's near. It's there, on the right. → Близу е. Таму е, десно.
-5. (To Ana) We're going by bus. → Одиме со автобус.
-6. Marko and Ana are going by taxi. It's faster. → Марко и Ана одат со такси. Побрзо е.
-7. (Ana) The bus is better! → Автобусот е подобар!
+5. (To Marko and Ana) Are you going by taxi? → Вие одите со такси? (also: Дали одите со такси? / Одите ли со такси?)
+6. (About Marko and Ana) They're going by taxi. It's faster. → Тие одат со такси. Побрзо е. (also: Одат со такси. Побрзо е.)
+7. (Ana, to you) Are you going by bus? → Ти одиш со автобус? (also: Дали одиш со автобус? / Одиш ли со автобус?)
+8. Yes, I'm going by bus. The bus is better! → Да, јас одам со автобус. Автобусот е подобар! (also: Да, одам со автобус. Автобусот е подобар!)
 
 ---
 
@@ -389,28 +393,28 @@ Questions: Што е побрзо? → Таксито. · Со што одат �
 **Story: Што ви се допаѓа?** — *What do you all like?* (read in s1, s2)
 
 1. Ана, Марко, Вера и Петар се во центарот. — *Ana, Marko, Vera and Petar are in the centre.*
-2. „Ви се допаѓа ли Скопје?“ — *Ana asks Vera and Petar: "Do you like Skopje?"*
-3. „Да, ни се допаѓа.“ — *"Yes, we like it."*
-4. „Марко, ти се допаѓа ли Битола?“ — *"Marko, do you like Bitola?"*
-5. „Ми се допаѓа. На Ана ѝ се допаѓа Охрид.“ — *"I like it. Ana likes Ohrid."*
-6. „На Вера и Петар им се допаѓа дождот!“ — *Ana: "Vera and Petar like the rain!"*
-7. „Не, не ни се допаѓа дождот!“ — *Vera: "No, we don't like the rain!"*
-8. „Затоа ќе одиме во Охрид!“ — *"So we'll go to Ohrid!"*
-9. „Ќе одите со автобус?“ — *Petar: "Will you go by bus?"*
-10. „Не, нема да одиме со автобус. Ќе одиме со такси.“ — *"No, we won't go by bus. We'll go by taxi."*
+2. Ана: „Вера, Петар, ви се допаѓа ли Скопје?“ — *Ana: "Vera, Petar, do you like Skopje?"*
+3. Петар: „Да, ни се допаѓа.“ — *Petar: "Yes, we like it."*
+4. Ана: „Марко, ти се допаѓа ли Битола?“ — *Ana: "Marko, do you like Bitola?"*
+5. Марко: „Ми се допаѓа. На Ана ѝ се допаѓа Охрид.“ — *Marko: "I like it. Ana likes Ohrid."*
+6. Ана: „На Вера и Петар им се допаѓа дождот!“ — *Ana: "Vera and Petar like the rain!"*
+7. Вера: „Не, не ни се допаѓа дождот!“ — *Vera: "No, we don't like the rain!"*
+8. Ана: „Затоа ќе одиме во Охрид!“ — *Ana: "So we'll go to Ohrid!"*
+9. Петар: „Ќе одите со автобус?“ — *Petar: "Will you two go by bus?"*
+10. Ана: „Не, нема да одиме со автобус. Ќе одиме со такси.“ — *Ana: "No, we won't go by bus. We'll go by taxi."*
 
-Questions: Што им се допаѓа на Вера и Петар? → Скопје. · Каде ќе одат? → Во Охрид. · А тебе? Ти се допаѓа дождот? → Не, не ми се допаѓа.
+Questions: Дали на Вера и Петар им се допаѓа Скопје? → Да, им се допаѓа. · Каде ќе одат Ана и Марко? → Во Охрид. · А тебе? Ти се допаѓа дождот? → Не, не ми се допаѓа.
 
 **Story: Ќе одиме на пазар** — *We'll go to the market* (read in s3, s4)
 
 1. Денес времето е убаво. — *Today the weather is nice.*
-2. „Ана, ќе одиш на пазар?“ — *Vera: "Ana, will you go to the market?"*
-3. „Да! Ќе земам јаболка и сирење.“ — *"Yes! I'll get apples and cheese."*
-4. „Петар нема да оди. Тој работи денес.“ — *"Petar won't go. He's working today."*
-5. „Марко, Ема, вие нема да одите?“ — *"Marko, Ema, aren't you going?"*
-6. „Не, нема да одиме. Не ни се допаѓа пазарот.“ — *"No, we won't go. We don't like the market."*
-7. „Мислам дека е убаво на пазар!“ — *Ana: "I think it's nice at the market!"*
-8. „Се согласувам. Ќе се видиме таму!“ — *Vera: "I agree. See you there!"*
+2. Вера: „Ана, ќе одиш на пазар?“ — *Vera: "Ana, will you go to the market?"*
+3. Ана: „Да! Ќе земам јаболка и сирење.“ — *Ana: "Yes! I'll get apples and cheese."*
+4. Вера: „Петар нема да оди. Тој работи денес.“ — *Vera: "Petar won't go. He's working today."*
+5. Ана: „Марко, Ема, вие нема да одите?“ — *Ana: "Marko, Ema, aren't you going?"*
+6. Марко: „Не, нема да одиме. Не ни се допаѓа пазарот.“ — *Marko: "No, we won't go. We don't like the market."*
+7. Ана: „Мислам дека е убаво на пазар!“ — *Ana: "I think it's nice at the market!"*
+8. Вера: „Се согласувам. Ќе се видиме таму!“ — *Vera: "I agree. See you there!"*
 
 Questions: Дали Петар ќе оди на пазар? → Не, тој работи. · Дали Марко и Ема ќе одат? → Не, нема да одат. · А ти? Ќе одиш на пазар? → Да, ќе одам.
 
@@ -427,7 +431,7 @@ Questions: Дали Петар ќе оди на пазар? → Не, тој р�
 
 **Writing** — You're texting Ana about the weather and today's plans.
 
-1. Do you like the weather today? → Ти се допаѓа ли времето денес? (also: Дали ти се допаѓа времето денес?)
+1. (To Ana) Do you like the weather today? → Ти се допаѓа ли времето денес? (also: Дали ти се допаѓа времето денес?)
 2. I like it, but I don't like the rain. → Ми се допаѓа, ама не ми се допаѓа дождот.
 3. Marko likes the rain! → На Марко му се допаѓа дождот! (also: Марко го сака дождот!)
 4. We like the market. → Ни се допаѓа пазарот.
@@ -445,29 +449,29 @@ Questions: Дали Петар ќе оди на пазар? → Не, тој р�
 **Story: Каде беше вчера?** — *Where were you yesterday?* (read in s1, s2)
 
 1. Вчера Ана беше во Охрид. — *Yesterday Ana was in Ohrid.*
-2. „Марко, каде беше ти вчера?“ — *Ema: "Marko, where were you yesterday?"*
-3. „Бев во Скопје. Јадев и читав.“ — *"I was in Skopje. I ate and read."*
-4. „Вера беше во Скопје?“ — *"Was Vera in Skopje?"*
-5. „Да. Таа отиде на пазар.“ — *"Yes. She went to the market."*
-6. „Што правеше таму?“ — *"What was she doing there?"*
-7. „Јадеше леб и сирење.“ — *"She was eating bread and cheese."*
-8. „А вие? Каде бевте?“ — *Marko, to Ana and Ema: "And you two? Where were you?"*
-9. „Ние бевме во Охрид!“ — *"We were in Ohrid!"*
+2. Ема: „Марко, каде беше ти вчера?“ — *Ema: "Marko, where were you yesterday?"*
+3. Марко: „Бев во Скопје. Јадев и читав.“ — *Marko: "I was in Skopje. I ate and read."*
+4. Ема: „Вера беше во Скопје?“ — *Ema: "Was Vera in Skopje?"*
+5. Марко: „Да. Таа отиде на пазар.“ — *Marko: "Yes. She went to the market."*
+6. Ема: „Што правеше таму?“ — *Ema: "What was she doing there?"*
+7. Марко: „Јадеше леб и сирење.“ — *Marko: "She was eating bread and cheese."*
+8. Марко: „Ана, Ема, каде бевте вие?“ — *Marko: "Ana, Ema, where were you two?"*
+9. Ана: „Ние бевме во Охрид!“ — *Ana: "We were in Ohrid!"*
 
 Questions: Каде беше Марко вчера? → Во Скопје. · Каде беа Ана и Ема? → Во Охрид. · А ти? Каде беше вчера? → Бев во Скопје.
 
 **Story: Вчера на кафе** — *Out for coffee yesterday* (read in s5, s6)
 
-1. Вчера Ана, Марко и Вера беа на кафе. — *Yesterday Ana, Marko and Vera went out for coffee.*
-2. „Што имавте?“ — *Ema asks: "What did you have?"*
-3. „Јас имав кафе. Ана имаше чај.“ — *"I had a coffee. Ana had tea."*
-4. „Марко и Вера имаа пиво.“ — *"Marko and Vera had beer."*
-5. „Јадевте ли?“ — *"Did you eat?"*
-6. „Да, јадевме леб и сирење. Отидовме и во центарот.“ — *"Yes, we ate bread and cheese. We went to the centre too."*
-7. „Петар беше таму?“ — *"Was Petar there?"*
-8. „Не, Петар беше во Битола. Утре ќе оди и тој.“ — *"No, Petar was in Bitola. Tomorrow he'll go too."*
+1. Вчера Ана, Марко и Вера беа на кафе. — *Yesterday Ana, Marko and Vera were out for coffee.*
+2. Ема: „Што имавте?“ — *Ema: "What did you have?"*
+3. Марко: „Јас имав кафе.“ — *Marko: "I had a coffee."*
+4. Ана: „Вера и јас имавме чај.“ — *Ana: "Vera and I had tea."*
+5. Ема: „Јадевте ли?“ — *Ema: "Did you eat?"*
+6. Марко: „Да, јадевме леб и сирење. Отидовме и во центарот.“ — *Marko: "Yes, we ate bread and cheese. We went to the centre too."*
+7. Ема: „Петар беше таму?“ — *Ema: "Was Petar there?"*
+8. Ана: „Не, Петар беше во Битола. Утре ќе оди и тој.“ — *Ana: "No, Petar was in Bitola. Tomorrow he'll go too."*
 
-Questions: Што имаа Марко и Вера? → Пиво. · Каде беше Петар? → Во Битола. · А вие? Што јадевте? → Јадевме леб и сирење.
+Questions: Што имаше Марко? → Кафе. · Каде беше Петар? → Во Битола. · А вие? Што јадевте? → Јадевме леб и сирење.
 
 **Conversation: How was your weekend?** (played in s6) — Vera and Petar ask about your weekend. Say where you were and what you ate, ask about theirs, and make a plan.
 
@@ -497,29 +501,29 @@ Questions: Што имаа Марко и Вера? → Пиво. · Каде б�
 
 ## Chapter 10: Family, home and work
 
-**Story: Каде живеете?** — *Where do you live?* (read in s3, s5)
+**Story: Каде живеете?** — *Where do you live?* (read in s2, s5)
 
 1. Марко и Ема живеат во Битола. — *Marko and Ema live in Bitola.*
-2. „Мојата мајка и мојот татко живеат тука.“ — *Marko: "My mother and my father live here."*
-3. „Ема, ти имаш брат?“ — *Ana: "Ema, do you have a brother?"*
-4. „Да, мојот брат живее во Скопје.“ — *"Yes, my brother lives in Skopje."*
-5. „Тој и неговата жена имаат две деца.“ — *"He and his wife have two children."*
-6. „А вие? Каде живеете?“ — *Ema asks Ana and Vera: "And you two? Where do you live?"*
-7. „Ние живееме во Скопје.“ — *"We live in Skopje."*
-8. „Јас живеам со мојата сестра.“ — *Vera: "I live with my sister."*
+2. Марко: „Мојата мајка и мојот татко живеат тука.“ — *Marko: "My mother and my father live here."*
+3. Ана: „Ема, ти имаш брат?“ — *Ana: "Ema, do you have a brother?"*
+4. Ема: „Да, мојот брат живее во Скопје.“ — *Ema: "Yes, my brother lives in Skopje."*
+5. Ема: „Тој и неговата жена имаат две деца.“ — *Ema: "He and his wife have two children."*
+6. Ема: „Ана, Вера, каде живеете вие?“ — *Ema: "Ana, Vera, where do you two live?"*
+7. Ана: „Ние живееме во Скопје.“ — *Ana: "We live in Skopje."*
+8. Вера: „Јас живеам со мојата сестра.“ — *Vera: "I live with my sister."*
 
-Questions: Каде живеат Марко и Ема? → Во Битола. · Колку деца имаат тие? → Две деца. · А ти? Каде живееш? → Живеам во Скопје.
+Questions: Каде живеат Марко и Ема? → Во Битола. · Колку деца има братот на Ема? → Две деца. · А ти? Каде живееш? → Живеам во Скопје.
 
-**Story: Ова е мојот брат** — *This is my brother* (read in s1, s6)
+**Story: Ова е мојот брат** — *This is my brother* (read in s3)
 
 1. Вера и нејзиниот брат се во центарот. — *Vera and her brother are in the centre.*
-2. „Ана, ова е мојот брат, Иван.“ — *"Ana, this is my brother, Ivan."*
-3. „Мило ми е! Од каде си?“ — *"Nice to meet you! Where are you from?"*
-4. „Од Охрид. Мојата мајка живее таму.“ — *"From Ohrid. My mother lives there."*
-5. „Што работиш?“ — *"What do you do?"*
-6. „Работам во Скопје.“ — *"I work in Skopje."*
-7. „Твојата сестра работи во Скопје?“ — *"Does your sister work in Skopje?"*
-8. „Не, таа работи во Битола.“ — *"No, she works in Bitola."*
+2. Вера: „Ана, ова е мојот брат, Иван.“ — *Vera: "Ana, this is my brother, Ivan."*
+3. Ана: „Мило ми е! Од каде си?“ — *Ana: "Nice to meet you! Where are you from?"*
+4. Иван: „Од Охрид. Мојата мајка живее таму.“ — *Ivan: "From Ohrid. My mother lives there."*
+5. Ана: „Што работиш?“ — *Ana: "What do you do?"*
+6. Иван: „Работам во Скопје.“ — *Ivan: "I work in Skopje."*
+7. Ана: „Вера, ти работиш во Скопје?“ — *Ana: "Vera, do you work in Skopje?"*
+8. Вера: „Не, јас работам во Битола.“ — *Vera: "No, I work in Bitola."*
 
 Questions: Од каде е Иван? → Од Охрид. · Каде работи Вера? → Во Битола. · А ти? Имаш брат или сестра? → Имам брат и сестра.
 
@@ -553,27 +557,27 @@ Questions: Од каде е Иван? → Од Охрид. · Каде рабо�
 **Story: Во колку часот?** — *At what time?* (read in s1, s5)
 
 1. Ана им телефонира на Вера и Петар. — *Ana phones Vera and Petar.*
-2. „Ало? Вера, ти си дома?“ — *"Hello? Vera, are you home?"*
-3. „Да. И Петар е дома. Ние сме дома.“ — *"Yes. Petar's home too. We're home."*
-4. „Ајде да се видиме денес! Вие можете?“ — *"Let's meet today! Can you (two)?"*
-5. „Можеме. Во колку часот?“ — *"We can. At what time?"*
-6. „Во седум часот, во кафулето на плоштадот.“ — *"At seven o'clock, at the café on the square."*
-7. „Марко и Ема можат?“ — *"Can Marko and Ema?"*
-8. „Не знам. Марко работи до осум часот.“ — *"I don't know. Marko works until eight."*
-9. „Добро. Ајде во осум. Важи?“ „Важи! Договорено.“ — *"OK. Let's say eight. Deal?" "Deal! Agreed."*
+2. Ана: „Ало? Вера, ти си дома?“ — *Ana: "Hello? Vera, are you home?"*
+3. Вера: „Да. И Петар е дома. Ние сме дома.“ — *Vera: "Yes. Petar's home too. We're home."*
+4. Ана: „Ајде да се видиме денес! Вие можете?“ — *Ana: "Let's meet today! Can you two?"*
+5. Вера: „Можеме. Во колку часот?“ — *Vera: "We can. At what time?"*
+6. Ана: „Во седум часот, во кафулето на плоштадот.“ — *Ana: "At seven o'clock, at the café on the square."*
+7. Вера: „Марко и Ема можат?“ — *Vera: "Can Marko and Ema?"*
+8. Ана: „Не знам. Марко работи до осум часот.“ — *Ana: "I don't know. Marko works until eight."*
+9. Вера: „Добро. Ајде во осум. Важи?“ Ана: „Важи! Договорено.“ — *Vera: "OK. Let's say eight. Deal?" Ana: "Deal! Agreed."*
 
 Questions: Во колку часот се гледаат? → Во осум часот. · До кога работи Марко? → До осум часот. · А ти? Во колку часот можеш? → Во седум часот.
 
 **Story: Каде е кафулето?** — *Where's the café?* (read in s4)
 
-1. Во шест часот Ема е во центарот. — *At six o'clock Ema is in the centre.*
-2. „Ало, Ана? Каде е кафулето?“ — *"Hello, Ana? Where's the café?"*
-3. „Оди право. Кафулето е лево, до плоштадот.“ — *"Go straight. The café is on the left, by the square."*
-4. „Далеку е?“ — *"Is it far?"*
-5. „Не, близу е.“ — *"No, it's near."*
-6. „Вие сте таму?“ — *"Are you (all) there?"*
-7. „Да, ние сме тука. Петар и Вера се тука.“ — *"Yes, we're here. Petar and Vera are here."*
-8. „Добро! Таму сум во шест и десет.“ — *"Good! I'll be there at ten past six."*
+1. Во шест часот Ема е во центарот. Таа ѝ телефонира на Ана. — *At six o'clock Ema is in the centre. She phones Ana.*
+2. Ема: „Ало, Ана? Каде е кафулето?“ — *Ema: "Hello, Ana? Where's the café?"*
+3. Ана: „Оди право. Кафулето е лево, до плоштадот.“ — *Ana: "Go straight. The café is on the left, by the square."*
+4. Ема: „Далеку е?“ — *Ema: "Is it far?"*
+5. Ана: „Не, близу е.“ — *Ana: "No, it's near."*
+6. Ема: „Вие сте таму?“ — *Ema: "Are you all there?"*
+7. Ана: „Да, ние сме тука. Петар и Вера се тука.“ — *Ana: "Yes, we're here. Petar and Vera are here."*
+8. Ема: „Добро! Таму сум во шест и десет.“ — *Ema: "Good! I'll be there at ten past six."*
 
 Questions: Каде е кафулето? → Лево, до плоштадот. · Каде се Петар и Вера? → Тие се во кафулето. · Кажи: See you! → Ќе се видиме!
 
@@ -599,7 +603,7 @@ Questions: Каде е кафулето? → Лево, до плоштадот. 
 5. (Ana) I can't at five. Marko works until six. → Не можам во пет. Марко работи до шест часот.
 6. (To Ana and Marko) Can you (two) make it at seven? → Можете ли во седум часот? (also: Можете ли во седум?)
 7. (Ana) Yes, we can. Vera and Petar can too. → Да, можеме. И Вера и Петар можат.
-8. Deal! Let's eat at seven. Can you (Ana)? → Важи! Ајде да јадеме во седум. Можеш? (also: Важи! Ајде да јадеме во седум часот. Можеш?)
+8. (To Ana) Deal! Let's eat at seven. Can you? → Важи! Ајде да јадеме во седум. Можеш? (also: Важи! Ајде да јадеме во седум часот. Можеш?)
 
 ---
 
@@ -608,25 +612,24 @@ Questions: Каде е кафулето? → Лево, до плоштадот. 
 **Story: Немаме вода!** — *We have no water!* (read in s1, s5)
 
 1. Ана и Вера се дома. — *Ana and Vera are at home.*
-2. „Вера, имаш вода?“ — *"Vera, do you have water?"*
-3. „Немам. Нема вода!“ — *"I don't. There's no water!"*
-4. „Ние немаме вода и немаме кафе!“ — *"We have no water and no coffee!"*
+2. Ана: „Вера, имаш вода?“ — *Ana: "Vera, do you have water?"*
+3. Вера: „Немам. Нема вода!“ — *Vera: "I don't. There's no water!"*
+4. Ана: „Ние немаме вода и немаме кафе!“ — *Ana: "We have no water and no coffee!"*
 5. Ана им телефонира на Марко и Петар. — *Ana phones Marko and Petar.*
-6. „Ало? Вие имате вода?“ — *"Hello? Do you (two) have water?"*
-7. „Имаме. Ајде да пиеме кафе тука!“ — *"We do. Let's have coffee here!"*
+6. Ана: „Ало? Вие имате вода?“ — *Ana: "Hello? Do you two have water?"*
+7. Марко: „Имаме. Ајде да пиеме кафе тука!“ — *Marko: "We do. Let's have coffee here!"*
 8. Марко и Петар имаат вода и кафе. Нема проблем! — *Marko and Petar have water and coffee. No problem!*
 
-Questions: Дали Ана и Вера имаат вода? → Не, немаат. · Кој има вода? → Марко и Петар. · А вие? Имате вода? → Немаме.
+Questions: Дали Ана и Вера имаат вода? → Не, немаат. · Дали Марко и Петар имаат вода? → Да, имаат. · А вие? Имате вода? → Немаме.
 
 **Story: Јаболката не се добри** — *The apples aren't good* (read in s4)
 
 1. Ана е на пазар. — *Ana is at the market.*
-2. „Извинете, ама има проблем.“ — *"Excuse me, but there's a problem."*
-3. „Јаболката не се добри.“ — *"The apples aren't good."*
-4. „Сакам да ги вратам.“ — *"I'd like to return them."*
-5. „Нема проблем. Немам јаболка, ама имам сирење.“ — *The seller: "No problem. I don't have apples, but I have cheese."*
-6. „Добро. Го земам сирењето.“ — *"Fine. I'll take the cheese."*
-7. „Благодарам!“ — *"Thank you!"*
+2. Ана: „Извинете, ама има проблем.“ — *Ana: "Excuse me, but there's a problem."*
+3. Ана: „Јаболката не се добри. Сакам да ги вратам.“ — *Ana: "The apples aren't good. I'd like to return them."*
+4. Продавачот: „Нема проблем. Немам јаболка, ама имам сирење.“ — *The seller: "No problem. I don't have apples, but I have cheese."*
+5. Ана: „Добро. Го земам сирењето.“ — *Ana: "Fine. I'll take the cheese."*
+6. Продавачот: „Повелете.“ Ана: „Благодарам!“ — *The seller: "Here you go." Ana: "Thank you!"*
 
 Questions: Какви се јаболката? → Не се добри. · Што зема Ана? → Го зема сирењето. · Кажи: There's a problem. → Има проблем.
 
@@ -648,7 +651,7 @@ Questions: Какви се јаболката? → Не се добри. · Шт
 1. Excuse me, but there's a problem. → Извинете, ама има проблем.
 2. This isn't my coffee. → Ова не е моето кафе.
 3. And we have no water. → И немаме вода.
-4. Can you help us? → Можете ли да ни помогнете?
+4. (To the waiter) Can you help us? → Можете ли да ни помогнете?
 5. I'd like to return this coffee. → Сакам да го вратам ова кафе. (also: Сакам да вратам ова кафе.)
 6. (To your friend) Do you have the bill? → Ја имаш ли сметката? (also: Ти ја имаш сметката? / Дали ја имаш сметката?)
 7. (About the next table) They have two coffees! → Тие имаат две кафиња! (also: Имаат две кафиња!)
@@ -656,4 +659,4 @@ Questions: Какви се јаболката? → Не се добри. · Шт
 
 ---
 
-**New verb table:** нема — немам, немаш, нема, немаме, немате, немаат (chapter 12).
+**New verb tables:** нема (немам … немаат, ch 12); past бев / имав / отидов / јадев (all six persons, ch 9 — for “Switch the person” only).

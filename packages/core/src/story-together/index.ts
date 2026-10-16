@@ -32,6 +32,16 @@ export interface StorySession {
   turnIndex: number; // pointer to the current (next) line
   turns: StoryTurn[];
   status: "active" | "complete";
+  /** Both screens open on a short "how this works" intro; either partner starting moves you BOTH to line 1. */
+  started?: boolean;
+}
+
+/** Still on the intro: nobody has started reading yet. */
+export const inIntro = (s: StorySession): boolean => !s.started && s.turnIndex === 0 && s.status === "active";
+
+/** Start reading — for both of you (the session row is shared, so your partner's screen moves on too). */
+export function begin(s: StorySession): StorySession {
+  return s.started ? s : { ...s, started: true };
 }
 
 /** A story line the app feeds in (straight from MiniStory.body). */

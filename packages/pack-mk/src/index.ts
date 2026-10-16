@@ -16,6 +16,7 @@ import { readers } from "./readers.js";
 import { writingTasks } from "./writing.js";
 import { stories } from "./stories.js";
 import { varietyStories } from "./stories-variety.js";
+import { storyFixes } from "./story-fixes.js";
 import { scenarioBriefs, varietyConversations } from "./conversations-variety.js";
 import { infoGapTasks } from "./infogap.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
@@ -75,7 +76,17 @@ export const macedonian: LanguagePack = {
   scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios, ...varietyConversations]
     .map((s) => (scenarioBriefs[s.id] && !s.brief ? { ...s, brief: scenarioBriefs[s.id] } : s)),
   readers: [...readers, ...stage1.promotedReaders],
-  stories: [...stories, ...varietyStories, ...stage0.promotedStories, ...stage1.promotedStories, ...stage2.promotedStories],
+  // The older stories carry corrections (story-fixes.ts): speakers named in the Macedonian, English that matches it.
+  stories: [...stories, ...varietyStories, ...stage0.promotedStories, ...stage1.promotedStories, ...stage2.promotedStories].map((st) => {
+    const fix = storyFixes[st.id];
+    if (!fix) return st;
+    return {
+      ...st,
+      ...(fix.title ? { title: fix.title } : {}),
+      body: st.body.map((b, i) => (fix.lines?.[i] ? { ...b, ...fix.lines[i] } : b)),
+      qa: st.qa.map((q) => (fix.qa?.[q.id] ? { ...q, ...fix.qa[q.id] } : q)),
+    };
+  }),
   srsSeed: withBreakdowns(vocab.slice(0, 6)),
   writingTasks: [...writingTasks, ...stage1.promotedWritingTasks, ...stage2.promotedWritingTasks],
   infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],

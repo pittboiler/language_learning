@@ -5591,13 +5591,10 @@ function LastTurnRecap({ session }: { session: together.TogetherSession }) {
 // On a line that uses today's grammar the reader also says which bit and why — and the checker holds that
 // answer too. It opens with the whole story played once, and ends with two of its questions asked
 // partner-to-partner. Realtime-synced over partner_artifact 'story-together'; turns from @ll/core/story-together.
-function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId, onExit, lens, progress, persist, config, embedded }: {
+function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId, onExit, progress, persist, config, embedded }: {
   store: PartnerStore; partnerId: string; partnershipId: string; packId: string; myId: string; storyId: string;
   /** `completed`: the read-through was finished (not just left). */
   onExit: (completed: boolean) => void;
-  /** Joint session: what to spot, which lines use it (flagged as you reach them), and the point (for the
-   *  checker's answer key). */
-  lens?: { label: string; highlight: number[]; pointId?: string };
   /** For tap-a-word meanings (optional). */
   progress?: Progress;
   persist?: (p: Progress) => void;
@@ -5614,7 +5611,6 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
   const [sid, setSid] = useState<string | null>(null);
   const [online, setOnline] = useState<string[]>([]);
   const [err, setErr] = useState("");
-  const [intro, setIntro] = useState(true); // "listen first" — local to each screen
   const [playing, setPlaying] = useState<number | null>(null);
   const stopRef = useRef(false);
   const [sel, setSel] = useState<{ lexKey: string; surface: string; line: string } | null>(null);
@@ -5652,16 +5648,18 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
   }, [store, partnershipId, packId, myId, partnerId, storyId, story]);
   useEffect(() => { void buildAndStart(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [storyId]);
 
-  const check = async (got: boolean) => {
+  // Every change goes through the shared row (re-read first), so both screens move together.
+  const update = async (fn: (s: storyTog.StorySession) => storyTog.StorySession) => {
     if (!session) return;
     setErr("");
     try {
       const latest = ((await store.listArtifacts(partnershipId, "story-together")).find((x) => x.id === session.id)?.payload as storyTog.StorySession) ?? session;
-      const next = storyTog.checkTurn(latest, myId, got);
-      await store.putArtifact(partnershipId, packId, "story-together", next, next.id);
+      const next = fn(latest);
+      if (next !== latest) await store.putArtifact(partnershipId, packId, "story-together", next, next.id);
       setSession(next);
     } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup — tap ↻."); }
   };
+  const check = (got: boolean) => update((s) => storyTog.checkTurn(s, myId, got));
 
   // Listen first: the whole story, line by line from cached audio (tap again to stop).
   const playAll = async () => {
@@ -5702,22 +5700,29 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
     );
   }
 
-  if (intro && session.turnIndex === 0) {
+  // The intro: how the read-through works, before any of the story — no text up front (it was confusing to see
+  // it all at once). Starting is shared: either of you taps it and you both go to line 1.
+  if (storyTog.inIntro(session)) {
+    const iGoFirst = session.turns[0]?.reader === myId;
+    const qs = session.turns.filter((t) => t.kind === "qa").length;
     return (
       <div style={colStack}>{HeaderRow}
         {!embedded && <span className="small">📖 Read together · <b>{story.title}</b></span>}
         <div className="fb">
-          <div className="gram-kicker">First, listen</div>
-          <p className="small" style={{ margin: "4px 0 8px" }}>{story.titleGloss ? <><b>{story.titleGloss}</b> — </> : null}hear the whole story once, then read it together line by line: one of you reads a line aloud and says what it means, the other checks. Two quick questions at the end.</p>
-          <div className="gram-ex-list">
-            {story.body.map((b, i) => <div key={i} className="gram-ex" style={playing === i ? { background: "var(--accent-soft, rgba(0,0,0,0.05))" } : undefined}><span className="mk">{b.text}</span></div>)}
-          </div>
+          <div className="gram-kicker">How this works</div>
+          <p className="lead" style={{ margin: "4px 0 6px" }}><b>{story.title}</b>{story.titleGloss ? <span className="muted"> — {story.titleGloss}</span> : null}</p>
+          <ol style={{ margin: "4px 0 8px", paddingLeft: 20 }}>
+            <li>You take turns, one line each. <b>{iGoFirst ? "You read first." : "Your partner reads first."}</b></li>
+            <li>The reader reads the line aloud in Macedonian, then says what it means in English.</li>
+            <li>The other one sees the English and taps <b>✓ Got it</b> or <b>↻ Not quite</b>. After each line you both see what it means.</li>
+            {qs > 0 && <li>At the end, {qs === 1 ? "a question" : `${qs} questions`} about the story: one of you asks, the other answers.</li>}
+          </ol>
           <div className="row" style={{ marginTop: 8 }}>
-            <button className="ghost" onClick={() => void playAll()}>{playing !== null ? "⏹ Stop" : "▶ Listen to the whole story"}</button>
-            <button className="btn" onClick={() => { stopRef.current = true; setPlaying(null); setIntro(false); }}>Start reading →</button>
+            <button className="btn" onClick={() => { stopRef.current = true; setPlaying(null); void update(storyTog.begin); }}>Start reading together →</button>
+            <button className="ghost small" onClick={() => void playAll()}>{playing !== null ? "⏹ Stop" : "▶ Hear it once first"}</button>
           </div>
+          <div className="muted small" style={{ marginTop: 6 }}>Starting moves you both to the first line.{partnerOnline ? "" : " Your partner isn't here yet."}</div>
         </div>
-        {lens && <div className="lens-banner">{lens.label}</div>}
       </div>
     );
   }
@@ -5726,14 +5731,11 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
   const iRead = storyTog.isMyTurnToRead(session, myId);
   const total = session.turns.length;
   const isQa = turn.kind === "qa";
-  const lensLine = !isQa && !!lens?.highlight.includes(turn.index);
-  const focus = lensLine && lens?.pointId ? pack.course?.lineFocus?.[`story:${storyId}#${turn.index}`]?.[lens.pointId] : undefined;
   const lineCount = session.turns.filter((t) => t.kind !== "qa").length;
   const prev = session.turns[session.turnIndex - 1];
   return (
     <div style={colStack}>{HeaderRow}
       {!embedded && <span className="small">📖 Read together · <b>{story.title}</b></span>}
-      {lens && !isQa && <div className="lens-banner">{lens.label}</div>}
       <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
       <div className="muted small">{isQa ? `Question ${turn.index - lineCount + 1} of ${total - lineCount}` : `Line ${session.turnIndex + 1} of ${lineCount}`} · {sc.got} nailed</div>
       {err ? <div className="err">{err}</div> : null}
@@ -5777,7 +5779,6 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
             <b className="target" style={{ fontSize: 22 }}>{progress ? <TappableText text={turn.text} progress={progress} onTapWord={(sf) => onTap(sf, turn.text, turn.gloss)} /> : turn.text}</b>
           </div>
           <div className="translit">{translitOr(turn.text, turn.translit)}</div>
-          {lensLine && <div className="small" style={{ color: "var(--accent)", marginTop: 6 }}>ⓖ This line uses today&apos;s grammar: say which bit, and why.</div>}
           {sel && progress && persist && <WordPanel sel={sel} progress={progress} persist={persist} config={config ?? null} onClose={() => setSel(null)} />}
           <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking your meaning…" : "waiting for your partner to check…"}</div>
         </div>
@@ -5786,14 +5787,9 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
           <div className="muted small">Your partner reads this line &amp; says what it means — did they get it?</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
             <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
-            <b className="target" style={{ fontSize: 20 }}>{focus ? <FocusText text={turn.text} words={focus.words} /> : turn.text}</b>
+            <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
           </div>
           <div className="gloss">means: {turn.gloss}</div>
-          {lensLine && (
-            <div className="small" style={{ color: "var(--accent)", marginTop: 6 }}>
-              ⓖ They should also say which bit is today&apos;s grammar{focus ? <>: <b>{focus.words.join(", ")}</b>{focus.blank?.why ? <span className="muted"> — {focus.blank.why}</span> : null}</> : "."}
-            </div>
-          )}
           <div className="row" style={{ marginTop: 6 }}>
             <button className="btn" onClick={() => check(true)}>✓ Got it</button>
             <button className="ghost" onClick={() => check(false)}>↻ Not quite</button>
@@ -6489,14 +6485,6 @@ function JointSessionView({ store, partnershipId, packId, myId, partnerId, sessi
   if (!row) return <div style={colStack}><button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={onExit}>← Partnered</button><span className="muted small">Loading the session…</span></div>;
   const { phase, refs } = row;
   const nextOf = (from: jsession.JointSection) => `Next: ${SECTION_LABEL[jsession.advance(row, from, "done").phase]}`;
-  const point = refs.pointId ? pack.course?.points.find((p) => p.id === refs.pointId) : undefined;
-  const lens = refs.storyId ? {
-    label: point && refs.storyLines.length
-      ? `Spot it together: ${refs.storyLines.length} line${refs.storyLines.length > 1 ? "s use" : " uses"} ${point.title.toLowerCase()}. When you reach one, the reader says which bit and why.`
-      : "Take turns, line by line: read it aloud and say what it means.",
-    highlight: refs.storyLines,
-    pointId: refs.pointId,
-  } : undefined;
 
   return (
     <div style={colStack}>
@@ -6522,7 +6510,7 @@ function JointSessionView({ store, partnershipId, packId, myId, partnerId, sessi
           progress={progress} persist={persist} next={nextOf("grammar")} onNext={() => move("grammar", "done")} onFinished={() => setFinished("grammar")} />
       )}
       {phase === "story" && refs.storyId && (
-        <StoryTogether key="story" store={store} partnershipId={partnershipId} packId={packId} myId={myId} partnerId={partnerId} storyId={refs.storyId} lens={lens}
+        <StoryTogether key="story" store={store} partnershipId={partnershipId} packId={packId} myId={myId} partnerId={partnerId} storyId={refs.storyId}
           progress={progress} persist={persist} config={config} embedded={{ next: nextOf("story"), onNext: () => move("story", "done"), onFinished: () => setFinished("story") }} onExit={() => onExit()} />
       )}
       {phase === "recap" && <JointSessionRecap row={row} store={store} partnershipId={partnershipId} myId={myId} progress={progress} persist={persist} onFinish={() => void write(jsession.finish).then(onExit)} />}

@@ -1,7 +1,7 @@
 // Runnable check for the "Read it together" turn logic. Run with:
 //   npx tsx packages/core/test/story-together.test.ts
 import assert from "node:assert/strict";
-import { startStoryTogether, currentTurn, isMyTurnToRead, isMyTurnToCheck, checkTurn, isComplete, score, type StoryLine } from "../src/story-together/index.js";
+import { startStoryTogether, currentTurn, isMyTurnToRead, isMyTurnToCheck, checkTurn, isComplete, score, inIntro, begin, type StoryLine } from "../src/story-together/index.js";
 
 const A = "u-a";
 const B = "u-b";
@@ -60,5 +60,13 @@ q = checkTurn(q, q.turns[1]!.checker, true);
 assert.equal(q.status, "active", "the lines are done but the question isn't");
 q = checkTurn(q, q.turns[2]!.checker, false);
 assert.equal(q.status, "complete");
+
+// --- the intro is shared: either partner starting moves both screens to line 1 ---
+const fresh = startStoryTogether("st-intro", "mk", "story-1", A, B, [{ text: "L0", gloss: "g0" }]);
+assert.equal(inIntro(fresh), true, "a new read-through opens on the intro");
+const begun = begin(fresh);
+assert.equal(inIntro(begun), false, "started — for both of you (it's one shared row)");
+assert.equal(begin(begun), begun, "starting twice changes nothing");
+assert.equal(inIntro({ ...fresh, turnIndex: 1 }), false, "an older row past line 1 isn't on the intro");
 
 console.log("story-together.test.ts: all assertions passed");
