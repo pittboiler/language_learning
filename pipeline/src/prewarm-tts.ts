@@ -8,7 +8,7 @@
 import "./env.js"; // MUST be first — populates process.env that tts-cache reads
 import { macedonian as mk } from "@ll/pack-mk";
 import { tokenize } from "@ll/core/familiarity/scoring";
-import { resolveTts, synthesize, putCached, listCachedPaths } from "../../apps/web/lib/tts-cache.js";
+import { resolveTts, synthesizeChecked, putCached, listCachedPaths } from "../../apps/web/lib/tts-cache.js";
 
 const DRY = !!process.env.DRY;
 const VOICE = process.env.ELEVENLABS_VOICE_ID || mk.voiceId;
@@ -58,8 +58,10 @@ async function main() {
   let done = 0, failed = 0;
   for (const w of misses) {
     try {
-      const bytes = await synthesize(w.speakText, w.model, w.voice);
-      await putCached(w.path, bytes);
+      // Checked, like the live route: a take that doesn't say the line is redone (pipeline/src/audit-tts.ts).
+      const res = await synthesizeChecked(w.text, w, { languageCode: mk.languageCode, scribeLang: mk.asr.languageHints[0] ?? "mkd" });
+      if (!res.ok) console.log(`  ~ "${w.text.slice(0, 32)}": best take heard “${res.heard}”`);
+      await putCached(w.path, res.bytes);
       done++;
       if (done % 20 === 0) process.stdout.write(`  …${done}/${misses.length} synthesized\r`);
     } catch (e) {
