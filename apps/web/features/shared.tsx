@@ -36,8 +36,6 @@ export function useRecorder() {
 }
 /** Resolve the effective playback rate from settings — slow on ⇒ the chosen slow rate (default 0.75). */
 export const effectiveRate = (s?: { slow?: boolean; slowRate?: number }) => (s?.slow ? s.slowRate ?? 0.75 : 1);
-// Cosmetic flag per pack id (app-level only — not pack data).
-export const FLAG: Record<string, string> = { mk: "🇲🇰", bg: "🇧🇬" };
 // The script's focus glyphs (unique + false-friends) for any pack.
 export const focusLetters = (pack: LanguagePack) => pack.alphabet.filter((a) => a.unique || a.falseFriend);
 // A pack whose scenarios are all machine-generated + not yet native-reviewed (e.g. Bulgarian). The
@@ -245,3 +243,34 @@ export type NoteAt = { chapterId: string; n: number; stage?: boolean; exam?: boo
 export const ReplayContext = createContext<((at: NoteAt) => void) | null>(null);
 // One-shot hand-offs between views (set just before navigating, read once on mount).
 export const pending: { guidedDeck: string | null; pointFocus: string | null; readerId: string | null; notesFocus: NoteAt | null } = { guidedDeck: null, pointFocus: null, readerId: null, notesFocus: null };
+
+// ---------- Vez building blocks ----------
+/** Progress as cross-stitches: done (a red X), now (half a stitch), to come (a faint dash). */
+export function Stitches({ total, done, now = -1, size = 12, label }: { total: number; done: number; now?: number; size?: number; label: string }) {
+  return (
+    <span className="stitches" role="img" aria-label={label}>
+      {Array.from({ length: total }, (_, i) => (
+        <svg key={i} width={size} height={size} viewBox="0 0 12 12" fill="none" strokeLinecap="round" aria-hidden="true"
+          stroke={i === now ? "var(--text)" : i < done ? "var(--accent)" : "var(--line-faint)"} strokeWidth={i < done || i === now ? 2.2 : 2}>
+          <path d={i === now ? "M2 2l8 8" : i < done ? "M2 2l8 8M10 2l-8 8" : "M2 10h8"} />
+        </svg>
+      ))}
+    </span>
+  );
+}
+
+const CYRILLIC_RUN = /[Ѐ-ӿ]+(?:[\s,'’-]+[Ѐ-ӿ]+)*/g;
+/** English copy with target-language words in it (agenda lines, recaps): each Cyrillic run is tagged with
+ *  the pack's lang, so it gets the text face and screen readers read it in the right voice. */
+export function MixedText({ text }: { text: string }) {
+  const pack = usePack();
+  const parts: (string | { mk: string })[] = [];
+  let last = 0;
+  for (const m of text.matchAll(CYRILLIC_RUN)) {
+    if (m.index! > last) parts.push(text.slice(last, m.index));
+    parts.push({ mk: m[0] });
+    last = m.index! + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return <>{parts.map((p, i) => (typeof p === "string" ? p : <span key={i} lang={pack.id}>{p.mk}</span>))}</>;
+}

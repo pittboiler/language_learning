@@ -18,7 +18,7 @@ export interface Progress {
   /** Active mini-story id for the story reader (null ⇒ first story). Lets the partner "shared story" deep-link. */
   storyPick?: string | null;
   /** App-level user settings (not pack data) — e.g. whether the other speaker's lines auto-play. */
-  settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean; courseV2?: boolean };
+  settings?: { autoplay?: boolean; slow?: boolean; slowRate?: number; partnerIntroSeen?: boolean; courseV2?: boolean; theme?: "system" | "light" | "dark" };
   /** Position in the course blueprint (lib/course-player.ts) — only used when the new course is on. */
   course?: { chapterId: string; session: number; retry?: boolean; stageReviewAfter?: string; examAfter?: string; finished?: boolean; v?: string };
   /** Midterm / final attempts, by exam id (newest last). Exams don't gate the course; these feed Progress. */

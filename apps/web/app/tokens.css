@@ -1,0 +1,114 @@
+/* Vez design tokens (red and black embroidery on linen). Light by default; dark follows the system
+   setting unless the learner picks one, via <html data-theme="light|dark">. Not imported yet: the
+   restyle imports this before globals.css and deletes globals.css's own :root block. */
+
+:root {
+  color-scheme: light;
+
+  /* colour */
+  --bg: #EEEBE5;            /* page (linen) */
+  --surface: #FAF8F4;       /* cards, sheets */
+  --surface-sunk: #E4DFD6;  /* wells, tracks, disabled fills */
+  --text: #1C1815;
+  --text-muted: #5C544D;
+  --line: #D3CBBF;          /* borders */
+  --line-faint: #C9C0B4;    /* dotted leaders, upcoming stitches (decorative only) */
+  --accent: #9E1F28;        /* red thread: actions, brand, progress, new words */
+  --accent-strong: #7F1820; /* hover / pressed */
+  --accent-soft: #F2DEDC;
+  --on-accent: #FFFFFF;
+  --fix: #8A5A00;           /* gold thread: needs work, words still being learned */
+  --fix-soft: #F5E7C8;
+  --good: #2C4A7A;          /* indigo thread: correct, said clearly */
+  --good-soft: #DFE6F2;
+  --focus: #2C4A7A;
+  --scrim: rgba(28, 24, 21, .45);
+  --sheet-shadow: 0 -8px 24px rgba(28, 24, 21, .10);
+
+  /* words in a story */
+  --word-new-bg: var(--accent-soft);
+  --word-learning-line: var(--fix);
+  --word-tapped-ring: var(--accent);
+
+  /* type: load Literata + Golos Text with next/font/google (variable: --font-literata / --font-golos) */
+  --font-text: var(--font-literata, "Literata"), Georgia, "Times New Roman", serif; /* Macedonian, headings, glosses */
+  --font-ui: var(--font-golos, "Golos Text"), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-xs: 12px;   /* overlines (600, +0.12em, uppercase), meta */
+  --text-sm: 13px;
+  --text-base: 15px; /* interface */
+  --text-md: 17px;
+  --text-lg: 19px;   /* Macedonian reading text */
+  --text-xl: 24px;
+  --text-2xl: 28px;  /* the line you're about to say */
+  --text-3xl: 38px;  /* display */
+
+  /* space, shape, size */
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+  --radius-sm: 6px;  /* cards, tiles, panels */
+  --radius: 8px;     /* buttons, inputs */
+  --radius-sheet: 24px;
+  --radius-pill: 999px;
+  --tap: 44px;       /* minimum touch target */
+  --button-h: 52px;  /* primary actions */
+  --frame: 0 0 0 4px var(--surface), 0 0 0 5px var(--line); /* the double-rule "menu card" border */
+
+  /* legacy names used by today's globals.css, so screens can move over one at a time */
+  --card: var(--surface);
+  --fg: var(--text);
+  --mut: var(--text-muted);
+  --ok: var(--good);
+  --warn: var(--fix);
+  --bad: var(--accent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #141110;
+    --surface: #1E1A18;
+    --surface-sunk: #29231F;
+    --text: #F0EAE3;
+    --text-muted: #AFA59A;
+    --line: #3B342F;
+    --line-faint: #4A423C;
+    --accent: #EC7A73;
+    --accent-strong: #F29790;
+    --accent-soft: #3D2120;
+    --on-accent: #141110;
+    --fix: #E3B04B;
+    --fix-soft: #3A2C12;
+    --good: #9DB7E8;
+    --good-soft: #1E2738;
+    --focus: #9DB7E8;
+    --scrim: rgba(0, 0, 0, .6);
+    --sheet-shadow: 0 -8px 24px rgba(0, 0, 0, .45);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #141110;
+  --surface: #1E1A18;
+  --surface-sunk: #29231F;
+  --text: #F0EAE3;
+  --text-muted: #AFA59A;
+  --line: #3B342F;
+  --line-faint: #4A423C;
+  --accent: #EC7A73;
+  --accent-strong: #F29790;
+  --accent-soft: #3D2120;
+  --on-accent: #141110;
+  --fix: #E3B04B;
+  --fix-soft: #3A2C12;
+  --good: #9DB7E8;
+  --good-soft: #1E2738;
+  --focus: #9DB7E8;
+  --scrim: rgba(0, 0, 0, .6);
+  --sheet-shadow: 0 -8px 24px rgba(0, 0, 0, .45);
+}
+
+/* Target-language text is set upright in the text face and tagged with its lang (mk, or bg for the
+   Bulgarian pack), so the font can use the local letter shapes (б г д п т) and screen readers switch
+   voice. Never italicise it. */
+:lang(mk), :lang(bg) { font-family: var(--font-text); font-style: normal; }

@@ -16,7 +16,7 @@ import { ExamView } from "../exam/Exam";
 import { GrammarIntroCard, GrammarPracticeCard } from "../grammar/GrammarCards";
 import { Letters } from "../letters/Letters";
 import { TodayStoryStep } from "../reading/StoryReader";
-import { LibView, NoteAt, Section, bumpStreak, captureWords, currentStory, focusLetters, gradeItem, isDue, markSeen, partnerScenario, pending, scenarioVocab, seedStoryVocab, usePack, writingUnlocked } from "../shared";
+import { LibView, NoteAt, Section, Stitches, bumpStreak, captureWords, currentStory, focusLetters, gradeItem, isDue, markSeen, partnerScenario, pending, scenarioVocab, seedStoryVocab, usePack, writingUnlocked } from "../shared";
 import { AgendaCard } from "./AgendaCard";
 import { ChapterCheckpoint, StageReview } from "./Checkpoint";
 import { CourseRecap } from "./CourseRecap";
@@ -268,7 +268,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
     return (
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
-        <h3 style={{ marginTop: 4 }}>Done for today 🎉</h3>
+        <h2 style={{ marginTop: 4 }}>Done for today</h2>
         <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
         <div className="row" style={{ marginTop: 4 }}>
           {v2
@@ -283,7 +283,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
     return (
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
-        <p className="lead">You&apos;re all caught up for today. 🎉 Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
+        <p className="lead">You&apos;re all caught up for today. Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
       </section>
     );
@@ -319,7 +319,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
       return (
         <section className="view">
           <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
-          <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
+          <h2 style={{ marginTop: 4 }}>Session done</h2>
           <p className="lead">Nice work — you finished today&apos;s session.</p>
           <div className="fb" style={{ marginTop: 4 }}>
             <div className="muted small" style={{ marginBottom: 6 }}>You slipped on {missed.length} item{missed.length > 1 ? "s" : ""} this session:</div>
@@ -345,7 +345,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
     return (
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
-        <h3 style={{ marginTop: 4 }}>Session complete 🎉</h3>
+        <h2 style={{ marginTop: 4 }}>Session done</h2>
         <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
         <div className="row" style={{ marginTop: 4 }}>
           {v2 && <button className="btn" onClick={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}>Start the next session now →</button>}
@@ -360,10 +360,10 @@ export function Today({ progress, persist, config, navigate, replay }: {
   return (
     <section className="view">
       <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
-      <div className="pbar"><div style={{ width: `${(idx / steps.length) * 100}%` }} /></div>
-      <div className="muted small" style={{ marginBottom: 14 }}>
-        Step {idx + 1} of {steps.length} · ~{est} min
-        {reviewDay && <> · <b>review day</b> — nothing new today, just what you&apos;ve already met</>}
+      <div className="step-meta">
+        <Stitches total={steps.length} done={idx} now={idx} size={10} label={`Step ${idx + 1} of ${steps.length}`} />
+        <span>Step {idx + 1} of {steps.length} · about {est} min</span>
+        {reviewDay && <span>· <b>review day</b>: nothing new, just what you&apos;ve already met</span>}
       </div>
 
       <div key={idx}>
@@ -552,10 +552,11 @@ export function Today({ progress, persist, config, navigate, replay }: {
         )}
       </div>
 
-      {/* The exam has its own skips (per task, and "take it later") — a generic skip would drop it unsaved. */}
-      {step.kind !== "exam" && (
-        <div className="row" style={{ marginTop: 14 }}>
-          <button className="ghost small" onClick={() => done()}>Skip this step →</button>
+      {/* The exam has its own skips (per task, and "take it later") — a generic skip would drop it unsaved.
+          The menu's own button already moves on, so it needs no second one. */}
+      {step.kind !== "exam" && step.kind !== "agenda" && (
+        <div className="row" style={{ marginTop: 18 }}>
+          <button className="quiet" onClick={() => done()}>Skip this step</button>
         </div>
       )}
     </section>

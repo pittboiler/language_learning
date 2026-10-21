@@ -38,10 +38,11 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, onRe
     <div>
       {notes ? (
         <>
-          <h3 style={{ marginTop: 4, marginBottom: 2 }}>Lesson notes · {notes.title}</h3>
+          <div className="overline">Lesson notes</div>
+          <h2 style={{ marginTop: 4 }}>{notes.title}</h2>
           {notes.when && <p className="muted small" style={{ marginTop: 0 }}>{notes.when}</p>}
         </>
-      ) : <h3 style={{ marginTop: 4 }}>Today&apos;s recap</h3>}
+      ) : <div className="stitch-rule">Today’s recap · session done</div>}
       {pos.kind === "stage-review" && <p className="lead">{notes ? "A stage review: a sample of every chapter in the stage." : "Stage review done — everything you missed is back in your reviews."}</p>}
       {pos.kind === "exam" && <p className="lead">{notes ? `${pos.exam.title}: your results are in Progress → The course.` : `${pos.exam.title} done. Your results are saved in Progress → The course, where you can retake it any time.`}</p>}
 

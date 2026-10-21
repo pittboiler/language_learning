@@ -22,7 +22,7 @@ import { Review } from "../features/flashcards/Review";
 import { LibrarySection } from "../features/library/LibrarySection";
 import { PartnerPanel, publishMine } from "../features/partner/PartnerPanel";
 import { ProgressDash } from "../features/progress/ProgressDash";
-import { CourseOrderContext, FLAG, LibView, NoteAt, PackContext, ReplayContext, Section, SlowContext, computeLevel, effectiveRate, focusLetters, isDue, nameCard } from "../features/shared";
+import { CourseOrderContext, LibView, NoteAt, PackContext, ReplayContext, Section, SlowContext, computeLevel, effectiveRate, focusLetters, isDue, nameCard } from "../features/shared";
 import { Today } from "../features/today/Today";
 
 export default function Home() {
@@ -57,6 +57,17 @@ export default function Home() {
   // Who's signed in (drives the header account chip). Re-read when the account panel closes, so signing
   // in/out there reflects immediately.
   useEffect(() => { void currentUser().then(setAuthUser).catch(() => {}); }, [acctOpen]);
+
+  // Light / dark / follow the system. The setting syncs with progress; localStorage keeps a copy so the
+  // layout can apply it before first paint next time.
+  const theme = progress.settings?.theme ?? "system";
+  useEffect(() => {
+    if (!ready) return;
+    const root = document.documentElement;
+    if (theme === "system") delete root.dataset.theme;
+    else root.dataset.theme = theme;
+    try { localStorage.setItem("ll-theme", theme); } catch { /* private mode: first paint follows the system */ }
+  }, [theme, ready]);
 
   const persist = useCallback(
     (next: Progress) => {
@@ -121,11 +132,14 @@ export default function Home() {
     <PackContext.Provider value={pack}>
       <SlowContext.Provider value={effectiveRate(progress.settings)}>
       <header>
-        <h1>{FLAG[pack.id] ?? "🌐"} {pack.name}</h1>
-        <span className="muted small">Level {level.cefrBand} · <b style={{ color: "var(--ok)" }}>{vocab.knownWordCount}</b> words known</span>
-        <button className="ghost small" style={{ marginLeft: "auto", marginRight: 6 }} title="Playback speed for all spoken audio" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !progress.settings?.slow } })}>{progress.settings?.slow ? "🐢 Slow" : "🔊 Normal"}</button>
-        <span className="streak-chip" title="Day streak">🔥 {progress.streak?.count ?? 0}</span>
-        <button className="streak-chip" style={{ cursor: "pointer" }} title="Account & settings" onClick={() => setAcctOpen(true)}>👤 {authUser && !authUser.isAnonymous && authUser.email ? authUser.email.split("@")[0] : "Account"}</button>
+        <div className="brand">
+          <h1>{pack.name}</h1>
+          <span className="header-meta">Level {level.cefrBand} · {vocab.knownWordCount} words known</span>
+        </div>
+        <div className="header-actions">
+          <button className="ghost small" aria-label={`Playback speed: ${progress.settings?.slow ? "slow" : "normal"}`} title="Playback speed for all spoken audio" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !progress.settings?.slow } })}>{progress.settings?.slow ? `${effectiveRate(progress.settings)}×` : "1×"}</button>
+          <button className="avatar" aria-label="Account and settings" title="Account & settings" onClick={() => setAcctOpen(true)}>{(authUser && !authUser.isAnonymous && authUser.email ? authUser.email[0]! : "").toUpperCase() || <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" /></svg>}</button>
+        </div>
       </header>
       <nav>
         {([

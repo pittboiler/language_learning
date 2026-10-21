@@ -5,7 +5,7 @@ import { packList } from "../../lib/packs";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../../lib/supabase";
-import { FLAG, packUnreviewed, usePack } from "../shared";
+import { packUnreviewed, usePack } from "../shared";
 
 // Account / cross-device profile: magic-link sign-in (passwordless). Since progress already upserts to
 // user_state keyed by uid, signing in with the same email on another device makes uid() stable across
@@ -80,29 +80,39 @@ export function AccountPanel({ progress, persist, config, onClose }: { progress:
   const slowRate = progress.settings?.slowRate ?? 0.75;
   const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
   return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 50, display: "flex", justifyContent: "flex-end" }}>
-      <div className="view" onClick={(e) => e.stopPropagation()} style={{ width: "min(440px, 94vw)", height: "100%", borderRadius: 0, overflowY: "auto" }}>
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--scrim)", zIndex: 50, display: "flex", justifyContent: "flex-end" }}>
+      <div className="drawer" role="dialog" aria-modal="true" aria-label="Account and settings" onClick={(e) => e.stopPropagation()}>
         <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ margin: 0 }}>Account &amp; settings</h2>
-          <button className="ghost small" onClick={onClose}>✕ Close</button>
+          <button className="ghost small" onClick={onClose}>Close</button>
         </div>
         <AccountSettings />
+      <div className="setting-row">
+        <b>Appearance</b>
+        <div className="row" role="group" aria-label="Appearance" style={{ gap: 6 }}>
+          {(["system", "light", "dark"] as const).map((t) => (
+            <button key={t} className={`ghost small${(progress.settings?.theme ?? "system") === t ? " active" : ""}`} aria-pressed={(progress.settings?.theme ?? "system") === t} onClick={() => persist({ ...progress, settings: { ...progress.settings, theme: t } })}>
+              {t === "system" ? "Match my device" : t === "light" ? "Light" : "Dark"}
+            </button>
+          ))}
+        </div>
+      </div>
       <div className="setting-row">
         <b>Language</b>
         {packList().length > 1 ? (
           <select className="lang-picker" aria-label="Language" value={pack.id} onChange={(e) => persist({ ...progress, activePackId: e.target.value, pick: null })}>
-            {packList().map((p) => <option key={p.id} value={p.id}>{(FLAG[p.id] ?? "🌐") + " " + p.name}</option>)}
+            {packList().map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         ) : <span className="muted">{pack.name}</span>}
       </div>
       <div className="setting-row">
         <b>Auto-play audio</b>
-        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } })}>{autoplay ? "🔊 On" : "🔇 Off"}</button>
+        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } })}>{autoplay ? "On" : "Off"}</button>
         <span className="muted small">Play the other speaker's lines automatically in scenarios and stories.</span>
       </div>
       <div className="setting-row">
         <b>Playback speed</b>
-        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !slow } })}>{slow ? "🐢 Slow" : "🔊 Normal"}</button>
+        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !slow } })}>{slow ? "Slow" : "Normal"}</button>
         <span className="muted small">One speed for all spoken audio across the app (also on the header switch).</span>
         {slow && (
           <label className="row small" style={{ width: "100%", gap: 8, marginTop: 6 }}>
