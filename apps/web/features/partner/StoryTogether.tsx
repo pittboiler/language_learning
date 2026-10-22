@@ -7,9 +7,9 @@ import { captureWord, properNounLike } from "../../lib/capture";
 import { subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore } from "../../lib/partner-store";
 import { translitOr } from "../../lib/romanize";
 import * as storyTog from "@ll/core/story-together";
-import { colStack } from "./shared";
+import { Presence, colStack } from "./shared";
 import { TappableText, WordPanel } from "../reading/Reading";
-import { HintButton, SlowContext, usePack, usePlay } from "../shared";
+import { HintButton, Icon, SlowContext, SpeakButton, usePack, usePlay } from "../shared";
 
 // "Read it together": the dyad walks a story LINE BY LINE, taking turns. On your line you read it aloud
 // and say what it means (tap a word if you're stuck); your partner holds the English and taps got/not-quite.
@@ -105,8 +105,8 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
   const partnerOnline = online.includes(partnerId);
   const HeaderRow = (
     <div className="row" style={{ justifyContent: "space-between" }}>
-      {embedded ? <span className="small">📖 Read together · <b>{story?.title}</b></span> : <button className="ghost small" onClick={() => onExit(session?.status === "complete")}>← Partner</button>}
-      <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
+      {embedded ? <span className="small">Read together · <b>{story?.title}</b></span> : <button className="ghost small" onClick={() => onExit(session?.status === "complete")}>← Partner</button>}
+      <span className="muted small"><Presence online={partnerOnline} /> <button className="ghost small" onClick={refresh}>↻</button></span>
     </div>
   );
   if (!story) return <div style={colStack}>{HeaderRow}<span className="muted small">Story not found.</span></div>;
@@ -116,7 +116,7 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
   if (session.status === "complete") {
     return (
       <div style={colStack}>{HeaderRow}
-        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 You read <b>{story.title}</b> together — <b>{sc.got}/{sc.total}</b> nailed.</p>
+        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>You read <b>{story.title}</b> together — <b>{sc.got}/{sc.total}</b> nailed.</p>
         <div className="row">
           {embedded ? <button className="btn" onClick={embedded.onNext}>{embedded.next} →</button> : <button className="btn" onClick={() => onExit(true)}>Done →</button>}
           <button className="ghost" onClick={() => void buildAndStart(true)}>Read again</button>
@@ -132,7 +132,7 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
     const qs = session.turns.filter((t) => t.kind === "qa").length;
     return (
       <div style={colStack}>{HeaderRow}
-        {!embedded && <span className="small">📖 Read together · <b>{story.title}</b></span>}
+        {!embedded && <span className="small">Read together · <b>{story.title}</b></span>}
         <div className="fb">
           <div className="gram-kicker">How this works</div>
           <p className="lead" style={{ margin: "4px 0 6px" }}><b>{story.title}</b>{story.titleGloss ? <span className="muted"> — {story.titleGloss}</span> : null}</p>
@@ -144,7 +144,7 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
           </ol>
           <div className="row" style={{ marginTop: 8 }}>
             <button className="btn" onClick={() => { stopRef.current = true; setPlaying(null); void update(storyTog.begin); }}>Start reading together →</button>
-            <button className="ghost small" onClick={() => void playAll()}>{playing !== null ? "⏹ Stop" : "▶ Hear it once first"}</button>
+            <button className="ghost small" onClick={() => void playAll()}><Icon name={playing !== null ? "stop" : "speaker"} size={16} />{playing !== null ? "Stop" : "Hear it once first"}</button>
           </div>
           <div className="muted small" style={{ marginTop: 6 }}>Starting moves you both to the first line.{partnerOnline ? "" : " Your partner isn't here yet."}</div>
         </div>
@@ -160,7 +160,7 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
   const prev = session.turns[session.turnIndex - 1];
   return (
     <div style={colStack}>{HeaderRow}
-      {!embedded && <span className="small">📖 Read together · <b>{story.title}</b></span>}
+      {!embedded && <span className="small">Read together · <b>{story.title}</b></span>}
       <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
       <div className="muted small">{isQa ? `Question ${turn.index - lineCount + 1} of ${total - lineCount}` : `Line ${session.turnIndex + 1} of ${lineCount}`} · {sc.got} nailed</div>
       {err ? <div className="err">{err}</div> : null}
@@ -176,17 +176,17 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
         <div className="fb">
           <div className="muted small">Your partner asks you about the story — answer out loud, in Macedonian if you can:</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
+            <SpeakButton onClick={() => play(turn.text, 0.9)} />
             <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
           </div>
           <HintButton hint={turn.gloss} label="What does it ask?" />
-          <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking your answer…" : "waiting for your partner…"}</div>
+          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking your answer…" : "waiting for your partner…"}</div>
         </div>
       ) : (
         <div className="fb">
           <div className="muted small">Ask your partner this question, out loud:</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
+            <SpeakButton onClick={() => play(turn.text, 0.9)} />
             <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
           </div>
           <div className="gloss">{turn.gloss}</div>
@@ -200,18 +200,18 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
         <div className="fb">
           <div className="muted small">Your line — read it aloud, then tell your partner what it means{progress ? " (tap a word if you're stuck)" : ""}:</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
+            <SpeakButton onClick={() => play(turn.text, 0.9)} />
             <b className="target" style={{ fontSize: 22 }}>{progress ? <TappableText text={turn.text} progress={progress} onTapWord={(sf) => onTap(sf, turn.text, turn.gloss)} /> : turn.text}</b>
           </div>
           <div className="translit">{translitOr(turn.text, turn.translit)}</div>
           {sel && progress && persist && <WordPanel sel={sel} progress={progress} persist={persist} config={config ?? null} onClose={() => setSel(null)} />}
-          <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking your meaning…" : "waiting for your partner to check…"}</div>
+          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking your meaning…" : "waiting for your partner to check…"}</div>
         </div>
       ) : (
         <div className="fb">
           <div className="muted small">Your partner reads this line &amp; says what it means — did they get it?</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
+            <SpeakButton onClick={() => play(turn.text, 0.9)} />
             <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
           </div>
           <div className="gloss">means: {turn.gloss}</div>

@@ -6,7 +6,7 @@ import { translitOr } from "../../lib/romanize";
 import * as infogap from "@ll/core/infogap";
 import type { InfoGapSession } from "@ll/core/infogap";
 import { colStack } from "./shared";
-import { CourseOrderContext, byCourseOrder, usePack, usePlay } from "../shared";
+import { CourseOrderContext, SpeakButton, byCourseOrder, usePack, usePlay } from "../shared";
 
 // Info-gap (Phase 3, forced interdependence): each partner holds DIFFERENT secret info + a shared
 // goal neither can reach alone. The view renders ONLY this partner's half (briefFor) — the asymmetry
@@ -152,7 +152,7 @@ export function InfoGap({ store, partnershipId, packId, myId, partnerId, session
           <span className="muted small">You can say:</span>
           {brief.targetPhrases.map((p, i) => (
             <div className="row" key={i} style={{ marginTop: 2 }}>
-              <button className="spk" onClick={() => play(p.text, 0.9)}>🔊</button>
+              <SpeakButton onClick={() => play(p.text, 0.9)} />
               <span><b>{p.text}</b> <span className="muted small">· {translitOr(p.text, p.translit)} — {p.gloss}</span></span>
             </div>
           ))}
@@ -167,7 +167,7 @@ export function InfoGap({ store, partnershipId, packId, myId, partnerId, session
           </button>
         );
       })}
-      {done && <p className="lead" style={{ color: "var(--ok)", margin: "6px 0 0" }}>🎉 Gap bridged — you pulled it off together!</p>}
+      {done && <p className="lead" style={{ color: "var(--ok)", margin: "6px 0 0" }}>Gap bridged — you pulled it off together!</p>}
     </div>
   );
 }

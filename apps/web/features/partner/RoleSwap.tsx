@@ -7,7 +7,7 @@ import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
 import { blobToDataUrl, colStack, playDataUrl } from "./shared";
-import { CourseOrderContext, byCourseOrder, usePack, useRecorder } from "../shared";
+import { CourseOrderContext, Icon, byCourseOrder, usePack, useRecorder } from "../shared";
 
 // Overview entry: list in-progress/ready role-swaps + start a new one.
 export function RoleSwapSection({ store, partnershipId, onOpen }: { store: PartnerStore; partnershipId: string; onOpen: (id: string | "new") => void }) {
@@ -45,7 +45,7 @@ export function RoleSwapSection({ store, partnershipId, onOpen }: { store: Partn
             const done = s.turns.filter((t) => t.recordedBy).length;
             return (
               <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
-                <span className="small">{title} <span className="muted">· {s.status === "complete" ? "ready ▶" : `${done}/${s.turns.length} lines`}</span></span>
+                <span className="small">{title} <span className="muted">· {s.status === "complete" ? "ready to play" : `${done}/${s.turns.length} lines`}</span></span>
                 <button className="ghost small" onClick={() => onOpen(a.id)}>Open</button>
               </li>
             );
@@ -170,14 +170,14 @@ export function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessio
             <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss} · {translitOr(t.text, t.translit)}</span></div>
             {t.recordedBy ? (
               <div className="row" style={{ marginTop: 4 }}>
-                <button className="ghost small" onClick={() => t.audio && playDataUrl(t.audio)}>▶ play</button>
+                <button className="ghost small" onClick={() => t.audio && playDataUrl(t.audio)}><Icon name="speaker" size={16} />Play</button>
                 <span className="muted small">{t.recordedBy === myId ? "you" : "partner"} recorded{t.feedback ? ` · ${t.feedback.score}/100` : ""}</span>
               </div>
             ) : mine ? (
               recIdx === t.index ? (
-                <button className="rec" onClick={() => onStop(t)}>⏹ Stop &amp; save</button>
+                <button className="rec" onClick={() => onStop(t)}><Icon name="stop" size={16} />Stop and save</button>
               ) : (
-                <button className="btn small" disabled={busyIdx !== null} onClick={() => onRecord(t)}>{busyIdx === t.index ? "saving…" : "● record your line"}</button>
+                <button className="btn small" disabled={busyIdx !== null} onClick={() => onRecord(t)}><Icon name="mic" size={14} />{busyIdx === t.index ? "Saving…" : "Record your line"}</button>
               )
             ) : (
               <span className="muted small">awaiting partner</span>
@@ -185,7 +185,7 @@ export function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessio
           </div>
         );
       })}
-      {roleswap.isStitchable(session) && <button className="btn" onClick={playAll}>▶ Play the whole conversation</button>}
+      {roleswap.isStitchable(session) && <button className="btn" onClick={playAll}><Icon name="speaker" size={16} />Play the whole conversation</button>}
     </div>
   );
 }

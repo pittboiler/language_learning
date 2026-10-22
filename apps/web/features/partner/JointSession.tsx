@@ -15,8 +15,8 @@ import * as gtog from "@ll/core/partner/grammar-together";
 import { FocusText } from "../conversation/ScenarioView";
 import { StoryTogether } from "./StoryTogether";
 import { TogetherSession } from "./TogetherSession";
-import { colStack } from "./shared";
-import { HintButton, gradeItem, usePack, usePlay } from "../shared";
+import { Presence, colStack } from "./shared";
+import { HintButton, SpeakButton, gradeItem, usePack, usePlay } from "../shared";
 
 // Off the course (no blueprint): pick a story for the partnered session by SHARED readiness — the scenario
 // whose vocabulary both have actually studied — so it lands at the pair's level. Falls back to the
@@ -191,7 +191,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
   const head = (
     <div className="row" style={{ justifyContent: "space-between" }}>
       <span className="small">📚 Grammar together{point ? <> · <b>{point.title}</b></> : null}</span>
-      <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
+      <span className="muted small"><Presence online={partnerOnline} /> <button className="ghost small" onClick={refresh}>↻</button></span>
     </div>
   );
   if (!g || !point) return <div style={colStack}>{head}{err ? <div className="err">{err}</div> : <span className="muted small">Setting up…</span>}</div>;
@@ -214,7 +214,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
       <div className="gram-ex-list">
         {point.examples.slice(0, 3).map((ex) => (
           <div className="gram-ex" key={ex.source}>
-            <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
+            <SpeakButton label={`Play ${ex.text}`} onClick={() => play(ex.text)} />
             <span className="mk">{ex.text}</span><span className="en">{ex.gloss}</span>
           </div>
         ))}
@@ -226,7 +226,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
     return (
       <div style={colStack}>{head}
         {lastResult}
-        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 {sc.got}/{sc.total} right together.</p>
+        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>{sc.got}/{sc.total} right together.</p>
         <div className="gram-plain"><span className="lab">In short</span><p>{point.recap}</p></div>
         <div className="row"><button className="btn" onClick={onNext}>{next} →</button></div>
       </div>
@@ -251,7 +251,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
         <div className="fb">
           <div className="muted small">Read this line aloud to your partner:</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <button className="spk" onClick={() => play(t.line, 0.9)}>🔊</button>
+            <SpeakButton onClick={() => play(t.line, 0.9)} />
             <b className="target" style={{ fontSize: 20 }}>{t.line}</b>
           </div>
           <div className="gloss">{t.gloss}</div>
@@ -270,7 +270,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
           <div className="gloss">{t.gloss}</div>
           <p className="lead" style={{ margin: "10px 0 4px" }}>Now say it about <b className="target">{t.pronoun}</b> ({t.personEn}), out loud.</p>
           <HintButton hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
-          <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking…" : "waiting for your partner…"}</div>
+          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking…" : "waiting for your partner…"}</div>
         </div>
       ))}
       {t.kind === "read" && (
@@ -278,7 +278,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
           <div className="muted small">{iAsk ? "Read the rule aloud to your partner, examples too:" : "Your partner is reading the rule aloud — follow along:"}</div>
           {ruleBox}
           {iAsk ? <button className="btn" style={{ marginTop: 8 }} onClick={() => void act((s) => gtog.doneReading(s, myId))}>Done reading →</button>
-            : <div className="muted small" style={{ marginTop: 8 }}>🗣 {partnerOnline ? "Listening…" : "waiting for your partner…"}</div>}
+            : <div className="muted small" style={{ marginTop: 8 }}>{partnerOnline ? "Listening…" : "waiting for your partner…"}</div>}
         </div>
       )}
       {t.kind === "rule" && (iAsk ? (
@@ -302,7 +302,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
         <div className="fb">
           <div className="muted small">Read this aloud, saying “hmm” at the gap — your partner picks the word:</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <button className="spk" onClick={() => play(t.line, 0.9)}>🔊</button>
+            <SpeakButton onClick={() => play(t.line, 0.9)} />
             <b className="target" style={{ fontSize: 20 }}><FocusText text={t.line} words={[t.answer]} /></b>
           </div>
           <div className="gloss">{t.gloss}</div>
@@ -370,7 +370,7 @@ export function JointSessionRecap({ row, store, partnershipId, myId, progress, p
             <div className="gram-ex-list">
               {refs.storyLines.map((i) => st.body[i]).filter(Boolean).map((b) => (
                 <div className="gram-ex" key={b!.text}>
-                  <button className="gram-play" onClick={() => play(b!.text)} aria-label={`Play ${b!.text}`}>▶</button>
+                  <SpeakButton label={`Play ${b!.text}`} onClick={() => play(b!.text)} />
                   <span className="mk"><FocusText text={b!.text} words={pack.course?.lineFocus?.[`story:${st.id}#${st.body.indexOf(b!)}`]?.[point.id]?.words} /></span><span className="en">{b!.gloss}</span>
                 </div>
               ))}

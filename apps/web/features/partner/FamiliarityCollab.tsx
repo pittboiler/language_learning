@@ -7,7 +7,7 @@ import type { ComplementaryDiff } from "@ll/core/partner/familiarity-diff";
 import * as teachback from "@ll/core/teachback";
 import * as complementarySrs from "@ll/core/partner/complementary-srs";
 import { blobToDataUrl, playDataUrl } from "./shared";
-import { useRecorder } from "../shared";
+import { Icon, useRecorder } from "../shared";
 
 // Familiarity-driven collaboration (Phase 2): one complementaryDiff over the two partners' gated
 // familiarity projections, surfaced two ways — complementary review ("your partner knows this — ask
@@ -91,9 +91,9 @@ export function FamiliarityCollab({ store, partnershipId, packId, myId, partnerI
               {taught.has(p.lexKey) ? (
                 <span className="badge on">sent ✓</span>
               ) : recKey === p.lexKey ? (
-                <button className="rec" onClick={() => stopTeach(p.lexKey)}>⏹ Stop &amp; send</button>
+                <button className="rec" onClick={() => stopTeach(p.lexKey)}><Icon name="stop" size={16} />Stop and send</button>
               ) : (
-                <button className="ghost small" disabled={busyKey !== null} onClick={() => startTeach(p.lexKey)}>{busyKey === p.lexKey ? "saving…" : "● explain"}</button>
+                <button className="ghost small" disabled={busyKey !== null} onClick={() => startTeach(p.lexKey)}><Icon name="mic" size={14} />{busyKey === p.lexKey ? "Saving…" : "Explain"}</button>
               )}
             </div>
           ))}
@@ -107,7 +107,7 @@ export function FamiliarityCollab({ store, partnershipId, packId, myId, partnerI
             return (
               <div className="row" key={a.id} style={{ marginTop: 4 }}>
                 <b>{label(pl.lexKey ?? "")}</b>
-                <button className="ghost small" onClick={() => pl.audio && playDataUrl(pl.audio)}>▶ play</button>
+                <button className="ghost small" onClick={() => pl.audio && playDataUrl(pl.audio)}><Icon name="speaker" size={16} />Play</button>
               </div>
             );
           })}

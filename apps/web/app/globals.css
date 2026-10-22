@@ -437,3 +437,38 @@ input.text { flex: 1; min-width: 180px; min-height: 44px; background: var(--surf
 .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .stat .v { white-space: nowrap; }
 @media (max-width: 640px) { .stats { gap: 8px; } .stat { padding: 10px 12px; } .stat .v { font-size: 24px; } }
+
+/* ---- grammar: the lesson, its examples and checks, and the reference list ---- */
+.lesson-title { font-size: 27px; line-height: 1.15; margin: 6px 0 10px; text-wrap: pretty; }
+.lesson-rule { font-size: 16px; line-height: 1.55; margin: 0 0 14px; text-wrap: pretty; }
+.gram-table td :lang(mk), .gram-table td :lang(bg) { font-size: 17px; }
+.gram-ex { align-items: flex-start; padding: 6px 0; }
+.gram-ex .ex-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; padding-top: 4px; }
+.gram-ex .ex-text .mk { font-size: 18px; line-height: 1.35; }
+.gram-ex .ex-text .en { font-family: var(--font-text); font-style: italic; font-size: 14px; }
+.checks-card { padding: 16px 18px; margin: 20px 5px 0; }
+.drill { padding: 14px 0 4px; border-top: 1.5px dotted var(--line-faint); }
+.drill:first-of-type { border-top: 0; padding-top: 8px; }
+.drill-q { font-family: var(--font-text); font-size: 18px; font-weight: 600; line-height: 1.35; }
+.drill-why { margin-top: 10px; font-size: 14px; color: var(--text-muted); line-height: 1.5; }
+.drill-why .result-ok, .drill-why .result-miss { margin-right: 6px; }
+.concept { border: 0; border-bottom: 1.5px dotted var(--line-faint); border-radius: 0; background: transparent; padding: 12px 2px; margin: 0; }
+.concept.open { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--frame); padding: 14px 16px; margin: 10px 5px; }
+.concept.upcoming .pt-title { color: var(--text-muted); }
+.pt-title { display: inline-flex; align-items: baseline; gap: 6px; }
+.pt-title svg { color: var(--good); flex: none; transform: translateY(2px); }
+.concept ul { line-height: 1.55; }
+
+/* ---- Partnered: invite / join, the linked home, presence ---- */
+.partner-card { padding: 20px 18px; margin: 6px 5px 4px; }
+.or-rule { display: flex; align-items: center; gap: 12px; margin: 16px 0 10px; font-size: 13px; color: var(--text-muted); }
+.or-rule::before, .or-rule::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+.invite-code { font-family: var(--font-text); font-size: 38px; font-weight: 600; letter-spacing: .18em; margin: 10px 0 8px; color: var(--accent); }
+.partner-status { padding-bottom: 14px; border-bottom: 1.5px dotted var(--line-faint); }
+.who-label { display: inline-block; min-width: 84px; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); }
+.presence { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-muted); }
+.presence::before { content: ""; width: 8px; height: 8px; border-radius: 4px; background: var(--line-faint); }
+.presence.on { color: var(--good); font-weight: 600; }
+.presence.on::before { background: var(--good); }
+.lib-item.plain { grid-template-columns: minmax(0, 1fr) auto; }
+.menu-n svg { color: var(--good); }

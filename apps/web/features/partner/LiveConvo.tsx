@@ -5,8 +5,8 @@ import { subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, 
 import { translitOr } from "../../lib/romanize";
 import * as live from "@ll/core/live";
 import type { LiveSession } from "@ll/core/live";
-import { colStack } from "./shared";
-import { CourseOrderContext, byCourseOrder, usePack, usePlay, useRecorder } from "../shared";
+import { Presence, colStack } from "./shared";
+import { CourseOrderContext, Icon, SpeakButton, byCourseOrder, usePack, usePlay, useRecorder } from "../shared";
 
 // Live conversation (Phase 4, crown jewel): the app coaches a real-time conversation between the two
 // learners over a scenario. The session is a 'live' partner_artifact; both screens stay in sync via
@@ -220,7 +220,7 @@ export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessi
     <div style={colStack}>
       <div className="row" style={{ justifyContent: "space-between" }}>
         <span className="small">Live · <b>{done ? "complete" : myTurn ? "your turn to speak" : "your partner's turn"}</b></span>
-        <span className="muted small">{partnerOnline ? "🟢 partner here" : "⚪ waiting for partner"} <button className="ghost small" onClick={refresh}>↻</button></span>
+        <span className="muted small"><Presence online={partnerOnline} /> <button className="ghost small" onClick={refresh}>↻</button></span>
       </div>
       {session.turns.filter((t) => t.spokenBy).map((t) => (
         <div className="fb" key={t.index}>
@@ -229,20 +229,20 @@ export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessi
           {t.transcript ? <div className="muted small">heard: {t.transcript}{typeof t.score === "number" ? ` · ${t.score}/100` : " · scoring…"}</div> : null}
         </div>
       ))}
-      {tip && <div className="fb"><span className="muted small">💡 on your last line: {tip}</span></div>}
+      {tip && <div className="fb"><span className="muted small">On your last line: {tip}</span></div>}
       {done ? (
-        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>🎉 Conversation complete — nicely done, both of you!</p>
+        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>Conversation complete — nicely done, both of you!</p>
       ) : myTurn ? (
         <div className="fb">
           <div className="muted small">Your line:</div>
-          <div className="row"><button className="spk" onClick={() => turn && play(turn.text, 0.9)}>🔊</button> <b>{turn?.text}</b></div>
+          <div className="row"><SpeakButton onClick={() => turn && play(turn.text, 0.9)} /> <b>{turn?.text}</b></div>
           <div className="gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
-          {recording ? <button className="rec" onClick={speak}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={startRec}>{busy ? "scoring…" : "● say it"}</button>}
+          {recording ? <button className="rec" onClick={speak}><Icon name="stop" size={16} />Stop</button> : <button className="btn" disabled={busy} onClick={startRec}><Icon name="mic" size={16} />{busy ? "Scoring…" : "Say it"}</button>}
         </div>
       ) : (
         <div className="fb">
           <div className="muted small">🎙 Your partner&apos;s line — follow along &amp; help:</div>
-          <div className="row"><button className="spk" onClick={() => turn && play(turn.text, 0.9)}>🔊</button> <b>{turn?.text}</b></div>
+          <div className="row"><SpeakButton onClick={() => turn && play(turn.text, 0.9)} /> <b>{turn?.text}</b></div>
           <div className="gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
         </div>
       )}

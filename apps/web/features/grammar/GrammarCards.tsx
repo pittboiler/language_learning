@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import type { GrammarConcept } from "@ll/pack-schema";
 import { rotate, shuffle } from "../../lib/today-plan";
 import { Drill } from "./PointLibrary";
-import { usePlay } from "../shared";
+import { Icon, MixedText, SpeakButton, usePack, usePlay } from "../shared";
 
 // Split an example line "<target> — <English>" into its two halves (audio plays the target half).
 export function splitExample(s: string): { mk: string; en: string } {
@@ -14,6 +14,7 @@ export function splitExample(s: string): { mk: string; en: string } {
 // table (the changing part spotlighted), the when/why note, and tappable examples with audio. Used by
 // the daily intro card, the reference, and the inline scenario notes (compact ⇒ skip the table).
 export function GrammarExplainer({ concept, compact }: { concept: GrammarConcept; compact?: boolean }) {
+  const pack = usePack();
   const play = usePlay();
   const { plain, pattern, explanation, examples } = concept;
   return (
@@ -21,7 +22,7 @@ export function GrammarExplainer({ concept, compact }: { concept: GrammarConcept
       {plain && (
         <div className="gram-plain">
           <span className="lab">In plain English</span>
-          <p>{plain}</p>
+          <p><MixedText text={plain} /></p>
         </div>
       )}
       {!compact && pattern && (
@@ -33,23 +34,22 @@ export function GrammarExplainer({ concept, compact }: { concept: GrammarConcept
             {pattern.rows.map((row, ri) => (
               <tr key={ri}>
                 {row.map((cell, ci) => (
-                  <td key={ci}>{ci === pattern.spotlightCol ? <span className="gram-spot">{cell}</span> : cell}</td>
+                  <td key={ci}>{ci === pattern.spotlightCol ? <span className="gram-spot"><MixedText text={cell} /></span> : <MixedText text={cell} />}</td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
       )}
-      {explanation && <p className="gram-when">{!compact && <b>When &amp; why:&nbsp;</b>}<span>{explanation}</span></p>}
+      {explanation && <p className="gram-when">{!compact && <b>When &amp; why:&nbsp;</b>}<span><MixedText text={explanation} /></span></p>}
       {examples.length > 0 && (
         <div className="gram-ex-list">
           {examples.map((ex, i) => {
             const { mk, en } = splitExample(ex);
             return (
               <div className="gram-ex" key={i}>
-                <button className="gram-play" onClick={() => play(mk)} aria-label={`Play ${mk}`}>▶</button>
-                <span className="mk">{mk}</span>
-                {en && <span className="en">{en}</span>}
+                <SpeakButton label={`Play ${mk}`} onClick={() => play(mk)} />
+                <span className="ex-text"><span className="mk" lang={pack.id}>{mk}</span>{en && <span className="en">{en}</span>}</span>
               </div>
             );
           })}
@@ -66,19 +66,19 @@ export function GrammarIntroCard({ concept, onDone, dayIndex = 0 }: { concept: G
   const firstId = drills[0]?.id;
   const answeredFirst = firstId === undefined || firstId in answers;
   return (
-    <div className="fb">
-      <div className="gram-kicker">New grammar</div>
-      <div className="gram-title">{concept.name}</div>
+    <div>
+      <div className="overline" style={{ color: "var(--accent)" }}>New rule</div>
+      <h3 className="lesson-title"><MixedText text={concept.name} /></h3>
       {concept.technicalName && <div className="gram-tech">{concept.technicalName}</div>}
       <GrammarExplainer concept={concept} />
       {drills.length > 0 && (
-        <div className="gram-checks">
-          <div className="muted small" style={{ marginBottom: 6 }}>{drills.length > 1 ? "Quick checks" : "Quick check"}</div>
+        <div className="framed checks-card">
+          <div className="overline">{drills.length > 1 ? "Quick checks" : "Quick check"}</div>
           {drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => setAnswers((a) => ({ ...a, [d.id]: ok }))} />)}
         </div>
       )}
       {answeredFirst && (
-        <button className="btn" style={{ marginTop: 14 }} onClick={() => onDone(firstId === undefined ? true : !!answers[firstId])}>Continue →</button>
+        <button className="btn" style={{ marginTop: 16 }} onClick={() => onDone(firstId === undefined ? true : !!answers[firstId])}>Continue</button>
       )}
     </div>
   );
@@ -118,18 +118,19 @@ export function GrammarMatch({ concept, onDone }: { concept: GrammarConcept; onD
 
   return (
     <div style={{ marginTop: 8 }}>
-      <div className="muted small" style={{ marginBottom: 8 }}>Match each pair — tap one, then its partner.</div>
+      <div className="muted small" style={{ marginBottom: 8 }}>Match each pair: tap one, then its partner.</div>
       <div className="matchgrid">
         <div className="matchcol">
-          {rows.map((r, i) => <button key={i} className={cls("L", i)} disabled={matched.has(i)} onClick={() => tap("L", i)}>{r[0]}</button>)}
+          {rows.map((r, i) => <button key={i} className={cls("L", i)} disabled={matched.has(i)} onClick={() => tap("L", i)}><MixedText text={r[0]!} /></button>)}
         </div>
         <div className="matchcol">
-          {rights.map((r) => <button key={r.id} className={cls("R", r.id)} disabled={matched.has(r.id)} onClick={() => tap("R", r.id)}>{r.text}</button>)}
+          {rights.map((r) => <button key={r.id} className={cls("R", r.id)} disabled={matched.has(r.id)} onClick={() => tap("R", r.id)}><MixedText text={r.text} /></button>)}
         </div>
       </div>
       {allDone && (
-        <div className="why" style={{ marginTop: 12 }}>✓ All matched — nice.
-          <button className="btn" style={{ marginLeft: 8 }} onClick={onDone}>Continue →</button>
+        <div className="quiz-result">
+          <span className="result-ok"><Icon name="check" size={16} />All matched</span>
+          <button className="btn" onClick={onDone}>Continue</button>
         </div>
       )}
     </div>
@@ -145,7 +146,7 @@ export function GrammarDrillPractice({ concept, onDone, dayIndex = 0 }: { concep
   return (
     <div style={{ marginTop: 8 }}>
       {drills.map((d) => <Drill key={d.id} drill={d} onGrade={(ok) => setAnswered((a) => ({ ...a, [d.id]: ok }))} />)}
-      {ready && <button className="btn" style={{ marginTop: 12 }} onClick={onDone}>Continue →</button>}
+      {ready && <button className="btn" style={{ marginTop: 14 }} onClick={onDone}>Continue</button>}
     </div>
   );
 }
@@ -154,11 +155,11 @@ export function GrammarDrillPractice({ concept, onDone, dayIndex = 0 }: { concep
 export function GrammarPracticeCard({ concept, onDone, dayIndex = 0 }: { concept: GrammarConcept; onDone: () => void; dayIndex?: number }) {
   const [showRule, setShowRule] = useState(false);
   return (
-    <div className="fb">
-      <div className="gram-kicker">Grammar practice</div>
-      <div className="gram-title">{concept.name}</div>
-      {concept.plain && <p className="muted small" style={{ margin: "4px 0 0" }}>{concept.plain}</p>}
-      <button className="ghost small" style={{ marginTop: 10 }} onClick={() => setShowRule((v) => !v)}>{showRule ? "Hide the rule" : "Show the rule"}</button>
+    <div>
+      <div className="overline">Grammar practice</div>
+      <h3 className="lesson-title"><MixedText text={concept.name} /></h3>
+      {concept.plain && <p className="lesson-rule muted"><MixedText text={concept.plain} /></p>}
+      <button className="quiet" onClick={() => setShowRule((v) => !v)}>{showRule ? "Hide the rule" : "Show the rule"}</button>
       {showRule && <div style={{ marginTop: 8 }}><GrammarExplainer concept={concept} /></div>}
       {isMatchable(concept)
         ? <GrammarMatch concept={concept} onDone={onDone} />

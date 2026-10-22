@@ -10,7 +10,7 @@ import { FocusText, LearnerTurn } from "../conversation/ScenarioView";
 import { GrammarMatch, isMatchable } from "../grammar/GrammarCards";
 import { Drill } from "../grammar/PointLibrary";
 import { LetterCard, LetterQuestion } from "../letters/Letters";
-import { Icon, usePack, usePlay } from "../shared";
+import { Icon, MixedText, SpeakButton, usePack, usePlay } from "../shared";
 import { WarmResult } from "./Warmup";
 
 // A grammar point from the course blueprint (DESIGN-course-spine.md §3). TEACH: the short rule, the
@@ -38,7 +38,7 @@ export function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
       <thead><tr>{concept.pattern.headers.map((h, i) => <th key={i}>{h}</th>)}</tr></thead>
       <tbody>
         {concept.pattern.rows.map((row, ri) => (
-          <tr key={ri}>{row.map((cell, ci) => <td key={ci}>{ci === concept.pattern!.spotlightCol ? <span className="gram-spot">{cell}</span> : cell}</td>)}</tr>
+          <tr key={ri}>{row.map((cell, ci) => <td key={ci}>{ci === concept.pattern!.spotlightCol ? <span className="gram-spot"><MixedText text={cell} /></span> : <MixedText text={cell} />}</td>)}</tr>
         ))}
       </tbody>
     </table>
@@ -49,40 +49,43 @@ export function PointLesson({ point, mode, dayIndex, onDone, onMiss }: {
     <div className="gram-ex-list">
       {point.examples.map((ex) => (
         <div className="gram-ex" key={ex.source}>
-          <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
-          <span className="mk"><FocusText text={ex.text} words={pack.course ? cp.focusWords(pack.course, ex.source, [point.id]) : undefined} /></span>
-          <span className="en">{ex.gloss}</span>
-          {noteFor(ex.source) && <span className="muted small" style={{ flexBasis: "100%", paddingLeft: 35 }}>{noteFor(ex.source)}</span>}
+          <SpeakButton label={`Play ${ex.text}`} onClick={() => play(ex.text)} />
+          <span className="ex-text">
+            <span className="mk" lang={pack.id}><FocusText text={ex.text} words={pack.course ? cp.focusWords(pack.course, ex.source, [point.id]) : undefined} /></span>
+            <span className="en">{ex.gloss}</span>
+            {noteFor(ex.source) && <span className="muted small"><MixedText text={noteFor(ex.source)!} /></span>}
+          </span>
         </div>
       ))}
     </div>
   );
   return (
-    <div className="fb">
-      <div className="gram-kicker">{mode === "teach" ? "New grammar" : "Grammar practice"}{point.depth === "recognize" ? " · just recognize it for now" : ""}</div>
-      <div className="gram-title">{point.title}</div>
+    <div>
+      <div className="overline" style={mode === "teach" ? { color: "var(--accent)" } : undefined}>{mode === "teach" ? "New rule" : "Grammar practice"}{point.depth === "recognize" ? " · just recognize it for now" : ""}</div>
+      <h3 className="lesson-title"><MixedText text={point.title} /></h3>
       {mode === "teach" ? (
         <>
-          <div className="gram-plain"><span className="lab">The rule</span><p>{point.rule}</p></div>
+          <p className="lesson-rule"><MixedText text={point.rule} /></p>
           {pattern}
+          {point.examples.length > 0 && <div className="overline" style={{ marginTop: 4 }}>Examples</div>}
           {examples}
         </>
       ) : (
         <>
-          <p className="muted small" style={{ margin: "4px 0 0" }}>{point.rule}</p>
-          <button className="ghost small" style={{ marginTop: 10 }} onClick={() => setShowMore((v) => !v)}>{showMore ? "Hide examples" : "Show examples"}</button>
+          <p className="lesson-rule muted"><MixedText text={point.rule} /></p>
+          <button className="quiet" onClick={() => setShowMore((v) => !v)}>{showMore ? "Hide examples" : "Show examples"}</button>
           {showMore && <div style={{ marginTop: 8 }}>{pattern}{examples}</div>}
           {!matched && concept && <GrammarMatch concept={concept} onDone={() => setMatched(true)} />}
         </>
       )}
       {matched && cards.length > 0 && (
-        <div className="gram-checks">
-          <div className="muted small" style={{ marginBottom: 6 }}>{cards.length > 1 ? "Quick checks" : "Quick check"}</div>
+        <div className="framed checks-card">
+          <div className="overline">{cards.length > 1 ? "Quick checks" : "Quick check"}</div>
           {cards.map((c) => <Drill key={c.id} drill={c} onGrade={(ok) => { setAnswers((a) => ({ ...a, [c.id]: ok })); if (!ok) onMiss(c); }} />)}
         </div>
       )}
       {matched && allAnswered && (
-        <button className="btn" style={{ marginTop: 14 }} onClick={() => onDone(cards.map((c) => ({ item: c, ok: !!answers[c.id] })))}>Continue →</button>
+        <button className="btn" style={{ marginTop: 16 }} onClick={() => onDone(cards.map((c) => ({ item: c, ok: !!answers[c.id] })))}>Continue</button>
       )}
     </div>
   );

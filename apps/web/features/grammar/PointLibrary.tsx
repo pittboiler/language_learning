@@ -6,7 +6,7 @@ import { type Progress } from "../../lib/store";
 import { starMany } from "../../lib/capture";
 import * as cp from "../../lib/course-player";
 import { GrammarExplainer } from "./GrammarCards";
-import { NoteAt, gradeItem, pending, usePack, usePlay } from "../shared";
+import { Icon, MixedText, NoteAt, SpeakButton, gradeItem, pending, usePack, usePlay } from "../shared";
 
 // ---------- Library view 3: grammar (full reference) ----------
 // Set by Today's agenda link so the Library opens straight onto that grammar point.
@@ -30,22 +30,23 @@ export function PointLibrary({ progress, persist, openNotes }: { progress: Progr
   const taughtIn = useMemo(() => new Map([...cp.pointSlots(course)].map(([id, at]) => [id, { ...at, chapterId: course.chapters.find((c) => c.order === at.order)?.chapterId ?? "" }])), [course]);
   const LineRow = ({ l }: { l: { text: string; gloss: string; source: string } }) => (
     <div className="gram-ex">
-      <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
-      <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+      <SpeakButton label={`Play ${l.text}`} onClick={() => play(l.text)} />
+      <span className="ex-text"><span className="mk" lang={pack.id}>{l.text}</span><span className="en">{l.gloss}</span></span>
     </div>
   );
   return (
     <section className="view">
-      <h2>Grammar</h2>
+      <div className="overline">Reference</div>
+      <h2 style={{ marginTop: 4 }}>Grammar</h2>
       <p className="lead">Every grammar point in the course, chapter by chapter. Your daily sessions teach them in order; this is where to read more or look something up.</p>
-      <input className="text" placeholder="Search grammar…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "100%", marginBottom: 14 }} />
+      <input className="text" aria-label="Search grammar" placeholder="Search grammar…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "100%", marginBottom: 6 }} />
       {course.chapters.map((cc, ci) => {
         const ch = pack.chapters?.find((c) => c.id === cc.chapterId);
         const pts = cc.pointIds.map((id) => course.points.find((p) => p.id === id)).filter((p): p is GrammarPoint => !!p && matches(p));
         if (!pts.length) return null;
         return (
           <div key={cc.chapterId} style={{ marginBottom: 14 }}>
-            <div className="muted small" style={{ textTransform: "uppercase", letterSpacing: 0.5, margin: "6px 0" }}>Chapter {ch?.order ?? ci + 1} · {ch?.shortTitle}</div>
+            <div className="stage-rule">Chapter {ch?.order ?? ci + 1} · {ch?.shortTitle}</div>
             {pts.map((p) => {
               const learned = !!progress.seenGrammar?.[p.id];
               const isOpen = open === p.id;
@@ -54,10 +55,10 @@ export function PointLibrary({ progress, persist, openNotes }: { progress: Progr
                 .filter((l) => !p.examples.some((e) => e.text === l.text)).slice(0, 8);
               const cards = cp.pointItems(p);
               return (
-                <div className="concept" key={p.id} id={`pt-${p.id}`} style={learned ? undefined : { opacity: 0.7 }}>
-                  <button className="concept-head" onClick={() => setOpen(isOpen ? null : p.id)}>
-                    <span>{learned ? "✓ " : ""}{p.title}{p.depth === "recognize" ? <span className="muted small"> · recognize</span> : null}</span>
-                    <span className="muted">{learned ? "" : "upcoming "}{isOpen ? "−" : "+"}</span>
+                <div className={`concept${isOpen ? " open" : ""}${learned ? "" : " upcoming"}`} key={p.id} id={`pt-${p.id}`}>
+                  <button className="concept-head" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : p.id)}>
+                    <span className="pt-title">{learned && <Icon name="check" size={15} />}<span><MixedText text={p.title} />{p.depth === "recognize" ? <span className="muted small"> · recognize</span> : null}</span></span>
+                    <span className="muted small">{learned ? "" : "upcoming "}{isOpen ? "−" : "+"}</span>
                   </button>
                   {isOpen && (
                     <div style={{ marginTop: 10 }}>
@@ -67,11 +68,11 @@ export function PointLibrary({ progress, persist, openNotes }: { progress: Progr
                           <button className="linklike small" onClick={() => openNotes({ chapterId: taughtIn.get(p.id)!.chapterId, n: taughtIn.get(p.id)!.n })}>your notes from that lesson</button>
                         </p>
                       )}
-                      <p style={{ marginTop: 0 }}>{p.library.rule}</p>
+                      <p style={{ marginTop: 0, lineHeight: 1.55 }}><MixedText text={p.library.rule} /></p>
                       <div className="gram-kicker" style={{ marginTop: 10 }}>Why it&apos;s like this</div>
-                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.why.map((w, i) => <li key={i} style={{ margin: "4px 0" }}>{w}</li>)}</ul>
+                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.why.map((w, i) => <li key={i} style={{ margin: "4px 0" }}><MixedText text={w} /></li>)}</ul>
                       <div className="gram-kicker" style={{ marginTop: 10 }}>Common mistakes</div>
-                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.mistakes.map((w, i) => <li key={i} style={{ margin: "4px 0" }}>{w}</li>)}</ul>
+                      <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.mistakes.map((w, i) => <li key={i} style={{ margin: "4px 0" }}><MixedText text={w} /></li>)}</ul>
                       <div className="gram-kicker" style={{ marginTop: 10 }}>Examples</div>
                       <div className="gram-ex-list">{p.examples.map((l) => <LineRow key={l.source} l={l} />)}</div>
                       {fromReading.length > 0 && (
@@ -94,7 +95,7 @@ export function PointLibrary({ progress, persist, openNotes }: { progress: Progr
                       </div>
                       <div className="gram-checks">
                         {cards.filter((c) => !c.meta?.ruleCard).map((c) => <Drill key={c.id} drill={c} onGrade={(ok) => persist(gradeItem(progress, c, ok))} />)}
-                        {cards.filter((c) => c.meta?.ruleCard).map((c) => <div key={c.id} className="small" style={{ margin: "6px 0" }}><b>{c.prompt}</b> <span className="muted">— {c.answer}</span></div>)}
+                        {cards.filter((c) => c.meta?.ruleCard).map((c) => <div key={c.id} className="small" style={{ margin: "6px 0" }}><b><MixedText text={c.prompt} /></b> <span className="muted">· <MixedText text={c.answer} /></span></div>)}
                       </div>
                     </div>
                   )}
@@ -116,17 +117,18 @@ export function Grammar({ progress, persist }: { progress: Progress; persist: (p
   const concepts = pack.grammar.filter((c) => !needle || `${c.name} ${c.technicalName ?? ""} ${c.plain ?? ""} ${c.explanation}`.toLowerCase().includes(needle));
   return (
     <section className="view">
-      <h2>Grammar reference</h2>
-      <p className="lead">New concepts are taught inside your daily session — this is the reference to look anything up. Search, or tap a point to expand the rule and drill it.</p>
-      <input className="text" placeholder="Search grammar…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "100%", marginBottom: 14 }} />
+      <div className="overline">Reference</div>
+      <h2 style={{ marginTop: 4 }}>Grammar</h2>
+      <p className="lead">New concepts are taught inside your daily session; this is the reference to look anything up. Search, or tap a point to expand the rule and drill it.</p>
+      <input className="text" aria-label="Search grammar" placeholder="Search grammar…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "100%", marginBottom: 6 }} />
       {concepts.length === 0 && <p className="muted">No grammar point matches “{q}”.</p>}
       {concepts.map((c) => {
         const isOpen = open === c.id;
         return (
-          <div className="concept" key={c.id}>
-            <button className="concept-head" onClick={() => setOpen(isOpen ? null : c.id)}>
-              <span>{c.name}</span>
-              <span className="muted">{isOpen ? "−" : "+"}</span>
+          <div className={`concept${isOpen ? " open" : ""}`} key={c.id}>
+            <button className="concept-head" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : c.id)}>
+              <span className="pt-title"><MixedText text={c.name} /></span>
+              <span className="muted small">{isOpen ? "−" : "+"}</span>
             </button>
             {isOpen && (
               <div style={{ marginTop: 10 }}>
@@ -151,17 +153,22 @@ export function Drill({ drill, onGrade }: { drill: ReviewItem; onGrade: (ok: boo
     onGrade(opt === drill.answer);
   };
   return (
-    <div>
-      <div className="small" style={{ margin: "8px 0 4px" }}><b>{drill.prompt}</b></div>
+    <div className="drill">
+      <div className="drill-q"><MixedText text={drill.prompt} /></div>
       {/* A blank card's English disambiguates it ("Морам да ___" has one answer once you see "I have to go"). */}
-      {drill.meta?.point ? <div className="muted small" style={{ marginBottom: 4 }}>{drill.gloss}</div> : null}
-      <div>
+      {drill.meta?.point ? <div className="gloss" style={{ fontSize: 14, marginTop: 2 }}>{drill.gloss}</div> : null}
+      <div className="card-opts">
         {(drill.options ?? []).map((o) => {
           const cls = picked ? (o === drill.answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
-          return <button className={cls} key={o} disabled={!!picked} onClick={() => choose(o)}>{o}</button>;
+          return <button className={cls} key={o} disabled={!!picked} onClick={() => choose(o)}><MixedText text={o} /></button>;
         })}
       </div>
-      {picked && <div className="why">{picked === drill.answer ? "✓ " : "✗ "}{drill.why}</div>}
+      {picked && (
+        <div className="drill-why">
+          {picked === drill.answer ? <span className="result-ok"><Icon name="check" size={15} />Right</span> : <span className="result-miss">Not quite</span>}
+          {drill.why && <MixedText text={drill.why} />}
+        </div>
+      )}
     </div>
   );
 }

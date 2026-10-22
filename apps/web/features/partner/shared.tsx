@@ -4,7 +4,7 @@ import type { VisibilitySettings } from "@ll/core/partner";
 
 // ---------- Me: settings ----------
 // ---------- Partnered learning (Phase 0): invite/consent, visibility, shared streak, activity, nudges ----------
-export const NUDGES = ["Proud of you 💪", "Keep the streak 🔥", "Your turn 🎤", "Miss practising with you 👋"];
+export const NUDGES = ["Proud of you", "Keep the streak going", "Your turn", "Miss practising with you"];
 export const VIS_TOGGLES: [keyof VisibilitySettings, string][] = [
   ["shareActivity", "Activity"],
   ["shareStreak", "Streak"],
@@ -30,3 +30,7 @@ export const playDataUrl = (url: string): Promise<void> =>
     a.onerror = () => rej(new Error("audio playback error"));
     a.play().catch(rej);
   });
+/** Is your partner here right now: a small dot (indigo when they are) and the words, no emoji. */
+export function Presence({ online, here = "Partner here", away = "Waiting for your partner" }: { online: boolean; here?: string; away?: string }) {
+  return <span className={`presence${online ? " on" : ""}`}>{online ? here : away}</span>;
+}

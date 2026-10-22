@@ -24,8 +24,8 @@ import { LiveConvo, LiveConvoSection } from "./LiveConvo";
 import { RoleSwap, RoleSwapSection } from "./RoleSwap";
 import { Phrasebook, SharedStory } from "./SharedStory";
 import { togetherCandidates, withCourseWords } from "./TogetherSession";
-import { NUDGES, VIS_TOGGLES, colStack } from "./shared";
-import { usePack } from "../shared";
+import { NUDGES, Presence, VIS_TOGGLES, colStack } from "./shared";
+import { Icon, usePack } from "../shared";
 
 // Publish where I am — activity, the familiarity projection and my place in the course, each gated by my
 // visibility settings at write time — to one partnership, then ping it. The ping is what makes it live: the
@@ -50,12 +50,12 @@ export const OTHER_WAYS: [OtherWay, string, string][] = [
   ["story", "Shared story", "the same story, each at your own level"],
   ["phrasebook", "Phrasebook", "phrases you collect together"],
 ];
-/** "🟢 here now" while the partner has the Partnered tab open (presence). Mounted only on the landing — the
+/** "Here now" while the partner has the Partnered tab open (presence). Mounted only on the landing — the
  *  session's activities join the same presence channel themselves. */
 export function PartnerHere({ partnershipId, myId, partnerId }: { partnershipId: string; myId: string; partnerId: string }) {
   const [online, setOnline] = useState<string[]>([]);
   useEffect(() => (myId ? joinPresence(partnershipId, myId, setOnline) : undefined), [partnershipId, myId]);
-  return online.includes(partnerId) ? <span className="small" style={{ color: "var(--ok)" }}>🟢 here now</span> : <span className="muted small">⚪ not here right now</span>;
+  return <Presence online={online.includes(partnerId)} here="Here now" away="Not here right now" />;
 }
 export function PartnerPanel({ progress, persist, config, navigateToStory }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; navigateToStory: (storyId: string) => void }) {
   const pack = usePack();
@@ -272,11 +272,11 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
   const partnerLabel = (p: Partnership, i: number) =>
     p.status === "pending" ? "Pending invite" : `Partner ${i + 1}${p.status === "paused" ? " · paused" : ""}`;
   const Switcher = links.length > 0 && !adding && view === "home" ? (
-    <div className="theme-chips" style={{ marginBottom: 2 }}>
+    <div className="theme-chips" style={{ marginBottom: 12 }}>
       {links.map((p, i) => (
         <button key={p.id} className={`chip-toggle${p.id === currentId ? " active" : ""}`} onClick={() => setCurrentId(p.id)}>{partnerLabel(p, i)}</button>
       ))}
-      <button className="chip-toggle" onClick={() => setAdding(true)} title="Add another learning partner">＋ Add partner</button>
+      <button className="chip-toggle" onClick={() => setAdding(true)} title="Add another learning partner">Add a partner</button>
     </div>
   ) : null;
 
@@ -286,35 +286,39 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
       return (
         <div style={colStack}>
           {links.length > 0 && <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={() => setAdding(false)}>← Back to partners</button>}
-          <p className="small" style={{ margin: 0 }}><b>Learn with someone you trust.</b> This tab is for practising <i>together</i> — link up with a partner to unlock it.</p>
-          <p className="muted small" style={{ margin: 0 }}>Then you get a <b>session together</b> (warm-up, grammar and a story, side by side or on a call), plus live conversation, role-swap, info-gap, a shared story and phrasebook, and <b>help each other</b> (what your partner knows that you don&apos;t).</p>
-          <div className="row" style={{ marginTop: 4 }}>
-            <button className="btn" disabled={busy} onClick={invitePartner}>Invite a partner</button>
+          <div className="framed partner-card">
+            <div className="overline">Learn together</div>
+            <h3 className="lesson-title" style={{ fontSize: 24 }}>Learn with someone you trust</h3>
+            <p style={{ margin: "0 0 8px", lineHeight: 1.55 }}>Link up with a partner to practise <i>together</i>: a session side by side or on a call (warm-up, grammar and a story), plus live conversation, role-swap, info-gap, a shared story and phrasebook, and help with the words your partner knows and you don&apos;t.</p>
+            <button className="btn" style={{ width: "100%", marginTop: 6 }} disabled={busy} onClick={invitePartner}>Invite a partner</button>
+            <div className="or-rule">or join with a code</div>
+            <div className="row" style={{ flexWrap: "nowrap" }}>
+              <input className="text" aria-label="Invite code" placeholder="Invite code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} style={{ textTransform: "uppercase", letterSpacing: ".08em", minWidth: 0 }} />
+              <button className="ghost" disabled={busy || !joinCode.trim()} onClick={joinPartner}>Join</button>
+            </div>
           </div>
-          <div className="row">
-            <input className="lang-picker" placeholder="Enter invite code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} style={{ textTransform: "uppercase", minWidth: 150 }} />
-            <button className="ghost" disabled={busy || !joinCode.trim()} onClick={joinPartner}>Join</button>
-          </div>
-          <p className="muted small" style={{ margin: 0 }}>Private to the two of you. Pause (no penalty) or end anytime.</p>
+          <p className="muted small" style={{ margin: 0 }}>Private to the two of you. Pause (no penalty) or end any time.</p>
         </div>
       );
     const l = link;
     if (l.status === "pending")
       return (
-        <div style={colStack}>
-          <p className="small">Invite created. Share this code with your partner:</p>
-          <div className="row"><code className="chip" style={{ fontSize: 18, letterSpacing: 3 }}>{l.inviteCode}</code></div>
-          <p className="muted small">They open <b>Partnered → Join</b> and enter it. This updates once they join.</p>
-          <div className="row">
+        <div className="framed partner-card" style={{ textAlign: "center" }}>
+          <div className="overline">Invite created</div>
+          <p style={{ margin: "8px 0 0" }}>Share this code with your partner:</p>
+          <div className="invite-code">{l.inviteCode}</div>
+          <p className="muted small" style={{ margin: "0 0 14px" }}>They open <b>Partnered</b>, choose <b>Join</b> and enter it. This updates once they join.</p>
+          <div className="row" style={{ justifyContent: "center" }}>
             <button className="ghost" disabled={busy} onClick={act(async () => {})}>Refresh</button>
-            <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>Cancel</button>
+            <button className="quiet" disabled={busy} onClick={act(() => store.end(l.id))}>Cancel the invite</button>
           </div>
         </div>
       );
     if (l.status === "paused")
       return (
-        <div style={colStack}>
-          <p className="small">Paused — no streak pressure. Pick up whenever you both want.</p>
+        <div className="framed partner-card">
+          <div className="overline">Paused</div>
+          <p style={{ margin: "8px 0 14px" }}>No streak pressure. Pick up whenever you both want.</p>
           <div className="row">
             <button className="btn" disabled={busy} onClick={act(() => store.resume(l.id))}>Resume</button>
             <button className="ghost" disabled={busy} onClick={act(() => store.end(l.id))}>End</button>
@@ -349,34 +353,42 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
     const pDay = partnerState?.activity?.lastActiveDay;
     return (
       <div style={colStack}>
-        <div className="fb" style={{ padding: "10px 12px" }}>
+        <div className="partner-status">
           <div className="row" style={{ justifyContent: "space-between" }}>
-            <span className="small">🤝 Linked with your partner</span>
+            <span className="overline">Linked with your partner</span>
             <PartnerHere partnershipId={l.id} myId={myId} partnerId={partnerId} />
           </div>
-          {myPos && <div className="small" style={{ marginTop: 6 }}>You: {where(myPos)}</div>}
-          <div className="small" style={{ marginTop: 2 }}>
-            {pPos ? `Your partner: ${where(pPos)}` : <span className="muted">Your partner hasn&apos;t shared their place in the course yet</span>}
-            {pDay ? <span className="muted"> · last practised {pDay === today ? "today" : pDay}</span> : null}
+          {myPos && <div style={{ marginTop: 8 }}><span className="who-label">You</span>{where(myPos)}</div>}
+          <div style={{ marginTop: 4 }}>
+            {pPos ? <><span className="who-label">Partner</span>{where(pPos)}</> : <span className="muted">Your partner hasn&apos;t shared their place in the course yet</span>}
+            {pDay ? <span className="muted small"> · last practised {pDay === today ? "today" : pDay}</span> : null}
           </div>
-          {shared && shared.count > 0 && <div className="muted small" style={{ marginTop: 2 }}>🔥 {shared.count} day{shared.count === 1 ? "" : "s"} you both showed up{shared.lastDay === today ? ", including today" : ""}</div>}
+          {shared && shared.count > 0 && <div className="muted small" style={{ marginTop: 6 }}>{shared.count} day{shared.count === 1 ? "" : "s"} you both showed up{shared.lastDay === today ? ", including today" : ""}</div>}
         </div>
 
-        <div className="fb">
-          <div className="gram-kicker">Session together</div>
-          <ol style={{ margin: "6px 0 8px", paddingLeft: 20 }}>
-            {SESSION_AGENDA.map(([t, d]) => {
-              const o = sessRow && js !== "none" && t !== "Recap" ? sessRow.outcomes[t.toLowerCase().replace("-", "") as jsession.JointSection] : undefined;
-              return <li key={t} className="small" style={{ margin: "3px 0" }}><b>{o === "done" ? "✓ " : ""}{t}</b> — {d}{o === "skipped" ? <span className="muted"> (skipped)</span> : null}</li>;
-            })}
-          </ol>
-          <p className="muted small" style={{ margin: "0 0 10px" }}>~15 min · you both need to be here now, side by side or on a call · any section can be skipped</p>
-          {js === "join" && <button className="btn" disabled={busy} onClick={() => setView("session")}>Join your partner&apos;s session →</button>}
-          {js === "resume" && <button className="btn" disabled={busy} onClick={() => setView("session")}>Back to your session →</button>}
-          {js === "none" && <button className="btn" disabled={busy} onClick={() => void startSession(l.id, partnerId)}>{busy ? "Setting up…" : "▶ Start a session"}</button>}
+        <div>
+          <div className="framed menu" style={{ marginBottom: 14 }}>
+            <div className="menu-title">Session together</div>
+            <ol className="menu-list">
+              {SESSION_AGENDA.map(([t, d], i) => {
+                const o = sessRow && js !== "none" && t !== "Recap" ? sessRow.outcomes[t.toLowerCase().replace("-", "") as jsession.JointSection] : undefined;
+                return (
+                  <li key={t}>
+                    <span className="menu-n" aria-hidden="true">{o === "done" ? <Icon name="check" size={14} /> : i + 1}</span>
+                    <span className="menu-label">{t}{o === "done" ? <span className="muted small"> · done</span> : o === "skipped" ? <span className="muted small"> · skipped</span> : null}</span>
+                    <span className="menu-detail">{d}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+          <p className="muted small" style={{ margin: "0 0 12px" }}>About 15 minutes. You both need to be here, side by side or on a call; any section can be skipped.</p>
+          {js === "join" && <button className="btn menu-cta" disabled={busy} onClick={() => setView("session")}>Join your partner&apos;s session</button>}
+          {js === "resume" && <button className="btn menu-cta" disabled={busy} onClick={() => setView("session")}>Back to your session</button>}
+          {js === "none" && <button className="btn menu-cta" disabled={busy} onClick={() => void startSession(l.id, partnerId)}>{busy ? "Setting up…" : "Start a session together"}</button>}
           {js === "done" && (
             <div className="row">
-              <span className="small" style={{ color: "var(--ok)" }}>✓ Today&apos;s session is done</span>
+              <span className="result-ok"><Icon name="check" size={16} />Today&apos;s session is done</span>
               <button className="ghost small" onClick={() => setView("session")}>See the recap</button>
               <button className="ghost small" disabled={busy} onClick={() => void startSession(l.id, partnerId)}>Start another</button>
             </div>
@@ -385,21 +397,22 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
         </div>
 
         <div>
-          <div className="gram-kicker" style={{ marginBottom: 6 }}>Other ways to practise</div>
-          <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+          <div className="overline" style={{ marginTop: 8 }}>Other ways to practise</div>
+          <div className="lib-list">
             {OTHER_WAYS.map(([k, title, desc]) => (
-              <li key={k}>
-                <button className="ghost small" style={{ textAlign: "left", width: "100%" }} onClick={() => setView(k)}><b>{title}</b> <span className="muted">· {desc}</span></button>
-              </li>
+              <button key={k} className="lib-item plain" onClick={() => setView(k)}>
+                <span style={{ minWidth: 0 }}><span className="lib-title">{title}</span><span className="lib-sub">{desc}</span></span>
+                <span className="lib-fit" aria-hidden="true"><Icon name="next" size={16} /></span>
+              </button>
             ))}
-          </ul>
+          </div>
         </div>
 
         <div>
-          <div className="small" style={{ marginBottom: 4 }}>Send a nudge</div>
-          <div className="row">
+          <div className="overline" style={{ marginBottom: 8 }}>Send a nudge</div>
+          <div className="theme-chips">
             {NUDGES.map((n) => (
-              <button key={n} className="ghost small" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
+              <button key={n} className="chip-toggle" disabled={busy} onClick={act(() => store.putArtifact(l.id, packId, "nudge", { text: n, day: localDay() }))}>{n}</button>
             ))}
           </div>
           {nudges.length > 0 && (
@@ -421,7 +434,8 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
                 {VIS_TOGGLES.map(([key, label]) => (
                   <button
                     key={key}
-                    className={`badge ${vis[key] ? "on" : "off"}`}
+                    aria-pressed={vis[key]}
+                    className={`chip-toggle${vis[key] ? " active" : ""}`}
                     disabled={busy}
                     title="Tap to toggle what your partner can see"
                     onClick={act(async () => {
@@ -430,7 +444,7 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
                       await store.setVisibility(l.id, next);
                     })}
                   >
-                    {label} {vis[key] ? "✓" : "✗"}
+                    {label}{vis[key] ? "" : " (hidden)"}
                   </button>
                 ))}
               </div>
@@ -448,9 +462,9 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
 
   return (
     <section className="view">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-        <h2 style={{ margin: 0 }}>Partnered</h2>
-        {shared && shared.count > 0 && <span className="streak-chip" title="Shared streak — days you both practised">🤝🔥 {shared.count}</span>}
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+        <h2 style={{ margin: 0, fontSize: 32 }}>Partnered</h2>
+        {shared && shared.count > 0 && <span className="streak" title="Shared streak: days you both practised">{shared.count} day{shared.count === 1 ? "" : "s"} together</span>}
       </div>
       {error && <p className="small" style={{ color: "var(--warn)", margin: "4px 0 0" }}>{error}</p>}
       {Switcher}
