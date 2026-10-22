@@ -472,3 +472,26 @@ input.text { flex: 1; min-width: 180px; min-height: 44px; background: var(--surf
 .presence.on::before { background: var(--good); }
 .lib-item.plain { grid-template-columns: minmax(0, 1fr) auto; }
 .menu-n svg { color: var(--good); }
+
+/* ---- writing: the answer box, the tutor's correction, model lines ---- */
+textarea.text { display: block; width: 100%; min-height: 72px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); color: inherit; padding: 10px 12px; font: inherit; font-size: 16px; line-height: 1.5; resize: vertical; }
+.write-card { padding: 20px 18px; margin: 8px 5px 0; }
+.write-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 12px; }
+.model-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+.model-line .mk { font-family: var(--font-text); font-size: 20px; font-weight: 600; }
+.model-line .play-btn { margin: 0; }
+.issue { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; margin-top: 2px; font-size: 15px; }
+.issue .was { color: var(--fix); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.issue .now { color: var(--good); font-weight: 600; }
+.issue .why { flex-basis: 100%; font-size: 13px; color: var(--text-muted); }
+.written-row { padding: 12px 0; border-bottom: 1.5px dotted var(--line-faint); }
+.written-row:last-of-type { border-bottom: 0; }
+
+/* ---- build a sentence: the answer line, the tiles, the result ---- */
+.tile-slot { min-height: 66px; padding: 10px; gap: 8px; margin: 12px 0; }
+.opt.tile { font-size: 20px; min-height: 48px; padding: 6px 16px; border-radius: var(--radius-sm); box-shadow: 0 2px 0 var(--line); }
+.tile-bank { display: flex; flex-wrap: wrap; gap: 10px; }
+.tile-bank .opt { margin: 0; }
+.build-result { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1.5px dotted var(--line-faint); }
+.build-answer { font-family: var(--font-text); font-size: 22px; font-weight: 600; }
+.build-result .btn { margin-left: auto; }

@@ -7,8 +7,7 @@ import * as api from "../../lib/api";
 import * as cp from "../../lib/course-player";
 import { shuffle } from "../../lib/today-plan";
 import { useChapterMap } from "../course/ChapterHeading";
-import { PRONOUNS, gradeItem, usePack, usePlay } from "../shared";
-import { Tag } from "../today/TodayHeader";
+import { Icon, MixedText, PRONOUNS, SpeakButton, Stitches, gradeItem, usePack, usePlay } from "../shared";
 
 // ---------- Library view 6: writing (prompted production + correction-why) ----------
 // ---------- "Build a sentence" — tap-the-tiles production, one person form per card ----------
@@ -149,14 +148,15 @@ export function TileBuilder({ variant, verb, onFinish }: {
   const left = BUILD_TRIES - tries;
   return (
     <div>
-      <div className="muted small" style={{ marginTop: 6 }}>Build: <b>“{personedEn(variant)}”</b></div>
-      <div ref={slotRef} className={`tile-slot${drag && dropIdx !== null ? " over" : ""}`}>
-        {placed.length === 0 && !drag ? <span className="muted small">tap a tile, or drag one up here…</span> : null}
+      <div className="card-prompt">{personedEn(variant)}</div>
+      <div ref={slotRef} aria-label="Your sentence so far" className={`tile-slot${drag && dropIdx !== null ? " over" : ""}`}>
+        {placed.length === 0 && !drag ? <span className="muted small">Tap a tile, or drag one up here</span> : null}
         {placed.map((id, i) => (
           <span key={id} className="tile-wrap">
             {dropIdx === i && <span className="drop-marker" />}
             <button
               data-tile
+              lang={pack.id}
               className={`opt tile${drag?.id === id ? " dragging" : ""}${revealed ? " right" : ""}`}
               onPointerDown={grab(id, "slot")}
             >{wordOf(id)}</button>
@@ -164,34 +164,35 @@ export function TileBuilder({ variant, verb, onFinish }: {
         ))}
         {dropIdx === placed.length && <span className="drop-marker" />}
       </div>
-      <div className="row" style={{ flexWrap: "wrap" }}>
+      <div className="tile-bank">
         {bank.filter((t) => !placedSet.has(t.id)).map((t) => (
-          <button key={t.id} className={`opt tile${drag?.id === t.id ? " dragging" : ""}`} disabled={done} onPointerDown={grab(t.id, "bank")}>{t.w}</button>
+          <button key={t.id} lang={pack.id} className={`opt tile${drag?.id === t.id ? " dragging" : ""}`} disabled={done} onPointerDown={grab(t.id, "bank")}>{t.w}</button>
         ))}
       </div>
       {/* The tile under the cursor/finger while dragging — fixed to the viewport, never intercepting events. */}
       {drag && movedRef.current && (
         <div className="opt tile ghost" style={{ left: drag.x, top: drag.y }}>{wordOf(drag.id)}</div>
       )}
-      <div className="row" style={{ marginTop: 10, flexWrap: "wrap" }}>
+      <div className="build-result">
         {result === true ? (
           <>
-            <span className="target">✓ {variant.mk}</span>
-            <button className="spk" onClick={() => play(variant.mk, 0.85)}>🔊</button>
-            <button className="btn" onClick={() => onFinish("solved")}>Next →</button>
+            <span className="result-ok" role="img" aria-label="Correct"><Icon name="check" size={18} /></span>
+            <span className="build-answer" lang={pack.id}>{variant.mk}</span>
+            <SpeakButton label={`Play ${variant.mk}`} onClick={() => play(variant.mk, 0.85)} />
+            <button className="btn" onClick={() => onFinish("solved")}>Next</button>
           </>
         ) : revealed ? (
           <>
-            <span className="muted small" style={{ width: "100%" }}>Here&apos;s the order — read it aloud, then carry on. It&apos;ll come round again.</span>
-            <span className="target">{variant.mk}</span>
-            <button className="spk" onClick={() => play(variant.mk, 0.85)}>🔊</button>
-            <button className="btn" onClick={() => onFinish("revealed")}>Got it →</button>
+            <span className="muted small" style={{ width: "100%" }}>Here&apos;s the order: read it aloud, then carry on. It&apos;ll come round again.</span>
+            <span className="build-answer" lang={pack.id}>{variant.mk}</span>
+            <SpeakButton label={`Play ${variant.mk}`} onClick={() => play(variant.mk, 0.85)} />
+            <button className="btn" onClick={() => onFinish("revealed")}>Got it</button>
           </>
         ) : (
           <>
             <button className="btn" disabled={!placed.length} onClick={check}>Check</button>
             {result === false && (
-              <span className="muted small">Not quite — drag a tile to move it. {left} {left === 1 ? "try" : "tries"} left.</span>
+              <span className="result-miss" style={{ fontWeight: 500 }}>Not quite: drag a tile to move it. {left} {left === 1 ? "try" : "tries"} left.</span>
             )}
           </>
         )}
@@ -273,10 +274,11 @@ export function SentenceBuilder({ progress, persist, onDone, preferIds, chapterO
 
   if (!scoped.length) return <p className="lead">Nothing to build yet — learn a few words or phrases first, and this fills up.</p>;
   if (idx >= cards.length || !cards[idx]) return (
-    <div className="fb">
-      <p className="lead" style={{ color: "var(--ok)" }}>🎉 Nice — you built {cards.length} sentence{cards.length === 1 ? "" : "s"}.</p>
-      <div className="row">
-        {onDone ? <button className="btn" onClick={onDone}>Done →</button> : <button className="btn" onClick={() => { setIdx(0); setNonce((n) => n + 1); }}>Go again →</button>}
+    <div className="framed write-card" style={{ textAlign: "center" }}>
+      <div className="overline">Build a sentence</div>
+      <p className="result-ok" style={{ margin: "12px 0 16px", fontSize: 18 }}><Icon name="check" size={18} />You built {cards.length} sentence{cards.length === 1 ? "" : "s"}</p>
+      <div>
+        {onDone ? <button className="btn" onClick={onDone}>Done</button> : <button className="btn" onClick={() => { setIdx(0); setNonce((n) => n + 1); }}>Go again</button>}
       </div>
     </div>
   );
@@ -296,13 +298,16 @@ export function SentenceBuilder({ progress, persist, onDone, preferIds, chapterO
   };
 
   return (
-    <div className="fb">
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-        <Tag>Build a sentence · {idx + 1} of {cards.length}</Tag>
-        {verb && <span className="muted small">{personEn ? `${personEn} · ` : ""}{verb.gloss}</span>}
+    <div className="framed write-card">
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "center", marginBottom: 4 }}>
+        <div className="row" style={{ gap: 10 }}>
+          <span className="overline">Build a sentence · {idx + 1} of {cards.length}</span>
+          <Stitches total={cards.length} done={idx} now={idx} size={10} label={`Sentence ${idx + 1} of ${cards.length}`} />
+        </div>
+        {verb && <span className="muted small"><MixedText text={`${personEn ? `${personEn} · ` : ""}${verb.gloss}`} /></span>}
       </div>
       {source === "phrases" && <p className="muted small" style={{ margin: "0 0 6px" }}>Put a phrase you&apos;ve learned back together, piece by piece.</p>}
-      {usedFallback && <p className="muted small" style={{ margin: "0 0 6px" }}>A word or two here is new — tap 🔊 on the tiles, they&apos;ll come round in your reviews.</p>}
+      {usedFallback && <p className="muted small" style={{ margin: "0 0 6px" }}>A word or two here is new; they&apos;ll come round in your reviews.</p>}
       <TileBuilder key={`${item.id}-${variant.person ?? ""}`} variant={variant} verb={verb} onFinish={finish} />
     </div>
   );
