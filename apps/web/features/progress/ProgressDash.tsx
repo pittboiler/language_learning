@@ -18,8 +18,8 @@ export function ProgressDash({ progress, persist, navigate, dueCount }: { progre
   );
   return (
     <section className="view">
-      <h2>Your progress</h2>
-      <p className="lead">Functional progress — what you can actually understand and say — not just streak days.</p>
+      <h2 style={{ fontSize: 32 }}>Your progress</h2>
+      <p className="lead">What you can actually understand and say, not just streak days.</p>
       <div className="stats">
         {stat("Words known", vocab.knownWordCount, true)}
         {stat("Learning", vocab.learningCount)}
@@ -29,7 +29,7 @@ export function ProgressDash({ progress, persist, navigate, dueCount }: { progre
         {stat("Level", level.cefrBand)}
       </div>
       <p className="muted small" style={{ marginTop: 10 }}>
-        <b>To review</b> = items due in Flashcards (below, and in Library › Flashcards). <b>Level</b> is an estimate from letters learned, scenario goals met, and words tracked — roughly pre-A1 → A1 → A2.
+        <b>To review</b> counts the cards due in Flashcards (below, and in Library › Flashcards). <b>Level</b> is an estimate from letters learned, conversation goals met and words tracked, roughly pre-A1, then A1, then A2.
       </p>
       {cp.courseV2On(pack, progress) ? <CourseMap progress={progress} persist={persist} navigate={navigate} /> : <ChapterProgressMap progress={progress} />}
     </section>

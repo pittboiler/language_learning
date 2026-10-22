@@ -6,7 +6,7 @@ import * as chapterSpine from "@ll/core/chapters";
 import { type Progress } from "../../lib/store";
 import { toggleStar } from "../../lib/capture";
 import * as cp from "../../lib/course-player";
-import { usePack, usePlay, wordStatus } from "../shared";
+import { Icon, SpeakButton, usePack, usePlay, wordStatus } from "../shared";
 
 // ---------- Library → Words: browse the core vocabulary by chapter and pick up words on demand ----------
 // The flashcard deck only surfaces words you've MET, so this is where you meet single words directly:
@@ -55,14 +55,14 @@ export function Words({ progress, persist }: { progress: Progress; persist: (p: 
 
   return (
     <>
-      <p className="lead">Browse the vocabulary chapter by chapter — tap 🔊 to hear a word, <b>☆</b> to save it to your <b>★ Starred</b> flashcard deck, or <b>＋</b> to mark it started (so it&apos;s prioritised in review). You can drill any of these anytime in <b>Flashcards</b>. <b>{started}/{all.length}</b> started.</p>
+      <p className="lead">The vocabulary, chapter by chapter. Tap the speaker to hear a word, <b>☆</b> to save it to your Starred flashcards, or <b>Learn</b> to start it so it comes up in review. {started} of {all.length} started.</p>
       {groups.map(({ chapter, label, items }) => {
         const unmet = items.filter((it) => statusOf(familiarity.deriveKeyForItem(it).lexKey) === "new");
         return (
           <div key={chapter?.id ?? label} className="word-group">
             <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-              <h3 style={{ margin: "14px 0 6px" }} title={chapter?.title}>{label}</h3>
-              {unmet.length > 0 && <button className="ghost small" onClick={() => learn(unmet)}>＋ Learn all {unmet.length}</button>}
+              <h3 style={{ margin: "26px 0 6px" }} title={chapter?.title}>{label}</h3>
+              {unmet.length > 0 && <button className="ghost small" onClick={() => learn(unmet)}><Icon name="plus" size={14} />Learn all {unmet.length}</button>}
             </div>
             {/* On the course a chapter's own lesson words come first; its extra words (Library-only) after. */}
             {[items.filter((it) => !isExtra(it)), items.filter(isExtra)].map((list, li) => list.length > 0 && (
@@ -76,13 +76,13 @@ export function Words({ progress, persist }: { progress: Progress; persist: (p: 
                     const on = !!progress.familiarity[key] && familiarity.isStarred(progress.familiarity[key]!);
                     return (
                       <div className="word-row" key={it.id}>
-                        <button className="spk" onClick={() => play(it.answer, 0.9)}>🔊</button>
-                        <span className="word-mk"><b>{it.answer}</b> <span className="translit">{it.translit}</span></span>
+                        <SpeakButton label={`Play ${it.answer}`} onClick={() => play(it.answer, 0.9)} />
+                        <span className="word-mk"><b lang={pack.id}>{it.answer}</b> <span className="translit">{it.translit}</span></span>
                         <span className="word-gloss muted small">{it.gloss}{gender}</span>
-                        <button className={`ghost small${on ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, it.answer, { gloss: it.gloss })}>{on ? "★" : "☆"}</button>
+                        <button className={`ghost small${on ? " active" : ""}`} aria-pressed={on} aria-label={on ? "Saved to your flashcards" : "Save to your flashcards"} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, it.answer, { gloss: it.gloss })}>{on ? "★" : "☆"}</button>
                         {status === "new"
-                          ? <button className="ghost small" onClick={() => learn([it])}>＋ Learn</button>
-                          : <span className={`badge ${status === "known" ? "on" : ""}`}>{status === "known" ? "known ✓" : "learning"}</span>}
+                          ? <button className="ghost small" onClick={() => learn([it])}><Icon name="plus" size={14} />Learn</button>
+                          : <span className={`word-status${status === "known" ? " known" : ""}`}>{status === "known" ? "known" : "learning"}</span>}
                       </div>
                     );
                   })}

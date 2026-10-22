@@ -32,12 +32,15 @@ export function PracticeDecks({ progress, onOpen }: { progress: Progress; onOpen
   return (
     <>
       <p className="lead">A short conversation with {AI_NAME}, an AI partner. Each turn, answer what {AI_NAME} said in your own words, then say the line on your screen. Nothing is corrected while you talk: at the end you go through a few fixes.</p>
-      <div className="cards">
+      <div className="lib-list">
         {decks.map((x) => (
-          <button key={x.d.chapterId} className="contentcard" disabled={!x.open} onClick={() => onOpen(x.d.chapterId)}>
-            <div className="cc-top"><span className="cc-type">💬 Chapter {x.order}</span>{!x.open && <span className="diff">later</span>}</div>
-            <div className="cc-title">{x.title}</div>
-            <div className="muted small">{x.open ? `${x.d.scene} · ${x.n} lines` : "Opens as you learn this chapter's words"}</div>
+          <button key={x.d.chapterId} className="lib-item" disabled={!x.open} onClick={() => onOpen(x.d.chapterId)}>
+            <span className="lib-kind">Chapter {x.order}</span>
+            <span style={{ minWidth: 0 }}>
+              <span className="lib-title">{x.title}</span>
+              <span className="lib-sub">{x.open ? `${x.d.scene} · ${x.n} lines` : "Opens as you learn this chapter's words"}</span>
+            </span>
+            <span className={`lib-fit${x.open ? " just" : ""}`}>{x.open ? "open" : "later"}</span>
           </button>
         ))}
       </div>

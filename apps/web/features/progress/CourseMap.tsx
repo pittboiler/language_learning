@@ -1,16 +1,16 @@
 "use client";
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { ExamResults, ExamView } from "../exam/Exam";
 import { ChapterGlance, LessonNotes, ReplayButton } from "./Notes";
-import { LibView, NoteAt, Section, pending, usePack, usePlay } from "../shared";
+import { LibView, MixedText, NoteAt, Section, SpeakButton, Stitches, pending, usePack, usePlay } from "../shared";
 
 /** A course chapter's status chip: ✓ done / session k of n / stage review next / upcoming. */
 export function courseChip(ch: cp.ChapterOverview): { cls: string; label: string } {
   const now = ch.sessions.find((x) => x.state === "current");
   return ch.stageReview?.state === "current" ? { cls: "easy", label: "stage review next" }
-    : ch.state === "done" ? { cls: "just", label: "✓ done" }
+    : ch.state === "done" ? { cls: "just", label: "done" }
     : ch.state === "current" ? { cls: "easy", label: now ? `session ${now.n} of ${ch.sessions.length}` : "now" }
     : { cls: "hard", label: `${ch.sessions.length} sessions` };
 }
@@ -47,24 +47,33 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
   const here = ov.chapters.find((c) => c.state === "current" || c.stageReview?.state === "current" || c.exam?.state === "current");
   return (
     <>
-      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 22 }}>
-        <h3 style={{ margin: 0 }}>The course</h3>
+      <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginTop: 30 }}>
+        <h3 style={{ margin: 0, fontSize: 24 }}>The course</h3>
         <span className="muted small">{ov.done} of {ov.total} sessions done</span>
       </div>
       <p className="muted small" style={{ marginTop: 4 }}>Every chapter, session by session. Open a chapter to see its plan; a finished session opens your notes from that lesson.</p>
       <div className="chapter-map">
-        {ov.chapters.map((ch) => {
+        {ov.chapters.map((ch, i) => {
           const isOpen = open === ch.chapterId;
           const done = ch.sessions.filter((x) => x.state === "done").length;
+          const now = ch.sessions.findIndex((x) => x.state === "current");
           const chip = courseChip(ch);
           const learned = ch.words.filter((w) => w.learned).length;
+          // A heading where a new stage of the course starts.
+          const meta = pack.chapters?.find((c) => c.id === ch.chapterId);
+          const prev = i > 0 ? pack.chapters?.find((c) => c.id === ov.chapters[i - 1]!.chapterId) : undefined;
+          const stageStart = meta && (!prev || prev.stage !== meta.stage);
           return (
-            <div key={ch.chapterId} className={`chapter-row ${ch.state}${isOpen ? " open" : ""}`}>
+            <Fragment key={ch.chapterId}>
+            {stageStart && <div className="stage-rule">Stage {meta.stage + 1} · {meta.stageTitle}</div>}
+            <div className={`chapter-row ${ch.state}${isOpen ? " open" : ""}`}>
               <button className="concept-head" onClick={() => setOpen(isOpen ? null : ch.chapterId)} aria-expanded={isOpen}>
-                <span>{ch.order}. {ch.shortTitle}</span>
-                <span className="row" style={{ gap: 8, flexWrap: "nowrap" }}><span className={`diff ${chip.cls}`}>{chip.label}</span><span className="muted">{isOpen ? "−" : "+"}</span></span>
+                <span className="ch-num">{ch.order}</span>
+                <span className="ch-name">{ch.shortTitle}</span>
+                <span className={`ch-status ${chip.cls}`}>{chip.label}</span>
+                <span className="ch-toggle" aria-hidden="true">{isOpen ? "−" : "+"}</span>
               </button>
-              <div className="pbar" style={{ margin: "6px 0 2px" }}><div style={{ width: `${Math.round((done / Math.max(1, ch.sessions.length)) * 100)}%` }} /></div>
+              <Stitches total={ch.sessions.length} done={done} now={now} size={11} label={`${done} of ${ch.sessions.length} sessions done`} />
               {isOpen && (
                 <div className="chapter-body">
                   {ch.points.length > 0 && (
@@ -78,8 +87,8 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                   <ol className="session-list">
                     {ch.sessions.map((x) => (
                       <li key={x.n} className={`session-row ${x.state}`}>
-                        <span className="sess-n" aria-label={x.state}>{x.state === "done" ? "✓" : x.state === "current" ? "▶" : x.n}</span>
-                        <span className="sess-text">{x.headline}{x.state === "current" ? <span className="muted small"> · next up in Today</span> : null}</span>
+                        <span className="sess-n">{x.state === "upcoming" ? x.n : <Stitches total={1} done={x.state === "done" ? 1 : 0} now={x.state === "current" ? 0 : -1} size={12} label={x.state === "done" ? `Session ${x.n}, done` : `Session ${x.n}, next`} />}</span>
+                        <span className="sess-text"><MixedText text={x.headline} />{x.state === "current" ? <span className="muted small"> · next up in Today</span> : null}</span>
                         {x.state === "done" && <span className="row" style={{ gap: 4, flexWrap: "nowrap" }}><button className="ghost small" onClick={() => setView({ kind: "notes", at: { chapterId: ch.chapterId, n: x.n } })}>Notes</button><ReplayButton at={{ chapterId: ch.chapterId, n: x.n }} /></span>}
                       </li>
                     ))}
@@ -113,8 +122,8 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                       <div className="word-grid">
                         {ch.words.map((w) => (
                           <span key={w.lexKey} className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
-                            <button className="gram-play" onClick={() => play(w.display)} aria-label={`Play ${w.display}`}>▶</button>
-                            <span><b className="target">{w.display}</b> <span className="muted small">{w.gloss}{w.learned ? " ✓" : ""}</span></span>
+                            <SpeakButton label={`Play ${w.display}`} onClick={() => play(w.display)} />
+                            <span><b lang={pack.id} style={{ fontFamily: "var(--font-text)", fontSize: 16 }}>{w.display}</b> <span className="muted small">{w.gloss}{w.learned ? " · learned" : ""}</span></span>
                           </span>
                         ))}
                       </div>
@@ -126,10 +135,11 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                 </div>
               )}
             </div>
+            </Fragment>
           );
         })}
       </div>
-      {here && <p className="muted small">You&apos;re on <b>{here.title}</b>. Today picks up at the ▶ session.</p>}
+      {here && <p className="muted small">You&apos;re on <b>{here.title}</b>. Today picks up at the session marked with a half stitch.</p>}
     </>
   );
 }

@@ -99,17 +99,28 @@ export function LibrarySection({ progress, persist, config, lettersDone, mode, s
     );
   }
 
-  const typeLabel: Record<string, string> = { scenario: "🗣 Scenario", story: "★ Story", reading: "📖 Reading" };
+  const typeLabel: Record<string, string> = { scenario: "Conversation", story: "Story", reading: "Reading" };
+  const cyrillic = (t: string) => /[\u0400-\u04FF]/.test(t);
+  const tabs: [LibView, string][] = [
+    ["browse", "Situations"], ["words", "Words"], ["flashcards", "Flashcards"],
+    ...(pack.course?.guided?.length ? [["practice", "Practice with AI"] as [LibView, string]] : []),
+    ["reference", "Reference"],
+  ];
+  const tool = (key: string, kind: string, title: string, sub: string, onClick: () => void, status?: string) => (
+    <button className="lib-item" key={key} onClick={onClick}>
+      <span className="lib-kind">{kind}</span>
+      <span><span className="lib-title">{title}</span><span className="lib-sub">{sub}</span></span>
+      <span className="lib-fit just">{status}</span>
+    </button>
+  );
 
   return (
     <section className="view">
-      <h2>Library</h2>
-      <div className="picker" style={{ margin: "2px 0 14px" }}>
-        <button className={mode === "browse" ? "active" : ""} onClick={() => setMode("browse")}>Situations</button>
-        <button className={mode === "words" ? "active" : ""} onClick={() => setMode("words")}>Words</button>
-        <button className={mode === "flashcards" ? "active" : ""} onClick={() => setMode("flashcards")}>Flashcards</button>
-        {!!pack.course?.guided?.length && <button className={mode === "practice" ? "active" : ""} onClick={() => setMode("practice")}>Practice with AI</button>}
-        <button className={mode === "reference" ? "active" : ""} onClick={() => setMode("reference")}>Reference</button>
+      <h2 style={{ fontSize: 32 }}>Library</h2>
+      <div className="tabs" role="tablist" aria-label="Library sections">
+        {tabs.map(([m, label]) => (
+          <button key={m} role="tab" aria-selected={mode === m} onClick={() => setMode(m)}>{label}</button>
+        ))}
       </div>
 
       {mode === "words" ? (
@@ -120,55 +131,34 @@ export function LibrarySection({ progress, persist, config, lettersDone, mode, s
         <Review progress={progress} persist={persist} />
       ) : mode === "reference" ? (
         <>
-          <p className="lead">Tools to look things up and practise — kept separate from your situational content.</p>
-          <div className="cards">
-            {cp.courseV2On(pack, progress) && (
-              <button className="contentcard" onClick={() => setMode("notes")}>
-                <div className="cc-top"><span className="cc-type">📒 My notes</span></div>
-                <div className="cc-title">What I&apos;ve learned</div>
-                <div className="muted small">Each chapter on one page, and your notes from every lesson</div>
-              </button>
-            )}
-            <button className="contentcard" onClick={() => setMode("letters")}>
-              <div className="cc-top"><span className="cc-type">🔤 Alphabet</span>{lettersDone && <span className="diff just">done</span>}</div>
-              <div className="cc-title">The alphabet</div>
-              <div className="muted small">All {pack.alphabet.length} Cyrillic letters — browse, hear, and quiz</div>
-            </button>
-            <button className="contentcard" onClick={() => setMode("grammar")}>
-              <div className="cc-top"><span className="cc-type">ⓖ Grammar</span></div>
-              <div className="cc-title">Grammar reference</div>
-              <div className="muted small">Search or browse every point</div>
-            </button>
-            <button className="contentcard" onClick={() => setMode("write")}>
-              <div className="cc-top"><span className="cc-type">✎ Writing</span></div>
-              <div className="cc-title">Writing practice</div>
-              <div className="muted small">Short prompts; type in Latin, get corrected</div>
-            </button>
-            <button className="contentcard" onClick={() => setMode("build")}>
-              <div className="cc-top"><span className="cc-type">🧩 Build</span></div>
-              <div className="cc-title">Build a sentence</div>
-              <div className="muted small">Tap tiles to make full sentences — one person (I / you / you all / we / they) per card</div>
-            </button>
+          <p className="lead">Tools to look things up and practise, kept apart from the situations.</p>
+          <div className="lib-list">
+            {cp.courseV2On(pack, progress) && tool("notes", "My notes", "What I’ve learned", "Each chapter on one page, and your notes from every lesson", () => setMode("notes"))}
+            {tool("letters", "Alphabet", "The alphabet", `All ${pack.alphabet.length} Cyrillic letters: browse, hear and quiz`, () => setMode("letters"), lettersDone ? "done" : undefined)}
+            {tool("grammar", "Grammar", "Grammar reference", "Search or browse every point", () => setMode("grammar"))}
+            {tool("write", "Writing", "Writing practice", "Short prompts; type in Latin and get corrected", () => setMode("write"))}
+            {tool("build", "Build", "Build a sentence", "Put tiles in order to make full sentences, one person (I / you / you all / we / they) per card", () => setMode("build"))}
           </div>
         </>
       ) : (
         <>
-          <p className="lead">The course, chapter by chapter. Each chapter holds its own conversation, story and reading — work down the list, or jump to anything you fancy.</p>
+          <p className="lead">The course, chapter by chapter. Each chapter holds its own conversations, stories and readings: work down the list, or jump to anything you fancy.</p>
           {collections.map(({ chapter, list }) => (
             <div key={chapter?.id ?? "more"} style={{ marginBottom: 18 }}>
               {chapter
                 ? <ChapterHeading chapter={chapter} status={chapterInfo.byId.get(chapter.id)} course={courseOv?.chapters.find((c) => c.chapterId === chapter.id)} />
-                : <h3 style={{ margin: "18px 0 0" }}>More practice</h3>}
-              <div className="cards">
+                : <div className="ch-head"><h3>More practice</h3></div>}
+              <div className="lib-list">
                 {list.map((it) => (
-                  <button className="contentcard" key={it.kind + it.id} onClick={() => open(it.kind, it.id)}>
-                    <div className="cc-top">
-                      <span className="cc-type">{typeLabel[it.kind]}</span>
-                      <span className={`diff ${it.chip.cls}`}>{it.chip.label}</span>
-                    </div>
-                    <div className="cc-title">{it.title}</div>
-                    <div className="muted small">{it.sub}</div>
-                    <div className="muted small" style={{ marginTop: 2 }} title="words you already know or are learning">{Math.round(it.familiarPct * 100)}% familiar{it.unreviewed ? " · ⚠ unreviewed" : ""}</div>
+                  <button className="lib-item" key={it.kind + it.id} onClick={() => open(it.kind, it.id)}>
+                    <span className="lib-kind">{typeLabel[it.kind]}</span>
+                    <span style={{ minWidth: 0 }}>
+                      <span className="lib-title" lang={cyrillic(it.title) ? pack.id : undefined}>{it.title}</span>
+                      {it.sub && <span className={cyrillic(it.title) ? "lib-sub gloss" : "lib-sub"}>{it.sub}</span>}
+                    </span>
+                    <span className={`lib-fit ${it.chip.cls}`} title="Words you already know or are learning">
+                      {it.chip.label}<small>{Math.round(it.familiarPct * 100)}% familiar{it.unreviewed ? " · unreviewed" : ""}</small>
+                    </span>
                   </button>
                 ))}
               </div>
