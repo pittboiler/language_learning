@@ -10,31 +10,61 @@ export async function getConfig(): Promise<Config> {
   return (await fetch("/api/config")).json();
 }
 
+// ---- Spoken lines: one voice at a time (2026-10-22, Jake: in Build a sentence the line sometimes came "well
+// after I hit next"). A clip can take a few seconds the first time it's made (checked synthesis), so:
+// a line can be fetched AHEAD (prefetchTts, when its card appears), the newest play wins (a line still
+// loading is dropped once another is asked for), and stopTts drops whatever's loading or playing (a card
+// moving on). Fetched clips are kept for the session, so a replay is instant.
+const CLIPS_KEPT = 200;
+const clips = new Map<string, Promise<Blob>>();
+function clipBlob(text: string, packId?: string): Promise<Blob> {
+  const key = `${packId ?? ""}|${text}`;
+  let p = clips.get(key);
+  if (!p) {
+    p = fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, packId }) })
+      .then(async (r) => { if (!r.ok) throw new Error((await r.json()).error || "TTS failed"); return r.blob(); });
+    p.catch(() => clips.delete(key)); // a failure isn't kept: the next play tries again
+    clips.set(key, p);
+    if (clips.size > CLIPS_KEPT) clips.delete(clips.keys().next().value!);
+  }
+  return p;
+}
+let playing: HTMLAudioElement | null = null;
+let generation = 0;
+
+/** Start fetching a line now, so it plays at once when asked for. */
+export function prefetchTts(text: string, packId?: string): void {
+  if (text.trim()) clipBlob(text, packId).catch(() => {});
+}
+
+/** Stop the line playing, and drop any line still loading. */
+export function stopTts(): void {
+  generation++;
+  playing?.pause();
+  playing = null;
+}
+
 /** Synthesize (cached) + play TTS for the active pack's voice. The clip is natural speed; `rate` is the
- *  client-side playbackRate for the slow/normal toggle (1 = normal, 0.75 = slow) — pitch-preserved. */
+ *  client-side playbackRate for the slow/normal toggle (1 = normal, 0.75 = slow) — pitch-preserved. The
+ *  newest call wins: a line that arrives after another was asked for (or after stopTts) isn't played. */
 export async function playTts(text: string, rate = 1, packId?: string): Promise<void> {
-  const r = await fetch("/api/tts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, packId }),
-  });
-  if (!r.ok) throw new Error((await r.json()).error || "TTS failed");
-  const audio = new Audio(URL.createObjectURL(await r.blob()));
+  const mine = ++generation;
+  const blob = await clipBlob(text, packId);
+  if (mine !== generation) return;
+  playing?.pause();
+  const url = URL.createObjectURL(blob);
+  const audio = new Audio(url);
   audio.preservesPitch = true;
   audio.playbackRate = rate;
+  audio.onended = () => URL.revokeObjectURL(url);
+  playing = audio;
   await audio.play();
 }
 
 /** Play a TTS clip and resolve when it FINISHES — for sequential, synced story playback. `rate` =
  *  client-side playbackRate (1 normal / 0.75 slow), pitch-preserved. */
 export async function playClip(text: string, rate = 1, packId?: string): Promise<void> {
-  const r = await fetch("/api/tts", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ text, packId }),
-  });
-  if (!r.ok) throw new Error((await r.json()).error || "TTS failed");
-  const audio = new Audio(URL.createObjectURL(await r.blob()));
+  const audio = new Audio(URL.createObjectURL(await clipBlob(text, packId)));
   audio.preservesPitch = true;
   audio.playbackRate = rate;
   await new Promise<void>((resolve, reject) => {

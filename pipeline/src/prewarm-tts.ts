@@ -24,6 +24,8 @@ function speakables(): string[] {
   (mk.infoGapTasks ?? []).forEach((t) => [t.roleA, t.roleB].forEach((r) => r.targetPhrases.forEach((p) => add(p.text))));
   mk.grammar.forEach((g) => g.drills.forEach((d) => add(d.answer)));
   (mk.alphabet ?? []).forEach((a) => a.examples.forEach((e) => add(e.text)));
+  (mk.sentences ?? []).forEach((s) => s.variants.forEach((v) => add(v.mk))); // Build a sentence: said when it's right
+  (mk.conjugations ?? []).forEach((c) => Object.values(c.forms).forEach(add)); // the conjugation match
   return [...set];
 }
 
