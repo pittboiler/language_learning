@@ -9,8 +9,8 @@ import { romanize } from "../../lib/romanize";
 import { FocusText, LearnerTurn } from "../conversation/ScenarioView";
 import { GrammarMatch, isMatchable } from "../grammar/GrammarCards";
 import { Drill } from "../grammar/PointLibrary";
-import { LetterCard } from "../letters/Letters";
-import { usePack, usePlay } from "../shared";
+import { LetterCard, LetterQuestion } from "../letters/Letters";
+import { Icon, usePack, usePlay } from "../shared";
 import { WarmResult } from "./Warmup";
 
 // A grammar point from the course blueprint (DESIGN-course-spine.md §3). TEACH: the short rule, the
@@ -127,43 +127,26 @@ export function LetterLesson({ lesson, checkpoint, progress, persist, onDone }: 
 
   if (phase === "learn")
     return (
-      <div className="fb">
-        <div className="gram-kicker">Letters · {lesson.title}</div>
-        {lesson.note && <p style={{ margin: "6px 0 10px" }}>{lesson.note}</p>}
+      <div>
+        <div className="overline">Letters · {lesson.title}</div>
+        {lesson.note && <p style={{ margin: "8px 0 14px", fontSize: 16, lineHeight: 1.5 }}>{lesson.note}</p>}
         <div className="letters">{group.map((x) => <LetterCard key={x.glyph} a={x} play={play} done={!!progress.letters[x.glyph]} />)}</div>
-        <button className="btn" style={{ marginTop: 10 }} onClick={() => setPhase("quiz")}>Quiz me on these {group.length} →</button>
+        <button className="btn" style={{ marginTop: 6 }} onClick={() => setPhase("quiz")}>Quiz me on these {group.length}</button>
       </div>
     );
   if (phase === "done" || !a)
     return (
-      <div className="fb">
-        <div className="gram-kicker">Letters · {lesson.title}</div>
-        <p className="lead" style={{ margin: "6px 0", color: "var(--ok)" }}>✓ All {group.length} right: {lesson.glyphs.join(" ")}</p>
-        <button className="btn" onClick={finish}>Continue →</button>
+      <div className="framed quiz-card">
+        <div className="overline">Letters · {lesson.title}</div>
+        <div className="quiz-glyph" lang={pack.id} style={{ fontSize: 44, letterSpacing: ".12em" }}>{lesson.glyphs.join(" ")}</div>
+        <p className="result-ok" style={{ margin: "0 0 16px" }}><Icon name="check" size={16} />All {group.length} right</p>
+        <div><button className="btn" onClick={finish}>Continue</button></div>
       </div>
     );
   return (
-    <div className="fb">
-      <div className="gram-kicker">{checkpoint ? "Checkpoint · the tricky letters" : `Quiz · ${lesson.title}`}</div>
-      <div className="muted small">{lesson.glyphs.length - queue.length} of {lesson.glyphs.length} · {qType === 0 ? "What sound does this letter make?" : "Which letter makes this sound?"}</div>
-      <div className="row" style={{ alignItems: "center", margin: "10px 0" }}>
-        {qType === 0 ? <div className="target" style={{ fontSize: 46 }}>{a.glyph}</div> : <div style={{ fontSize: 22, fontWeight: 600 }}>{a.sound}</div>}
-        <button className="ghost" onClick={() => a.examples[0] && play(a.examples[0].text, 0.7)}>🔊 {qType === 0 ? "example" : "hear it"}</button>
-      </div>
-      <div>
-        {options.map((o) => {
-          const cls = picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
-          return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)} style={qType === 1 ? { fontSize: 24 } : undefined}>{o}</button>;
-        })}
-      </div>
-      {picked && (
-        <div className="why">
-          {right ? "✓ Correct!" : `✗ ${a.glyph} sounds like “${a.sound}” (${a.name}) — it comes back at the end`}
-          {a.examples[0] && <span className="muted small"> · {a.examples[0].text} = {a.examples[0].gloss}</span>}
-          <button className="btn" style={{ marginLeft: 8 }} onClick={next}>Next →</button>
-        </div>
-      )}
-    </div>
+    <LetterQuestion a={a} qType={qType} options={options} picked={picked} answer={answer} onPick={setPicked} onNext={next} nextLabel="Next"
+      label={`${checkpoint ? "Checkpoint · the tricky letters" : `Quiz · ${lesson.title}`} · ${lesson.glyphs.length - queue.length} of ${lesson.glyphs.length}`}
+      missNote="; it comes back at the end" />
   );
 }
 // "Say it" (teach + practice sessions, and chapter 0): a few lines from today — the new phrases, the

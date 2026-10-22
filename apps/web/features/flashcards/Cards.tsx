@@ -4,7 +4,7 @@ import type { ReviewItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
 import { romanize } from "../../lib/romanize";
-import { HintButton, useHintFor, usePack, usePlay } from "../shared";
+import { HintButton, Icon, MixedText, SpeakButton, useHintFor, usePack, usePlay } from "../shared";
 
 export const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // A type-in should be a FILL-IN-THE-BLANK, not a cold "produce the whole sentence" box: a learner three
@@ -29,14 +29,33 @@ export function typedMatches(typed: string, target: string): boolean {
   const norm = (x: string) => x.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}]/gu, "");
   return norm(typed) === norm(target) || norm(romanize(typed)) === norm(romanize(target));
 }
+/** A line with one word missing ("____"), the gap drawn as a dashed line the width of a short word. */
+function Skeleton({ text }: { text: string }) {
+  const pack = usePack();
+  const parts = text.split("____");
+  return <div className="card-skeleton" lang={pack.id}>{parts.map((p, i) => <span key={i}>{p}{i < parts.length - 1 && <span className="blank" aria-label="missing word" />}</span>)}</div>;
+}
+function TypedResult({ ok, typed }: { ok: boolean; typed: string }) {
+  return ok
+    ? <div className="result-ok" style={{ marginBottom: 4 }}><Icon name="check" size={16} />Correct</div>
+    : <div className="result-miss" style={{ marginBottom: 4 }}>You wrote “{typed}”</div>;
+}
+function GradeRow({ onGrade }: { onGrade: (ok: boolean) => void }) {
+  return (
+    <div className="grade-row">
+      <button className="ghost" onClick={() => onGrade(false)}>Again</button>
+      <button className="btn" onClick={() => onGrade(true)}>Good</button>
+    </div>
+  );
+}
 export function TypedRecall({ onChecked, onReveal, placeholder }: { onChecked: (val: string) => void; onReveal: () => void; placeholder?: string }) {
   const [val, setVal] = useState("");
   return (
-    <div className="row" style={{ marginTop: 8, flexWrap: "wrap" }}>
-      <input className="lang-picker" placeholder={placeholder ?? "type it (Latin ok)"} value={val} style={{ flex: 1, minWidth: 160 }}
+    <div className="recall">
+      <input className="text" aria-label="Your answer" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={placeholder ?? "type it (Latin ok)"} value={val}
         onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && val.trim()) onChecked(val.trim()); }} />
       <button className="btn" disabled={!val.trim()} onClick={() => onChecked(val.trim())}>Check</button>
-      <button className="ghost" onClick={onReveal}>Reveal</button>
+      <button className="quiet" onClick={onReveal}>Show answer</button>
     </div>
   );
 }
@@ -55,52 +74,47 @@ export function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Fa
   // than a cold box, so every type-in in the app asks for one missing word.
   const gap = cloze ? null : blankOne(entry.display);
   return (
-    <div className="fb">
+    <div className="framed flashcard">
       {cloze ? (
         <>
-          <div className="muted small">Say the missing word — “{contextGloss}”:</div>
-          <div style={{ fontSize: 19, margin: "8px 0", lineHeight: 1.5 }}>{cloze}</div>
+          <div className="overline">Fill in the missing word</div>
+          <div className="card-prompt">{contextGloss}</div>
+          {!revealed && <Skeleton text={cloze} />}
         </>
       ) : (
         <>
-          <div className="muted small">Say in {pack.name}{entry.gloss ? ` — “${entry.gloss}”` : ""}:</div>
-          <div style={{ fontSize: 19, margin: "8px 0" }}>{entry.gloss ?? entry.display}</div>
-          {gap && !revealed && (
-            <>
-              <div className="muted small">Then fill the blank:</div>
-              <div style={{ fontSize: 19, margin: "4px 0", lineHeight: 1.5 }}>{gap.skeleton}</div>
-            </>
-          )}
+          <div className="overline">Say it in {pack.name}</div>
+          <div className="card-prompt">{entry.gloss ?? entry.display}</div>
+          {gap && !revealed && <Skeleton text={gap.skeleton} />}
         </>
       )}
       {!revealed ? (
         <>
-          <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
-          <div style={{ marginTop: 8 }}><HintButton hint={hint(entry.lexKey)} /></div>
+          <TypedRecall placeholder={gap || cloze ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
+          <div className="card-tools"><HintButton hint={hint(entry.lexKey)} /></div>
         </>
       ) : (
-        <div>
-          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, gap ? gap.missing : entry.display) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
+        <div style={{ marginTop: 12 }}>
+          {typedVal !== null && <TypedResult ok={typedMatches(typedVal, gap ? gap.missing : entry.display)} typed={typedVal} />}
           {cloze ? (
             <>
-              <div className="target" style={{ fontSize: 20, lineHeight: 1.5 }}>{context}</div>
-              <div className="muted small" style={{ marginTop: 2 }}>{entry.display}{entry.gloss ? ` — ${entry.gloss}` : ""}</div>
+              <div className="card-answer" lang={pack.id} style={{ fontSize: 24, lineHeight: 1.4 }}>{context}</div>
+              <div className="muted small" style={{ marginTop: 2 }}><span lang={pack.id}>{entry.display}</span>{entry.gloss ? ` · ${entry.gloss}` : ""}</div>
             </>
           ) : (
-            <div className="target" style={{ fontSize: 22 }}>{entry.display}</div>
+            <div className="card-answer" lang={pack.id}>{entry.display}</div>
           )}
-          <div className="row" style={{ marginTop: 10 }}>
+          <div className="card-tools">
             {cloze && context ? (
               <>
-                <button className="ghost" onClick={() => play(context, 0.8)}>🔊 hear phrase</button>
-                <button className="ghost" onClick={() => play(entry.display, 0.8)}>🔊 word</button>
+                <button className="ghost small" onClick={() => play(context, 0.8)}><Icon name="speaker" size={16} />Hear the line</button>
+                <button className="ghost small" onClick={() => play(entry.display, 0.8)}><Icon name="speaker" size={16} />Hear the word</button>
               </>
             ) : (
-              <button className="ghost" onClick={() => play(entry.display, 0.8)}>🔊 hear</button>
+              <button className="ghost small" onClick={() => play(entry.display, 0.8)}><Icon name="speaker" size={16} />Hear it</button>
             )}
-            <button className="ghost" onClick={() => onGrade(false)}>Again</button>
-            <button className="btn" onClick={() => onGrade(true)}>Good</button>
           </div>
+          <GradeRow onGrade={onGrade} />
         </div>
       )}
     </div>
@@ -109,17 +123,18 @@ export function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Fa
 // Word-by-word breakdown + a one-line "how it fits" takeaway, shown on a phrase/chunk reveal so the
 // learner sees which piece means what and how they combine. Renders nothing for single-word items.
 export function PhraseBreakdown({ item }: { item: ReviewItem }) {
+  const pack = usePack();
   if (!item.breakdown?.length && !item.takeaway) return null;
   return (
     <div className="breakdown">
       {item.breakdown?.length ? (
         <ul className="bd-list">
           {item.breakdown.map((b, i) => (
-            <li key={i}><span className="bd-part">{b.part}</span><span className="bd-gloss">{b.gloss}</span></li>
+            <li key={i}><span className="bd-part" lang={pack.id}>{b.part}</span><span className="bd-gloss">{b.gloss}</span></li>
           ))}
         </ul>
       ) : null}
-      {item.takeaway ? <div className="bd-takeaway">💡 {item.takeaway}</div> : null}
+      {item.takeaway ? <div className="bd-takeaway">{item.takeaway}</div> : null}
     </div>
   );
 }
@@ -132,31 +147,23 @@ export function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: 
   // Say the whole phrase aloud (the spoken task is unchanged); the WRITTEN check is one blank in it.
   const gap = useMemo(() => blankOne(item.answer), [item.answer]);
   return (
-    <div className="fb">
-      <div className="muted small">Say in {pack.name}:</div>
-      <div style={{ fontSize: 20, margin: "6px 0" }}>{item.gloss}</div>
-      {gap && !revealed && (
-        <>
-          <div className="muted small" style={{ marginTop: 10 }}>Then fill the blank:</div>
-          <div style={{ fontSize: 19, margin: "4px 0", lineHeight: 1.5 }}>{gap.skeleton}</div>
-        </>
-      )}
+    <div className="framed flashcard">
+      <div className="overline">Say it in {pack.name}</div>
+      <div className="card-prompt">{item.gloss}</div>
+      {gap && !revealed && <Skeleton text={gap.skeleton} />}
       {!revealed ? (
         <>
           <TypedRecall placeholder={gap ? "type the missing word" : "type it (Latin ok)"} onChecked={(v) => { setTypedVal(v); setRevealed(true); }} onReveal={() => setRevealed(true)} />
-          <div style={{ marginTop: 8 }}><HintButton hint={hint(familiarity.deriveKeyForItem(item).lexKey)} /></div>
+          <div className="card-tools"><HintButton hint={hint(familiarity.deriveKeyForItem(item).lexKey)} /></div>
         </>
       ) : (
-        <div>
-          {typedVal !== null && <div className="muted small" style={{ marginBottom: 6 }}>{typedMatches(typedVal, gap ? gap.missing : item.answer) ? "✓ correct" : `✗ you wrote “${typedVal}”`}</div>}
-          <div className="target" style={{ fontSize: 22 }}>{item.answer}</div>
-          <div className="translit">{item.translit}</div>
+        <div style={{ marginTop: 12 }}>
+          {typedVal !== null && <TypedResult ok={typedMatches(typedVal, gap ? gap.missing : item.answer)} typed={typedVal} />}
+          <div className="card-answer" lang={pack.id}>{item.answer}</div>
+          {item.translit && <div className="translit">{item.translit}</div>}
           <PhraseBreakdown item={item} />
-          <div className="row" style={{ marginTop: 10 }}>
-            <button className="ghost" onClick={() => play(item.answer, 0.8)}>🔊 hear</button>
-            <button className="ghost" onClick={() => onGrade(false)}>Again</button>
-            <button className="btn" onClick={() => onGrade(true)}>Good</button>
-          </div>
+          <div className="card-tools"><button className="ghost small" onClick={() => play(item.answer, 0.8)}><Icon name="speaker" size={16} />Hear it</button></div>
+          <GradeRow onGrade={onGrade} />
         </div>
       )}
     </div>
@@ -165,28 +172,26 @@ export function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: 
 // A grammar RULE card (course points): a plain question; reveal the one-line answer and an example line,
 // then grade yourself. No typing, no options — the simple flashcard the design asks for.
 export function RuleCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
+  const pack = usePack();
   const play = usePlay();
   const [shown, setShown] = useState(false);
   const example = item.meta?.example as string | undefined;
   return (
-    <div className="fb">
-      <div className="muted small">{(item.meta?.concept as string) || "Grammar"}</div>
-      <div style={{ fontSize: 18, margin: "6px 0" }}><b>{item.prompt}</b></div>
+    <div className="framed flashcard">
+      <div className="overline">{(item.meta?.concept as string) || "Grammar"}</div>
+      <div className="card-prompt" style={{ fontWeight: 600, fontSize: 21 }}><MixedText text={item.prompt} /></div>
       {!shown ? (
-        <button className="btn" onClick={() => setShown(true)}>Show answer</button>
+        <button className="btn" style={{ marginTop: 12 }} onClick={() => setShown(true)}>Show answer</button>
       ) : (
         <>
-          <p style={{ margin: "6px 0" }}>{item.answer}</p>
+          <p style={{ margin: "10px 0 6px", fontSize: 16, lineHeight: 1.5 }}><MixedText text={item.answer} /></p>
           {example && (
             <div className="gram-ex">
-              <button className="gram-play" onClick={() => play(example)} aria-label={`Play ${example}`}>▶</button>
-              <span className="mk">{example}</span>{item.meta?.exampleGloss ? <span className="en">{item.meta.exampleGloss as string}</span> : null}
+              <SpeakButton label={`Play ${example}`} onClick={() => play(example)} />
+              <span className="mk" lang={pack.id}>{example}</span>{item.meta?.exampleGloss ? <span className="en">{item.meta.exampleGloss as string}</span> : null}
             </div>
           )}
-          <div className="row" style={{ marginTop: 10 }}>
-            <button className="ghost" onClick={() => onGrade(false)}>Again</button>
-            <button className="btn" onClick={() => onGrade(true)}>Good →</button>
-          </div>
+          <GradeRow onGrade={onGrade} />
         </>
       )}
     </div>
@@ -204,20 +209,23 @@ export function ChoiceGrammarCard({ item, onGrade }: { item: ReviewItem; onGrade
   };
   const concept = (item.meta?.concept as string) || "";
   return (
-    <div className="fb">
-      <div className="muted small">{concept}</div>
-      <div style={{ fontSize: 18, margin: "6px 0" }}><b>{item.prompt}</b></div>
-      {item.meta?.point ? <div className="muted small" style={{ marginBottom: 6 }}>{item.gloss}</div> : null}
-      <div>
+    <div className="framed flashcard">
+      <div className="overline">{concept || "Grammar"}</div>
+      <div className="card-prompt" style={{ fontWeight: 600, fontSize: 21 }}><MixedText text={item.prompt} /></div>
+      {item.meta?.point ? <div className="gloss" style={{ fontSize: 15 }}>{item.gloss}</div> : null}
+      <div className="card-opts">
         {(item.options ?? []).map((o) => {
           const cls = picked ? (o === item.answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
-          return <button className={cls} key={o} disabled={!!picked} onClick={() => choose(o)}>{o}</button>;
+          return <button className={cls} key={o} disabled={!!picked} onClick={() => choose(o)}><MixedText text={o} /></button>;
         })}
       </div>
       {picked && (
-        <div className="why">
-          {picked === item.answer ? "✓ " : "✗ "}{item.why}
-          <button className="btn" style={{ marginLeft: 8 }} onClick={() => onGrade(picked === item.answer)}>Next →</button>
+        <div className="quiz-result">
+          <div>
+            {picked === item.answer ? <span className="result-ok"><Icon name="check" size={16} />Right</span> : <span className="result-miss">Not quite</span>}
+            {item.why && <div className="muted small" style={{ marginTop: 2 }}><MixedText text={item.why} /></div>}
+          </div>
+          <button className="btn" onClick={() => onGrade(picked === item.answer)}>Next</button>
         </div>
       )}
     </div>

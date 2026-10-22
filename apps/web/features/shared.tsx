@@ -203,8 +203,8 @@ export function HintButton({ hint, label = "Hint" }: { hint?: string; label?: st
   const [shown, setShown] = useState(false);
   if (!hint) return null;
   return shown
-    ? <div className="hint">💡 {hint}</div>
-    : <button className="ghost small" onClick={() => setShown(true)}>💡 {label}</button>;
+    ? <div className="hint"><MixedText text={hint} /></div>
+    : <button className="quiet hint-btn" onClick={() => setShown(true)}>{label}</button>;
 }
 // The learner's course chapter (order) for screens far from Today, e.g. the partner pickers. Undefined when
 // the new course is off.

@@ -132,15 +132,15 @@ export function Review({ progress, persist }: { progress: Progress; persist: (p:
   );
 
   if (view.length === 0)
-    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and chapter.</p>{Filters}<p className="lead">{starredOnly && starred.length === 0 ? "No saved words yet. Tap ★ on a word while you learn — in a story, the Words list, or a lesson — to build your own deck here." : "Nothing in this filter. Pick another chapter."}</p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill: filter by type and chapter.</p>{Filters}<p className="lead">{starredOnly && starred.length === 0 ? "No saved words yet. Add words while you learn (in a story, the Words list or a lesson) to build your own deck here." : "Nothing in this filter. Pick another chapter."}</p></section>;
   if (idx >= view.length)
-    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill — filter by type and chapter.</p>{Filters}<p className="lead">Done — {view.length} reviewed. 🎉 <button className="linklike" onClick={() => setIdx(0)}>Go again</button></p></section>;
+    return <section className="view"><h2>Flashcards</h2><p className="lead" style={{ marginBottom: 12 }}>Pick what to drill: filter by type and chapter.</p>{Filters}<div className="framed flashcard" style={{ textAlign: "center" }}><div className="overline">Deck done</div><div className="card-prompt">{view.length} reviewed</div><button className="linklike" onClick={() => setIdx(0)}>Go through them again</button></div></section>;
 
   const u = view[idx]!;
   return (
     <section className="view">
-      <h2>Flashcards <span className="muted small">· {view.length - idx} left</span></h2>
-      <p className="lead" style={{ marginBottom: 12 }}>Every word &amp; phrase is here — filter by type and chapter to drill what you want. Grading strengthens it in your reviews.</p>
+      <div className="deck-head"><h2>Flashcards</h2><span className="left">{view.length - idx} left</span></div>
+      <p className="lead" style={{ marginBottom: 12 }}>Every word and phrase in the course, filtered by type and chapter. How you grade each card sets when it comes back.</p>
       {Filters}
       {u.type === "pool" ? (
         u.item.kind === "grammar"

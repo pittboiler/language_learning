@@ -4,23 +4,73 @@ import type { GlyphLesson } from "@ll/pack-schema";
 import { type Progress } from "../../lib/store";
 import { shuffle } from "../../lib/today-plan";
 import { translitOr } from "../../lib/romanize";
-import { focusLetters, usePack, usePlay } from "../shared";
+import { Icon, SpeakButton, Stitches, focusLetters, usePack, usePlay } from "../shared";
 
-// One letter's study card (glyph, name, sound, example + audio). Shared by the learn + review screens.
+// One letter's study card (capital and small letter, name, sound, example + audio). Shared by the learn +
+// review screens. Real text is mostly small letters, so both cases are shown.
 export function LetterCard({ a, play, done }: { a: GlyphLesson; play: (t: string, s?: number) => void; done?: boolean }) {
+  const pack = usePack();
   const ex = a.examples[0];
   return (
     <div className={`letter ${done ? "done" : ""}`}>
-      <div className="g">{a.glyph}</div>
+      <div className="g" lang={pack.id}>{a.glyph}<span className="lc">{a.glyph.toLocaleLowerCase(pack.id)}</span></div>
       <div className="n">{a.name}{a.unique ? <span className="tag uniq">unique</span> : a.falseFriend ? <span className="tag ff">looks Latin</span> : null}</div>
       <div className="s">{a.sound}</div>
       {ex ? (
-        <div className="ex">{ex.text} <span className="muted small">{translitOr(ex.text, ex.translit)} · {ex.gloss}</span></div>
+        <div className="ex"><span className="ex-word" lang={pack.id}>{ex.text}</span> <span className="muted small">{translitOr(ex.text, ex.translit)} · {ex.gloss}</span></div>
       ) : null}
-      <div className="acts"><button className="ghost" onClick={() => ex && play(ex.text, 0.7)}>🔊</button></div>
+      {ex && <SpeakButton label={`Play ${ex.text}`} onClick={() => play(ex.text, 0.7)} />}
     </div>
   );
 }
+
+/** One question of a letter quiz (see the letter, pick its sound · or hear the sound, pick the letter),
+ *  with its result once answered. Shared by the Library alphabet and Today's letter lessons. */
+export function LetterQuestion({ a, qType, options, picked, answer, onPick, onNext, nextLabel, label, missNote }: {
+  a: GlyphLesson;
+  qType: number;
+  options: string[];
+  picked: string | null;
+  answer: string;
+  onPick: (o: string) => void;
+  onNext: () => void;
+  nextLabel: string;
+  label: string;
+  missNote?: string;
+}) {
+  const pack = usePack();
+  const play = usePlay();
+  const right = picked !== null && picked === answer;
+  const ex = a.examples[0];
+  return (
+    <div className="framed quiz-card">
+      <div className="overline">{label}</div>
+      <p className="quiz-ask">{qType === 0 ? "What sound does this letter make?" : "Which letter makes this sound?"}</p>
+      {qType === 0
+        ? <div className="quiz-glyph" lang={pack.id}>{a.glyph}<span className="lc">{a.glyph.toLocaleLowerCase(pack.id)}</span></div>
+        : <div className="quiz-sound">{a.sound}</div>}
+      {ex && <button className="ghost small" onClick={() => play(ex.text, 0.7)}><Icon name="speaker" size={16} />{qType === 0 ? "Hear an example" : "Hear it"}</button>}
+      <div className={`quiz-opts${qType === 1 ? " glyphs" : ""}`}>
+        {options.map((o) => {
+          const cls = picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
+          return <button className={cls} key={o} lang={qType === 1 ? pack.id : undefined} disabled={!!picked} onClick={() => onPick(o)}>{o}</button>;
+        })}
+      </div>
+      {picked && (
+        <div className="quiz-result">
+          <div>
+            {right
+              ? <span className="result-ok"><Icon name="check" size={16} />Correct</span>
+              : <span className="result-miss"><span lang={pack.id}>{a.glyph}</span> sounds like “{a.sound}” ({a.name}){missNote}</span>}
+            {ex && <div className="muted small" style={{ marginTop: 2 }}><span lang={pack.id}>{ex.text}</span> = {ex.gloss}</div>}
+          </div>
+          <button className="btn" onClick={onNext}>{nextLabel}</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ---------- Reference: the alphabet, learned and TESTED set by set ----------
 // Study the key letters (unique + false-friends), then a quiz: glyph→sound and sound→glyph (with audio).
 // A letter is marked "known" only after a correct answer; misses go to the back of the queue.
@@ -68,18 +118,26 @@ export function Letters({ progress, persist, onDone, reference, onBack }: { prog
     setStep((s) => s + 1);
   };
 
+  const intro = (
+    <p className="lead">
+      Cyrillic is phonetic: one letter, one sound. Many letters look and sound like English, so the ones to really
+      learn are the <span className="tag uniq" style={{ marginLeft: 0 }}>unique</span> letters and the{" "}
+      <span className="tag ff" style={{ marginLeft: 0 }}>looks Latin</span> false friends that sound different. Tap the speaker on any card to hear it.
+    </p>
+  );
+
   // Reference home: the ENTIRE alphabet, always — a returning learner (all focus letters "known") still
   // sees every letter here, not just the 13 quizzed ones. Back-link sits inline in the header.
   if (phase === "browse") {
     return (
       <section className="view">
-        <div className="row" style={{ alignItems: "center", gap: 10, marginBottom: 6 }}>
-          {onBack && <button className="ghost small" onClick={onBack}>‹ Reference</button>}
-          <h2 style={{ margin: 0 }}>The {pack.name} alphabet — all {all.length} letters</h2>
-        </div>
-        <p className="lead">Cyrillic is phonetic — one letter, one sound. The whole alphabet is here for reference; the ones to really drill are the <span style={{ color: "var(--ok)" }}>unique</span> letters and the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different. Tap 🔊 to hear any.</p>
+        {onBack && <button className="ghost small" onClick={onBack} style={{ marginBottom: 12 }}>‹ Reference</button>}
+        <div className="overline">Reference</div>
+        <h2 style={{ marginTop: 4 }}>The {pack.name} alphabet</h2>
+        <div className="muted small" style={{ marginBottom: 10 }}>All {all.length} letters</div>
+        {intro}
         <div className="letters">{all.map((x) => <LetterCard key={x.glyph} a={x} play={play} done={!!progress.letters[x.glyph]} />)}</div>
-        <div className="row" style={{ marginTop: 8 }}><button className="btn" onClick={startQuiz}>Quiz me on the tricky ones →</button></div>
+        <div className="row" style={{ marginTop: 8 }}><button className="btn" onClick={startQuiz}>Quiz me on the tricky ones</button></div>
       </section>
     );
   }
@@ -88,9 +146,9 @@ export function Letters({ progress, persist, onDone, reference, onBack }: { prog
     return (
       <section className="view">
         <h2>The {pack.name} alphabet</h2>
-        <p className="lead">🎉 You can recognise all {focus.length} key letters — the unique ones and the false friends that look Latin. Tap 🔊 to review any.</p>
+        <p className="lead">You can recognise all {focus.length} key letters: the unique ones and the false friends that look Latin. Tap the speaker on any card to review it.</p>
         <div className="letters">{focus.map((x) => <LetterCard key={x.glyph} a={x} play={play} done />)}</div>
-        <div className="row" style={{ marginTop: 14 }}><button className="btn" onClick={onDone}>Continue →</button></div>
+        <div className="row" style={{ marginTop: 14 }}><button className="btn" onClick={onDone}>Continue</button></div>
       </section>
     );
   }
@@ -98,10 +156,11 @@ export function Letters({ progress, persist, onDone, reference, onBack }: { prog
   if (phase === "learn") {
     return (
       <section className="view">
-        <h2>The {pack.name} alphabet — all {all.length} letters</h2>
-        <p className="lead">Cyrillic is phonetic: one letter, one sound. Review the whole alphabet below — many letters look and sound like English, so the ones to really learn are the <span style={{ color: "var(--ok)" }}>unique</span> letters and the <span style={{ color: "var(--warn)" }}>false friends</span> that look Latin but sound different. I&apos;ll quiz you on those {focus.length}. Tap 🔊 to hear each.</p>
+        <h2>The {pack.name} alphabet</h2>
+        <div className="muted small" style={{ marginBottom: 10 }}>All {all.length} letters · I&apos;ll quiz you on the {focus.length} tricky ones</div>
+        {intro}
         <div className="letters">{all.map((x) => <LetterCard key={x.glyph} a={x} play={play} done={!!progress.letters[x.glyph]} />)}</div>
-        <div className="row"><button className="btn" onClick={startQuiz}>Quiz me on the tricky ones →</button></div>
+        <div className="row"><button className="btn" onClick={startQuiz}>Quiz me on the tricky ones</button></div>
       </section>
     );
   }
@@ -111,39 +170,12 @@ export function Letters({ progress, persist, onDone, reference, onBack }: { prog
   return (
     <section className="view">
       <h2>The {pack.name} alphabet</h2>
-      <div className="pbar"><div style={{ width: `${(learned / (total || 1)) * 100}%` }} /></div>
-      <p className="muted small" style={{ marginBottom: 14 }}>{learned} of {total} learned{remaining.length > 1 ? ` · ${remaining.length} to go` : ""}</p>
-      <div className="fb">
-        {qType === 0 ? (
-          <>
-            <div className="muted small">What sound does this letter make?</div>
-            <div className="row" style={{ alignItems: "center", margin: "10px 0" }}>
-              <div className="target" style={{ fontSize: 46 }}>{a.glyph}</div>
-              <button className="ghost" onClick={() => a.examples[0] && play(a.examples[0].text, 0.7)}>🔊 example</button>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="muted small">Which letter makes this sound?</div>
-            <div className="row" style={{ alignItems: "center", margin: "10px 0" }}>
-              <div style={{ fontSize: 22, fontWeight: 600 }}>{a.sound}</div>
-              <button className="ghost" onClick={() => a.examples[0] && play(a.examples[0].text, 0.7)}>🔊 hear it</button>
-            </div>
-          </>
-        )}
-        <div>
-          {options.map((o) => {
-            const cls = picked ? (o === correctAnswer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
-            return <button className={cls} key={o} disabled={!!picked} onClick={() => setPicked(o)} style={qType === 1 ? { fontSize: 24 } : undefined}>{o}</button>;
-          })}
-        </div>
-        {picked && (
-          <div className="why">
-            {isCorrect ? "✓ Correct!" : `✗ ${a.glyph} sounds like “${a.sound}” (${a.name})`}
-            <button className="btn" style={{ marginLeft: 8 }} onClick={next}>{remaining.length === 1 && isCorrect ? "Finish →" : "Next →"}</button>
-          </div>
-        )}
+      <div className="today-sub" style={{ marginBottom: 6 }}>
+        <Stitches total={total} done={learned} now={learned} size={11} label={`${learned} of ${total} learned`} />
+        <span>{learned} of {total} learned{remaining.length > 1 ? ` · ${remaining.length} to go` : ""}</span>
       </div>
+      <LetterQuestion a={a} qType={qType} options={options} picked={picked} answer={correctAnswer} onPick={setPicked}
+        onNext={next} nextLabel={remaining.length === 1 && isCorrect ? "Finish" : "Next"} label="The tricky letters" />
     </section>
   );
 }
