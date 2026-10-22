@@ -6,7 +6,7 @@ import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import { captureWord, properNounLike, toggleStar } from "../../lib/capture";
 import * as live from "@ll/core/live";
-import { pending, usePack, usePlay, wordStatus } from "../shared";
+import { Icon, SpeakButton, pending, usePack, usePlay, wordStatus } from "../shared";
 
 // ---------- Library view 4: reading (tap-to-capture + import-anything) ----------
 export function Reading({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
@@ -82,33 +82,31 @@ export function ReaderRow({ line, progress, play, onTapWord }: { line: { text: s
   const [revealed, setRevealed] = useState(false);
   return (
     <div className="rline2">
-      <button className="spk" onClick={() => play(line.text, 0.85)}>🔊</button>
+      <SpeakButton label="Play this line" onClick={() => play(line.text, 0.85)} />
       <TappableText text={line.text} progress={progress} onTapWord={onTapWord} />
-      {revealed ? <span className="muted small" style={{ marginLeft: 8 }}>· {line.gloss}</span> : <button className="ghost small" style={{ marginLeft: 8 }} onClick={() => setRevealed(true)}>translate</button>}
+      {revealed ? <span className="gloss small" style={{ marginLeft: 8 }}>{line.gloss}</span> : <button className="quiet" style={{ marginLeft: 8 }} onClick={() => setRevealed(true)}>Translate</button>}
     </div>
   );
 }
 export function WordToken({ surface, status, onTap }: { surface: string; status: string; onTap: () => void }) {
   return <span className={`tok ${status}`} onClick={onTap}>{surface}</span>;
 }
-// A key to the word colors, shared by every tap-to-read view. Also explains the state change on tap
-// (a blue "new" word turns yellow once you've met it) so the shifting highlights don't look random.
+// A key to the word marks, shared by every tap-to-read view. Also explains the change on tap (a new word
+// moves to learning once you've met it) so the shifting marks don't look random.
 export function HighlightLegend() {
   return (
-    <p className="small muted" style={{ margin: "2px 0 0", lineHeight: 1.7 }}>
-      <span className="tok new">new</span> not met yet ·{" "}
-      <span className="tok learning">learning</span> in your reviews ·{" "}
-      <span className="tok known">known</span> mastered (no highlight) ·{" "}
-      <span className="tok ignored">Name</span> skipped.{" "}
-      Tapping a <span className="tok new">new</span> word looks it up and starts learning it — so it turns{" "}
-      <span className="tok learning">yellow</span>.
+    <p className="small muted legend">
+      <span className="tok new">new</span> not met yet · <span className="tok learning">learning</span> in your reviews ·
+      known words have no mark · <span className="tok ignored">names</span> are skipped. Tap a word to look it up;
+      a new word then moves to learning.
     </p>
   );
 }
 // Renders a line as tappable, status-colored word tokens. Shared by the reader + the story player.
 export function TappableText({ text, progress, onTapWord, focus }: { text: string; progress: Progress; onTapWord: (surface: string) => void; focus?: string[] }) {
+  const pack = usePack();
   return (
-    <span className="rtext">
+    <span className="rtext" lang={pack.id}>
       {scoring.tokenize(text).map((t, j) =>
         t.isWord ? (
           <WordToken key={j} surface={t.surface} status={`${wordStatus(progress, t.lexKey)}${focus?.includes(t.surface) ? " focus" : ""}`} onTap={() => onTapWord(t.surface)} />
@@ -150,29 +148,35 @@ export function WordPanel({ sel, progress, persist, config, onClose }: {
   const star = () => toggleStar(progress, persist, sel.surface, { gloss: g?.gloss || undefined, context: sel.line });
 
   return (
-    <div className="wordpanel">
-      <div className="row">
-        <b className="target" style={{ fontSize: 20 }}>{sel.surface}</b>
-        <button className="spk" onClick={() => play(sel.surface, 0.8)}>🔊</button>
-        <button className="ghost small" style={{ marginLeft: "auto" }} onClick={onClose}>✕</button>
-      </div>
-      {spin ? (
-        <div className="spin">Looking up…</div>
-      ) : g?.gloss ? (
-        <div style={{ marginTop: 4 }}>
-          {g.translit && <span className="translit">{g.translit} · </span>}
-          <span style={{ fontSize: 16 }}>{g.gloss}</span>
-          <span className="muted small"> ({g.source})</span>
+    <section className="wordpanel" aria-label={`${sel.surface}: ${g?.gloss ?? "looking up"}`}>
+      <div className="word-head">
+        <div style={{ minWidth: 0 }}>
+          <div className="word-big" lang={pack.id}>{sel.surface}</div>
+          {spin ? (
+            <div className="spin" style={{ marginTop: 2 }}>Looking it up…</div>
+          ) : g?.gloss ? (
+            <>
+              {g.translit && <div className="translit">{g.translit}</div>}
+              <div className="word-gloss gloss">{g.gloss}</div>
+            </>
+          ) : (
+            <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No translation found." : "Translation needs Claude configured."}</div>
+          )}
         </div>
-      ) : (
-        <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No translation found." : "Translation needs Claude configured."}</div>
-      )}
-      <div className="row" style={{ marginTop: 10 }}>
-        <button className={`ghost${starred ? " active" : ""}`} onClick={star} title="Save to your flashcard deck">{starred ? "★ Saved" : "☆ Save"}</button>
-        <button className="ghost" onClick={() => setStat("known")}>✓ Known</button>
-        <button className="ghost" onClick={() => setStat("ignored")}>✕ Ignore</button>
-        <span className="muted small">{entry ? `tracked · ${entry.status}` : "captured"}</span>
+        <SpeakButton label={`Play ${sel.surface}`} onClick={() => play(sel.surface, 0.8)} />
+        <button className="icon-close" aria-label="Close" onClick={onClose}><Icon name="close" size={16} /></button>
       </div>
-    </div>
+      <div className="word-actions">
+        <button className={`ghost${starred ? " active" : ""}`} aria-pressed={starred} onClick={star} title="Save to your flashcard deck">
+          <Icon name={starred ? "check" : "plus"} size={16} />{starred ? "In your flashcards" : "Add to flashcards"}
+        </button>
+        <button className="ghost" onClick={() => setStat("known")}>I know it</button>
+        <button className="ghost" onClick={() => setStat("ignored")}>Ignore</button>
+      </div>
+      <div className="muted small" style={{ marginTop: 10 }}>
+        {entry ? (entry.status === "learning" ? "In your reviews" : entry.status === "known" ? "You know this one" : entry.status === "ignored" ? "Not in your reviews" : "Just met") : "Just met"}
+        {g?.gloss ? (g.source === "llm" || g.source === "cache" ? " · machine translation" : " · from the course") : ""}
+      </div>
+    </section>
   );
 }

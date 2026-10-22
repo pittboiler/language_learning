@@ -274,3 +274,26 @@ export function MixedText({ text }: { text: string }) {
   if (last < text.length) parts.push(text.slice(last));
   return <>{parts.map((p, i) => (typeof p === "string" ? p : <span key={i} lang={pack.id}>{p.mk}</span>))}</>;
 }
+
+const ICON_PATHS: Record<string, string> = {
+  speaker: "M11 5L6 9H3v6h3l5 4zM15.5 8.5a5 5 0 0 1 0 7",
+  mic: "M9 6a3 3 0 0 1 6 0v5a3 3 0 0 1-6 0zM5 11a7 7 0 0 0 14 0M12 18v3",
+  stop: "M7 7h10v10H7z",
+  check: "M5 12.5l4.5 4.5L19 7.5",
+  close: "M6 6l12 12M18 6L6 18",
+  next: "M9 6l6 6-6 6",
+  restart: "M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4",
+  plus: "M12 5v14M5 12h14",
+};
+/** The app's line icons (no emoji in the interface). Decorative unless the caller labels the button. */
+export function Icon({ name, size = 18 }: { name: keyof typeof ICON_PATHS; size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d={ICON_PATHS[name]} />
+    </svg>
+  );
+}
+/** The round "play this line" button used next to every spoken line. */
+export function SpeakButton({ onClick, label = "Listen" }: { onClick: () => void; label?: string }) {
+  return <button type="button" className="play-btn" aria-label={label} title={label} onClick={onClick}><Icon name="speaker" size={16} /></button>;
+}

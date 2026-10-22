@@ -2,11 +2,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { DialogueTurn, GrammarConcept } from "@ll/pack-schema";
 import * as scenario from "@ll/core/scenario";
+import * as familiarity from "@ll/core/familiarity";
+import * as scoring from "@ll/core/familiarity/scoring";
 import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { GrammarExplainer } from "../grammar/GrammarCards";
-import { usePack, usePlay, useRecorder } from "../shared";
+import { Icon, MixedText, SpeakButton, usePack, usePlay, useRecorder } from "../shared";
 
 // ---------- Library view 2: scenarios ----------
 export function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss, askable, restartIfDone, focusPoints }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void; askable?: boolean; restartIfDone?: boolean; focusPoints?: string[] }) {
@@ -33,6 +35,10 @@ export function ScenarioView({ progress, persist, config, lettersDone, scenarioI
 
   const turn = scenario.currentTurn(run, s);
   const done = run.turnIndex >= s.script.length;
+  // The conversation so far, as a script (the last few lines), and which of your lines this is.
+  const past = s.script.slice(0, run.turnIndex).slice(-4);
+  const mine = s.script.flatMap((t, i) => (t.speaker === "learner" ? [i] : []));
+  const lineLabel = mine.includes(run.turnIndex) ? `Your line · ${mine.indexOf(run.turnIndex) + 1} of ${mine.length}` : undefined;
 
   const inner = (
     <>
@@ -57,6 +63,9 @@ export function ScenarioView({ progress, persist, config, lettersDone, scenarioI
         ? <CoursePointChips sources={s.script.map((_, i) => `scenario:${s.id}#${i}`)} progress={progress} />
         : s.requiredStructures.length > 0 && <ScenarioGrammar ids={s.requiredStructures} />}
 
+      {!done && past.length > 0 && (
+        <div className="script">{past.map((t, i) => <ScriptLine key={run.turnIndex - past.length + i} turn={t} />)}</div>
+      )}
       {done ? (
         <Completion scenarioId={s.id} config={config} onComplete={onComplete} />
       ) : turn?.speaker === "partner" ? (
@@ -68,16 +77,17 @@ export function ScenarioView({ progress, persist, config, lettersDone, scenarioI
           config={config}
           onDone={() => saveRun(scenario.completeTurn(run, s))}
           onMiss={onMiss}
+          lineLabel={lineLabel}
           focusWords={course && focusPoints ? cp.focusWords(course, `scenario:${s.id}#${run.turnIndex}`, focusPoints) : undefined}
         />
       ) : null}
 
       {askable && <HaveAQuestion convoId={s.id} lines={s.script} conceptIds={s.requiredStructures} sources={s.script.map((_, i) => `scenario:${s.id}#${i}`)} progress={progress} />}
 
-      <div className="row" style={{ marginTop: 14 }}>
-        <button className="ghost" onClick={restart}>↺ Restart</button>
-        <button className="ghost" onClick={toggleAutoplay} title="Auto-play the other speaker's lines for hands-free listening practice">
-          {autoplay ? "🔊 Auto-play: on" : "🔇 Auto-play: off"}
+      <div className="row" style={{ marginTop: 18, gap: 18 }}>
+        <button className="quiet" onClick={restart}>Start the conversation again</button>
+        <button className="quiet" aria-pressed={autoplay} onClick={toggleAutoplay} title="Auto-play the other speaker's lines for hands-free listening practice">
+          {autoplay ? "Auto-play their lines: on" : "Auto-play their lines: off"}
         </button>
       </div>
     </>
@@ -234,22 +244,59 @@ export function HaveAQuestion({ convoId, lines, conceptIds, sources, progress }:
     </div>
   );
 }
+/** A line already said, in the script above the current turn. */
+function ScriptLine({ turn }: { turn: DialogueTurn }) {
+  const pack = usePack();
+  const play = usePlay();
+  const mine = turn.speaker === "learner";
+  return (
+    <div className={`script-line${mine ? " past" : ""}`}>
+      <div className="who">{mine ? "You" : "Them"}</div>
+      <div>
+        <div className="script-text" lang={pack.id}>{turn.text}</div>
+        {!mine && <div className="script-gloss">{turn.gloss}</div>}
+      </div>
+      {mine
+        ? <span className="script-done" role="img" aria-label="Done"><Icon name="check" size={16} /></span>
+        : <SpeakButton label="Play their line" onClick={() => play(turn.text, 0.85)} />}
+    </div>
+  );
+}
 export function PartnerTurn({ turn, autoplay, onContinue, focusWords }: { turn: DialogueTurn; autoplay: boolean; onContinue: () => void; focusWords?: string[] }) {
+  const pack = usePack();
   const play = usePlay();
   useEffect(() => {
     if (autoplay) play(turn.text, 0.85);
   }, [turn.text, play, autoplay]);
   return (
     <div>
-      <div className="bubble partner">
-        <div><button className="spk" onClick={() => play(turn.text, 0.85)}>🔊</button><FocusText text={turn.text} words={focusWords} /></div>
-        <div className="gloss">{turn.gloss}</div>
+      <div className="script">
+        <div className="script-line">
+          <div className="who">Them</div>
+          <div>
+            <div className="script-text" lang={pack.id}><FocusText text={turn.text} words={focusWords} /></div>
+            <div className="script-gloss">{turn.gloss}</div>
+          </div>
+          <SpeakButton label="Play their line" onClick={() => play(turn.text, 0.85)} />
+        </div>
       </div>
-      <div className="row"><button className="btn" onClick={onContinue}>Continue →</button></div>
+      <div className="row" style={{ marginTop: 16 }}><button className="btn" onClick={onContinue}>Continue</button></div>
     </div>
   );
 }
-export function LearnerTurn({ turn, config, onDone, onMiss, focusWords }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void; onMiss?: (turn: DialogueTurn) => void; focusWords?: string[] }) {
+/** The line to say, in the text face: today's focus words outlined, and after an attempt the words to work
+ *  on underlined in gold. */
+function SayLine({ text, focus, fix }: { text: string; focus?: string[]; fix: Set<string> }) {
+  const pack = usePack();
+  return (
+    <div className="say-line" lang={pack.id}>
+      {fix.size
+        ? scoring.tokenize(text).map((t, i) => (t.isWord && fix.has(familiarity.normalize(t.surface)) ? <span key={i} className="needs-fix">{t.surface}</span> : <span key={i}>{t.surface}</span>))
+        : <FocusText text={text} words={focus} />}
+    </div>
+  );
+}
+export function LearnerTurn({ turn, config, onDone, onMiss, focusWords, lineLabel }: { turn: DialogueTurn; config: api.Config | null; onDone: () => void; onMiss?: (turn: DialogueTurn) => void; focusWords?: string[]; lineLabel?: string }) {
   const pack = usePack();
   const play = usePlay();
   const rec = useRecorder();
@@ -275,7 +322,7 @@ export function LearnerTurn({ turn, config, onDone, onMiss, focusWords }: { turn
     }
     setRecording(false);
     const blob = await rec.current.stop();
-    setSpin("Transcribing…");
+    setSpin("Listening back…");
     try {
       const a = await api.asr(blob, pack.id);
       if (a.error) throw new Error(a.error);
@@ -305,63 +352,64 @@ export function LearnerTurn({ turn, config, onDone, onMiss, focusWords }: { turn
   // Offer a re-record when the attempt scored low (or errored) — clears the result so they can try again.
   const lowScore = !!fb && fb.score < 60;
   const retry = () => { setFinished(false); setAsr(null); setFb(null); setErr(""); };
+  const again = () => { retry(); void onRec(); };
+  const fix = useMemo(() => new Set((fb?.words ?? []).filter((w) => w.status !== "correct").map((w) => familiarity.normalize(w.target))), [fb]);
+  const heard = asr?.eleven?.ok && asr.eleven.text ? asr.eleven.text : asr?.google?.ok ? asr.google.text : "";
 
   return (
     <div>
-      <p className="muted small">🐢 Speak slowly and clearly — recognition (and your pronunciation) both improve with deliberate pacing.</p>
-      <p className="muted small">Your turn — say:</p>
-      <div className="target"><FocusText text={turn.text} words={focusWords} /></div>
-      {turn.translit && (showTranslit ? (
-        <div className="translit" style={{ cursor: "pointer" }} title="Tap to hide" onClick={() => setShowTranslit(false)}>{turn.translit}</div>
-      ) : (
-        <button className="ghost small" onClick={() => setShowTranslit(true)}>Show pronunciation</button>
-      ))}
-      <div className="muted">{turn.gloss}</div>
-      <div className="row" style={{ marginTop: 12 }}>
-        <button className="ghost" onClick={() => play(turn.text)}>🔊 Hear it</button>
-        <button className={`btn ${recording ? "rec" : ""}`} onClick={onRec}>{recording ? "⏹ Stop" : "⏺ Record"}</button>
-        <button className="ghost" onClick={onDone}>Skip / I said it ✓</button>
-      </div>
-      {asr && (
-        <div className="panels">
-          {(["eleven", "google"] as const).map((eng) => {
-            const e = asr[eng];
-            const label = eng === "eleven" ? "Scribe" : "Google";
-            return (
-              <div className="panel" key={eng}>
-                <div className="lab"><span>{label}</span><span>{e?.ok ? `${e.ms}ms` : ""}</span></div>
-                <div className="val">{e ? (e.ok ? e.text || "(empty)" : "⚠ " + e.error) : "(off)"}</div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-      {fb && <FeedbackCard fb={fb} />}
-      {spin && <div className="spin">{spin}</div>}
+      <div className="stitch-rule">{lineLabel ?? "Your line"}</div>
+      <SayLine text={turn.text} focus={focusWords} fix={fix} />
+      {turn.translit && (showTranslit
+        ? <button className="quiet translit" title="Tap to hide" onClick={() => setShowTranslit(false)} style={{ textDecoration: "none", fontSize: 15 }}>{turn.translit}</button>
+        : <button className="quiet" onClick={() => setShowTranslit(true)}>Show pronunciation</button>)}
+      <div className="say-gloss">{turn.gloss}</div>
+      {fb && <FeedbackCard fb={fb} asr={asr} />}
+      {!fb && finished && heard && <div className="feedback good"><div className="heard">We heard: <span lang={pack.id}>{heard}</span></div></div>}
       {err && <div className="err">{err}</div>}
-      {finished && (
-        <div className="row" style={{ marginTop: 12 }}>
-          {lowScore && <button className="btn" onClick={retry}>🔁 Try again</button>}
-          <button className={lowScore ? "ghost" : "btn"} onClick={onDone}>Next →</button>
+      <div className="speak-controls">
+        <button className="ghost" onClick={() => play(turn.text)}><Icon name="speaker" size={16} />Hear it</button>
+        <div className={`mic-ring${recording ? " recording" : ""}`}>
+          <button className="mic" disabled={!!spin} aria-label={recording ? "Stop recording" : finished ? "Say it again" : "Record yourself saying it"} onClick={finished ? again : onRec}>
+            <Icon name={recording ? "stop" : "mic"} size={30} />
+          </button>
         </div>
-      )}
+        {finished
+          ? <button className={lowScore ? "ghost" : "btn"} onClick={onDone}>Next<Icon name="next" size={16} /></button>
+          : <button className="quiet" title="Skip recording this line" onClick={onDone}>I said it</button>}
+      </div>
+      <div className="speak-hint" aria-live="polite">
+        {spin || (recording ? "Listening… tap to stop" : finished ? (lowScore ? "Tap the mic to try again" : "Tap the mic to say it again") : "Tap the mic, then say it slowly and clearly")}
+      </div>
     </div>
   );
 }
-export function FeedbackCard({ fb }: { fb: api.FeedbackResponse }) {
+const WORD_STATUS: Record<string, string> = { correct: "clear", mispronounced: "sounded off", wrong: "a different word", missed: "missed", uncertain: "unclear" };
+/** Coaching after an attempt: one friendly sentence, the single most useful fix, and what we heard. The score
+ *  and the two engines' transcripts stay one tap away, so a number never leads. */
+export function FeedbackCard({ fb, asr }: { fb: api.FeedbackResponse; asr?: api.AsrResponse | null }) {
+  const pack = usePack();
+  const misses = fb.words.filter((w) => w.status !== "correct");
+  const good = fb.score >= 80 && misses.length === 0;
+  const heard = asr?.eleven?.ok && asr.eleven.text ? asr.eleven.text : asr?.google?.ok ? asr.google.text : "";
   return (
-    <div className="fb">
-      <div className="line">
-        <b>{fb.score}/100</b> {fb.overall}
-        <span className={`gate ${fb.gate.confidence}`}>{fb.gate.confidence === "high" ? "high confidence" : "low confidence (ASR)"}</span>
-      </div>
-      <div className="line">
-        {fb.words.map((w, i) => (
-          <span className={`pill ${w.status}`} key={i} title={w.note}>{w.target} · {w.status}</span>
-        ))}
-      </div>
-      {fb.tip && <div className="line"><span className="muted">💡</span> {fb.tip}</div>}
-      {fb.asrCaveat.likelyAsrError && <div className="flag">⚠ <b>Likely ASR error:</b> {fb.asrCaveat.explanation}</div>}
+    <div className={`feedback ${good ? "good" : "fix"}`} role="status">
+      <div className="feedback-title"><MixedText text={fb.overall} /></div>
+      {fb.tip && !good && <div style={{ fontSize: 15, lineHeight: 1.5 }}><MixedText text={fb.tip} /></div>}
+      {fb.asrCaveat.likelyAsrError && <div className="heard">This may be the speech recognition mishearing you: <MixedText text={fb.asrCaveat.explanation} /></div>}
+      {fb.gate.confidence === "low" && !fb.asrCaveat.likelyAsrError && <div className="heard">The two speech engines disagreed, so take this one lightly.</div>}
+      {heard && <div className="heard">We heard: <span lang={pack.id}>{heard}</span></div>}
+      <details>
+        <summary>Details</summary>
+        <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+          <span>Score {fb.score}/100 · {fb.gate.confidence === "high" ? "both speech engines agreed" : "the speech engines disagreed"}</span>
+          {fb.words.map((w, i) => <span key={i}><b lang={pack.id}>{w.target}</b>: {WORD_STATUS[w.status] ?? w.status}{w.note ? <>. <MixedText text={w.note} /></> : null}</span>)}
+          {asr && (["eleven", "google"] as const).map((eng) => {
+            const e = asr[eng];
+            return <span key={eng}>{eng === "eleven" ? "Scribe" : "Google"} heard: {e ? (e.ok ? <span lang={pack.id}>{e.text || "(nothing)"}</span> : `error: ${e.error}`) : "(off)"}</span>;
+          })}
+        </div>
+      </details>
     </div>
   );
 }
@@ -419,11 +467,11 @@ export function Completion({ scenarioId, config, onComplete }: { scenarioId: str
 
   return (
     <div>
-      <div className="done-card"><h2>🎉 You did it!</h2><p className="lead">You hit the goal. Keep chatting to practise more, or wrap up.</p>{onComplete && <button className="btn" onClick={onComplete}>Finish session →</button>}</div>
+      <div className="done-card"><h2>You did it.</h2><p className="lead">You hit the goal. Keep chatting to practise more, or wrap up.</p>{onComplete && <button className="btn" onClick={onComplete}>Finish this step</button>}</div>
       <div>
         {history.map((h, i) => (
           <div className={`bubble ${h.role === "learner" ? "learner" : "partner"}`} key={i}>
-            <div>{h.role === "tutor" && <button className="spk" onClick={() => play(h.text, 0.9)}>🔊</button>}{h.text}</div>
+            <div>{h.role === "tutor" && <SpeakButton onClick={() => play(h.text, 0.9)} />}{h.text}</div>
             {h.gloss && <div className="gloss">{h.gloss}</div>}
             {h.corr && <div className="corr">✎ <b>correction:</b> {h.corr}</div>}
           </div>
@@ -438,7 +486,7 @@ export function Completion({ scenarioId, config, onComplete }: { scenarioId: str
         </div>
       )}
       <div className="row" style={{ marginTop: 10 }}>
-        <button className={`btn ${recording ? "rec" : ""}`} onClick={onRec} disabled={!config?.engines.anthropic}>{recording ? "⏹ Stop" : "⏺ Speak a turn"}</button>
+        <button className={`btn ${recording ? "rec" : ""}`} onClick={onRec} disabled={!config?.engines.anthropic}><Icon name={recording ? "stop" : "mic"} size={16} />{recording ? "Stop" : "Speak a turn"}</button>
         <input
           className="text"
           placeholder="…or type a turn, press Enter"
