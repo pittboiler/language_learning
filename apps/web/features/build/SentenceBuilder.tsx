@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ConjugationSet, SentenceItem, SentenceVariant } from "@ll/pack-schema";
 import * as sentenceScope from "@ll/core/sentences";
 import { type Progress } from "../../lib/store";
+import * as api from "../../lib/api";
 import * as cp from "../../lib/course-player";
 import { shuffle } from "../../lib/today-plan";
 import { useChapterMap } from "../course/ChapterHeading";
@@ -50,6 +51,10 @@ export function TileBuilder({ variant, verb, onFinish }: {
   const [tries, setTries] = useState(0);
   const [revealed, setRevealed] = useState(false);
   useEffect(() => { setPlaced([]); setResult(null); setTries(0); setRevealed(false); }, [variant.mk]);
+  // Fetch the line while it's being built, so it's said the moment it's right; and when the card moves on,
+  // drop anything still loading or playing, so the last sentence never talks over the next one.
+  const pack = usePack();
+  useEffect(() => { api.prefetchTts(variant.mk, pack.id); return () => api.stopTts(); }, [variant.mk, pack.id]);
   const placedSet = new Set(placed);
   const wordOf = (id: number) => bank.find((t) => t.id === id)!.w;
   const done = result === true || revealed;

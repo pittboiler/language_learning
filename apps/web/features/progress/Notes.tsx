@@ -38,7 +38,7 @@ export function LessonNotes({ at, progress, persist, navigate, onBack, backLabel
         <ReplayButton at={at} />
       </div>
       {pos
-        ? <CourseRecap pos={pos} since={since} until={until} progress={progress} persist={persist} missed={log?.missed ?? []} navigate={navigate} notes={{ title: noteTitle(pack, at), when: log ? `Finished ${noteDate(log.at)}` : undefined }} />
+        ? <CourseRecap pos={pos} since={since} until={until} progress={progress} persist={persist} missed={log?.missed ?? []} drilled={log?.drilled} navigate={navigate} notes={{ title: noteTitle(pack, at), when: log ? `Finished ${noteDate(log.at)}` : undefined }} />
         : <p className="muted">This lesson isn&apos;t in the course any more.</p>}
     </div>
   );

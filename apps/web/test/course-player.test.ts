@@ -499,3 +499,25 @@ console.log("course-player.test.ts: all assertions passed ✓");
   assert.ok(t.grammar.some((g) => g.startsWith(course.points.find((p) => p.id === "pt-sum")!.title)) && !t.grammar.some((g) => g.startsWith(course.points.find((p) => p.id === "pt-ti-vie")!.title)));
 }
 console.log("course-player.test.ts (guided): all assertions passed ✓");
+
+// 14. A practice day's recap (2026-10-22, Jake: chapter 2's "please / thank you" day said he'd LEARNED ли / дали,
+//     taught days before, and didn't mention the conjugation he'd practised): nothing on it is "learned" but
+//     its new words; the point is practised; the verb drilled in the warm-up shows with every form.
+{
+  const ch2 = course.chapters.find((c) => c.chapterId === "s0-greet")!;
+  const n = ch2.sessions.find((s) => s.words.some((w) => w.display === "Фала"))!.n;
+  const pos = cp.position(course, { chapterId: "s0-greet", session: n, v: course.version });
+  const rc = cp.sessionRecap(macedonian, course, pos, prog(), new Date(), undefined, ["е"]);
+  assert.ok(rc.points.length > 0 && rc.points.every((x) => !x.fresh), "a practice day teaches no point");
+  assert.ok(rc.points.some((x) => x.point.id === "pt-yes-no"), "it practises the last point taught (ли / дали)");
+  assert.ok(rc.words.some((w) => w.display === "Фала"), "the new words are today's");
+  assert.equal(rc.drills.length, 1);
+  assert.equal(rc.drills[0]!.label, "сум", "named the way the course teaches it");
+  assert.deepEqual(rc.drills[0]!.forms.map((f) => f.form), ["сум", "си", "е", "сме", "сте", "се"]);
+  // A teach day: its point is learned (fresh), nothing drilled unless the warm-up drilled it.
+  const teach = cp.sessionRecap(macedonian, course, cp.position(course, { chapterId: "s0-greet", session: 1, v: course.version }), prog(), new Date());
+  assert.ok(teach.points.length === 1 && teach.points[0]!.fresh && teach.drills.length === 0);
+  // The lesson's record keeps what was drilled, for its notes later.
+  assert.deepEqual(cp.logEntry(pos, new Date(), new Date(), [], ["е"])!.drilled, ["е"]);
+}
+console.log("course-player.test.ts (recap): all assertions passed ✓");

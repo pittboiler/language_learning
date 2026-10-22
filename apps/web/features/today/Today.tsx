@@ -224,12 +224,14 @@ export function Today({ progress, persist, config, navigate, replay }: {
   // so this can't key on the calendar day), log it for lesson notes, mark the day done — in ONE save, on top
   // of whatever the last step changed (`base`). Called when the plan runs out, or as soon as a last step's
   // own end screen appears (a checkpoint's result, the writing summary), so the lesson counts as done there.
+  // The verbs whose every form today's warm-up matched (the recap says so).
+  const drilled = steps.flatMap((s) => (s.kind === "warmup" && s.conjVerb ? [s.conjVerb.lemma] : []));
   const completeSession = (base: Progress = progress) => {
     if (replay || !v2 || advancedFor.current === planVersion) return; // a replay never moves the course on
     advancedFor.current = planVersion;
     const course = cp.advance(pack.course!, base.course, { checkpointPassed: checkpointPassed.current });
     // Keep a small record of the session so its recap can be reopened later as lesson notes.
-    const entry = playedPos ? cp.logEntry(playedPos, startedAt, new Date(), missed.map((m) => ({ answer: m.answer, gloss: m.gloss }))) : undefined;
+    const entry = playedPos ? cp.logEntry(playedPos, startedAt, new Date(), missed.map((m) => ({ answer: m.answer, gloss: m.gloss })), drilled) : undefined;
     persist(bumpStreak({ ...base, lastSessionDay: localDay(), sessions: (base.sessions ?? 0) + 1, course, ...(entry ? { courseLog: [...(base.courseLog ?? []), entry] } : {}) }));
   };
   useEffect(() => {
@@ -297,6 +299,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
           progress={progress}
           persist={persist}
           missed={missed}
+          drilled={drilled}
           onReviewMissed={() => setRecap("review")}
           onNext={replay ? replay.onExit : () => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}
           nextLabel={replay ? "Back to where you were →" : undefined}

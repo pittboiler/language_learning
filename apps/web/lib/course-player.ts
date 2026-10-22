@@ -475,7 +475,11 @@ export interface RecapPoint {
 }
 
 export interface Recap {
+  /** The point taught today (fresh), then the points practised; a practised one is recapped by its one-line
+   *  agenda, not the first-time explanation. */
   points: RecapPoint[];
+  /** Verbs drilled today, every form (the warm-up's "match each pronoun" game). */
+  drills: { lemma: string; label: string; gloss: string; forms: { pronoun: string; form: string }[] }[];
   /** Every word from today: the session's taught words, plus anything tapped/captured during it. */
   words: { lexKey: string; display: string; gloss?: string }[];
   /** Today's grammar cards (the point's blank cards). */
@@ -487,9 +491,14 @@ export interface Recap {
 
 /** What the end-of-session recap shows (DESIGN §5). `since` (and, for saved lesson notes, `until`) bound
  *  the session, to pick up words tapped during it. */
-export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosition, progress: Progress, since: Date, until?: Date): Recap {
+export function sessionRecap(pack: LanguagePack, course: Course, pos: CoursePosition, progress: Progress, since: Date, until?: Date, drilled: string[] = []): Recap {
   const points = pointsById(course);
-  const out: Recap = { points: [], words: [], cards: [], letters: [], next: "" };
+  const out: Recap = { points: [], drills: [], words: [], cards: [], letters: [], next: "" };
+  for (const lemma of drilled) {
+    const v = pack.conjugations?.find((c) => c.lemma === lemma);
+    // Named by its "I" form, the way the course teaches verbs (сум, сакам), not the dictionary's (е, сака).
+    if (v) out.drills.push({ lemma, label: v.forms["1sg"] ?? lemma, gloss: v.gloss, forms: PERSONS.map((p) => ({ pronoun: p === "3sg" ? "тој / таа" : PRONOUN[p].mk, form: v.forms[p] })).filter((f) => !!f.form) });
+  }
   const fresh = (lexKey: string) => {
     const e = progress.familiarity[lexKey];
     if (!e) return false;
@@ -691,9 +700,9 @@ export function ownWordsDue(pack: LanguagePack, p: Progress, now: Date, limit: n
 
 // ---- lesson notes: a small record per finished session, rebuilt into its recap later --------------------
 /** The record kept when a session ends (see Progress.courseLog). */
-export function logEntry(pos: CoursePosition, startedAt: Date, at: Date, missed: { answer: string; gloss: string }[]): CourseLogEntry | undefined {
+export function logEntry(pos: CoursePosition, startedAt: Date, at: Date, missed: { answer: string; gloss: string }[], drilled: string[] = []): CourseLogEntry | undefined {
   if (pos.kind === "finished") return undefined;
-  const base = { startedAt: startedAt.toISOString(), at: at.toISOString(), ...(missed.length ? { missed: missed.slice(0, 20) } : {}) };
+  const base = { startedAt: startedAt.toISOString(), at: at.toISOString(), ...(missed.length ? { missed: missed.slice(0, 20) } : {}), ...(drilled.length ? { drilled } : {}) };
   return pos.kind === "stage-review"
     ? { chapterId: pos.afterChapterId, n: 0, stage: true, ...base }
     : pos.kind === "exam"

@@ -76,6 +76,8 @@ export interface CourseLogEntry {
   startedAt: string;
   at: string;
   missed?: { answer: string; gloss: string }[];
+  /** Verbs whose every form was matched in the warm-up (by lemma), so the recap can say so later too. */
+  drilled?: string[];
 }
 
 export interface Store {

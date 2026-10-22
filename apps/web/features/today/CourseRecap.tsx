@@ -7,10 +7,12 @@ import { toggleStar, starMany } from "../../lib/capture";
 import * as cp from "../../lib/course-player";
 import { LibView, Section, pending, usePack, usePlay } from "../shared";
 
-// The end-of-session recap (DESIGN §5): what you learned (the point's recap, quoted from today's own lines),
-// every word from today and today's grammar cards — each savable to the ★ deck — what you slipped on, and
-// what's next. More detail than the agenda, still not a textbook: the Library holds the rest.
-export function CourseRecap({ pos, since, until, progress, persist, missed, onReviewMissed, onNext, nextLabel, navigate, notes }: {
+// The end-of-session recap (DESIGN §5), in the order the lesson mattered: what was NEW (a point taught today,
+// with its explanation; today's new words), then what you PRACTISED (earlier points, each in one line, quoted
+// from today's story; the verbs whose every form you matched), today's grammar cards — each savable to the ★
+// deck — what you slipped on, and what's next. (2026-10-22, Jake: a practice day's recap said he'd "learned"
+// ли / дали, taught days before, and left out the conjugation he'd practised.)
+export function CourseRecap({ pos, since, until, progress, persist, missed, drilled, onReviewMissed, onNext, nextLabel, navigate, notes }: {
   pos: cp.CoursePosition;
   since: Date;
   /** Saved lesson notes: the session's end, so words tapped later don't creep in. */
@@ -18,6 +20,8 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, onRe
   progress: Progress;
   persist: (p: Progress) => void;
   missed: { answer: string; gloss: string }[];
+  /** Verbs whose every form the warm-up matched today (by lemma). */
+  drilled?: string[];
   onReviewMissed?: () => void;
   onNext?: () => void;
   nextLabel?: string;
@@ -27,9 +31,11 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, onRe
 }) {
   const pack = usePack();
   const play = usePlay();
-  const rc = useMemo(() => cp.sessionRecap(pack, pack.course!, pos, progress, since, until),
+  const rc = useMemo(() => cp.sessionRecap(pack, pack.course!, pos, progress, since, until, drilled ?? []),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pos, since, until]);
+    [pos, since, until, drilled?.join()]);
+  const learnedPoints = rc.points.filter((x) => x.fresh);
+  const practisedPoints = rc.points.filter((x) => !x.fresh);
   const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
   const cardKey = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
   const allWordsSaved = rc.words.length > 0 && rc.words.every((w) => starred(w.lexKey));
@@ -46,9 +52,9 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, onRe
       {pos.kind === "stage-review" && <p className="lead">{notes ? "A stage review: a sample of every chapter in the stage." : "Stage review done — everything you missed is back in your reviews."}</p>}
       {pos.kind === "exam" && <p className="lead">{notes ? `${pos.exam.title}: your results are in Progress → The course.` : `${pos.exam.title} done. Your results are saved in Progress → The course, where you can retake it any time.`}</p>}
 
-      {rc.points.map(({ point, fresh, lines }) => (
+      {learnedPoints.map(({ point, fresh, lines }) => (
         <div className="fb" key={point.id} style={{ marginBottom: 12 }}>
-          <div className="gram-kicker">{fresh ? "What you learned" : "What you practised"}</div>
+          <div className="gram-kicker">What you learned</div>
           <div className="gram-title">{point.title}</div>
           <p style={{ margin: "6px 0" }}>{point.recap}</p>
           <button className="linklike small" onClick={() => { pending.pointFocus = point.id; navigate("library", "grammar"); }}>The full rule in the Library</button>
@@ -99,7 +105,7 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, onRe
       {rc.words.length > 0 && (
         <div className="fb" style={{ marginBottom: 12 }}>
           <div className="row" style={{ justifyContent: "space-between" }}>
-            <div className="gram-kicker">Words from today · {rc.words.length}</div>
+            <div className="gram-kicker">New words · {rc.words.length}</div>
             <button className="ghost small" disabled={allWordsSaved} onClick={() => persist(starMany(progress, rc.words))}>{allWordsSaved ? "★ All saved" : "★ Save all"}</button>
           </div>
           <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
@@ -112,6 +118,34 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, onRe
             ))}
           </ul>
           <p className="muted small" style={{ margin: "8px 0 0" }}>They&apos;re already in your reviews; ★ also puts them in your own deck in Flashcards.</p>
+        </div>
+      )}
+
+      {(practisedPoints.length > 0 || rc.drills.length > 0) && (
+        <div className="fb" style={{ marginBottom: 12 }}>
+          <div className="gram-kicker">What you practised</div>
+          {practisedPoints.map(({ point, lines }) => (
+            <div key={point.id} style={{ margin: "8px 0" }}>
+              <div><b>{point.title}</b> <span className="muted small">· {point.agenda}</span></div>
+              {lines.length > 0 && (
+                <div className="gram-ex-list" style={{ marginTop: 4 }}>
+                  {lines.slice(0, 2).map((l) => (
+                    <div className="gram-ex" key={l.source}>
+                      <button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button>
+                      <span className="mk">{l.text}</span><span className="en">{l.gloss}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button className="linklike small" onClick={() => { pending.pointFocus = point.id; navigate("library", "grammar"); }}>The rule in the Library</button>
+            </div>
+          ))}
+          {rc.drills.map((d) => (
+            <div key={d.lemma} style={{ margin: "8px 0" }}>
+              <div><b>Every form of {d.label}</b> <span className="muted small">· {/^to /.test(d.gloss) ? d.gloss : `to ${d.gloss}`}</span></div>
+              <div className="small" style={{ marginTop: 2 }}>{d.forms.map((f) => <span key={f.pronoun} style={{ marginRight: 12, whiteSpace: "nowrap" }}><span className="muted">{f.pronoun}</span> <b className="target">{f.form}</b></span>)}</div>
+            </div>
+          ))}
         </div>
       )}
 
