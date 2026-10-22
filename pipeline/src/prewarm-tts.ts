@@ -5,6 +5,8 @@
 //
 //   DRY=1 pipeline/node_modules/.bin/tsx pipeline/src/prewarm-tts.ts   # size it, no synth/spend
 //   pipeline/node_modules/.bin/tsx pipeline/src/prewarm-tts.ts         # warm the cache for real
+//   ONLY=build …                                                        # just Build-a-sentence lines + verb forms
+// Three at a time, each take checked (synthesizeChecked); stops at the first out-of-credits error.
 import "./env.js"; // MUST be first — populates process.env that tts-cache reads
 import { macedonian as mk } from "@ll/pack-mk";
 import { tokenize } from "@ll/core/familiarity/scoring";
@@ -45,7 +47,8 @@ function tappableSurfaces(): string[] {
 async function main() {
   // Full lines (play-story / 🔊-line) + the individual word surfaces a tap plays — deduped by string,
   // since the same string resolves to the same cache key.
-  const lines = [...new Set([...speakables(), ...tappableSurfaces()])];
+  const build = new Set([...(mk.sentences ?? []).flatMap((s) => s.variants.map((v) => v.mk.trim())), ...(mk.conjugations ?? []).flatMap((c) => Object.values(c.forms))]);
+  const lines = process.env.ONLY === "build" ? [...build] : [...new Set([...speakables(), ...tappableSurfaces()])];
   const cached = await listCachedPaths();
   const work = lines.map((text) => ({ text, ...resolveTts(text, VOICE) }));
   const misses = work.filter((w) => !cached.has(w.path));
@@ -57,20 +60,28 @@ async function main() {
   console.log(`  models for the misses: ${Object.entries(byModel).map(([k, v]) => `${k}×${v}`).join(", ") || "—"}`);
   if (DRY) { console.log(`  dry run — nothing synthesized.\n`); return; }
 
-  let done = 0, failed = 0;
-  for (const w of misses) {
-    try {
-      // Checked, like the live route: a take that doesn't say the line is redone (pipeline/src/audit-tts.ts).
-      const res = await synthesizeChecked(w.text, w, { languageCode: mk.languageCode, scribeLang: mk.asr.languageHints[0] ?? "mkd" });
-      if (!res.ok) console.log(`  ~ "${w.text.slice(0, 32)}": best take heard “${res.heard}”`);
-      await putCached(w.path, res.bytes);
-      done++;
-      if (done % 20 === 0) process.stdout.write(`  …${done}/${misses.length} synthesized\r`);
-    } catch (e) {
-      failed++;
-      console.log(`  ✗ "${w.text.slice(0, 32)}": ${e instanceof Error ? e.message : String(e)}`);
+  let done = 0, failed = 0, stop = "";
+  let next = 0;
+  const worker = async () => {
+    for (let i = next++; i < misses.length && !stop; i = next++) {
+      const w = misses[i]!;
+      try {
+        // Checked, like the live route: a take that doesn't say the line is redone (pipeline/src/audit-tts.ts).
+        const res = await synthesizeChecked(w.text, w, { languageCode: mk.languageCode, scribeLang: mk.asr.languageHints[0] ?? "mkd" });
+        if (!res.ok) console.log(`  ~ "${w.text.slice(0, 32)}": best take heard “${res.heard}”`);
+        await putCached(w.path, res.bytes);
+        done++;
+        if (done % 20 === 0) console.log(`  …${done}/${misses.length} synthesized`);
+      } catch (e) {
+        failed++;
+        const msg = e instanceof Error ? e.message : String(e);
+        console.log(`  ✗ "${w.text.slice(0, 32)}": ${msg}`);
+        if (/quota|credit|401|402/i.test(msg)) stop = msg; // out of credits: stop, don't keep failing
+      }
     }
-  }
+  };
+  await Promise.all(Array.from({ length: 3 }, worker));
+  if (stop) console.log(`\n  STOPPED: ${stop.slice(0, 200)}`);
   console.log(`\n  done · synthesized + cached ${done} · failed ${failed} · ~${chars} chars one-time\n`);
 }
 
