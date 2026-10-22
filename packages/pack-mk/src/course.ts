@@ -4045,7 +4045,7 @@ export const course: Course = {
         {
           "lexKey": "здраво",
           "display": "Здраво",
-          "gloss": "Hi (informal)"
+          "gloss": "Hi; also bye (informal)"
         },
         {
           "lexKey": "како си",
@@ -4179,7 +4179,7 @@ export const course: Course = {
             {
               "lexKey": "здраво",
               "display": "Здраво",
-              "gloss": "Hi (informal)"
+              "gloss": "Hi; also bye (informal)"
             }
           ],
           "story": {

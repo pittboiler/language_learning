@@ -246,11 +246,11 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s0-greet-v1",
     "kind": "phrase",
-    "prompt": "Hi (informal)",
+    "prompt": "Hi / Bye (informal)",
     "answer": "Здраво",
     "translit": "Zdravo",
-    "gloss": "Hi (informal)",
-    "note": "Common informal greeting; stress on first syllable.",
+    "gloss": "Hi; also bye (informal)",
+    "note": "Common informal greeting, and a casual goodbye between friends; stress on first syllable.",
     "i1Level": 0,
     "tags": [
       "generated",

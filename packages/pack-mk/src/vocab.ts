@@ -3,7 +3,7 @@ import type { ReviewItem } from "@ll/pack-schema";
 // High-frequency bar/café vocab + phrases, all verified during the spike. Nouns carry gender in meta.
 // confidence: "authored".
 export const vocab: ReviewItem[] = [
-  { id: "v-zdravo", kind: "phrase", prompt: "Hi / Hello", answer: "Здраво", translit: "Zdravo", gloss: "Hi", i1Level: 1, tags: ["greeting"], confidence: "authored" },
+  { id: "v-zdravo", kind: "phrase", prompt: "Hi / Bye (casual)", answer: "Здраво", translit: "Zdravo", gloss: "Hi; also bye (casual)", i1Level: 1, tags: ["greeting"], confidence: "authored" },
   { id: "v-pivo", kind: "vocab", prompt: "beer", answer: "пиво", translit: "pivo", gloss: "beer", i1Level: 1, tags: ["drinks"], meta: { gender: "neuter" }, confidence: "authored" },
   { id: "v-kafe", kind: "vocab", prompt: "coffee", answer: "кафе", translit: "kafe", gloss: "coffee", i1Level: 1, tags: ["drinks"], note: "Loanword with final stress (ka-FE) — an exception to the antepenultimate rule.", meta: { gender: "neuter" }, confidence: "authored" },
   { id: "v-voda", kind: "vocab", prompt: "water", answer: "вода", translit: "voda", gloss: "water", i1Level: 1, tags: ["drinks"], meta: { gender: "feminine" }, confidence: "authored" },
