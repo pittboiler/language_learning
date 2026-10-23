@@ -11,8 +11,8 @@ import * as joint from "@ll/core/partner/joint";
 import * as partnerDiff from "@ll/core/partner/familiarity-diff";
 import type { FamiliarityProjection } from "@ll/core/partner/familiarity-diff";
 import * as together from "@ll/core/together";
-import { Presence, colStack } from "./shared";
-import { HintButton, SpeakButton, useHintFor, usePack, usePlay } from "../shared";
+import { ActivityHead, colStack } from "./shared";
+import { HintButton, Icon, SpeakButton, Stitches, useHintFor, usePack, usePlay } from "../shared";
 
 // ---------- the Together drill (see DESIGN-partnered-v2.md) — the partnered session's warm-up ----------
 // The session itself. One partner PRODUCES (says the target from the English prompt); the other CHECKS
@@ -115,7 +115,7 @@ export function TogetherSession({ store, partnershipId, packId, myId, partnerId,
       setSession(sess);
       setSid(id);
     } catch (e) {
-      setErr((e as { message?: string }).message ?? "Couldn't start — try again.");
+      setErr((e as { message?: string }).message ?? "Couldn't start: try again.");
     }
   }, [store, partnershipId, packId, myId, partnerId, progress.familiarity, partnerProjection, candidates, onCourse]);
 
@@ -149,16 +149,15 @@ export function TogetherSession({ store, partnershipId, packId, myId, partnerId,
       await store.putArtifact(partnershipId, packId, "together", { ...next, day: (session as { day?: string } | null)?.day ?? localDay() }, next.id);
       setSession(next);
     } catch (e) {
-      setErr((e as { message?: string }).message ?? "Sync hiccup — tap ↻.");
+      setErr((e as { message?: string }).message ?? "Sync hiccup: tap Refresh.");
     }
   };
 
   const partnerOnline = online.includes(partnerId);
   const HeaderRow = (
-    <div className="row" style={{ justifyContent: "space-between" }}>
-      {embedded ? <span className="small">Warm-up together</span> : <button className="ghost small" onClick={() => onExit(session?.status === "complete" && session.turns.length > 0)}>← Together</button>}
-      <span className="muted small"><Presence online={partnerOnline} /> <button className="ghost small" onClick={refresh}>↻</button></span>
-    </div>
+    <ActivityHead
+      left={embedded ? <div className="overline">Warm-up together</div> : <button className="ghost small" onClick={() => onExit(session?.status === "complete" && session.turns.length > 0)}>← Together</button>}
+      online={partnerOnline} onRefresh={refresh} />
   );
 
   if (!session) return <div style={colStack}>{HeaderRow}{err ? <div className="err">{err}</div> : <span className="muted small">Setting up…</span>}</div>;
@@ -169,15 +168,15 @@ export function TogetherSession({ store, partnershipId, packId, myId, partnerId,
       <div style={colStack}>
         {HeaderRow}
         {sc.total === 0 ? (
-          <p className="lead" style={{ margin: 0 }}>Nothing new to drill together right now — do a solo lesson to build up some words, then come back.</p>
+          <p className="lead" style={{ margin: 0 }}>Nothing new to drill together right now: do a solo lesson to build up some words, then come back.</p>
         ) : (
           <>
-            <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>You cleared <b>{sc.got}/{sc.total}</b> together!</p>
+            <div className="result-ok" style={{ fontSize: 17 }}><Icon name="check" size={16} />You cleared {sc.got} of {sc.total} together</div>
             <p className="muted small" style={{ margin: 0 }}>Each of you kept the words you produced in your own reviews.</p>
           </>
         )}
         <div className="row">
-          {embedded ? <button className="btn" onClick={embedded.onNext}>{embedded.next} →</button> : <button className="btn" onClick={() => onExit(sc.total > 0)}>Done →</button>}
+          {embedded ? <button className="btn" onClick={embedded.onNext}>{embedded.next}</button> : <button className="btn" onClick={() => onExit(sc.total > 0)}>Done</button>}
           <button className="ghost" onClick={() => void buildAndStart()}>Go again</button>
         </div>
       </div>
@@ -190,30 +189,32 @@ export function TogetherSession({ store, partnershipId, packId, myId, partnerId,
   return (
     <div style={colStack}>
       {HeaderRow}
-      <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
-      <div className="muted small">Turn {session.turnIndex + 1} of {total} · cleared {sc.got}</div>
+      <div className="today-sub" style={{ marginTop: 0 }}>
+        <Stitches total={total} done={session.turnIndex} now={session.turnIndex} size={10} label={`Turn ${session.turnIndex + 1} of ${total}`} />
+        <span>Turn {session.turnIndex + 1} of {total} · cleared {sc.got}</span>
+      </div>
       {err ? <div className="err">{err}</div> : null}
       <LastTurnRecap session={session} />
       {iProduce ? (
-        <div className="fb">
-          <div className="muted small">Your turn — say this in {pack.name}, out loud:</div>
-          <div className="target" style={{ fontSize: 24, margin: "8px 0" }}>{turn.prompt}</div>
+        <div className="framed write-card">
+          <div className="overline">Your turn: say this in {pack.name}, out loud</div>
+          <div className="card-prompt">{turn.prompt}</div>
           {/* The producer's only way in when the English prompt isn't enough — the hint never contains
               the word, so asking for it doesn't hand over the answer their partner is holding. */}
-          <HintButton hint={hint(turn.lexKey)} label="Hint — I'm stuck" />
-          <div className="muted small" style={{ marginTop: 8 }}>🎙 {partnerOnline ? "Your partner is checking you…" : "waiting for your partner to check…"}</div>
+          <HintButton hint={hint(turn.lexKey)} label="I'm stuck: show a hint" />
+          <div className="muted small" style={{ marginTop: 10 }}>{partnerOnline ? "Your partner is checking you…" : "Waiting for your partner to check…"}</div>
         </div>
       ) : (
-        <div className="fb">
-          <div className="muted small">Your partner is saying <b>“{turn.prompt}”</b> — did they get it?</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <SpeakButton onClick={() => play(turn.answer, 0.9)} />
-            <b className="target" style={{ fontSize: 22 }}>{turn.answer}</b>
-            <span className="translit"> · {translitOr(turn.answer, turn.translit)}</span>
+        <div className="framed write-card">
+          <div className="overline">Your partner is saying “{turn.prompt}”: did they get it?</div>
+          <div className="model-line" style={{ margin: "10px 0 4px" }}>
+            <SpeakButton label={`Play ${turn.answer}`} onClick={() => play(turn.answer, 0.9)} />
+            <span className="mk" lang={pack.id} style={{ fontSize: 24 }}>{turn.answer}</span>
+            <span className="translit">{translitOr(turn.answer, turn.translit)}</span>
           </div>
-          <div className="row">
-            <button className="btn" onClick={() => check(true)}>✓ Got it</button>
-            <button className="ghost" onClick={() => check(false)}>↻ Again</button>
+          <div className="grade-row">
+            <button className="ghost" onClick={() => check(false)}><Icon name="restart" size={16} />Again</button>
+            <button className="btn" onClick={() => check(true)}><Icon name="check" size={16} />Got it</button>
           </div>
         </div>
       )}
@@ -224,14 +225,15 @@ export function TogetherSession({ store, partnershipId, packId, myId, partnerId,
 // speakable. The producer has until now only ever heard it from their partner (the answer lives on the
 // checker's screen), so the one card they most need to see in writing was the one they never saw.
 export function LastTurnRecap({ session }: { session: together.TogetherSession }) {
+  const pack = usePack();
   const play = usePlay();
   const prev = session.turns[session.turnIndex - 1];
   if (!prev?.result) return null;
   return (
     <div className="last-turn">
-      <span className="muted small">{prev.result === "got" ? "✓" : "↻"} {prev.prompt} —</span>
-      <SpeakButton onClick={() => play(prev.answer, 0.9)} />
-      <b>{prev.answer}</b>
+      <span className={prev.result === "got" ? "result-ok" : "result-miss"} style={{ fontSize: 13 }}><Icon name={prev.result === "got" ? "check" : "restart"} size={13} />{prev.prompt}</span>
+      <SpeakButton label={`Play ${prev.answer}`} onClick={() => play(prev.answer, 0.9)} />
+      <b lang={pack.id} style={{ fontFamily: "var(--font-text)", fontSize: 17 }}>{prev.answer}</b>
       <span className="translit">{translitOr(prev.answer, prev.translit)}</span>
     </div>
   );

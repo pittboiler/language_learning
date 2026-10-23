@@ -5,8 +5,8 @@ import { subscribeArtifacts, sharedArtifactId, type PartnerStore, type PartnerAr
 import { translitOr } from "../../lib/romanize";
 import * as infogap from "@ll/core/infogap";
 import type { InfoGapSession } from "@ll/core/infogap";
-import { colStack } from "./shared";
-import { CourseOrderContext, SpeakButton, byCourseOrder, usePack, usePlay } from "../shared";
+import { ActivityHead, SessionList, colStack } from "./shared";
+import { CourseOrderContext, Icon, MixedText, SpeakButton, byCourseOrder, usePack, usePlay } from "../shared";
 
 // Info-gap (Phase 3, forced interdependence): each partner holds DIFFERENT secret info + a shared
 // goal neither can reach alone. The view renders ONLY this partner's half (briefFor) — the asymmetry
@@ -33,27 +33,13 @@ export function InfoGapSection({ store, partnershipId, onOpen }: { store: Partne
   }, [store, partnershipId]);
   if (!(pack.infoGapTasks ?? []).length) return null;
   return (
-    <div>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <span className="small">Info-gap challenge</span>
-        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
-      </div>
-      <p className="muted small" style={{ margin: "4px 0 0" }}>Each of you gets different secret info — you can only finish by talking it out in {pack.name}.</p>
-      {sessions.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
-          {sessions.map((a) => {
-            const s = a.payload as InfoGapSession;
-            const task = pack.infoGapTasks?.find((t) => t.id === s.taskId);
-            return (
-              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
-                <span className="small">{task?.title ?? s.taskId} <span className="muted">· {s.status === "complete" ? "done ✓" : `${s.metCriteria.length}/${task?.successCriteria.length ?? "?"}`}</span></span>
-                <button className="ghost small" onClick={() => onOpen(a.id)}>Open</button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
+    <SessionList title="Info-gap challenge" desc={`Each of you gets different secret information; you can only finish by talking it out in ${pack.name}.`}
+      onStart={() => onOpen("new")}
+      rows={sessions.map((a) => {
+        const s = a.payload as InfoGapSession;
+        const task = pack.infoGapTasks?.find((t) => t.id === s.taskId);
+        return { id: a.id, title: task?.title ?? s.taskId, status: s.status === "complete" ? "Done" : `${s.metCriteria.length} of ${task?.successCriteria.length ?? "?"} ticked off`, action: "Open", onOpen: () => onOpen(a.id) };
+      })} />
   );
 }
 export function InfoGap({ store, partnershipId, packId, myId, partnerId, sessionId }: {
@@ -101,7 +87,7 @@ export function InfoGap({ store, partnershipId, packId, myId, partnerId, session
       await store.putArtifact(partnershipId, packId, "infogap", sess, id);
       setSession(sess);
     } catch (e) {
-      setErr((e as { message?: string }).message ?? "Couldn't start the challenge — try again.");
+      setErr((e as { message?: string }).message ?? "Couldn't start the challenge: try again.");
     }
   };
 
@@ -137,37 +123,34 @@ export function InfoGap({ store, partnershipId, packId, myId, partnerId, session
 
   return (
     <div style={colStack}>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <span className="small">You are <b>{role === "A" ? "the customer" : "the waiter"}</b></span>
-        <button className="ghost small" onClick={refresh}>↻ Refresh</button>
-      </div>
-      <p className="lead" style={{ margin: 0 }}>{task.goal}</p>
-      <div className="fb">
-        <b>{brief.brief}</b>
-        <div style={{ marginTop: 6 }}>
-          <span className="muted small">Only you know:</span>
-          <ul style={{ margin: "2px 0 0", paddingLeft: 18 }}>{brief.secretInfo.map((s, i) => <li key={i}>{s}</li>)}</ul>
-        </div>
-        <div style={{ marginTop: 6 }}>
-          <span className="muted small">You can say:</span>
+      <ActivityHead title="Info-gap challenge" status={<>You are <b>{role === "A" ? "the customer" : "the waiter"}</b></>} onRefresh={refresh} />
+      <p className="lesson-rule" style={{ margin: 0 }}><MixedText text={task.goal} /></p>
+      <div className="framed write-card">
+        <div className="card-prompt" style={{ fontSize: 20, marginTop: 0 }}><MixedText text={brief.brief} /></div>
+        <div className="overline" style={{ marginTop: 14 }}>Only you know</div>
+        <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.6 }}>{brief.secretInfo.map((s, i) => <li key={i}><MixedText text={s} /></li>)}</ul>
+        <div className="overline" style={{ marginTop: 14 }}>You can say</div>
+        <div className="gram-ex-list">
           {brief.targetPhrases.map((p, i) => (
-            <div className="row" key={i} style={{ marginTop: 2 }}>
-              <SpeakButton onClick={() => play(p.text, 0.9)} />
-              <span><b>{p.text}</b> <span className="muted small">· {translitOr(p.text, p.translit)} — {p.gloss}</span></span>
+            <div className="gram-ex" key={i}>
+              <SpeakButton label={`Play ${p.text}`} onClick={() => play(p.text, 0.9)} />
+              <span className="ex-text"><span className="mk" lang={pack.id}>{p.text}</span><span className="en">{translitOr(p.text, p.translit)} · {p.gloss}</span></span>
             </div>
           ))}
         </div>
       </div>
-      <span className="small">Together, tick off as you go:</span>
-      {task.successCriteria.map((c) => {
-        const met = session.metCriteria.includes(c.id);
-        return (
-          <button key={c.id} className={`badge ${met ? "on" : "off"}`} style={{ textAlign: "left" }} onClick={() => toggle(task, c.id)}>
-            {met ? "✓" : "○"} {c.description}
-          </button>
-        );
-      })}
-      {done && <p className="lead" style={{ color: "var(--ok)", margin: "6px 0 0" }}>Gap bridged — you pulled it off together!</p>}
+      <div className="overline">Together, tick off as you go</div>
+      <div className="theme-chips" style={{ margin: 0 }}>
+        {task.successCriteria.map((c) => {
+          const met = session.metCriteria.includes(c.id);
+          return (
+            <button key={c.id} aria-pressed={met} className={`chip-toggle${met ? " active" : ""}`} onClick={() => toggle(task, c.id)}>
+              {met && <Icon name="check" size={13} />} <MixedText text={c.description} />
+            </button>
+          );
+        })}
+      </div>
+      {done && <div className="result-ok"><Icon name="check" size={16} />Gap bridged: you pulled it off together!</div>}
     </div>
   );
 }

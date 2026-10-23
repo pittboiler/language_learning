@@ -6,7 +6,7 @@ import { translitOr } from "../../lib/romanize";
 import * as roleswap from "@ll/core/roleswap";
 import type { RoleSwapSession, RoleSwapTurn } from "@ll/core/roleswap";
 import type { SpeakingFeedback } from "@ll/core/speaking";
-import { blobToDataUrl, colStack, playDataUrl } from "./shared";
+import { ActivityHead, SessionList, blobToDataUrl, colStack, playDataUrl } from "./shared";
 import { CourseOrderContext, Icon, byCourseOrder, usePack, useRecorder } from "../shared";
 
 // Overview entry: list in-progress/ready role-swaps + start a new one.
@@ -31,28 +31,13 @@ export function RoleSwapSection({ store, partnershipId, onOpen }: { store: Partn
     };
   }, [store, partnershipId]);
   return (
-    <div>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <span className="small">Role-swap</span>
-        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
-      </div>
-      <p className="muted small" style={{ margin: "4px 0 0" }}>Act out a 2-person dialogue together — each records their lines, then play it back with feedback.</p>
-      {sessions.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
-          {sessions.map((a) => {
-            const s = a.payload as RoleSwapSession;
-            const title = pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId;
-            const done = s.turns.filter((t) => t.recordedBy).length;
-            return (
-              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
-                <span className="small">{title} <span className="muted">· {s.status === "complete" ? "ready to play" : `${done}/${s.turns.length} lines`}</span></span>
-                <button className="ghost small" onClick={() => onOpen(a.id)}>Open</button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
+    <SessionList title="Role-swap" desc="Act out a two-person conversation together: each of you records your own lines, then you play it back with feedback."
+      onStart={() => onOpen("new")}
+      rows={sessions.map((a) => {
+        const s = a.payload as RoleSwapSession;
+        const done = s.turns.filter((t) => t.recordedBy).length;
+        return { id: a.id, title: pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId, status: s.status === "complete" ? "Ready to play" : `${done} of ${s.turns.length} lines recorded`, action: "Open", primary: s.status === "complete", onOpen: () => onOpen(a.id) };
+      })} />
   );
 }
 // The role-swap session: pick a scenario (when "new"), record your role's lines, see the partner's,
@@ -104,7 +89,7 @@ export function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessio
       await store.putArtifact(partnershipId, packId, "roleswap", sess, id);
       setSession(sess);
     } catch (e) {
-      setErr((e as { message?: string }).message ?? "Couldn't start the session — try again.");
+      setErr((e as { message?: string }).message ?? "Couldn't start the session: try again.");
     }
   };
 
@@ -159,19 +144,18 @@ export function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessio
   const myRole = session.assignment[myId];
   return (
     <div style={colStack}>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <span className="small">You play <b>{myRole}</b> · partner plays the other lines</span>
-        <button className="ghost small" onClick={refresh}>↻ Refresh</button>
-      </div>
+      <ActivityHead title="Role-swap" status={<>You say the lines marked <b>Your line</b>; your partner says the rest</>} onRefresh={refresh} />
+      <div className="framed write-card">
       {session.turns.map((t) => {
         const mine = t.speaker === myRole;
         return (
-          <div className="fb" key={t.index}>
-            <div className="row"><b>{t.text}</b> <span className="muted small">{t.gloss} · {translitOr(t.text, t.translit)}</span></div>
+          <div className="written-row" key={t.index}>
+            <div className="model-line" style={{ marginTop: 0 }}><span className="mk" lang={pack.id}>{t.text}</span>{mine && <span className="mark" style={{ color: "var(--accent)" }}>Your line</span>}</div>
+            <div className="muted small" style={{ margin: "2px 0 6px" }}>{t.gloss} · {translitOr(t.text, t.translit)}</div>
             {t.recordedBy ? (
               <div className="row" style={{ marginTop: 4 }}>
                 <button className="ghost small" onClick={() => t.audio && playDataUrl(t.audio)}><Icon name="speaker" size={16} />Play</button>
-                <span className="muted small">{t.recordedBy === myId ? "you" : "partner"} recorded{t.feedback ? ` · ${t.feedback.score}/100` : ""}</span>
+                <span className="muted small">{t.recordedBy === myId ? "You recorded it" : "Your partner recorded it"}{t.feedback ? ` · ${t.feedback.score}/100` : ""}</span>
               </div>
             ) : mine ? (
               recIdx === t.index ? (
@@ -180,11 +164,12 @@ export function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessio
                 <button className="btn small" disabled={busyIdx !== null} onClick={() => onRecord(t)}><Icon name="mic" size={14} />{busyIdx === t.index ? "Saving…" : "Record your line"}</button>
               )
             ) : (
-              <span className="muted small">awaiting partner</span>
+              <span className="muted small">Waiting for your partner</span>
             )}
           </div>
         );
       })}
+      </div>
       {roleswap.isStitchable(session) && <button className="btn" onClick={playAll}><Icon name="speaker" size={16} />Play the whole conversation</button>}
     </div>
   );

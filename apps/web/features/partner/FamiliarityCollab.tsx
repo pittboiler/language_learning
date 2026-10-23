@@ -38,7 +38,7 @@ export function FamiliarityCollab({ store, partnershipId, packId, myId, partnerI
     void loadInbox();
   }, [loadInbox]);
 
-  if (!diff) return <p className="muted small">Turn on “Vocabulary” sharing below to swap review help with your partner.</p>;
+  if (!diff) return <div className="framed partner-card"><div className="overline">Help each other</div><p style={{ margin: "8px 0 0", lineHeight: 1.55 }}>Turn on “Vocabulary” in Partner settings to swap review help with your partner.</p></div>;
 
   const label = (lexKey: string) => progress.familiarity[lexKey]?.display ?? lexKey;
   // These surfaces are word/phrase oriented ("ask them", "record an explanation") — keep grammar patterns
@@ -70,26 +70,34 @@ export function FamiliarityCollab({ store, partnershipId, packId, myId, partnerI
   };
 
   if (!canHelp.length && !prompts.length && !forMe.length) {
-    return <p className="muted small">No complementary gaps right now — you two know similar words. 🎯</p>;
+    return <div className="framed partner-card"><div className="overline">Help each other</div><p style={{ margin: "8px 0 0", lineHeight: 1.55 }}>Nothing to swap right now: you two know much the same words.</p></div>;
   }
+  const words = (keys: string[]) => keys.map((k, i) => <span key={k}>{i > 0 && ", "}<b lang={packId} className="rmk" style={{ fontSize: 17 }}>{label(k)}</b></span>);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <span className="small">Help each other</span>
+    <div className="framed partner-card" style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      <div className="overline">Help each other</div>
       {reviewHelp.length > 0 && (
-        <p className="muted small" style={{ margin: 0 }}>Due for you & your partner knows: <b>{reviewHelp.map((r) => label(r.lexKey)).join(", ")}</b> — quiz each other.</p>
+        <div>
+          <div className="activity-sub">Quiz each other</div>
+          <p style={{ margin: "4px 0 0", lineHeight: 1.6 }}>Due for you, and your partner knows them: {words(reviewHelp.map((r) => r.lexKey))}</p>
+        </div>
       )}
       {canHelp.length > 0 && (
-        <p className="muted small" style={{ margin: 0 }}>Your partner knows <b>{canHelp.map((i) => label(i.lexKey)).join(", ")}</b> — ask them.</p>
+        <div>
+          <div className="activity-sub">Ask your partner</div>
+          <p style={{ margin: "4px 0 0", lineHeight: 1.6 }}>Your partner knows {words(canHelp.map((i) => i.lexKey))}</p>
+        </div>
       )}
       {prompts.length > 0 && (
         <div>
-          <p className="muted small" style={{ margin: "2px 0 0" }}>You're ahead here — record a quick explanation (teaching helps you most):</p>
+          <div className="activity-sub">Explain one</div>
+          <p className="muted small" style={{ margin: "4px 0 4px" }}>You&apos;re ahead on these. Record a quick explanation: teaching it helps you most.</p>
           {prompts.map((p) => (
-            <div className="row" key={p.lexKey} style={{ marginTop: 4 }}>
-              <b>{label(p.lexKey)}</b>
+            <div className="word-row" key={p.lexKey}>
+              <b lang={packId} className="rmk" style={{ flex: 1, minWidth: 0, fontSize: 17 }}>{label(p.lexKey)}</b>
               {taught.has(p.lexKey) ? (
-                <span className="badge on">sent ✓</span>
+                <span className="result-ok"><Icon name="check" size={14} />Sent</span>
               ) : recKey === p.lexKey ? (
                 <button className="rec" onClick={() => stopTeach(p.lexKey)}><Icon name="stop" size={16} />Stop and send</button>
               ) : (
@@ -101,12 +109,12 @@ export function FamiliarityCollab({ store, partnershipId, packId, myId, partnerI
       )}
       {forMe.length > 0 && (
         <div>
-          <p className="muted small" style={{ margin: "2px 0 0" }}>Your partner explained:</p>
+          <div className="activity-sub">Your partner explained</div>
           {forMe.map((a) => {
             const pl = a.payload as { lexKey?: string; audio?: string };
             return (
-              <div className="row" key={a.id} style={{ marginTop: 4 }}>
-                <b>{label(pl.lexKey ?? "")}</b>
+              <div className="word-row" key={a.id}>
+                <b lang={packId} className="rmk" style={{ flex: 1, minWidth: 0, fontSize: 17 }}>{label(pl.lexKey ?? "")}</b>
                 <button className="ghost small" onClick={() => pl.audio && playDataUrl(pl.audio)}><Icon name="speaker" size={16} />Play</button>
               </div>
             );

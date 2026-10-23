@@ -5,7 +5,7 @@ import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import { localDay } from "../../lib/daily";
 import { type PartnerStore, type PartnerArtifact } from "../../lib/partner-store";
-import { coverageOf, usePack } from "../shared";
+import { Icon, coverageOf, usePack } from "../shared";
 
 // Shared story (Phase 1): the pace-handicapping mechanic made concrete — both partners read the SAME
 // mini-story (shared experience → conversation fuel), each at their own level (per-partner coverage,
@@ -51,17 +51,17 @@ export function SharedStory({ store, partnershipId, packId, progress, navigateTo
   };
 
   return (
-    <div>
-      <span className="small">Shared story</span>
+    <div className="framed partner-card">
+      <div className="overline">Shared story</div>
       <div className="row" style={{ justifyContent: "space-between", marginTop: 6 }}>
-        <span><b>★ {story.title}</b>{story.titleGloss ? <span className="muted small"> — {story.titleGloss}</span> : null}</span>
+        <span><b lang={pack.id} className="rmk" style={{ fontWeight: 600 }}>{story.title}</b>{story.titleGloss ? <span className="gloss small"> · {story.titleGloss}</span> : null}</span>
         <span className="muted small">{Math.round(cov.familiarPct * 100)}% familiar to you</span>
       </div>
-      <p className="muted small" style={{ margin: "4px 0 0" }}>You both read the same story at your own level — compare notes after.</p>
+      <p className="muted small" style={{ margin: "4px 0 0" }}>You both read the same story at your own level, then compare notes.</p>
       <div className="row" style={{ marginTop: 6 }}>
-        <button className="btn" onClick={() => navigateToStory(story.id)}>Read together →</button>
+        <button className="btn" onClick={() => navigateToStory(story.id)}>Read it together</button>
         {stories.length > 1 && (
-          <select className="lang-picker" value={story.id} disabled={busy} onChange={(e) => setShared(e.target.value)} aria-label="Shared story">
+          <select className="lang-picker" lang={pack.id} value={story.id} disabled={busy} onChange={(e) => setShared(e.target.value)} aria-label="Shared story">
             {stories.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
           </select>
         )}
@@ -79,6 +79,7 @@ export function Phrasebook({ store, partnershipId, packId, progress, persist }: 
   progress: Progress;
   persist: (p: Progress) => void;
 }) {
+  const pack = usePack();
   const [items, setItems] = useState<PartnerArtifact[]>([]);
   const [text, setText] = useState("");
   const [gloss, setGloss] = useState("");
@@ -124,25 +125,25 @@ export function Phrasebook({ store, partnershipId, packId, progress, persist }: 
   };
 
   return (
-    <div>
-      <span className="small">Shared phrasebook</span>
-      <div className="row" style={{ marginTop: 6 }}>
-        <input className="lang-picker" style={{ minWidth: 150 }} placeholder="Phrase (target language)" value={text} onChange={(e) => setText(e.target.value)} />
-        <input className="lang-picker" style={{ minWidth: 110 }} placeholder="meaning" value={gloss} onChange={(e) => setGloss(e.target.value)} />
-        <button className="ghost small" disabled={busy || !text.trim()} onClick={autoGloss} title="Suggest a gloss">gloss?</button>
+    <div className="framed partner-card">
+      <div className="overline">Shared phrasebook</div>
+      <div className="row" style={{ marginTop: 8 }}>
+        <input className="text" aria-label={`Phrase in ${pack.name}`} style={{ minWidth: 150 }} placeholder={`Phrase in ${pack.name}`} value={text} onChange={(e) => setText(e.target.value)} />
+        <input className="text" aria-label="Its meaning" style={{ minWidth: 110 }} placeholder="Meaning" value={gloss} onChange={(e) => setGloss(e.target.value)} />
+        <button className="ghost small" disabled={busy || !text.trim()} onClick={autoGloss} title="Fill in the meaning for me">Translate</button>
         <button className="btn" disabled={busy || !text.trim()} onClick={add}>Add</button>
       </div>
       {items.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0", display: "flex", flexDirection: "column", gap: 6 }}>
+        <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0", display: "flex", flexDirection: "column" }}>
           {items.map((it) => {
             const pl = it.payload as { text?: string; gloss?: string };
             const known = !!progress.familiarity[familiarity.normalize(pl.text ?? "")];
             return (
-              <li key={it.id} className="row" style={{ justifyContent: "space-between" }}>
-                <span><b>{pl.text}</b>{pl.gloss ? <span className="muted small"> — {pl.gloss}</span> : null}</span>
-                <button className={`badge ${known ? "on" : ""}`} disabled={known} onClick={() => capture(pl.text ?? "", pl.gloss)} title="Add to my spaced-repetition reviews">
-                  {known ? "in your reviews ✓" : "＋ my reviews"}
-                </button>
+              <li key={it.id} className="word-row">
+                <span style={{ flex: 1, minWidth: 0 }}><b lang={pack.id} style={{ fontFamily: "var(--font-text)", fontSize: 17 }}>{pl.text}</b>{pl.gloss ? <span className="muted small"> · {pl.gloss}</span> : null}</span>
+                {known
+                  ? <span className="result-ok" style={{ fontSize: 13 }}><Icon name="check" size={14} />In your reviews</span>
+                  : <button className="ghost small" onClick={() => capture(pl.text ?? "", pl.gloss)} title="Add to my spaced-repetition reviews"><Icon name="plus" size={14} />Add to my reviews</button>}
               </li>
             );
           })}

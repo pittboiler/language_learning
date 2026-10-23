@@ -5,8 +5,8 @@ import { subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore, 
 import { translitOr } from "../../lib/romanize";
 import * as live from "@ll/core/live";
 import type { LiveSession } from "@ll/core/live";
-import { Presence, colStack } from "./shared";
-import { CourseOrderContext, Icon, SpeakButton, byCourseOrder, usePack, usePlay, useRecorder } from "../shared";
+import { ActivityHead, SessionList, colStack } from "./shared";
+import { CourseOrderContext, Icon, MixedText, SpeakButton, byCourseOrder, usePack, usePlay, useRecorder } from "../shared";
 
 // Live conversation (Phase 4, crown jewel): the app coaches a real-time conversation between the two
 // learners over a scenario. The session is a 'live' partner_artifact; both screens stay in sync via
@@ -35,27 +35,12 @@ export function LiveConvoSection({ store, partnershipId, onOpen }: { store: Part
   }, [store, partnershipId]);
   const activeSessions = sessions.filter((a) => (a.payload as LiveSession).status !== "complete");
   return (
-    <div>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <span className="small">Live conversation</span>
-        <button className="btn small" onClick={() => onOpen("new")}>Start →</button>
-      </div>
-      <p className="muted small" style={{ margin: "4px 0 0" }}>Talk through a scenario together in real time — the app keeps you both in sync and coaches each line.</p>
-      {activeSessions.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, margin: "6px 0 0", display: "flex", flexDirection: "column", gap: 4 }}>
-          {activeSessions.map((a) => {
-            const s = a.payload as LiveSession;
-            const title = pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId;
-            return (
-              <li key={a.id} className="row" style={{ justifyContent: "space-between" }}>
-                <span className="small">{title} <span className="muted">· live now</span></span>
-                <button className="btn small" onClick={() => onOpen(a.id)}>Join</button>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </div>
+    <SessionList title="Live conversation" desc="Talk through a conversation together in real time: the app keeps you both in sync and coaches each line."
+      onStart={() => onOpen("new")}
+      rows={activeSessions.map((a) => {
+        const s = a.payload as LiveSession;
+        return { id: a.id, title: pack.scenarios.find((x) => x.id === s.scenarioId)?.title ?? s.scenarioId, status: "Live now", action: "Join", primary: true, onOpen: () => onOpen(a.id) };
+      })} />
   );
 }
 export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessionId, scenarioId, onComplete }: {
@@ -132,7 +117,7 @@ export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessi
       setSession(sess);
       setSid(id); // activate refresh + realtime for the just-created session
     } catch (e) {
-      setErr((e as { message?: string }).message ?? "Couldn't start the session — try again.");
+      setErr((e as { message?: string }).message ?? "Couldn't start the session: try again.");
     }
   };
 
@@ -218,32 +203,39 @@ export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessi
 
   return (
     <div style={colStack}>
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <span className="small">Live · <b>{done ? "complete" : myTurn ? "your turn to speak" : "your partner's turn"}</b></span>
-        <span className="muted small"><Presence online={partnerOnline} /> <button className="ghost small" onClick={refresh}>↻</button></span>
-      </div>
-      {session.turns.filter((t) => t.spokenBy).map((t) => (
-        <div className="fb" key={t.index}>
-          <span className="muted small">{t.speaker === myRole ? "you" : "partner"}:</span> <b>{t.text}</b>
-          <span className="translit"> · {translitOr(t.text, t.translit)}</span>
-          {t.transcript ? <div className="muted small">heard: {t.transcript}{typeof t.score === "number" ? ` · ${t.score}/100` : " · scoring…"}</div> : null}
+      <ActivityHead title="Live conversation" status={<b>{done ? "Complete" : myTurn ? "Your turn to speak" : "Your partner's turn"}</b>} online={partnerOnline} onRefresh={refresh} />
+      {session.turns.some((t) => t.spokenBy) && (
+        <div className="script">
+          {session.turns.filter((t) => t.spokenBy).map((t) => (
+            <div className={`script-line${t.speaker === myRole ? " past" : ""}`} key={t.index}>
+              <div className="who">{t.speaker === myRole ? "You" : "Partner"}</div>
+              <div>
+                <div className="script-text" lang={pack.id}>{t.text}</div>
+                <div className="script-gloss">{translitOr(t.text, t.translit)}</div>
+                {t.transcript ? <div className="muted small">Heard: <span lang={pack.id}>{t.transcript}</span>{typeof t.score === "number" ? ` · ${t.score}/100` : " · scoring…"}</div> : null}
+              </div>
+              <span />
+            </div>
+          ))}
         </div>
-      ))}
-      {tip && <div className="fb"><span className="muted small">On your last line: {tip}</span></div>}
+      )}
+      {tip && <div className="feedback fix" style={{ marginTop: 0 }}><span>On your last line: <MixedText text={tip} /></span></div>}
       {done ? (
-        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>Conversation complete — nicely done, both of you!</p>
+        <div className="result-ok"><Icon name="check" size={16} />Conversation complete: nicely done, both of you!</div>
       ) : myTurn ? (
-        <div className="fb">
-          <div className="muted small">Your line:</div>
-          <div className="row"><SpeakButton onClick={() => turn && play(turn.text, 0.9)} /> <b>{turn?.text}</b></div>
-          <div className="gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
-          {recording ? <button className="rec" onClick={speak}><Icon name="stop" size={16} />Stop</button> : <button className="btn" disabled={busy} onClick={startRec}><Icon name="mic" size={16} />{busy ? "Scoring…" : "Say it"}</button>}
+        <div className="framed write-card">
+          <div className="overline">Your line</div>
+          <div className="model-line"><SpeakButton label="Play your line" onClick={() => turn && play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{turn?.text}</span></div>
+          <div className="say-gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
+          <div className="write-actions">
+            {recording ? <button className="btn rec" onClick={speak}><Icon name="stop" size={16} />Stop</button> : <button className="btn" disabled={busy} onClick={startRec}><Icon name="mic" size={16} />{busy ? "Scoring…" : "Say it"}</button>}
+          </div>
         </div>
       ) : (
-        <div className="fb">
-          <div className="muted small">🎙 Your partner&apos;s line — follow along &amp; help:</div>
-          <div className="row"><SpeakButton onClick={() => turn && play(turn.text, 0.9)} /> <b>{turn?.text}</b></div>
-          <div className="gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
+        <div className="framed write-card">
+          <div className="overline">Your partner&apos;s line: follow along and help</div>
+          <div className="model-line"><SpeakButton label="Play their line" onClick={() => turn && play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{turn?.text}</span></div>
+          <div className="say-gloss">{turn?.gloss}{turn ? ` · ${translitOr(turn.text, turn.translit)}` : ""}</div>
         </div>
       )}
     </div>

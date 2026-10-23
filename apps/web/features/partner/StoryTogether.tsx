@@ -9,9 +9,9 @@ import { captureWord, properNounLike } from "../../lib/capture";
 import { subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore } from "../../lib/partner-store";
 import { translitOr } from "../../lib/romanize";
 import * as storyTog from "@ll/core/story-together";
-import { Presence, colStack } from "./shared";
+import { ActivityHead, colStack } from "./shared";
 import { TappableText, WordPanel } from "../reading/Reading";
-import { HintButton, Icon, SlowContext, SpeakButton, usePack, usePlay } from "../shared";
+import { HintButton, Icon, MixedText, SlowContext, SpeakButton, Stitches, usePack, usePlay } from "../shared";
 
 // "Read it together": the dyad walks a story LINE BY LINE, taking turns. On your line you read it aloud
 // and say roughly what it means, with the words you haven't been taught yet translated under it (tap any other
@@ -72,7 +72,7 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
       const sess = { ...storyTog.startStoryTogether(id, packId, storyId, myId, partnerId, lines, questions), day: localDay(), startedBy: myId };
       await store.putArtifact(partnershipId, packId, "story-together", sess, id);
       setSession(sess); setSid(id);
-    } catch (e) { setErr((e as { message?: string }).message ?? "Couldn't start — try again."); }
+    } catch (e) { setErr((e as { message?: string }).message ?? "Couldn't start: try again."); }
   }, [store, partnershipId, packId, myId, partnerId, storyId, story]);
   useEffect(() => { void buildAndStart(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [storyId]);
 
@@ -85,7 +85,7 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
       const next = fn(latest);
       if (next !== latest) await store.putArtifact(partnershipId, packId, "story-together", next, next.id);
       setSession(next);
-    } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup — tap ↻."); }
+    } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup: tap Refresh."); }
   };
   const check = (got: boolean) => update((s) => storyTog.checkTurn(s, myId, got));
 
@@ -107,10 +107,9 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
 
   const partnerOnline = online.includes(partnerId);
   const HeaderRow = (
-    <div className="row" style={{ justifyContent: "space-between" }}>
-      {embedded ? <span className="small">Read together · <b>{story?.title}</b></span> : <button className="ghost small" onClick={() => onExit(session?.status === "complete")}>← Partner</button>}
-      <span className="muted small"><Presence online={partnerOnline} /> <button className="ghost small" onClick={refresh}>↻</button></span>
-    </div>
+    <ActivityHead
+      left={embedded ? <div className="overline">Read together</div> : <><button className="ghost small" onClick={() => onExit(session?.status === "complete")}>← Partner</button><div className="overline" style={{ marginTop: 12 }}>Read together</div></>}
+      status={story ? <><b lang={pack.id} className="rmk">{story.title}</b>{story.titleGloss ? <span className="gloss small"> · {story.titleGloss}</span> : null}</> : undefined} online={partnerOnline} onRefresh={refresh} />
   );
   if (!story) return <div style={colStack}>{HeaderRow}<span className="muted small">Story not found.</span></div>;
   if (!session) return <div style={colStack}>{HeaderRow}{err ? <div className="err">{err}</div> : <span className="muted small">Setting up…</span>}</div>;
@@ -119,9 +118,9 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
   if (session.status === "complete") {
     return (
       <div style={colStack}>{HeaderRow}
-        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>You read <b>{story.title}</b> together — <b>{sc.got}/{sc.total}</b> nailed.</p>
+        <div className="result-ok" style={{ fontSize: 17 }}><Icon name="check" size={16} /><span>You read <span lang={pack.id}>{story.title}</span> together: {sc.got} of {sc.total} nailed</span></div>
         <div className="row">
-          {embedded ? <button className="btn" onClick={embedded.onNext}>{embedded.next} →</button> : <button className="btn" onClick={() => onExit(true)}>Done →</button>}
+          {embedded ? <button className="btn" onClick={embedded.onNext}>{embedded.next}</button> : <button className="btn" onClick={() => onExit(true)}>Done</button>}
           <button className="ghost" onClick={() => void buildAndStart(true)}>Read again</button>
         </div>
       </div>
@@ -135,21 +134,19 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
     const qs = session.turns.filter((t) => t.kind === "qa").length;
     return (
       <div style={colStack}>{HeaderRow}
-        {!embedded && <span className="small">Read together · <b>{story.title}</b></span>}
-        <div className="fb">
-          <div className="gram-kicker">How this works</div>
-          <p className="lead" style={{ margin: "4px 0 6px" }}><b>{story.title}</b>{story.titleGloss ? <span className="muted"> — {story.titleGloss}</span> : null}</p>
-          <ol style={{ margin: "4px 0 8px", paddingLeft: 20 }}>
+        <div className="framed write-card">
+          <div className="overline">How this works</div>
+          <ol style={{ margin: "8px 0 12px", paddingLeft: 20, lineHeight: 1.55 }}>
             <li>You take turns, one line each. <b>{iGoFirst ? "You read first." : "Your partner reads first."}</b></li>
             <li>The reader reads the line aloud in Macedonian, then says roughly what it means in English. Words you haven&apos;t learned yet are translated under the line.</li>
-            <li>The other one sees the English and taps <b>✓ Got the gist</b> or <b>↻ Not quite</b>. It doesn&apos;t have to be word for word. After each line you both see what it means.</li>
+            <li>The other one sees the English and taps <b>Got the gist</b> or <b>Not quite</b>. It doesn&apos;t have to be word for word. After each line you both see what it means.</li>
             {qs > 0 && <li>At the end, {qs === 1 ? "a question" : `${qs} questions`} about the story: one of you asks, the other answers.</li>}
           </ol>
           <div className="row" style={{ marginTop: 8 }}>
-            <button className="btn" onClick={() => { stopRef.current = true; setPlaying(null); void update(storyTog.begin); }}>Start reading together →</button>
+            <button className="btn" onClick={() => { stopRef.current = true; setPlaying(null); void update(storyTog.begin); }}>Start reading together</button>
             <button className="ghost small" onClick={() => void playAll()}><Icon name={playing !== null ? "stop" : "speaker"} size={16} />{playing !== null ? "Stop" : "Hear it once first"}</button>
           </div>
-          <div className="muted small" style={{ marginTop: 6 }}>Starting moves you both to the first line.{partnerOnline ? "" : " Your partner isn't here yet."}</div>
+          <div className="muted small" style={{ marginTop: 10 }}>Starting moves you both to the first line.{partnerOnline ? "" : " Your partner isn't here yet."}</div>
         </div>
       </div>
     );
@@ -163,65 +160,55 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
   const prev = session.turns[session.turnIndex - 1];
   return (
     <div style={colStack}>{HeaderRow}
-      {!embedded && <span className="small">Read together · <b>{story.title}</b></span>}
-      <div className="pbar"><div style={{ width: `${(session.turnIndex / (total || 1)) * 100}%` }} /></div>
-      <div className="muted small">{isQa ? `Question ${turn.index - lineCount + 1} of ${total - lineCount}` : `Line ${session.turnIndex + 1} of ${lineCount}`} · {sc.got} nailed</div>
+      <div className="today-sub" style={{ marginTop: 0 }}>
+        <Stitches total={total} done={session.turnIndex} now={session.turnIndex} size={10} label={isQa ? "Questions" : `Line ${session.turnIndex + 1} of ${lineCount}`} />
+        <span>{isQa ? `Question ${turn.index - lineCount + 1} of ${total - lineCount}` : `Line ${session.turnIndex + 1} of ${lineCount}`} · {sc.got} nailed</span>
+      </div>
       {err ? <div className="err">{err}</div> : null}
       {/* The reader says what the line means but never sees the English — so once it's marked, show it.
           Without this the one line you worked hardest on is the one you leave unconfirmed. */}
       {prev?.result ? (
         <div className="last-turn">
-          <span className="muted small">{prev.result === "got" ? "✓" : "↻"} {prev.text} —</span>
-          <span>{prev.kind === "qa" ? `${prev.answer}${prev.answerGloss ? ` (${prev.answerGloss})` : ""}` : prev.gloss}</span>
+          <span className={prev.result === "got" ? "result-ok" : "result-miss"}><Icon name={prev.result === "got" ? "check" : "restart"} size={13} /></span>
+          <span className="small lt-text"><b lang={pack.id}>{prev.text}</b> <span className="muted">·</span> {prev.kind === "qa" ? <><span lang={pack.id}>{prev.answer}</span>{prev.answerGloss ? ` (${prev.answerGloss})` : ""}</> : prev.gloss}</span>
         </div>
       ) : null}
       {isQa ? (iRead ? (
-        <div className="fb">
-          <div className="muted small">Your partner asks you about the story — answer out loud, in Macedonian if you can:</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <SpeakButton onClick={() => play(turn.text, 0.9)} />
-            <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
-          </div>
+        <div className="framed write-card">
+          <div className="overline">Your partner asks you about the story: answer out loud, in {pack.name} if you can</div>
+          <div className="model-line"><SpeakButton label="Play the question" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 22, margin: 0 }}>{turn.text}</span></div>
           <HintButton hint={turn.gloss} label="What does it ask?" />
-          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking your answer…" : "waiting for your partner…"}</div>
+          <div className="muted small" style={{ marginTop: 10 }}>{partnerOnline ? "Your partner is checking your answer…" : "Waiting for your partner…"}</div>
         </div>
       ) : (
-        <div className="fb">
-          <div className="muted small">Ask your partner this question, out loud:</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <SpeakButton onClick={() => play(turn.text, 0.9)} />
-            <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
-          </div>
-          <div className="gloss">{turn.gloss}</div>
-          <div className="small" style={{ marginTop: 6 }}>Answer: <b>{turn.answer}</b>{turn.answerGloss ? <span className="muted"> — {turn.answerGloss}</span> : null}</div>
-          <div className="row" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => check(true)}>✓ Got it</button>
-            <button className="ghost" onClick={() => check(false)}>↻ Not quite</button>
+        <div className="framed write-card">
+          <div className="overline">Ask your partner this question, out loud</div>
+          <div className="model-line"><SpeakButton label="Play the question" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 22, margin: 0 }}>{turn.text}</span></div>
+          <div className="say-gloss">{turn.gloss}</div>
+          <p style={{ margin: "12px 0 0" }}>Answer: <b lang={pack.id} className="rmk">{turn.answer}</b>{turn.answerGloss ? <span className="muted"> · {turn.answerGloss}</span> : null}</p>
+          <div className="grade-row">
+            <button className="ghost" onClick={() => check(false)}><Icon name="restart" size={16} />Not quite</button>
+            <button className="btn" onClick={() => check(true)}><Icon name="check" size={16} />Got it</button>
           </div>
         </div>
       )) : iRead ? (
-        <div className="fb">
-          <div className="muted small">Your line: read it aloud, then tell your partner roughly what it means{progress ? " (tap a word if you're stuck)" : ""}:</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <SpeakButton onClick={() => play(turn.text, 0.9)} />
-            <b className="target" style={{ fontSize: 22 }}>{progress ? <TappableText text={turn.text} progress={progress} onTapWord={(sf) => onTap(sf, turn.text, turn.gloss)} /> : turn.text}</b>
-          </div>
-          <div className="translit">{translitOr(turn.text, turn.translit)}</div>
+        <div className="framed write-card">
+          <div className="overline">Your line: read it aloud, then tell your partner roughly what it means{progress ? " (tap a word if you're stuck)" : ""}</div>
+          <div className="model-line"><SpeakButton label="Play your line" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{progress ? <TappableText text={turn.text} progress={progress} onTapWord={(sf) => onTap(sf, turn.text, turn.gloss)} /> : turn.text}</span></div>
+          <div className="say-gloss">{translitOr(turn.text, turn.translit)}</div>
           {progress && <NewWordsOnLine text={turn.text} storyId={story.id} progress={progress} />}
           {sel && progress && persist && <WordPanel sel={sel} progress={progress} persist={persist} config={config ?? null} onClose={() => setSel(null)} />}
-          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking your meaning…" : "waiting for your partner to check…"}</div>
+          <div className="muted small" style={{ marginTop: 10 }}>{partnerOnline ? "Your partner is checking your meaning…" : "Waiting for your partner to check…"}</div>
         </div>
       ) : (
-        <div className="fb">
-          <div className="muted small">Your partner reads this line and says roughly what it means. Did they get the gist? It doesn&apos;t have to be word for word.</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <SpeakButton onClick={() => play(turn.text, 0.9)} />
-            <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
-          </div>
-          <div className="gloss">means: {turn.gloss}</div>
-          <div className="row" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => check(true)}>✓ Got the gist</button>
-            <button className="ghost" onClick={() => check(false)}>↻ Not quite</button>
+        <div className="framed write-card">
+          <div className="overline">Your partner reads this line and says roughly what it means</div>
+          <div className="model-line"><SpeakButton label="Play their line" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 22, margin: 0 }}>{turn.text}</span></div>
+          <p style={{ margin: "10px 0 0" }}>It means: <MixedText text={turn.gloss} /></p>
+          <div className="muted small" style={{ marginTop: 6 }}>Did they get the gist? It doesn&apos;t have to be word for word.</div>
+          <div className="grade-row">
+            <button className="ghost" onClick={() => check(false)}><Icon name="restart" size={16} />Not quite</button>
+            <button className="btn" onClick={() => check(true)}><Icon name="check" size={16} />Got the gist</button>
           </div>
         </div>
       )}
@@ -261,10 +248,10 @@ function NewWordsOnLine({ text, storyId, progress }: { text: string; storyId: st
   }, [words]);
   if (!words.length) return null;
   return (
-    <div className="small" style={{ marginTop: 6 }}>
+    <div className="small" style={{ marginTop: 10, lineHeight: 1.7 }}>
       <span className="muted">New words: </span>
       {words.map((w, i) => (
-        <span key={w.lexKey}>{i ? " · " : ""}<b lang={pack.id}>{w.surface}</b> <span className="muted">{own.get(w.lexKey) ?? looked[w.lexKey] ?? "…"}</span></span>
+        <span key={w.lexKey}>{i ? " · " : ""}<b lang={pack.id} style={{ fontSize: 16 }}>{w.surface}</b> <span className="muted">{own.get(w.lexKey) ?? looked[w.lexKey] ?? "…"}</span></span>
       ))}
     </div>
   );

@@ -15,8 +15,8 @@ import * as gtog from "@ll/core/partner/grammar-together";
 import { FocusText } from "../conversation/ScenarioView";
 import { StoryTogether } from "./StoryTogether";
 import { TogetherSession } from "./TogetherSession";
-import { Presence, colStack } from "./shared";
-import { HintButton, SpeakButton, gradeItem, usePack, usePlay } from "../shared";
+import { ActivityHead, colStack } from "./shared";
+import { HintButton, Icon, MixedText, SpeakButton, Stitches, gradeItem, usePack, usePlay } from "../shared";
 
 // Off the course (no blueprint): pick a story for the partnered session by SHARED readiness — the scenario
 // whose vocabulary both have actually studied — so it lands at the pair's level. Falls back to the
@@ -91,7 +91,7 @@ export function JointSessionView({ store, partnershipId, packId, myId, partnerId
       const next = fn(latest);
       if (next !== latest) await store.putArtifact(partnershipId, packId, "joint-session", next, sessionRowId);
       setRow(next);
-    } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup — try again."); }
+    } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup: try again."); }
   };
   const move = (from: jsession.JointSection, outcome: "done" | "skipped") => void write((s) => jsession.advance(s, from, outcome));
 
@@ -109,7 +109,7 @@ export function JointSessionView({ store, partnershipId, packId, myId, partnerId
         {(["warmup", "grammar", "story", "recap"] as jsession.JointPhase[]).map((p) => {
           const o = p === "recap" ? undefined : row.outcomes[p];
           const cls = p === phase ? "now" : o === "done" ? "done" : o ? "skipped" : "";
-          return <span key={p} className={`session-step ${cls}`}>{o === "done" ? "✓ " : ""}{SECTION_LABEL[p]}{o === "skipped" ? " · skipped" : o === "empty" ? " · nothing yet" : ""}</span>;
+          return <span key={p} className={`session-step ${cls}`}>{o === "done" ? <Icon name="check" size={11} /> : null}{SECTION_LABEL[p]}{o === "skipped" ? " · skipped" : o === "empty" ? " · nothing yet" : ""}</span>;
         })}
       </div>
       {err ? <div className="err">{err}</div> : null}
@@ -129,7 +129,7 @@ export function JointSessionView({ store, partnershipId, packId, myId, partnerId
       {phase === "recap" && <JointSessionRecap row={row} store={store} partnershipId={partnershipId} myId={myId} progress={progress} persist={persist} onFinish={() => void write(jsession.finish).then(onExit)} />}
       {phase !== "recap" && finished !== phase && (
         <div className="row" style={{ justifyContent: "flex-end" }}>
-          <button className="ghost small" onClick={() => move(phase, "skipped")} title="Moves you both on">Skip this section →</button>
+          <button className="quiet" onClick={() => move(phase, "skipped")} title="Moves you both on">Skip this section</button>
         </div>
       )}
     </div>
@@ -185,16 +185,11 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
       const nxt = fn(latest);
       await store.putArtifact(partnershipId, packId, "grammar-together", nxt, rowId);
       setG(nxt);
-    } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup — tap ↻."); }
+    } catch (e) { setErr((e as { message?: string }).message ?? "Sync hiccup: tap Refresh."); }
   };
 
   const partnerOnline = online.includes(partnerId);
-  const head = (
-    <div className="row" style={{ justifyContent: "space-between" }}>
-      <span className="small">📚 Grammar together{point ? <> · <b>{point.title}</b></> : null}</span>
-      <span className="muted small"><Presence online={partnerOnline} /> <button className="ghost small" onClick={refresh}>↻</button></span>
-    </div>
-  );
+  const head = <ActivityHead title="Grammar together" status={point ? <b><MixedText text={point.title} /></b> : undefined} online={partnerOnline} onRefresh={refresh} />;
   if (!g || !point) return <div style={colStack}>{head}{err ? <div className="err">{err}</div> : <span className="muted small">Setting up…</span>}</div>;
 
   const sc = gtog.score(g);
@@ -203,24 +198,24 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
   const asRead = (t: Extract<gtog.GrammarTurn, { kind: "blank" }>) => t.slip ? cp.blankOut(t.line, t.answer).replace("___", t.slip) : t.line;
   const lastResult = prev && prev.kind !== "read" && prev.result ? (
     <div className="last-turn">
-      <span className="muted small">{prev.result === "got" ? "✓" : "✗"}</span>
+      <span className={prev.result === "got" ? "result-ok" : "result-miss"}><Icon name={prev.result === "got" ? "check" : "close"} size={13} /></span>
       {prev.kind === "blank"
-        ? <span className="small"><b>{prev.line}</b>{prev.slip
-          ? <> — “{prev.slip}” was the slip{prev.choice === prev.slip ? ", and it got past" : prev.choice !== prev.answer ? `; picked “${prev.choice}”` : ""}</>
-          : <> — read right{prev.result === "missed" ? ", nothing was off" : ""}</>}<span className="muted"> · {prev.why}</span></span>
+        ? <span className="small lt-text"><b lang={pack.id}>{prev.line}</b>{prev.slip
+          ? <> The slip was “<span lang={pack.id}>{prev.slip}</span>”{prev.choice === prev.slip ? ", and it got past" : prev.choice !== prev.answer ? `; “${prev.choice}” was picked` : ""}.</>
+          : <> It was read right{prev.result === "missed" ? ", nothing was off" : ""}.</>}<span className="muted"> · <MixedText text={prev.why} /></span></span>
         : prev.kind === "switch"
-          ? <span className="small">{prev.pronoun}: <b>{prev.answer}</b><span className="muted"> · {prev.why}</span></span>
-          : <span className="small">{prev.question} <span className="muted">— {prev.answer}</span></span>}
+          ? <span className="small lt-text"><span lang={pack.id}>{prev.pronoun}</span>: <b lang={pack.id}>{prev.answer}</b><span className="muted"> · <MixedText text={prev.why} /></span></span>
+          : <span className="small lt-text"><MixedText text={prev.question} /> <span className="muted">Answer: <MixedText text={prev.answer} /></span></span>}
     </div>
   ) : null;
   const ruleBox = (
     <>
-      <div className="gram-plain"><span className="lab">The rule</span><p>{point.rule}</p></div>
+      <div className="gram-plain"><span className="lab">The rule</span><p><MixedText text={point.rule} /></p></div>
       <div className="gram-ex-list">
         {point.examples.slice(0, 3).map((ex) => (
           <div className="gram-ex" key={ex.source}>
             <SpeakButton label={`Play ${ex.text}`} onClick={() => play(ex.text)} />
-            <span className="mk">{ex.text}</span><span className="en">{ex.gloss}</span>
+            <span className="ex-text"><span className="mk" lang={pack.id}>{ex.text}</span><span className="en">{ex.gloss}</span></span>
           </div>
         ))}
       </div>
@@ -231,9 +226,9 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
     return (
       <div style={colStack}>{head}
         {lastResult}
-        <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>{sc.got}/{sc.total} right together.</p>
-        <div className="gram-plain"><span className="lab">In short</span><p>{point.recap}</p></div>
-        <div className="row"><button className="btn" onClick={onNext}>{next} →</button></div>
+        <div className="result-ok" style={{ fontSize: 17 }}><Icon name="check" size={16} />{sc.got} of {sc.total} right together</div>
+        <div className="gram-plain"><span className="lab">In short</span><p><MixedText text={point.recap} /></p></div>
+        <div className="row"><button className="btn" onClick={onNext}>{next}</button></div>
       </div>
     );
   }
@@ -245,89 +240,86 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
     <div style={colStack}>{head}
       {/* Person ping-pong: how it works, and the rule on both screens (nobody reads it aloud). */}
       {pingPong && g.turnIndex === 0 && (
-        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps ✓ or ↻. Now and then, spot the slip: a line on today&apos;s point that may have one wrong word in it.</div>
+        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps Got it or Not quite. Now and then, spot the slip: a line on today&apos;s point that may have one wrong word in it.</div>
       )}
-      {pingPong && <details className="small"><summary>The rule: {point.title}</summary><p style={{ margin: "4px 0" }}>{point.rule}</p></details>}
-      <div className="pbar"><div style={{ width: `${(g.turnIndex / (g.turns.length || 1)) * 100}%` }} /></div>
-      <div className="muted small">Turn {g.turnIndex + 1} of {g.turns.length} · {sc.got} right</div>
+      {pingPong && <details className="small"><summary>The rule: <MixedText text={point.title} /></summary><p style={{ margin: "4px 0" }}><MixedText text={point.rule} /></p></details>}
+      <div className="today-sub" style={{ marginTop: 0 }}>
+        <Stitches total={g.turns.length} done={g.turnIndex} now={g.turnIndex} size={10} label={`Turn ${g.turnIndex + 1} of ${g.turns.length}`} />
+        <span>Turn {g.turnIndex + 1} of {g.turns.length} · {sc.got} right</span>
+      </div>
       {err ? <div className="err">{err}</div> : null}
       {lastResult}
       {t.kind === "switch" && (iAsk ? (
-        <div className="fb">
-          <div className="muted small">Read this line aloud to your partner:</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <SpeakButton onClick={() => play(t.line, 0.9)} />
-            <b className="target" style={{ fontSize: 20 }}>{t.line}</b>
-          </div>
-          <div className="gloss">{t.gloss}</div>
-          <div className="small" style={{ marginTop: 8 }}>They say it about <b>{t.pronoun}</b> ({t.personEn}). The answer: <b className="target">{t.answer}</b></div>
-          <div className="row" style={{ marginTop: 8 }}>
-            <button className="btn" onClick={() => void act((s) => gtog.judge(s, myId, true))}>✓ Got it</button>
-            <button className="ghost" onClick={() => void act((s) => gtog.judge(s, myId, false))}>↻ Not quite</button>
+        <div className="framed write-card">
+          <div className="overline">Read this line aloud to your partner</div>
+          <div className="model-line"><SpeakButton label="Play the line" onClick={() => play(t.line, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{t.line}</span></div>
+          <div className="say-gloss">{t.gloss}</div>
+          <p style={{ margin: "12px 0 0", lineHeight: 1.55 }}>They say it about <b lang={pack.id}>{t.pronoun}</b> ({t.personEn}). The answer: <b lang={pack.id} className="rmk">{t.answer}</b></p>
+          <div className="grade-row">
+            <button className="ghost" onClick={() => void act((s) => gtog.judge(s, myId, false))}><Icon name="restart" size={16} />Not quite</button>
+            <button className="btn" onClick={() => void act((s) => gtog.judge(s, myId, true))}><Icon name="check" size={16} />Got it</button>
           </div>
         </div>
       ) : (
         // The listener sees only who to say it about: the line itself they hear from their partner (Jake,
         // 2026-10-23), with a peek for when it doesn't land.
-        <div className="fb">
-          <div className="muted small">Listen to your partner read a line, then say it out loud about:</div>
-          <p className="lead" style={{ margin: "8px 0" }}><b className="target" style={{ fontSize: 24 }}>{t.pronoun}</b> <span className="muted">({t.personEn})</span></p>
+        <div className="framed write-card">
+          <div className="overline">Listen to your partner read a line, then say it out loud about</div>
+          <div className="model-line" style={{ margin: "10px 0 6px" }}><span className="say-line" lang={pack.id} style={{ margin: 0 }}>{t.pronoun}</span><span className="muted">({t.personEn})</span></div>
           <HintButton key={`forms${g.turnIndex}`} hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
           <HintButton key={`line${g.turnIndex}`} hint={`${t.line} (${t.gloss})`} label="Didn't catch it? Show the line" />
-          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking…" : "waiting for your partner…"}</div>
+          <div className="muted small" style={{ marginTop: 10 }}>{partnerOnline ? "Your partner is checking…" : "Waiting for your partner…"}</div>
         </div>
       ))}
       {t.kind === "read" && (
-        <div className="fb">
-          <div className="muted small">{iAsk ? "Read the rule aloud to your partner, examples too:" : "Your partner is reading the rule aloud — follow along:"}</div>
+        <div className="framed write-card">
+          <div className="overline">{iAsk ? "Read the rule aloud to your partner, examples too" : "Your partner is reading the rule aloud: follow along"}</div>
           {ruleBox}
-          {iAsk ? <button className="btn" style={{ marginTop: 8 }} onClick={() => void act((s) => gtog.doneReading(s, myId))}>Done reading →</button>
-            : <div className="muted small" style={{ marginTop: 8 }}>{partnerOnline ? "Listening…" : "waiting for your partner…"}</div>}
+          {iAsk ? <button className="btn" onClick={() => void act((s) => gtog.doneReading(s, myId))}>Done reading</button>
+            : <div className="muted small">{partnerOnline ? "Listening…" : "Waiting for your partner…"}</div>}
         </div>
       )}
       {t.kind === "rule" && (iAsk ? (
-        <div className="fb">
-          <div className="muted small">Ask your partner, out loud:</div>
-          <div style={{ fontSize: 18, margin: "6px 0" }}>{t.question}</div>
-          <div className="gloss">Answer: {t.answer}</div>
-          <div className="row" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => void act((s) => gtog.judge(s, myId, true))}>✓ Got it</button>
-            <button className="ghost" onClick={() => void act((s) => gtog.judge(s, myId, false))}>↻ Not quite</button>
+        <div className="framed write-card">
+          <div className="overline">Ask your partner, out loud</div>
+          <div className="card-prompt" style={{ fontSize: 20 }}><MixedText text={t.question} /></div>
+          <div className="say-gloss">Answer: <MixedText text={t.answer} /></div>
+          <div className="grade-row">
+            <button className="ghost" onClick={() => void act((s) => gtog.judge(s, myId, false))}><Icon name="restart" size={16} />Not quite</button>
+            <button className="btn" onClick={() => void act((s) => gtog.judge(s, myId, true))}><Icon name="check" size={16} />Got it</button>
           </div>
         </div>
       ) : (
-        <div className="fb">
-          <div className="muted small">Your partner is asking you — answer out loud:</div>
-          <div style={{ fontSize: 18, margin: "6px 0" }}>{t.question}</div>
+        <div className="framed write-card">
+          <div className="overline">Your partner is asking you: answer out loud</div>
+          <div className="card-prompt" style={{ fontSize: 20 }}><MixedText text={t.question} /></div>
           <HintButton hint={point.rule} label="Peek at the rule" />
         </div>
       ))}
       {t.kind === "blank" && (iAsk ? (
-        <div className="fb">
-          <div className="muted small">{t.slip ? "Spot the slip: read this aloud exactly as written. It has one wrong word in it, marked:" : "Spot the slip: read this aloud. This time it's right as it is:"}</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <b className="target" style={{ fontSize: 20 }}><FocusText text={asRead(t)} words={[gtog.readForm(t)]} /></b>
-          </div>
-          {t.slip ? <div className="small">The slip: <b lang={pack.id}>{t.slip}</b>, where it should be <b lang={pack.id}>{t.answer}</b>.</div> : null}
-          <div className="gloss">{t.gloss}</div>
-          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is deciding if it sounded right…" : "waiting for your partner…"}</div>
+        <div className="framed write-card">
+          <div className="overline">{t.slip ? "Spot the slip: read this aloud exactly as written. It has one wrong word in it, marked" : "Spot the slip: read this aloud. This time it's right as it is"}</div>
+          <div className="say-line" lang={pack.id} style={{ fontSize: 24, margin: "10px 0 4px" }}><FocusText text={asRead(t)} words={[gtog.readForm(t)]} /></div>
+          <div className="say-gloss">{t.gloss}</div>
+          {t.slip ? <p style={{ margin: "10px 0 0" }}>The slip: <b lang={pack.id}>{t.slip}</b>, where it should be <b lang={pack.id}>{t.answer}</b>.</p> : null}
+          <div className="muted small" style={{ marginTop: 10 }}>{partnerOnline ? "Your partner is deciding if it sounded right…" : "Waiting for your partner…"}</div>
         </div>
       ) : (
-        <div className="fb">
-          <div className="muted small">Spot the slip: listen to your partner read a line. It means:</div>
-          <div className="gloss" style={{ fontSize: 18, margin: "6px 0" }}>{t.gloss}</div>
+        <div className="framed write-card">
+          <div className="overline">Spot the slip: listen to your partner read a line. It means</div>
+          <div className="card-prompt" style={{ fontSize: 20 }}>{t.gloss}</div>
           {offAt === g.turnIndex ? (
             <>
-              <p className="lead" style={{ margin: "8px 0 4px" }}>Which word should it have been?</p>
-              <div className="row">
-                {t.options.filter((o) => o !== gtog.readForm(t)).map((o) => <button key={o} className="btn" lang={pack.id} onClick={() => void act((s) => gtog.pick(s, myId, o))}>{o}</button>)}
-                <button className="ghost small" onClick={() => setOffAt(null)}>← Back</button>
+              <div className="activity-sub" style={{ marginTop: 14 }}>Which word should it have been?</div>
+              <div className="row" style={{ marginTop: 8 }}>
+                {t.options.filter((o) => o !== gtog.readForm(t)).map((o) => <button key={o} className="ghost" lang={pack.id} style={{ fontSize: 18 }} onClick={() => void act((s) => gtog.pick(s, myId, o))}>{o}</button>)}
+                <button className="quiet" onClick={() => setOffAt(null)}>Back</button>
               </div>
             </>
           ) : (
             <>
-              <p className="lead" style={{ margin: "8px 0 4px" }}>Did it sound right?</p>
-              <div className="row">
+              <div className="activity-sub" style={{ marginTop: 14 }}>Did it sound right?</div>
+              <div className="row" style={{ marginTop: 8 }}>
                 <button className="btn" onClick={() => void act((s) => gtog.pick(s, myId, gtog.readForm(t)))}>Sounds right</button>
                 <button className="ghost" onClick={() => setOffAt(g.turnIndex)}>Something&apos;s off</button>
               </div>
@@ -365,22 +357,23 @@ export function JointSessionRecap({ row, store, partnershipId, myId, progress, p
   const missed = (gram?.turns ?? []).filter((t) => (t.kind === "blank" || t.kind === "switch") && t.result === "missed");
   const starred = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStarred(e); };
   const allSaved = words.length > 0 && words.every((w) => starred(w.lexKey));
-  const how = (s: jsession.JointSection) => { const o = row.outcomes[s]; return o === "done" ? "✓ done" : o === "skipped" ? "skipped" : "nothing to share yet"; };
+  const how = (s: jsession.JointSection) => { const o = row.outcomes[s]; return o === "done" ? "done" : o === "skipped" ? "skipped" : "nothing to share yet"; };
   const sc = gram ? gtog.score(gram) : undefined;
   const ss = story ? storyTog.score(story) : undefined;
   return (
-    <div className="fb">
-      <h3 style={{ margin: "0 0 4px" }}>Today together</h3>
-      <p className="muted small" style={{ margin: 0 }}>Warm-up: {how("warmup")} · Grammar: {how("grammar")}{sc && sc.done ? ` (${sc.got}/${sc.done} right)` : ""} · Story: {how("story")}{ss && ss.done ? ` (${ss.got}/${ss.done} nailed)` : ""}</p>
+    <div className="framed write-card">
+      <div className="overline">Session recap</div>
+      <h3 className="lesson-title" style={{ margin: "6px 0 4px" }}>Today together</h3>
+      <div className="step-meta" style={{ marginBottom: 0 }}>Warm-up: {how("warmup")} · Grammar: {how("grammar")}{sc && sc.done ? ` (${sc.got} of ${sc.done} right)` : ""} · Story: {how("story")}{ss && ss.done ? ` (${ss.got} of ${ss.done} nailed)` : ""}</div>
       {point && (
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 18 }}>
           <div className="gram-kicker">What you practised</div>
-          <div className="gram-title">{point.title}</div>
-          <p style={{ margin: "6px 0" }}>{point.recap}</p>
+          <div className="gram-title"><MixedText text={point.title} /></div>
+          <p style={{ margin: "6px 0", lineHeight: 1.55 }}><MixedText text={point.recap} /></p>
           {missed.length > 0 && (
-            <ul className="small" style={{ margin: "4px 0", paddingLeft: 18 }}>
-              {missed.map((t) => t.kind === "blank" ? <li key={t.index}><b>{t.line}</b> — {t.why}</li>
-                : t.kind === "switch" ? <li key={t.index}>{t.pronoun}: <b>{t.answer}</b> — {t.why}</li> : null)}
+            <ul className="small" style={{ margin: "4px 0", paddingLeft: 18, lineHeight: 1.6 }}>
+              {missed.map((t) => t.kind === "blank" ? <li key={t.index}><b lang={pack.id}>{t.line}</b> <MixedText text={t.why} /></li>
+                : t.kind === "switch" ? <li key={t.index}><span lang={pack.id}>{t.pronoun}</span>: <b lang={pack.id}>{t.answer}</b>. <MixedText text={t.why} /></li> : null)}
             </ul>
           )}
           {st && refs.storyLines.length > 0 && (
@@ -388,7 +381,7 @@ export function JointSessionRecap({ row, store, partnershipId, myId, progress, p
               {refs.storyLines.map((i) => st.body[i]).filter(Boolean).map((b) => (
                 <div className="gram-ex" key={b!.text}>
                   <SpeakButton label={`Play ${b!.text}`} onClick={() => play(b!.text)} />
-                  <span className="mk"><FocusText text={b!.text} words={pack.course?.lineFocus?.[`story:${st.id}#${st.body.indexOf(b!)}`]?.[point.id]?.words} /></span><span className="en">{b!.gloss}</span>
+                  <span className="ex-text"><span className="mk" lang={pack.id}><FocusText text={b!.text} words={pack.course?.lineFocus?.[`story:${st.id}#${st.body.indexOf(b!)}`]?.[point.id]?.words} /></span><span className="en">{b!.gloss}</span></span>
                 </div>
               ))}
             </div>
@@ -396,25 +389,26 @@ export function JointSessionRecap({ row, store, partnershipId, myId, progress, p
         </div>
       )}
       {words.length > 0 && (
-        <div style={{ marginTop: 12 }}>
+        <div style={{ marginTop: 18 }}>
           <div className="row" style={{ justifyContent: "space-between" }}>
-            <div className="gram-kicker">Words you drilled together · {words.filter((w) => w.result === "got").length}/{words.length}</div>
+            <div className="gram-kicker">Words you drilled together · {words.filter((w) => w.result === "got").length} of {words.length}</div>
             <button className="ghost small" disabled={allSaved} onClick={() => persist(starMany(progress, words.map((w) => ({ lexKey: w.lexKey, display: w.answer, gloss: w.prompt }))))}>{allSaved ? "★ All saved" : "★ Save all"}</button>
           </div>
           <ul style={{ margin: "6px 0 0", paddingLeft: 0, listStyle: "none" }}>
             {words.map((w) => (
-              <li key={w.index} className="row" style={{ gap: 8, margin: "4px 0" }}>
-                <button className={`ghost small${starred(w.lexKey) ? " active" : ""}`} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, w.lexKey, { gloss: w.prompt })}>{starred(w.lexKey) ? "★" : "☆"}</button>
-                <b className="target">{w.answer}</b>
-                <span className="muted small">— {w.prompt} · {w.producer === myId ? "you said it" : "your partner said it"} {w.result === "got" ? "✓" : "↻"}</span>
+              <li key={w.index} className="word-row">
+                <button className={`ghost small${starred(w.lexKey) ? " active" : ""}`} aria-pressed={starred(w.lexKey)} aria-label={starred(w.lexKey) ? "Saved to your flashcards" : "Save to your flashcards"} title="Save to your flashcard deck" onClick={() => toggleStar(progress, persist, w.lexKey, { gloss: w.prompt })}>{starred(w.lexKey) ? "★" : "☆"}</button>
+                <b lang={pack.id} className="rmk">{w.answer}</b>
+                <span className="muted small" style={{ flex: 1, minWidth: 0 }}>{w.prompt} · {w.producer === myId ? "you said it" : "your partner said it"}</span>
+                <span className={w.result === "got" ? "result-ok" : "result-miss"} title={w.result === "got" ? "Got it" : "Again"}><Icon name={w.result === "got" ? "check" : "restart"} size={14} /></span>
               </li>
             ))}
           </ul>
         </div>
       )}
-      {refs.next && <p className="lead" style={{ margin: "12px 0 0" }}>{refs.next}</p>}
-      <div className="row" style={{ marginTop: 12 }}>
-        <button className="btn" onClick={onFinish}>{row.status === "complete" ? "Back to Partnered" : "Finish session ✓"}</button>
+      {refs.next && <p style={{ margin: "18px 0 0", lineHeight: 1.55 }}><MixedText text={refs.next} /></p>}
+      <div className="row" style={{ marginTop: 16 }}>
+        <button className="btn" onClick={onFinish}>{row.status === "complete" ? "Back to Partnered" : "Finish the session"}</button>
       </div>
     </div>
   );
