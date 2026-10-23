@@ -74,7 +74,7 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
     return (
       <div>
         <Tag>Checkpoint · chapter {chapter.order}</Tag>
-        <p className="lead" style={{ marginTop: 0 }}>Before we move on from <b>{chapter.shortTitle}</b>: everything it taught — {items.filter((i) => i.kind !== "grammar").length} words and {items.filter((i) => i.kind === "grammar").length} grammar cards{switches.length ? ", then the people swap" : ""}{scenario ? ", then the conversation" : ""}.</p>
+        <p className="lead" style={{ marginTop: 0 }}>Before we move on from <b>{chapter.shortTitle}</b>: everything it taught, {items.filter((i) => i.kind !== "grammar").length} words and {items.filter((i) => i.kind === "grammar").length} grammar cards{switches.length ? ", then the people swap" : ""}{scenario ? ", then the conversation" : ""}.</p>
         <WarmupSession items={items} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} />
       </div>
     );
@@ -106,7 +106,7 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
     return (
       <div>
         <Tag>Checkpoint · use it</Tag>
-        <p className="lead" style={{ marginTop: 0 }}>{score.got}/{score.total} recalled. Now use it for real — <b>{scenario.title}</b>.</p>
+        <p className="lead" style={{ marginTop: 0 }}>{score.got}/{score.total} recalled. Now use it for real: <b>{scenario.title}</b>.</p>
         <ScenarioView
           progress={progress} persist={persist} config={config} lettersDone
           scenarioId={scenario.id} hidePicker bare askable restartIfDone

@@ -159,8 +159,8 @@ export function SayIt({ lines, config, onMiss, onDone }: { lines: { text: string
   const line = lines[i];
   if (!line) return null;
   return (
-    <div className="fb">
-      <div className="gram-kicker">Say it · {i + 1} of {lines.length}</div>
+    <div className="framed write-card">
+      <div className="overline">Say it · {i + 1} of {lines.length}</div>
       <LearnerTurn
         key={i}
         turn={{ speaker: "learner", text: line.text, gloss: line.gloss, translit: line.translit ?? romanize(line.text) }}

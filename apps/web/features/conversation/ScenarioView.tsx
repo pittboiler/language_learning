@@ -49,13 +49,13 @@ export function ScenarioView({ progress, persist, config, lettersDone, scenarioI
           ))}
         </div>
       )}
-      {!lettersDone && !bare && <div className="banner">Tip: finish <b>Letters</b> first — but practice here anyway (tap “Show pronunciation” for the Latin spelling).</div>}
+      {!lettersDone && !bare && <div className="banner">Tip: finish <b>Letters</b> first, but practise here anyway (tap “Show pronunciation” for the Latin spelling).</div>}
       {!bare && <h2>{s.title}</h2>}
-      {!bare && <p className="lead">{s.goal} — <span className="muted">{s.setting}</span></p>}
+      {!bare && <p className="lead"><MixedText text={s.goal} /> <span className="muted">· {s.setting}</span></p>}
       <div className="check">
         {s.successCriteria.map((c) => (
           <span key={c.id} className={`crit ${run.metCriteria.includes(c.id) ? "met" : ""}`}>
-            {run.metCriteria.includes(c.id) ? "✓ " : ""}{c.description}
+            {run.metCriteria.includes(c.id) && <Icon name="check" size={12} />} <MixedText text={c.description} />
           </span>
         ))}
       </div>
@@ -113,20 +113,20 @@ export function CoursePointChips({ sources, progress, label = "Grammar here:" }:
     <div className="gram-inline">
       <span className="muted small">{label}</span>
       {pts.map((pt) => (
-        <button key={pt.id} className={`ghost small ${open === pt.id ? "active" : ""}`} onClick={() => setOpen(open === pt.id ? null : pt.id)}>ⓖ {pt.title}</button>
+        <button key={pt.id} className={`chip-toggle${open === pt.id ? " active" : ""}`} aria-expanded={open === pt.id} onClick={() => setOpen(open === pt.id ? null : pt.id)}><MixedText text={pt.title} /></button>
       ))}
       {shown && (
-        <div className="fb" style={{ width: "100%", marginTop: 4 }}>
-          <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
-            <span className="gram-title" style={{ fontSize: 15 }}>ⓖ {shown.title}</span>
-            <button className="ghost small" onClick={() => setOpen(null)}>Hide ▲</button>
+        <div className="gram-pop">
+          <div className="recap-head">
+            <span className="gram-title" style={{ fontSize: 17, margin: 0 }}><MixedText text={shown.title} /></span>
+            <button className="quiet" onClick={() => setOpen(null)}>Hide</button>
           </div>
-          <p style={{ margin: "6px 0" }}>{shown.rule}</p>
+          <p className="recap-text"><MixedText text={shown.rule} /></p>
           <div className="gram-ex-list">
             {shown.examples.slice(0, 2).map((ex) => (
               <div className="gram-ex" key={ex.source}>
-                <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
-                <span className="mk">{ex.text}</span><span className="en">{ex.gloss}</span>
+                <SpeakButton label={`Play ${ex.text}`} onClick={() => play(ex.text)} />
+                <span className="ex-text"><span className="mk" lang={pack.id}>{ex.text}</span><span className="en">{ex.gloss}</span></span>
               </div>
             ))}
           </div>
@@ -152,13 +152,13 @@ export function ScenarioGrammar({ ids, label = "Grammar here:" }: { ids: string[
     <div className="gram-inline">
       <span className="muted small">{label}</span>
       {concepts.map((c) => (
-        <button key={c.id} className={`ghost small ${open === c.id ? "active" : ""}`} onClick={() => setOpen(open === c.id ? null : c.id)}>ⓖ {c.name}</button>
+        <button key={c.id} className={`chip-toggle${open === c.id ? " active" : ""}`} aria-expanded={open === c.id} onClick={() => setOpen(open === c.id ? null : c.id)}><MixedText text={c.name} /></button>
       ))}
       {shown && (
-        <div className="fb" style={{ width: "100%", marginTop: 4 }}>
-          <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline", marginBottom: 2 }}>
-            <span className="gram-title" style={{ fontSize: 15 }}>ⓖ {shown.name}</span>
-            <button className="ghost small" onClick={() => setOpen(null)}>Hide ▲</button>
+        <div className="gram-pop">
+          <div className="recap-head">
+            <span className="gram-title" style={{ fontSize: 17, margin: 0 }}><MixedText text={shown.name} /></span>
+            <button className="quiet" onClick={() => setOpen(null)}>Hide</button>
           </div>
           <GrammarExplainer concept={shown} compact />
         </div>
@@ -195,11 +195,11 @@ export function HaveAQuestion({ convoId, lines, conceptIds, sources, progress }:
     try {
       const r = await api.explain({ packId: pack.id, convoId, lines, question, canned, ...(courseCtx ? { course: courseCtx } : {}) });
       if (r.answer) setAnswer(r.answer);
-      else if (r.error === "rate_limited") setErr("You've asked a lot today — take a look at the grammar reference for now, and come back tomorrow.");
+      else if (r.error === "rate_limited") setErr("You've asked a lot today. Take a look at the grammar reference for now, and come back tomorrow.");
       else if (r.error === "unconfigured") setErr("AI help isn't configured in this environment.");
-      else setErr("Couldn't answer that one — try rephrasing.");
+      else setErr("Couldn't answer that one. Try rephrasing.");
     } catch {
-      setErr("Something went wrong — try again.");
+      setErr("Something went wrong. Try again.");
     } finally {
       setSpin(false);
     }
@@ -207,36 +207,37 @@ export function HaveAQuestion({ convoId, lines, conceptIds, sources, progress }:
 
   return (
     <div style={{ marginTop: 12 }}>
-      <button className="ghost small" onClick={() => setOpen((o) => !o)}>{open ? "▲" : "▾"} Have a question?</button>
+      <button className="ghost small" aria-expanded={open} onClick={() => setOpen((o) => !o)}>{open ? "Close the question box" : "Have a question?"}</button>
       {open && (
-        <div className="fb" style={{ marginTop: 8 }}>
-          <div className="muted small">Ask about the grammar or wording in this conversation.</div>
+        <div className="framed write-card" style={{ marginTop: 10 }}>
+          <div className="overline">Have a question?</div>
+          <p className="muted small" style={{ margin: "6px 0 0" }}>Ask about the grammar or wording in this conversation.</p>
           {course ? (taughtHere.length > 0 && (
             <div className="row" style={{ flexWrap: "wrap", margin: "8px 0" }}>
               {taughtHere.map((pt) => (
-                <button key={pt.id} className="ghost small" disabled={spin} onClick={() => ask(`Why "${pt.title}"? Explain how it shows up in this conversation.`, pt.id)}>ⓖ {pt.title}?</button>
+                <button key={pt.id} className="chip-toggle" disabled={spin} onClick={() => ask(`Why "${pt.title}"? Explain how it shows up in this conversation.`, pt.id)}><MixedText text={pt.title} />?</button>
               ))}
             </div>
           )) : concepts.length > 0 && (
             <div className="row" style={{ flexWrap: "wrap", margin: "8px 0" }}>
               {concepts.map((c) => (
-                <button key={c.id} className="ghost small" disabled={spin} onClick={() => ask(`Why "${c.name}"? Explain how it shows up in this conversation.`, c.id)}>ⓖ {c.name}?</button>
+                <button key={c.id} className="chip-toggle" disabled={spin} onClick={() => ask(`Why "${c.name}"? Explain how it shows up in this conversation.`, c.id)}><MixedText text={c.name} />?</button>
               ))}
             </div>
           )}
           <div className="row">
-            <input className="lang-picker" style={{ flex: 1, minWidth: 180 }} maxLength={120} placeholder="e.g. why is there a тоа here?" value={q}
+            <input className="text" aria-label="Your question" style={{ flex: 1, minWidth: 180 }} maxLength={120} placeholder="e.g. why is there a тоа here?" value={q}
               onChange={(e) => setQ(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && q.trim() && !spin) ask(q.trim()); }} />
             <button className="btn" disabled={spin || !q.trim()} onClick={() => ask(q.trim())}>{spin ? "…" : "Ask"}</button>
           </div>
           {err && <div className="muted small" style={{ marginTop: 6 }}>{err}</div>}
           {answer && (
-            <div className="fb" style={{ marginTop: 8 }}>
-              <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-                <span className="muted small">Answer</span>
-                <button className="ghost small" onClick={() => setAnswer(null)}>Hide ▲</button>
+            <div className="gram-plain" style={{ marginBottom: 0 }}>
+              <div className="recap-head">
+                <span className="lab">Answer</span>
+                <button className="quiet" style={{ minHeight: 0, padding: 0 }} onClick={() => setAnswer(null)}>Hide</button>
               </div>
-              <p style={{ margin: "4px 0 0" }}>{answer}</p>
+              <p><MixedText text={answer} /></p>
             </div>
           )}
         </div>
@@ -316,7 +317,7 @@ export function LearnerTurn({ turn, config, onDone, onMiss, focusWords, lineLabe
         await rec.current.start();
         setRecording(true);
       } catch {
-        setErr("Microphone permission denied — use a real Chrome tab.");
+        setErr("Microphone permission denied. Use a real Chrome tab.");
       }
       return;
     }
@@ -449,7 +450,7 @@ export function Completion({ scenarioId, config, onComplete }: { scenarioId: str
 
   const onRec = async () => {
     if (!recording) {
-      try { await rec.current.start(); setRecording(true); } catch { setErr("Mic denied — use Chrome."); }
+      try { await rec.current.start(); setRecording(true); } catch { setErr("Microphone denied. Use Chrome."); }
       return;
     }
     setRecording(false);
@@ -457,7 +458,7 @@ export function Completion({ scenarioId, config, onComplete }: { scenarioId: str
     try {
       const a = await api.asr(await rec.current.stop(), pack.id);
       const t = a.eleven?.text || a.google?.text || "";
-      if (!t) throw new Error("No transcript — closer to the mic");
+      if (!t) throw new Error("Nothing came through. Try again, closer to the mic.");
       await send(t);
     } catch (e) {
       setErr(e instanceof Error ? e.message : String(e));

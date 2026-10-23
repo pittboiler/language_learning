@@ -4,13 +4,13 @@ import type { GrammarPoint, LanguagePack } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
-import { LibView, NoteAt, ReplayContext, Section, pending, usePack, usePlay } from "../shared";
+import { LibView, MixedText, NoteAt, ReplayContext, Section, SpeakButton, pending, usePack, usePlay } from "../shared";
 import { CourseRecap } from "../today/CourseRecap";
 
 export function ReplayButton({ at }: { at: NoteAt }) {
   const start = useContext(ReplayContext);
   if (!start || at.stage || at.exam) return null;
-  return <button className="ghost small" title="Do this lesson again — your place in the course stays where it is" onClick={() => start(at)}>Do again</button>;
+  return <button className="ghost small" title="Do this lesson again: your place in the course stays where it is" onClick={() => start(at)}>Do again</button>;
 }
 export const noteDate = (iso?: string) => (iso ? new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }) : undefined);
 export function noteTitle(pack: LanguagePack, at: NoteAt): string {
@@ -63,33 +63,35 @@ export function ChapterGlance({ chapterId, progress, navigate, onBack, backLabel
   return (
     <div>
       <button className="ghost small" onClick={onBack} style={{ marginBottom: 8 }}>← {backLabel}</button>
-      <h3 style={{ marginTop: 4, marginBottom: 2 }}>Chapter {ch?.order} · {ch?.shortTitle}: at a glance</h3>
-      <p className="muted small" style={{ marginTop: 0 }}>{ch?.title}</p>
+      <div className="overline">Chapter {ch?.order} at a glance</div>
+      <h2 className="lesson-title">{ch?.shortTitle}</h2>
+      <div className="step-meta">{ch?.title}</div>
       {pts.map((p) => progress.seenGrammar?.[p.id] ? (
-        <div className="fb" key={p.id} style={{ marginBottom: 10 }}>
-          <div className="gram-title">{p.title}</div>
-          <p style={{ margin: "6px 0" }}>{p.rule}</p>
+        <div className="framed write-card recap-card" key={p.id}>
+          <div className="overline">Grammar</div>
+          <div className="gram-title"><MixedText text={p.title} /></div>
+          <p className="recap-text"><MixedText text={p.rule} /></p>
           <div className="gram-ex-list">
             {p.examples.slice(0, 2).map((ex) => (
               <div className="gram-ex" key={ex.source}>
-                <button className="gram-play" onClick={() => play(ex.text)} aria-label={`Play ${ex.text}`}>▶</button>
-                <span className="mk">{ex.text}</span><span className="en">{ex.gloss}</span>
+                <SpeakButton label={`Play ${ex.text}`} onClick={() => play(ex.text)} />
+                <span className="ex-text"><span className="mk" lang={pack.id}>{ex.text}</span><span className="en">{ex.gloss}</span></span>
               </div>
             ))}
           </div>
           <button className="linklike small" onClick={() => { pending.pointFocus = p.id; navigate("library", "grammar"); }}>The full rule in the Library</button>
         </div>
       ) : (
-        <p className="muted small" key={p.id}>Coming up in this chapter: <b>{p.title}</b></p>
+        <p className="muted small" key={p.id}>Coming up in this chapter: <b><MixedText text={p.title} /></b></p>
       ))}
       {cc.words.length > 0 && (
-        <div className="fb">
-          <div className="gram-kicker">Words · {cc.words.filter((w) => learned(w.lexKey)).length} of {cc.words.length} learned</div>
+        <div className="framed write-card recap-card">
+          <div className="overline">Words · {cc.words.filter((w) => learned(w.lexKey)).length} of {cc.words.length} learned</div>
           <div className="word-grid">
             {cc.words.map((w) => (
               <span key={w.lexKey} className="row" style={{ gap: 6, flexWrap: "nowrap" }}>
-                <button className="gram-play" onClick={() => play(w.display)} aria-label={`Play ${w.display}`}>▶</button>
-                <span><b className="target">{w.display}</b> <span className="muted small">{w.gloss}{learned(w.lexKey) ? " ✓" : ""}</span></span>
+                <SpeakButton label={`Play ${w.display}`} onClick={() => play(w.display)} />
+                <span><b lang={pack.id} className="rmk" style={{ fontSize: 16 }}>{w.display}</b> <span className="muted small">{w.gloss}{learned(w.lexKey) ? " · learned" : ""}</span></span>
               </span>
             ))}
           </div>

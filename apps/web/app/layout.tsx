@@ -9,7 +9,7 @@ const golos = Golos_Text({ subsets: ["latin", "cyrillic"], variable: "--font-gol
 const literata = Literata({ subsets: ["latin", "cyrillic"], style: ["normal", "italic"], axes: ["opsz"], variable: "--font-literata", display: "swap" });
 
 export const metadata = {
-  title: "Start talking — conversation-first language learning",
+  title: "Start talking: conversation-first language learning",
   description: "Conversation-first language learning",
 };
 

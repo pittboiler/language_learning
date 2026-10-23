@@ -5,7 +5,7 @@ import { packList } from "../../lib/packs";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { currentUser, sendMagicLink, signOut, supabaseConfigured, type AuthUser } from "../../lib/supabase";
-import { packUnreviewed, usePack } from "../shared";
+import { Icon, packUnreviewed, usePack } from "../shared";
 
 // Account / cross-device profile: magic-link sign-in (passwordless). Since progress already upserts to
 // user_state keyed by uid, signing in with the same email on another device makes uid() stable across
@@ -21,7 +21,7 @@ export function AccountSettings() {
     return (
       <div className="setting-row">
         <b>Account</b>
-        <span className="muted small">Cross-device sync needs Supabase — see SUPABASE_SETUP.md.</span>
+        <span className="muted small">Cross-device sync needs Supabase: see SUPABASE_SETUP.md.</span>
       </div>
     );
 
@@ -32,9 +32,9 @@ export function AccountSettings() {
     setStatus("");
     try {
       const { mode } = await sendMagicLink(e);
-      setStatus(`Check ${e} for a sign-in link${mode === "signin" ? " — it signs this device into your existing account" : " to finish setting up your account"}.`);
+      setStatus(`Check ${e} for a sign-in link${mode === "signin" ? ". It signs this device into your existing account" : " to finish setting up your account"}.`);
     } catch (err) {
-      setStatus(err instanceof Error ? err.message : "Could not send the link — is email sign-in enabled in Supabase?");
+      setStatus(err instanceof Error ? err.message : "Could not send the link. Is email sign-in enabled in Supabase?");
     } finally {
       setBusy(false);
     }
@@ -55,14 +55,14 @@ export function AccountSettings() {
       <b>Account</b>
       {user && !user.isAnonymous && user.email ? (
         <div className="row" style={{ width: "100%", justifyContent: "space-between" }}>
-          <span className="small">Signed in as <b>{user.email}</b> — your learning syncs to any device you sign in on.</span>
+          <span className="small">Signed in as <b>{user.email}</b>. Your learning syncs to any device you sign in on.</span>
           <button className="ghost small" disabled={busy} onClick={out}>Sign out</button>
         </div>
       ) : (
         <>
-          <span className="muted small">Sign in to carry your progress across web and phone — we&apos;ll email a one-tap link, no password.</span>
+          <span className="muted small">Sign in to carry your progress across web and phone. We&apos;ll email a one-tap link, no password.</span>
           <div className="row" style={{ width: "100%" }}>
-            <input className="lang-picker" type="email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, minWidth: 160 }} />
+            <input className="text" type="email" aria-label="Email" autoComplete="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} style={{ flex: 1, minWidth: 160 }} />
             <button className="btn" disabled={busy || !email.trim()} onClick={send}>{busy ? "Sending…" : "Send link"}</button>
           </div>
         </>
@@ -78,13 +78,13 @@ export function AccountPanel({ progress, persist, config, onClose }: { progress:
   const autoplay = progress.settings?.autoplay ?? false;
   const slow = progress.settings?.slow ?? false;
   const slowRate = progress.settings?.slowRate ?? 0.75;
-  const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "✓" : "✗"}</span>;
+  const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "on" : "off"}</span>;
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--scrim)", zIndex: 50, display: "flex", justifyContent: "flex-end" }}>
       <div className="drawer" role="dialog" aria-modal="true" aria-label="Account and settings" onClick={(e) => e.stopPropagation()}>
         <div className="row" style={{ justifyContent: "space-between", alignItems: "center" }}>
           <h2 style={{ margin: 0 }}>Account &amp; settings</h2>
-          <button className="ghost small" onClick={onClose}>Close</button>
+          <button className="icon-close" aria-label="Close" title="Close" onClick={onClose}><Icon name="close" size={16} /></button>
         </div>
         <AccountSettings />
       <div className="setting-row">
@@ -107,12 +107,12 @@ export function AccountPanel({ progress, persist, config, onClose }: { progress:
       </div>
       <div className="setting-row">
         <b>Auto-play audio</b>
-        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } })}>{autoplay ? "On" : "Off"}</button>
+        <button className={`ghost${autoplay ? " active" : ""}`} aria-pressed={autoplay} onClick={() => persist({ ...progress, settings: { ...progress.settings, autoplay: !autoplay } })}>{autoplay ? "On" : "Off"}</button>
         <span className="muted small">Play the other speaker's lines automatically in scenarios and stories.</span>
       </div>
       <div className="setting-row">
         <b>Playback speed</b>
-        <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !slow } })}>{slow ? "Slow" : "Normal"}</button>
+        <button className={`ghost${slow ? " active" : ""}`} aria-pressed={slow} onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !slow } })}>{slow ? "Slow" : "Normal"}</button>
         <span className="muted small">One speed for all spoken audio across the app (also on the header switch).</span>
         {slow && (
           <label className="row small" style={{ width: "100%", gap: 8, marginTop: 6 }}>
@@ -122,14 +122,14 @@ export function AccountPanel({ progress, persist, config, onClose }: { progress:
               onChange={(e) => persist({ ...progress, settings: { ...progress.settings, slowRate: Number(e.target.value) } })}
               style={{ flex: 1 }}
             />
-            <span className="muted" style={{ minWidth: 64, textAlign: "right" }}>{Math.round(slowRate * 100)}% {slowRate <= 0.55 ? "🐌" : "🐢"}</span>
+            <span className="muted" style={{ minWidth: 64, textAlign: "right" }}>{Math.round(slowRate * 100)}%</span>
           </label>
         )}
       </div>
       {pack.course?.chapters.length ? (
         <div className="setting-row">
           <b>New course (beta)</b>
-          <button className="ghost" onClick={() => persist({ ...progress, settings: { ...progress.settings, courseV2: !(progress.settings?.courseV2 ?? cp.COURSE_V2_DEFAULT) } })}>{cp.courseV2On(pack, progress) ? "✓ On" : "Off"}</button>
+          <button className={`ghost${cp.courseV2On(pack, progress) ? " active" : ""}`} aria-pressed={cp.courseV2On(pack, progress)} onClick={() => persist({ ...progress, settings: { ...progress.settings, courseV2: !(progress.settings?.courseV2 ?? cp.COURSE_V2_DEFAULT) } })}>{cp.courseV2On(pack, progress) ? "On" : "Off"}</button>
           <span className="muted small">Today follows the redesigned course: one grammar point at a time, a fixed plan per chapter, and review days built in.</span>
         </div>
       ) : null}
@@ -139,8 +139,8 @@ export function AccountPanel({ progress, persist, config, onClose }: { progress:
       </div>
       {packUnreviewed(pack) && (
         <div className="setting-row">
-          <span className="badge warn">⚠ unreviewed</span>
-          <span className="muted small">This pack's content is machine-generated, pending native review — not yet authoritative.</span>
+          <span className="badge warn">Not reviewed yet</span>
+          <span className="muted small">This pack&apos;s content is machine-generated and waiting for a native speaker&apos;s review, so it isn&apos;t authoritative yet.</span>
         </div>
       )}
       </div>

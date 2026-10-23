@@ -259,7 +259,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
     return (
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
-        <p className="lead">First, the alphabet. Macedonian uses Cyrillic — review all {pack.alphabet.length} letters (I&apos;ll quiz you on the {focusLetters(pack).length} trickiest), then today&apos;s session opens up right here.</p>
+        <p className="lead">First, the alphabet. Macedonian uses Cyrillic: review all {pack.alphabet.length} letters (I&apos;ll quiz you on the {focusLetters(pack).length} trickiest), then today&apos;s session opens up right here.</p>
         <Letters progress={progress} persist={persist} onDone={() => setPhase("flow")} />
       </section>
     );
@@ -271,11 +271,11 @@ export function Today({ progress, persist, config, navigate, replay }: {
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <h2 style={{ marginTop: 4 }}>Done for today</h2>
-        <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
+        <p className="lead">You&apos;ve finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak: come back tomorrow to keep it going.` : " Come back tomorrow for the next one."}</p>
         <div className="row" style={{ marginTop: 4 }}>
           {v2
-            ? <button className="btn" onClick={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setIdx(0); setPracticeMore(true); }}>Start the next session now →</button>
-            : <button className="btn" onClick={() => { setIdx(0); setPracticeMore(true); }}>Practice more anyway →</button>}
+            ? <button className="btn" onClick={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setIdx(0); setPracticeMore(true); }}>Start the next session now</button>
+            : <button className="btn" onClick={() => { setIdx(0); setPracticeMore(true); }}>Practice more anyway</button>}
           <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards</button>
           <button className="ghost small" onClick={() => navigate("progress")}>Your progress</button>
         </div>
@@ -285,7 +285,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
     return (
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
-        <p className="lead">You&apos;re all caught up for today. Come back tomorrow — or dip into the Library for extra practice whenever you like.</p>
+        <p className="lead">You&apos;re all caught up for today. Come back tomorrow, or dip into the Library for extra practice whenever you like.</p>
         <button className="ghost small" onClick={() => navigate("library", "browse")}>Browse the Library</button>
       </section>
     );
@@ -302,7 +302,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
           drilled={drilled}
           onReviewMissed={() => setRecap("review")}
           onNext={replay ? replay.onExit : () => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}
-          nextLabel={replay ? "Back to where you were →" : undefined}
+          nextLabel={replay ? "Back to where you were" : undefined}
           navigate={navigate}
         />
       </section>
@@ -312,7 +312,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>One more pass</h3>
-        <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
+        <p className="lead">Redo the ones you slipped on: <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
         <SessionRecap items={missed} onDone={() => { setMissed([]); setRecap("done"); }} />
       </section>
     );
@@ -323,14 +323,14 @@ export function Today({ progress, persist, config, navigate, replay }: {
         <section className="view">
           <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
           <h2 style={{ marginTop: 4 }}>Session done</h2>
-          <p className="lead">Nice work — you finished today&apos;s session.</p>
-          <div className="fb" style={{ marginTop: 4 }}>
-            <div className="muted small" style={{ marginBottom: 6 }}>You slipped on {missed.length} item{missed.length > 1 ? "s" : ""} this session:</div>
-            <ul style={{ margin: "0 0 4px", paddingLeft: 18 }}>
-              {missed.map((m) => <li key={m.id}><b className="target">{m.answer}</b> <span className="muted small">— {m.gloss}</span></li>)}
+          <p className="lead">Nice work: you finished today&apos;s session.</p>
+          <div className="framed write-card recap-card">
+            <div className="overline">You slipped on {missed.length} this session</div>
+            <ul className="recap-list">
+              {missed.map((m) => <li key={m.id} className="word-row"><b lang={pack.id} className="rmk">{m.answer}</b> <span className="muted small">{m.gloss}</span></li>)}
             </ul>
-            <div className="row" style={{ marginTop: 12 }}>
-              <button className="btn" onClick={() => setRecap("review")}>Review {missed.length} missed item{missed.length > 1 ? "s" : ""} →</button>
+            <div className="write-actions">
+              <button className="btn" onClick={() => setRecap("review")}>Review the {missed.length} you missed</button>
               <button className="ghost" onClick={() => setRecap("done")}>Skip for now</button>
             </div>
           </div>
@@ -341,7 +341,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
         <section className="view">
           <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
           <h3 style={{ marginTop: 4 }}>One more pass</h3>
-          <p className="lead">Redo the ones you slipped on — <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
+          <p className="lead">Redo the ones you slipped on: <b>Good</b> clears a card, <b>Again</b> sends it to the back.</p>
           <SessionRecap items={missed} onDone={() => setRecap("done")} />
         </section>
       );
@@ -349,9 +349,9 @@ export function Today({ progress, persist, config, navigate, replay }: {
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <h2 style={{ marginTop: 4 }}>Session done</h2>
-        <p className="lead">Nice work — you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak — come back tomorrow to keep it going.` : ""}</p>
+        <p className="lead">Nice work: you finished today&apos;s session.{(progress.streak?.count ?? 0) > 0 ? ` ${progress.streak?.count}-day streak: come back tomorrow to keep it going.` : ""}</p>
         <div className="row" style={{ marginTop: 4 }}>
-          {v2 && <button className="btn" onClick={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}>Start the next session now →</button>}
+          {v2 && <button className="btn" onClick={() => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}>Start the next session now</button>}
           <button className="ghost small" onClick={() => navigate("progress")}>See your progress</button>
           <button className="ghost small" onClick={() => navigate("library", "flashcards")}>Flashcards in the Library</button>
         </div>
@@ -401,7 +401,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
             nextLabel={v2 && pack.course ? cp.afterCheckpoint(pack, pack.course, planned) : undefined}
             // The result screen is the end of the lesson: record the pass (or not) and complete the session there.
             onFinished={(p, passed) => { checkpointPassed.current = passed; if (idx === steps.length - 1 && v2 && !replay) completeSession(p); else persist(p); }}
-            doneLabel={idx === steps.length - 1 ? "Go to summary →" : undefined}
+            doneLabel={idx === steps.length - 1 ? "Go to summary" : undefined}
             onDone={() => done()}
           />
         )}
@@ -540,7 +540,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
             {step.set
               ? <WritingLines set={step.set} config={config} onMiss={flag} onDone={() => done()}
                   onFinished={idx === steps.length - 1 ? () => completeSession() : undefined}
-                  doneLabel={idx === steps.length - 1 ? "Go to summary →" : undefined} />
+                  doneLabel={idx === steps.length - 1 ? "Go to summary" : undefined} />
               : <WritingCapstone prompt={step.prompt} config={config} onDone={() => done()} />}
           </div>
         )}

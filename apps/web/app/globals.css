@@ -528,3 +528,22 @@ button:lang(mk), button:lang(bg), select:lang(mk), select:lang(bg) { font-family
 .last-turn:has(.lt-text) { align-items: flex-start; flex-wrap: nowrap; }
 .last-turn:has(.lt-text) > .result-ok, .last-turn:has(.lt-text) > .result-miss { margin-top: 3px; }
 .model-line .say-line { flex: 1; min-width: 0; }
+
+/* ---- recap and lesson notes ---- */
+.recap-card { margin: 0 5px 14px; }
+.recap-card .gram-title { margin-top: 8px; }
+.recap-text { margin: 6px 0 8px; line-height: 1.55; }
+.recap-sub { font-size: 13px; font-weight: 600; color: var(--text-muted); margin: 14px 0 0; }
+.recap-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.recap-list { list-style: none; padding: 0; margin: 8px 0 0; }
+.recap-list .word-row:last-child { border-bottom: 0; }
+.recap-item { padding: 10px 0; border-bottom: 1.5px dotted var(--line-faint); }
+.recap-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.recap-item .gram-ex-list { margin-top: 4px; }
+.recap-forms { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 4px; font-size: 16px; }
+.recap-forms b { font-weight: 600; }
+.recap-glyph { font-size: 24px; min-width: 30px; }
+.recap-next { font-family: var(--font-text); font-size: 18px; line-height: 1.45; margin: 4px 0 0; }
+.gram-pop { width: 100%; background: var(--surface-sunk); border-radius: var(--radius-sm); padding: 12px 14px; }
+.crit { display: inline-flex; align-items: center; gap: 4px; }
+.recap-head > button { white-space: nowrap; flex: none; }

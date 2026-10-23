@@ -140,7 +140,7 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
     } catch (e) {
       const m = e as { message?: string; code?: string };
       const missing = m.code === "PGRST205" || (m.message ?? "").includes("schema cache") || (m.message ?? "").includes("does not exist");
-      setError(missing ? "Partner tables not found — run apps/web/supabase/migrations/0002_partnered.sql, then reload." : m.message ?? "Partner sync failed.");
+      setError(missing ? "Partner tables not found. Run apps/web/supabase/migrations/0002_partnered.sql, then reload." : m.message ?? "Partner sync failed.");
     } finally {
       setLoading(false);
     }
@@ -260,7 +260,7 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
       setSessRow(row);
       setView("session");
     } catch (e) {
-      setError((e as { message?: string }).message ?? "Couldn't start the session — try again.");
+      setError((e as { message?: string }).message ?? "Couldn't start the session. Try again.");
     } finally {
       setBusy(false);
     }
@@ -451,9 +451,9 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
             </div>
             <div className="row">
               <button className="ghost" disabled={busy} onClick={act(() => store.pause(l.id))}>Pause (no-shame)</button>
-              <button className="ghost" disabled={busy} onClick={act(async () => { if (typeof window !== "undefined" && !window.confirm("Unpair from this partner? This ends the partnership — you can always invite them again later.")) return; await store.end(l.id); })}>Unpair (end)</button>
+              <button className="ghost" disabled={busy} onClick={act(async () => { if (typeof window !== "undefined" && !window.confirm("Unpair from this partner? This ends the partnership. You can always invite them again later.")) return; await store.end(l.id); })}>Unpair (end)</button>
             </div>
-            <p className="muted small" style={{ margin: 0 }}>Unpairing affects only this partner{links.length > 1 ? " — your other partners stay linked" : ""}.</p>
+            <p className="muted small" style={{ margin: 0 }}>Unpairing affects only this partner{links.length > 1 ? ": your other partners stay linked" : ""}.</p>
           </div>
         </details>
       </div>

@@ -6,7 +6,7 @@ import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import { captureWord, properNounLike, toggleStar } from "../../lib/capture";
 import * as live from "@ll/core/live";
-import { Icon, SpeakButton, pending, usePack, usePlay, wordStatus } from "../shared";
+import { Icon, MixedText, SpeakButton, pending, usePack, usePlay, wordStatus } from "../shared";
 
 // ---------- Library view 4: reading (tap-to-capture + import-anything) ----------
 export function Reading({ progress, persist, config }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null }) {
@@ -48,32 +48,37 @@ export function Reading({ progress, persist, config }: { progress: Progress; per
 
   return (
     <section className="view">
-      <div className="row" style={{ justifyContent: "space-between" }}>
-        <h2>Reading {imported ? <span className="muted small">· imported <span className="badge warn">unreviewed</span></span> : r ? <span className="muted small">— {r.title}</span> : ""}</h2>
-        <button className="ghost small" onClick={() => setShowImport((s) => !s)}>＋ Import text</button>
+      <div className="activity-head" style={{ marginTop: 12, borderBottom: 0, paddingBottom: 0 }}>
+        <div style={{ minWidth: 0 }}>
+          <div className="overline">Reading</div>
+          <h2 style={{ margin: "4px 0 2px" }}>{imported ? "Your text" : r ? <MixedText text={r.title} /> : "Reading"}</h2>
+          {imported && <span className="badge warn">Imported · not reviewed yet</span>}
+        </div>
+        <button className="ghost small" aria-expanded={showImport} onClick={() => setShowImport((s) => !s)}><Icon name="plus" size={14} />Import text</button>
       </div>
       {showImport && (
-        <div className="fb">
-          <textarea className="text" style={{ width: "100%", minHeight: 80 }} placeholder={`Paste ${pack.name} text — it's segmented, translated, and difficulty-scored for you…`} value={raw} onChange={(e) => setRaw(e.target.value)} />
-          <div className="row" style={{ marginTop: 8 }}>
+        <div className="framed write-card" style={{ marginBottom: 14 }}>
+          <div className="overline">Import text</div>
+          <textarea className="text" aria-label={`${pack.name} text to import`} style={{ width: "100%", minHeight: 90, marginTop: 10 }} placeholder={`Paste ${pack.name} text. It's split into lines, translated and scored for difficulty.`} value={raw} onChange={(e) => setRaw(e.target.value)} />
+          <div className="write-actions">
             <button className="btn" onClick={doImport} disabled={importing || !config?.engines.anthropic}>{importing ? "Importing…" : "Import"}</button>
-            {!config?.engines.anthropic && <span className="muted small">Claude not configured</span>}
+            {!config?.engines.anthropic && <span className="muted small">Import needs Claude configured.</span>}
           </div>
           {importErr && <div className="err">{importErr}</div>}
         </div>
       )}
       <p className="lead">
-        Tap any word to look it up — it joins your vocabulary. <b>{lines.length ? Math.round(score.knownPct * 100) : 0}% known</b> for you.
+        Tap any word to look it up: it joins your vocabulary. <b>{lines.length ? Math.round(score.knownPct * 100) : 0}% known</b> for you.
       </p>
       <HighlightLegend />
       <div className="reader">
         {lines.length === 0 ? (
-          <p className="muted">No content yet — import some text above.</p>
+          <p className="muted">Nothing to read yet: import some text above.</p>
         ) : (
           lines.map((l, i) => <ReaderRow key={i} line={l} progress={progress} play={play} onTapWord={(s) => onTap(s, l.text, l.gloss)} />)
         )}
       </div>
-      {imported && <button className="ghost small" style={{ marginTop: 10 }} onClick={() => { setImported(null); setRaw(""); }}>↺ Back to the built-in reader</button>}
+      {imported && <button className="ghost small" style={{ marginTop: 10 }} onClick={() => { setImported(null); setRaw(""); }}><Icon name="restart" size={14} />Back to the built-in reader</button>}
       {sel && <WordPanel key={sel.lexKey} sel={sel} progress={progress} persist={persist} config={config} onClose={() => setSel(null)} />}
     </section>
   );

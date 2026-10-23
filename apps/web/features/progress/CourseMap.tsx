@@ -4,7 +4,7 @@ import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { ExamResults, ExamView } from "../exam/Exam";
 import { ChapterGlance, LessonNotes, ReplayButton } from "./Notes";
-import { LibView, MixedText, NoteAt, Section, SpeakButton, Stitches, pending, usePack, usePlay } from "../shared";
+import { Icon, LibView, MixedText, NoteAt, Section, SpeakButton, Stitches, pending, usePack, usePlay } from "../shared";
 
 /** A course chapter's status chip: ✓ done / session k of n / stage review next / upcoming. */
 export function courseChip(ch: cp.ChapterOverview): { cls: string; label: string } {
@@ -80,7 +80,7 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                     <div className="chapter-points">
                       <span className="muted small">Grammar:</span>
                       {ch.points.map((pt) => (
-                        <button key={pt.id} className="linklike small" onClick={() => { pending.pointFocus = pt.id; navigate("library", "grammar"); }}>{pt.taught ? "✓ " : ""}{pt.title}</button>
+                        <button key={pt.id} className="linklike small" onClick={() => { pending.pointFocus = pt.id; navigate("library", "grammar"); }}>{pt.taught && <Icon name="check" size={12} />} <MixedText text={pt.title} /></button>
                       ))}
                     </div>
                   )}
@@ -94,7 +94,7 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                     ))}
                     {ch.stageReview && (
                       <li className={`session-row ${ch.stageReview.state}`}>
-                        <span className="sess-n">{ch.stageReview.state === "done" ? "✓" : ch.stageReview.state === "current" ? "▶" : "★"}</span>
+                        <span className="sess-n"><Stitches total={1} done={ch.stageReview.state === "done" ? 1 : 0} now={ch.stageReview.state === "current" ? 0 : -1} size={12} label={ch.stageReview.state === "done" ? "Stage review, done" : ch.stageReview.state === "current" ? "Stage review, next" : "Stage review, later"} /></span>
                         <span className="sess-text">Stage review: a look back at everything so far</span>
                         {ch.stageReview.state === "done" && <button className="ghost small" onClick={() => setView({ kind: "notes", at: { chapterId: ch.chapterId, n: 0, stage: true } })}>Notes</button>}
                       </li>
@@ -105,9 +105,9 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                       const metN = ex && last ? ex.canDos.filter((c) => last.results[c.id] === "met").length : 0;
                       return (
                         <li className={`session-row ${ch.exam.state}`}>
-                          <span className="sess-n">{ch.exam.state === "current" ? "▶" : last ? "✓" : "✎"}</span>
+                          <span className="sess-n"><Stitches total={1} done={last ? 1 : 0} now={ch.exam.state === "current" && !last ? 0 : -1} size={12} label={last ? "Exam, taken" : ch.exam.state === "current" ? "Exam, next" : "Exam, not taken yet"} /></span>
                           <span className="sess-text">{ch.exam.title}
-                            {last && ex ? <span className="muted small"> · last time {metN} of {ex.canDos.length} ✓</span> : ch.exam.state === "done" ? <span className="muted small"> · not taken yet</span> : null}
+                            {last && ex ? <span className="muted small"> · last time {metN} of {ex.canDos.length} met</span> : ch.exam.state === "done" ? <span className="muted small"> · not taken yet</span> : null}
                             {ch.exam.state === "current" ? <span className="muted small"> · next up in Today</span> : null}
                           </span>
                           {last && <button className="ghost small" onClick={() => setView({ kind: "exam-results", examId: ch.exam!.id })}>Results</button>}
@@ -130,7 +130,7 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                     </details>
                   )}
                   {ch.order > 0 && ch.state !== "upcoming" && (
-                    <button className="ghost small" style={{ marginTop: 8 }} onClick={() => setView({ kind: "glance", chapterId: ch.chapterId })}>Chapter at a glance →</button>
+                    <button className="ghost small" style={{ marginTop: 8 }} onClick={() => setView({ kind: "glance", chapterId: ch.chapterId })}>Chapter at a glance</button>
                   )}
                 </div>
               )}

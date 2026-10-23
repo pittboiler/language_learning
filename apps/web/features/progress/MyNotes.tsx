@@ -4,7 +4,7 @@ import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { chapterChip, useChapterMap } from "../course/ChapterHeading";
 import { ChapterGlance, LessonNotes, ReplayButton, noteDate } from "./Notes";
-import { LibView, NoteAt, Section, pending, usePack } from "../shared";
+import { LibView, MixedText, NoteAt, Section, Stitches, pending, usePack } from "../shared";
 
 // Library → Reference → My notes: what you've learned so far, two ways: each chapter on one page, and your
 // notes from every finished lesson (newest first).
@@ -31,12 +31,12 @@ export function MyNotes({ progress, persist, navigate }: { progress: Progress; p
       <p className="lead">What you&apos;ve learned so far: each chapter on one page, and your notes from every lesson you&apos;ve finished.</p>
       <h3>Chapters at a glance</h3>
       {reached.length ? (
-        <div className="cards">
+        <div className="lib-list">
           {reached.map((c) => (
-            <button className="contentcard" key={c.chapterId} onClick={() => setView({ kind: "glance", chapterId: c.chapterId })}>
-              <div className="cc-top"><span className="cc-type">Chapter {c.order}</span>{c.state === "done" && <span className="diff just">done</span>}</div>
-              <div className="cc-title">{c.shortTitle}</div>
-              <div className="muted small">{c.points.filter((x) => x.taught).map((x) => x.title).join(" · ") || "Nothing taught yet"}</div>
+            <button className="lib-item" key={c.chapterId} onClick={() => setView({ kind: "glance", chapterId: c.chapterId })}>
+              <span className="lib-kind">Chapter {c.order}</span>
+              <span><span className="lib-title">{c.shortTitle}</span><span className="lib-sub"><MixedText text={c.points.filter((x) => x.taught).map((x) => x.title).join(" · ") || "Nothing taught yet"} /></span></span>
+              <span className="lib-fit just">{c.state === "done" ? "Done" : ""}</span>
             </button>
           ))}
         </div>
@@ -46,8 +46,8 @@ export function MyNotes({ progress, persist, navigate }: { progress: Progress; p
         <ol className="session-list">
           {lessons.map((l) => (
             <li key={`${l.at.chapterId}-${l.at.n}-${l.at.stage ? "s" : ""}`} className="session-row done">
-              <span className="sess-n">✓</span>
-              <span className="sess-text"><span className="muted small">{l.at.stage ? `After chapter ${l.order}` : `Chapter ${l.order} · session ${l.at.n}`}{l.log ? ` · ${noteDate(l.log.at)}` : ""}</span><br />{l.headline}</span>
+              <span className="sess-n"><Stitches total={1} done={1} now={-1} size={12} label="Done" /></span>
+              <span className="sess-text"><span className="muted small">{l.at.stage ? `After chapter ${l.order}` : `Chapter ${l.order} · session ${l.at.n}`}{l.log ? ` · ${noteDate(l.log.at)}` : ""}</span><br /><MixedText text={l.headline} /></span>
               <span className="row" style={{ gap: 4, flexWrap: "nowrap" }}><button className="ghost small" onClick={() => setView({ kind: "notes", at: l.at })}>Notes</button><ReplayButton at={l.at} /></span>
             </li>
           ))}
@@ -96,7 +96,7 @@ export function ChapterProgressMap({ progress }: { progress: Progress }) {
           );
         })}
       </div>
-      {current && <p className="muted small">You&apos;re on <b>{byId.get(current.id)?.title}</b> — Today keeps bringing you back to it until it&apos;s solid.</p>}
+      {current && <p className="muted small">You&apos;re on <b>{byId.get(current.id)?.title}</b>. Today keeps bringing you back to it until it&apos;s solid.</p>}
       {statuses.some((s) => s.readyForCheckpoint) && (
         <p className="muted small">A <b>checkpoint</b> is waiting: your next session opens with a recap of that chapter before anything new.</p>
       )}

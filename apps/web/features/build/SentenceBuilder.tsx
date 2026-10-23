@@ -272,7 +272,7 @@ export function SentenceBuilder({ progress, persist, onDone, preferIds, chapterO
   }, [scoped.length, top, nonce]);
   const [idx, setIdx] = useState(0);
 
-  if (!scoped.length) return <p className="lead">Nothing to build yet — learn a few words or phrases first, and this fills up.</p>;
+  if (!scoped.length) return <p className="lead">Nothing to build yet: learn a few words or phrases first, and this fills up.</p>;
   if (idx >= cards.length || !cards[idx]) return (
     <div className="framed write-card" style={{ textAlign: "center" }}>
       <div className="overline">Build a sentence</div>

@@ -156,13 +156,13 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
       setPhase("self"); // marking failed: the learner checks themselves rather than losing the task
     }
   };
-  const startRec = async () => { setErr(""); try { await rec.current.start(); setRecording(true); } catch { setErr("No microphone available — check yourself against the model answer instead."); setPhase("self"); } };
+  const startRec = async () => { setErr(""); try { await rec.current.start(); setRecording(true); } catch { setErr("No microphone available. Check yourself against the model answer instead."); setPhase("self"); } };
   const stopRec = async () => {
     setRecording(false); setBusy(true);
     try {
       const out = await api.asr(await rec.current.stop(), pack.id);
       setHeard({ scribe: out.eleven?.text, google: out.google?.text });
-    } catch { setErr("Couldn't process the recording — try again, or check yourself."); }
+    } catch { setErr("Couldn't process the recording. Try again, or check yourself."); }
     finally { setBusy(false); }
   };
   const model = (

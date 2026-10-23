@@ -8,7 +8,7 @@ import * as cp from "../../lib/course-player";
 import { romanize } from "../../lib/romanize";
 import * as guided from "@ll/core/partner/guided";
 import { colStack } from "../partner/shared";
-import { HintButton, usePack, usePlay, useRecorder } from "../shared";
+import { HintButton, Icon, MixedText, SpeakButton, Stitches, usePack, usePlay, useRecorder } from "../shared";
 
 // ---------- Practice with AI: the guided conversation, solo (DESIGN-partnered-conversation.md §4) ----------
 // The AI partner's lines are scripted from the chapter's deck (reviewed Macedonian, nothing generated while
@@ -145,7 +145,7 @@ export function PracticeAI({ progress, persist, chapterId }: { progress: Progres
 
   if (!course || !deck) return <section className="view"><p className="muted">That conversation isn't available.</p></section>;
 
-  const head = <h2 style={{ marginBottom: 4 }}>💬 {chapterTitle} <span className="muted small">with {AI_NAME}</span></h2>;
+  const head = <div><div className="overline" style={{ marginTop: 12 }}>Practice with {AI_NAME}</div><h2 style={{ margin: "4px 0 0" }}>{chapterTitle}</h2></div>;
 
   if (!s) {
     const n = cp.guidedCuesIn(pack, course, deck, at, at, names, { ai: true }).length;
@@ -153,9 +153,9 @@ export function PracticeAI({ progress, persist, chapterId }: { progress: Progres
       <section className="view" style={colStack}>
         {head}
         <p className="lead">{deck.scene}</p>
-        <ol className="small" style={{ margin: 0, paddingLeft: 18 }}>
-          <li>{AI_NAME} speaks first. Tap 🔊 to hear her, and try to understand before you show the words.</li>
-          <li>On your turn, answer her in your own words, then say the line on your screen. Tap ⏺ to talk, Done when you&apos;ve said it.</li>
+        <ol style={{ margin: 0, paddingLeft: 20, lineHeight: 1.55 }}>
+          <li>{AI_NAME} speaks first. Tap the speaker to hear her, and try to understand before you show the words.</li>
+          <li>On your turn, answer her in your own words, then say the line on your screen. Tap <b>Talk</b>, then <b>Done</b> when you&apos;ve said it.</li>
           <li>Nothing is corrected while you talk. At the end you go through a few fixes: say each better line aloud.</li>
         </ol>
         <div className="row"><button className="btn" disabled={n < cp.GUIDED_MIN} onClick={start}>Start ({n} lines)</button></div>
@@ -165,39 +165,45 @@ export function PracticeAI({ progress, persist, chapterId }: { progress: Progres
 
   if (ph === "talk" && turn !== undefined) {
     const spec = guided.turnSpec(s, turn);
-    const bar = <><div className="pbar"><div style={{ width: `${((turn - 1) / guided.turnCount(s)) * 100}%` }} /></div><div className="muted small">Turn {turn} of {guided.turnCount(s)}</div></>;
+    const bar = (
+      <div className="today-sub" style={{ marginTop: 0 }}>
+        <Stitches total={guided.turnCount(s)} done={turn - 1} now={turn - 1} size={10} label={`Turn ${turn} of ${guided.turnCount(s)}`} />
+        <span>Turn {turn} of {guided.turnCount(s)}</span>
+      </div>
+    );
     if (spec.speaker === guided.AI_MEMBER) {
       const line = guided.aiLine(s, turn);
       return (
         <section className="view" style={colStack} key={`t${turn}`}>
           {head}{bar}
-          <div className="fb">
-            <div className="muted small">{AI_NAME} says:</div>
-            <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-              <button className="spk" onClick={() => play(line.text)}>🔊</button>
-              {showText ? <b className="target" style={{ fontSize: 20 }}>{line.text}</b> : <button className="ghost small" onClick={() => setShowText(true)}>Show the words</button>}
+          <div className="framed write-card">
+            <div className="overline">{AI_NAME} says</div>
+            <div className="model-line" style={{ margin: "10px 0 4px" }}>
+              <SpeakButton label={`Hear ${AI_NAME}`} onClick={() => play(line.text)} />
+              {showText ? <span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{line.text}</span> : <button className="ghost small" onClick={() => setShowText(true)}>Show the words</button>}
             </div>
-            {showText && <div className="muted small">{romanize(line.text)}</div>}
-            {showText && (showEn ? <div className="gloss">{line.gloss}</div> : <button className="ghost small" onClick={() => setShowEn(true)}>Translate</button>)}
+            {showText && <div className="say-gloss">{romanize(line.text)}</div>}
+            {showText && (showEn ? <p style={{ margin: "8px 0 0" }}>{line.gloss}</p> : <button className="quiet" onClick={() => setShowEn(true)}>Translate</button>)}
           </div>
-          <div className="row"><button className="btn" onClick={emaNext}>{guided.turnSpec(s, turn + 1).speaker === ME ? "Your turn →" : "Finish →"}</button></div>
+          <div className="row"><button className="btn" onClick={emaNext}>{guided.turnSpec(s, turn + 1).speaker === ME ? "Your turn" : "Finish"}</button></div>
         </section>
       );
     }
     return (
       <section className="view" style={colStack} key={`t${turn}`}>
         {head}{bar}
-        <div className="fb" style={colStack}>
+        <div className="framed write-card" style={colStack}>
+          <div className="overline">Your turn</div>
           {spec.answers && (
             <div>
-              <div className="muted small">{spec.asks ? "1. " : ""}Answer {AI_NAME} in your own words</div>
+              <div className="activity-sub">{spec.asks ? "1. " : ""}Answer {AI_NAME} in your own words</div>
               {spec.answers.replyFrame && <HintButton hint={spec.answers.replyFrame} label="A way to start" />}
             </div>
           )}
           {spec.asks && (
             <div>
-              <div className="muted small">{spec.answers ? "2. Then:" : "Say:"}</div>
-              <p className="lead" style={{ margin: "4px 0" }}>{guided.cueText(s, spec.asks, ME)}</p>
+              <div className="activity-sub">{spec.answers ? "2. Then:" : "Say:"}</div>
+              <p className="card-prompt" style={{ fontSize: 20 }}><MixedText text={guided.cueText(s, spec.asks, ME)} /></p>
               <HintButton hint={`${spec.asks.answer} (${spec.asks.answerGloss})`} label="Show a way to say it" />
             </div>
           )}
@@ -205,20 +211,20 @@ export function PracticeAI({ progress, persist, chapterId }: { progress: Progres
         {err ? <div className="err">{err}</div> : null}
         {typing ? (
           <div className="row">
-            <input value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Type it (Cyrillic or Latin)" style={{ flex: 1 }} onKeyDown={(e) => { if (e.key === "Enter" && typed.trim()) void endMine("typed"); }} />
-            <button className="btn" disabled={!typed.trim()} onClick={() => void endMine("typed")}>Done →</button>
+            <input className="text" aria-label="Your line, typed" value={typed} onChange={(e) => setTyped(e.target.value)} placeholder="Type it (Cyrillic or Latin)" style={{ flex: 1 }} onKeyDown={(e) => { if (e.key === "Enter" && typed.trim()) void endMine("typed"); }} />
+            <button className="btn" disabled={!typed.trim()} onClick={() => void endMine("typed")}>Done</button>
           </div>
         ) : (
           <div className="row">
             {recording
-              ? <button className="btn rec" onClick={() => void endMine("spoken")}>⏹ Done →</button>
-              : <button className="btn" disabled={micWait} onClick={() => void startRec()}>⏺ Talk</button>}
+              ? <button className="btn rec" onClick={() => void endMine("spoken")}><Icon name="stop" size={16} />Done</button>
+              : <button className="btn" disabled={micWait} onClick={() => void startRec()}><Icon name="mic" size={16} />Talk</button>}
             {micWait && <span className="muted small">Waiting for the microphone… allow it in your browser, or type instead.</span>}
           </div>
         )}
         <div className="row">
-          <button className="ghost small" onClick={() => void endMine("skipped")}>Skip this one</button>
-          {!recording && <button className="ghost small" onClick={toggleTyping}>{typing ? "Speak instead" : "Type instead"}</button>}
+          <button className="quiet" onClick={() => void endMine("skipped")}>Skip this one</button>
+          {!recording && <button className="quiet" onClick={toggleTyping}>{typing ? "Speak instead" : "Type instead"}</button>}
         </div>
       </section>
     );
@@ -243,9 +249,9 @@ export function PracticeAI({ progress, persist, chapterId }: { progress: Progres
   const fix = guided.currentFix(s, rows);
   const playClip = (t: number) => { const u = clips.current.get(t); if (u) void new Audio(u).play().catch(() => {}); };
   const goodBits = highlights.length > 0 && (
-    <div className="fb">
-      <div className="muted small">What went well</div>
-      <ul className="small" style={{ margin: "4px 0", paddingLeft: 18 }}>{highlights.map((h, i) => <li key={i}>{h.text}</li>)}</ul>
+    <div className="framed write-card">
+      <div className="overline">What went well</div>
+      <ul style={{ margin: "8px 0 0", paddingLeft: 18, lineHeight: 1.55 }}>{highlights.map((h, i) => <li key={i}><MixedText text={h.text} /></li>)}</ul>
     </div>
   );
 
@@ -255,23 +261,26 @@ export function PracticeAI({ progress, persist, chapterId }: { progress: Progres
       <section className="view" style={colStack} key={fix.id}>
         {head}
         {i === 0 && goodBits}
-        <div className="muted small">Fix {i + 1} of {review.fixes.length} · {FIX_KIND[fix.kind] ?? fix.kind}</div>
-        <div className="fb" style={colStack}>
-          <div className="small muted">You said: <span style={{ fontWeight: 600 }}>“{fix.said}”</span> {clips.current.has(fix.turn) && <button className="ghost small" onClick={() => playClip(fix.turn)}>▶ hear yourself</button>}</div>
-          <div className="muted small">Better:</div>
-          <div className="row" style={{ alignItems: "center" }}>
-            <button className="spk" onClick={() => play(fix.better)}>🔊</button>
-            <b className="target" style={{ fontSize: 20 }}>{fix.better}</b>
+        <div className="framed write-card">
+          <div className="overline">Fix {i + 1} of {review.fixes.length} · {FIX_KIND[fix.kind] ?? fix.kind}</div>
+          <div className="model-line" style={{ marginTop: 10 }}>
+            <span className="muted small">You said:</span> <span lang={pack.id} style={{ fontWeight: 600 }}>“{fix.said}”</span>
+            {clips.current.has(fix.turn) && <button className="ghost small" onClick={() => playClip(fix.turn)}><Icon name="speaker" size={14} />Hear yourself</button>}
           </div>
-          <div className="muted small">{fix.betterTranslit ?? romanize(fix.better)} · {fix.betterEn}</div>
-          <p style={{ margin: 0 }}>{fix.why}</p>
+          <div className="recap-sub">Better</div>
+          <div className="model-line" style={{ marginTop: 4 }}>
+            <SpeakButton label="Play the better line" onClick={() => play(fix.better)} />
+            <span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{fix.better}</span>
+          </div>
+          <div className="say-gloss">{fix.betterTranslit ?? romanize(fix.better)} · {fix.betterEn}</div>
+          <p style={{ margin: "10px 0 0", lineHeight: 1.55 }}><MixedText text={fix.why} /></p>
+          <div className="muted small" style={{ marginTop: 14 }}>Say the better line aloud, then:</div>
+          <div className="grade-row">
+            <button className="ghost" onClick={() => update(ME, (r) => guided.judgeFix(s, rows, r, false))}><Icon name="restart" size={16} />Not quite</button>
+            <button className="btn" onClick={() => update(ME, (r) => guided.judgeFix(s, rows, r, true))}><Icon name="check" size={16} />Got it</button>
+          </div>
         </div>
-        <div className="muted small">Say the better line aloud, then:</div>
-        <div className="row">
-          <button className="btn" onClick={() => update(ME, (r) => guided.judgeFix(s, rows, r, true))}>✓ Got it</button>
-          <button className="ghost" onClick={() => update(ME, (r) => guided.judgeFix(s, rows, r, false))}>↻ Not quite</button>
-          <button className="ghost small" onClick={() => update(ME, (r) => guided.dismissFix(s, rows, r))}>That&apos;s not what I said</button>
-        </div>
+        <button className="quiet" style={{ alignSelf: "flex-start" }} onClick={() => update(ME, (r) => guided.dismissFix(s, rows, r))}>That&apos;s not what I said</button>
       </section>
     );
   }
@@ -284,9 +293,9 @@ export function PracticeAI({ progress, persist, chapterId }: { progress: Progres
       <p className="lead">{review.fixes.length ? "That's the conversation." : "A clean conversation: nothing to fix."} {sc.asksRight} of {sc.asks} lines spot on{review.fixes.length ? `, ${sc.got} of ${review.fixes.length - sc.dismissed} fixes said right` : ""}.</p>
       {goodBits}
       {kept.length > 0 && (
-        <div className="fb">
-          <div className="muted small">★ Saved to your Flashcards</div>
-          <ul className="small" style={{ margin: "4px 0", paddingLeft: 18 }}>{kept.map((f) => <li key={f.id}><b>{f.better}</b> · {f.betterEn}</li>)}</ul>
+        <div className="framed write-card">
+          <div className="overline">★ Saved to your Flashcards</div>
+          <ul className="recap-list">{kept.map((f) => <li key={f.id} className="word-row"><b lang={pack.id} className="rmk">{f.better}</b> <span className="muted small">{f.betterEn}</span></li>)}</ul>
         </div>
       )}
       <div className="row"><button className="btn" onClick={start}>Practise again</button></div>

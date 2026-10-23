@@ -11,7 +11,7 @@ import { switchableVerbs, rotate, shuffle, type StoryLens } from "../../lib/toda
 import { TileBuilder } from "../build/SentenceBuilder";
 import { CoursePointChips, HaveAQuestion, LearnerTurn, ScenarioGrammar } from "../conversation/ScenarioView";
 import { HighlightLegend, TappableText, WordPanel } from "./Reading";
-import { Icon, SlowContext, SpeakButton, seedStoryVocab, storyGrammarIds, usePack, usePlay } from "../shared";
+import { Icon, MixedText, SlowContext, SpeakButton, seedStoryVocab, storyGrammarIds, usePack, usePlay } from "../shared";
 
 // ---------- shared story reader (synced audio + tap-capture) — used by Today and the Library Story view ----------
 
@@ -165,7 +165,7 @@ export function StoryView({ progress, persist, config, onDone }: { progress: Pro
           progress={progress}
           persist={persist}
           config={config}
-          doneLabel={`I read it → questions (+${story.registersVocab.length} words)`}
+          doneLabel={`Next: questions (+${story.registersVocab.length} words)`}
           onDone={toQA}
         />
       ) : libUseIt.length ? (
@@ -177,6 +177,7 @@ export function StoryView({ progress, persist, config, onDone }: { progress: Pro
   );
 }
 export function StoryQAView({ story, config, onRestart, onDone, dayIndex = 0 }: { story: MiniStory; config: api.Config | null; onRestart: () => void; onDone?: () => void; dayIndex?: number }) {
+  const pack = usePack();
   const play = usePlay();
   const [revealed, setRevealed] = useState<Record<string, boolean>>({});
   const [answered, setAnswered] = useState<Record<string, boolean>>({});
@@ -185,28 +186,29 @@ export function StoryQAView({ story, config, onRestart, onDone, dayIndex = 0 }: 
   const qa = rotate(story.qa, dayIndex);
   return (
     <div>
-      <p className="lead">Questions — the story's words again, in a new frame.</p>
-      {qa.map((q) => (
-        <div className="fb" key={q.id}>
-          <div className="row"><SpeakButton onClick={() => play(q.question, 0.9)} /><b className="rmk">{q.question}</b></div>
-          <div className="gloss">{q.questionGloss}</div>
+      <p className="lead">Questions: the story&apos;s words again, in a new frame.</p>
+      {qa.map((q, n) => (
+        <div className="framed write-card recap-card" key={q.id}>
+          <div className="overline">Question {n + 1} of {qa.length}</div>
+          <div className="model-line"><SpeakButton label="Play the question" onClick={() => play(q.question, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 22, margin: 0 }}>{q.question}</span></div>
+          <div className="say-gloss">{q.questionGloss}</div>
           {q.spokenPrompt ? (
             answered[q.id] ? (
-              <div className="row" style={{ marginTop: 8 }}>
-                <span className="muted small">✓ done —</span>
-                <span className="target">{q.answer}</span>
-                <span className="muted small">· {q.answerGloss}</span>
+              <div className="model-line" style={{ marginTop: 12 }}>
+                <span className="result-ok"><Icon name="check" size={15} />Answered</span>
+                <span className="mk" lang={pack.id}>{q.answer}</span>
+                <span className="muted small">{q.answerGloss}</span>
               </div>
             ) : (
-              <div style={{ marginTop: 8 }}>
-                <div className="muted small">Answer aloud — say:</div>
+              <div style={{ marginTop: 14 }}>
+                <div className="recap-sub" style={{ marginTop: 0 }}>Answer aloud. Say:</div>
                 <LearnerTurn turn={{ speaker: "learner", text: q.answer, translit: q.answerTranslit, gloss: q.answerGloss }} config={config} onDone={() => setAnswered((s) => ({ ...s, [q.id]: true }))} />
               </div>
             )
           ) : revealed[q.id] ? (
-            <div className="row" style={{ marginTop: 6 }}><SpeakButton onClick={() => play(q.answer, 0.9)} /> <span className="target">{q.answer}</span> <span className="muted small">· {q.answerGloss}</span></div>
+            <div className="model-line" style={{ marginTop: 12 }}><SpeakButton label="Play the answer" onClick={() => play(q.answer, 0.9)} /><span className="mk" lang={pack.id}>{q.answer}</span><span className="muted small">{q.answerGloss}</span></div>
           ) : (
-            <button className="ghost" style={{ marginTop: 8 }} onClick={() => setRevealed((s) => ({ ...s, [q.id]: true }))}>Reveal answer</button>
+            <div className="write-actions"><button className="ghost" onClick={() => setRevealed((s) => ({ ...s, [q.id]: true }))}>Show the answer</button></div>
           )}
         </div>
       ))}
@@ -253,7 +255,7 @@ export function TodayStoryStep({ story, progress, persist, config, onDone, onMis
       persist={persist}
       config={config}
       askable
-      doneLabel={useIt.length ? `I read it → use it (${useIt.length})` : hasQA ? `I read it → ${story.qa.length} questions` : "I read it → speak"}
+      doneLabel={useIt.length ? `Next: Use it (${useIt.length})` : hasQA ? `Next: ${story.qa.length} questions` : "Next: speak"}
       onDone={hasQA ? toQA : onDone}
     />
   ) : useIt.length ? (
@@ -274,6 +276,7 @@ export function UseIt({ items, config, onMiss, onRestart, onDone, lead }: {
   onRestart?: () => void;
   onDone?: () => void;
 }) {
+  const pack = usePack();
   const play = usePlay();
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
@@ -290,36 +293,43 @@ export function UseIt({ items, config, onMiss, onRestart, onDone, lead }: {
     if (o !== answer) onMiss?.(it.kind === "switch" ? { ...asCard(it.line), id: `use-switch-${it.line.source}-${it.person}`, prompt: `${cp.PRONOUN[it.person].en}: ${it.shown}`, answer: it.filled } : asCard(it.line));
   };
   const head = { understand: "What does it mean?", complete: "Complete the line", build: "Build the line", say: "Say it", switch: "Switch the person" }[it.kind];
+  const optClass = (o: string) => picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt";
+  const why = (text: string) => (
+    <div className="drill-why">
+      {picked === answer ? <span className="result-ok"><Icon name="check" size={15} />Right</span> : <span className="result-miss">Not quite</span>}
+      <MixedText text={text} />
+    </div>
+  );
   return (
     <div>
       <p className="lead" style={{ marginBottom: 6 }}>{lead ?? <>Use it: today&apos;s focus, in the story&apos;s own lines.</>}</p>
-      <div className="fb">
-        <div className="row" style={{ justifyContent: "space-between", alignItems: "baseline" }}>
-          <div className="gram-kicker">{head}</div>
+      <div className="framed write-card">
+        <div className="recap-head">
+          <div className="overline">{head}</div>
           <span className="muted small">{i + 1} of {items.length}</span>
         </div>
         {it.kind === "understand" && (
           <>
-            <div className="row" style={{ margin: "8px 0" }}><SpeakButton onClick={() => play(it.line.text)} /><b className="target">{it.line.text}</b></div>
-            <div>{options.map((o) => <button key={o} className={picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt"} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
+            <div className="model-line" style={{ margin: "10px 0 4px" }}><SpeakButton label="Play the line" onClick={() => play(it.line.text)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{it.line.text}</span></div>
+            <div className="quiz-opts" style={{ marginTop: 12 }}>{options.map((o) => <button key={o} className={optClass(o)} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
           </>
         )}
         {it.kind === "complete" && (
           <>
-            <div className="row" style={{ margin: "8px 0 2px" }}><SpeakButton onClick={() => play(it.line.text)} /><b className="target">{cp.blankOut(it.line.text, it.blank)}</b></div>
-            <div className="muted small" style={{ marginBottom: 4 }}>{it.line.gloss}</div>
-            <div>{options.map((o) => <button key={o} className={picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt"} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
-            {picked && <div className="why">{picked === answer ? "✓ " : "✗ "}{it.why}</div>}
+            <div className="model-line" style={{ margin: "10px 0 2px" }}><SpeakButton label="Play the line" onClick={() => play(it.line.text)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{cp.blankOut(it.line.text, it.blank)}</span></div>
+            <div className="say-gloss">{it.line.gloss}</div>
+            <div className="quiz-opts" style={{ marginTop: 12 }}>{options.map((o) => <button key={o} lang={pack.id} className={optClass(o)} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
+            {picked && why(it.why)}
           </>
         )}
         {it.kind === "switch" && (
           <>
-            <div className="row" style={{ margin: "8px 0 2px" }}><SpeakButton onClick={() => play(it.line.text)} /><span className="target">{it.line.text}</span></div>
-            <div className="muted small" style={{ marginBottom: 6 }}>{it.line.gloss}</div>
-            <div className="lead" style={{ margin: "4px 0" }}>Now about <b>{cp.PRONOUN[it.person].mk}</b> ({cp.PRONOUN[it.person].en}):</div>
-            <div style={{ margin: "2px 0 6px" }}><b className="target">{picked ? it.filled : it.shown}</b>{picked && <SpeakButton onClick={() => play(it.filled)} />}</div>
-            <div>{options.map((o) => <button key={o} className={picked ? (o === answer ? "opt right" : o === picked ? "opt wrong" : "opt") : "opt"} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
-            {picked && <div className="why">{picked === answer ? "✓ " : "✗ "}{it.why}</div>}
+            <div className="model-line" style={{ margin: "10px 0 2px" }}><SpeakButton label="Play the line" onClick={() => play(it.line.text)} /><span className="mk" lang={pack.id} style={{ fontSize: 20 }}>{it.line.text}</span></div>
+            <div className="say-gloss">{it.line.gloss}</div>
+            <div className="activity-sub" style={{ marginTop: 14 }}>Now about <span lang={pack.id}>{cp.PRONOUN[it.person].mk}</span> ({cp.PRONOUN[it.person].en}):</div>
+            <div className="model-line" style={{ margin: "4px 0 2px" }}><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{picked ? it.filled : it.shown}</span>{picked && <SpeakButton label="Play it" onClick={() => play(it.filled)} />}</div>
+            <div className="quiz-opts" style={{ marginTop: 12 }}>{options.map((o) => <button key={o} lang={pack.id} className={optClass(o)} disabled={!!picked} onClick={() => choose(o)}>{o}</button>)}</div>
+            {picked && why(it.why)}
           </>
         )}
         {it.kind === "build" && (
@@ -330,18 +340,18 @@ export function UseIt({ items, config, onMiss, onRestart, onDone, lead }: {
         )}
         {it.kind === "say" && (
           <>
-            <div className="muted small" style={{ margin: "6px 0" }}>Say this line out loud.</div>
+            <div className="muted small" style={{ margin: "8px 0" }}>Say this line out loud.</div>
             {/* Its own Next (after speaking) or "Skip / I said it" moves on: no second button here. */}
             <LearnerTurn key={it.line.source} turn={{ speaker: "learner", text: it.line.text, translit: it.line.translit, gloss: it.line.gloss }} config={config} onDone={next} />
           </>
         )}
         {finished && (it.kind === "understand" || it.kind === "complete" || it.kind === "switch") && (
-          <div className="row" style={{ marginTop: 12 }}>
-            <button className="btn" onClick={next}>{i + 1 < items.length ? "Next →" : "Done →"}</button>
+          <div className="write-actions">
+            <button className="btn" onClick={next}>{i + 1 < items.length ? "Next" : "Done"}</button>
           </div>
         )}
       </div>
-      {onRestart && <button className="ghost small" style={{ marginTop: 10 }} onClick={onRestart}>↺ Read the story again</button>}
+      {onRestart && <button className="quiet" style={{ marginTop: 6 }} onClick={onRestart}>Read the story again</button>}
     </div>
   );
 }
