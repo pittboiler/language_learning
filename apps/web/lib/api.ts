@@ -186,7 +186,7 @@ export interface GlossResponse {
   gloss: string;
   translit?: string;
   lemma?: string;
-  source: "pack" | "llm" | "none" | "error";
+  source: "override" | "pack" | "pack-lemma" | "cache" | "llm" | "none" | "error";
   costUsd?: number;
   error?: string;
 }
