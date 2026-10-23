@@ -5,16 +5,19 @@ import * as api from "../../lib/api";
 import { type ExamAttempt, type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { combineResults, selfCheckGrade, type CanDoResult, type ExamGrade } from "@ll/core/exam/results";
-import { Icon, MixedText, SpeakButton, Stitches, gradeItem, usePack, usePlay, useRecorder } from "../shared";
+import { HintButton, Icon, MixedText, SpeakButton, Stitches, gradeItem, usePack, usePlay, useRecorder } from "../shared";
 
 // ---------- midterm / final (course.exams) ----------
 // Open book: every task opens on a prep screen (the steps, the grammar inline, the chapters' words) for as long
 // as the learner likes; then they speak (recorded → both speech engines → marked) or write (marked). Speech the
-// engines can't hear — or no mic — becomes a self-check against the model answer. Not a gate: the results end
-// with a review list, and the course moves on either way.
+// engines can't hear — or no mic — becomes a self-check against the model answer. A reading task shows a new
+// text, then asks its questions one at a time, each answered aloud, and marks them together (its English shows
+// after). Not a gate: the results end with a review list, and the course moves on either way.
 export type ExamAnswer = { response: string; grade?: ExamGrade; selfCheck?: boolean; skipped?: boolean };
 export const RESULT_LABEL: Record<CanDoResult, string> = { met: "you can do this", partly: "nearly", "not-yet": "not yet" };
 const STEP_LABEL: Record<"yes" | "partly" | "no", string> = { yes: "done", partly: "partly", no: "missed" };
+const MODE_LABEL: Record<ExamTask["mode"], string> = { speak: "speaking", write: "writing", read: "reading" };
+type Heard = { scribe?: string; google?: string };
 /** A step's or a can-do's mark, in words and colour (indigo when it's there, gold when it isn't yet). */
 function Mark({ kind, label }: { kind: string; label: string }) {
   return <span className={`mark ${kind}`}>{(kind === "yes" || kind === "met") && <Icon name="check" size={13} />}{label}</span>;
@@ -41,7 +44,7 @@ export function ExamView({ exam, progress, persist, onFinish, onLater }: {
             {exam.canDos.map((c, i) => <li key={c.id}><span className="menu-n" aria-hidden="true">{i + 1}</span><span className="menu-label" style={{ fontWeight: 500 }}><MixedText text={c.text} /></span></li>)}
           </ol>
         </div>
-        <p className="muted small">{tasks.filter((t) => t.mode === "speak").length} speaking tasks, then {tasks.filter((t) => t.mode === "write").length} writing tasks · about {tasks.length * 4} minutes · any task can be skipped</p>
+        <p className="muted small">{cp.examMakeup(exam)} · about {tasks.length * 4} minutes · any task can be skipped</p>
         <div className="row" style={{ gap: 16 }}>
           <button className="btn" onClick={() => setAt(0)}>Start</button>
           {onLater && <button className="quiet" onClick={onLater}>Take it later (from Progress)</button>}
@@ -73,7 +76,9 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   const [phase, setPhase] = useState<"prep" | "do" | "marking" | "result" | "self">("prep");
   const [selfWhy, setSelfWhy] = useState<"unclear" | "chosen">("chosen"); // why we're self-checking
   const [text, setText] = useState("");
-  const [heard, setHeard] = useState<{ scribe?: string; google?: string } | null>(null);
+  const [heard, setHeard] = useState<Heard | null>(null);
+  const [qi, setQi] = useState(0); // reading: the question you're on
+  const [said, setSaid] = useState<Heard[]>([]); // reading: what was heard for the questions before it
   const [recording, setRecording] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -84,6 +89,9 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   const chapterIds = [...new Set(exam.canDos.filter((c) => task.canDoIds.includes(c.id)).flatMap((c) => c.chapterIds))];
   const words = (pack.course?.chapters ?? []).filter((c) => chapterIds.includes(c.chapterId)).flatMap((c) => c.words);
   const speak = task.mode === "speak";
+  const reading = task.mode === "read" ? task.reading : undefined;
+  // What a reading task's answers were, for the attempt's record.
+  const readResponse = (all: Heard[]) => all.map((h) => h.scribe || h.google || "—").join(" / ");
 
   const reference = (
     <>
@@ -127,21 +135,21 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
     <>
       <div className="step-meta">
         <Stitches total={total} done={index} now={index} size={10} label={`Task ${index + 1} of ${total}`} />
-        <span>{exam.title} · task {index + 1} of {total} · {speak ? "speaking" : "writing"}</span>
+        <span>{exam.title} · task {index + 1} of {total} · {MODE_LABEL[task.mode]}</span>
       </div>
       <h3 className="lesson-title"><MixedText text={task.title} /></h3>
       <p className="lesson-rule"><MixedText text={task.scene} /></p>
     </>
   );
 
-  const mark = async (body: { response?: string; transcripts?: { scribe?: string; google?: string } }) => {
+  const mark = async (body: { response?: string; transcripts?: Heard; answers?: Heard[] }) => {
     setPhase("marking"); setErr("");
     try {
       const g = await api.gradeExam({ examId: exam.id, taskId: task.id, ...body }, pack.id);
       if (g.error) throw new Error(g.error);
       if (g.unclear) { setSelfWhy("unclear"); setPhase("self"); return; }
       setGrade(g);
-      onAnswered({ response: body.response ?? body.transcripts?.scribe ?? body.transcripts?.google ?? "", grade: g });
+      onAnswered({ response: body.answers ? readResponse(body.answers) : body.response ?? body.transcripts?.scribe ?? body.transcripts?.google ?? "", grade: g });
       setPhase("result");
     } catch (e) {
       setErr((e as { message?: string }).message ?? "Couldn't mark that.");
@@ -159,7 +167,7 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   };
   const model = (
     <div className="framed write-card" style={{ marginTop: 14 }}>
-      <div className="overline">One way to say it (yours can be different)</div>
+      <div className="overline">{reading ? "The answers (yours can be worded differently)" : "One way to say it (yours can be different)"}</div>
       <div className="gram-ex-list">
         {task.model.map((m) => (
           <div className="gram-ex" key={m.source}><SpeakButton label={`Play ${m.text}`} onClick={() => play(m.text)} /><span className="ex-text"><span className="mk" lang={pack.id}>{m.text}</span><span className="en">{m.gloss}</span></span></div>
@@ -167,7 +175,82 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
       </div>
     </div>
   );
+  // A reading task's text: Macedonian only while you read and answer, with its English once you're done.
+  const textCard = (english = false) => reading && (
+    <div className="framed write-card" style={english ? { marginTop: 14 } : undefined}>
+      <div className="overline">{english ? "What the text said" : "The text"}</div>
+      <div className="gram-ex-list">
+        {reading.text.map((l) => (
+          <div className="gram-ex" key={l.source}><SpeakButton label={`Play ${l.text}`} onClick={() => play(l.text)} /><span className="ex-text"><span className="mk" lang={pack.id}>{l.text}</span>{english && <span className="en">{l.gloss}</span>}</span></div>
+        ))}
+      </div>
+    </div>
+  );
+  const mic = (
+    <>
+      <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
+        <div className={`mic-ring${recording ? " recording" : ""}`}>
+          <button className="mic" disabled={busy} aria-label={recording ? "Stop recording" : "Record your answer"} onClick={() => void (recording ? stopRec() : startRec())}>
+            <Icon name={recording ? "stop" : "mic"} size={30} />
+          </button>
+        </div>
+      </div>
+      <div className="speak-hint" aria-live="polite">{busy ? "Listening back…" : recording ? "Recording… tap to stop" : "Tap the mic to start"}</div>
+    </>
+  );
+  const cantRecord = <button className="linklike small" style={{ marginTop: 14 }} onClick={() => { rec.current.release(); setRecording(false); setPhase("self"); }}>Can&apos;t record? Check yourself against {reading ? "the answers" : "a model answer"}</button>;
 
+  if (phase === "prep" && reading) {
+    return (
+      <div>
+        {head}
+        {textCard()}
+        <p className="muted small">Read it as often as you like, and listen to any line. Next come {reading.questions.length} questions in Macedonian, one at a time, with the text still on screen.</p>
+        <div className="write-actions">
+          <button className="btn" onClick={() => setPhase("do")}>I&apos;m ready</button>
+          <button className="quiet" onClick={() => { onAnswered({ response: "", skipped: true }); onNext(); }}>Skip this task</button>
+        </div>
+      </div>
+    );
+  }
+  if (phase === "do" && reading) {
+    const q = reading.questions[qi]!;
+    const last = qi + 1 >= reading.questions.length;
+    const answer = (h: Heard) => {
+      const all = [...said, h];
+      if (last) { void mark({ answers: all }); return; }
+      setSaid(all); setHeard(null); setQi(qi + 1);
+    };
+    return (
+      <div>
+        {head}
+        {textCard()}
+        <div className="framed write-card" style={{ textAlign: "center", marginTop: 14 }}>
+          <div className="muted small">Question {qi + 1} of {reading.questions.length}: answer out loud, in {pack.name}</div>
+          <div className="row" style={{ justifyContent: "center", alignItems: "center", margin: "8px 0 4px" }}>
+            <SpeakButton label={`Play ${q.text}`} onClick={() => play(q.text)} />
+            <span className="say-line" lang={pack.id} style={{ fontSize: 22 }}>{q.text}</span>
+          </div>
+          <HintButton key={qi} hint={q.gloss} label="What does it ask?" />
+          {!heard ? mic : (
+            <>
+              <div className="muted small" style={{ marginTop: 10 }}>We heard:</div>
+              <div className="say-line" lang={pack.id} style={{ fontSize: 22, margin: "6px 0 12px" }}>{heard.scribe || heard.google || "(nothing clear)"}</div>
+              <div className="row" style={{ justifyContent: "center", gap: 16 }}>
+                <button className="btn" onClick={() => answer(heard)}>{last ? "Mark my answers" : "Next question"}</button>
+                <button className="quiet" onClick={() => setHeard(null)}>Record again</button>
+              </div>
+            </>
+          )}
+          <div className="row" style={{ justifyContent: "center", gap: 16 }}>
+            {!heard && !recording && <button className="quiet small" style={{ marginTop: 14 }} onClick={() => answer({})}>Don&apos;t know: {last ? "skip it and mark" : "skip it"}</button>}
+            {cantRecord}
+          </div>
+        </div>
+        {err ? <div className="err">{err}</div> : null}
+      </div>
+    );
+  }
   if (phase === "prep") {
     return (
       <div>
@@ -196,14 +279,7 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
             {!heard ? (
               <>
                 <div className="muted small">Record yourself doing the whole thing, start to finish.</div>
-                <div style={{ display: "flex", justifyContent: "center", marginTop: 14 }}>
-                  <div className={`mic-ring${recording ? " recording" : ""}`}>
-                    <button className="mic" disabled={busy} aria-label={recording ? "Stop recording" : "Record your answer"} onClick={() => void (recording ? stopRec() : startRec())}>
-                      <Icon name={recording ? "stop" : "mic"} size={30} />
-                    </button>
-                  </div>
-                </div>
-                <div className="speak-hint" aria-live="polite">{busy ? "Listening back…" : recording ? "Recording… tap to stop" : "Tap the mic to start"}</div>
+                {mic}
               </>
             ) : (
               <>
@@ -215,7 +291,7 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
                 </div>
               </>
             )}
-            <button className="linklike small" style={{ marginTop: 14 }} onClick={() => { rec.current.release(); setRecording(false); setPhase("self"); }}>Can&apos;t record? Check yourself against a model answer</button>
+            {cantRecord}
           </div>
         ) : (
           <div className="framed write-card">
@@ -236,10 +312,11 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
     return (
       <div>
         {head}
-        {err ? <div className="err">{err}</div> : <p className="small">{selfWhy === "unclear" ? "We couldn't hear that clearly, so check yourself: c" : "C"}ompare what you {speak ? "said" : "wrote"} with the model, step by step.</p>}
+        {err ? <div className="err">{err}</div> : <p className="small">{selfWhy === "unclear" ? "We couldn't hear that clearly, so check yourself: c" : "C"}ompare {reading ? "your answers with these, question by question" : `what you ${speak ? "said" : "wrote"} with the model, step by step`}.</p>}
         {model}
+        {textCard(true)}
         <div className="framed write-card" style={{ marginTop: 14 }}>
-          <div className="overline">How did each step go?</div>
+          <div className="overline">{reading ? "How did each answer go?" : "How did each step go?"}</div>
           {task.steps.map((s, i) => (
             <div key={i} className="self-row">
               <span style={{ flex: "1 1 200px" }}><MixedText text={s} /></span>
@@ -252,7 +329,7 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
           ))}
         </div>
         <div className="write-actions">
-          <button className="btn" disabled={!ready} onClick={() => { onAnswered({ response: text || heard?.scribe || heard?.google || "", grade: selfCheckGrade(self as ("yes" | "partly" | "no")[], task.canDoIds), selfCheck: true }); onNext(); }}>{index + 1 < total ? "Next task" : "See your results"}</button>
+          <button className="btn" disabled={!ready} onClick={() => { onAnswered({ response: reading ? readResponse([...said, ...(heard ? [heard] : [])]) : text || heard?.scribe || heard?.google || "", grade: selfCheckGrade(self as ("yes" | "partly" | "no")[], task.canDoIds), selfCheck: true }); onNext(); }}>{index + 1 < total ? "Next task" : "See your results"}</button>
         </div>
       </div>
     );
@@ -280,6 +357,7 @@ export function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
         )}
       </div>
       {model}
+      {textCard(true)}
       <div className="write-actions">
         <button className="btn" onClick={onNext}>{index + 1 < total ? "Next task" : "See your results"}</button>
       </div>

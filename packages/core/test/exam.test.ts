@@ -26,4 +26,13 @@ const p = taskPrompt({
 });
 for (const want of ["At a café.", "0. Order two drinks", "1. Ask the price", "m-cafe", "Saying “the”", "Две кафиња", "две кафиња ве молам"]) assert.ok(p.includes(want), want);
 
+// A reading task: the text, each question with the answer the text gives, and what was heard per question.
+const rp = taskPrompt({
+  languageName: "Macedonian", mode: "read", title: "Read and answer", scene: "A short text.", steps: ["Where does Ema live?", "What does she want?"],
+  canDos: [{ id: "m-read", text: "Read a short text" }], grammar: [], response: "",
+  reading: { text: ["Ема живее во Скопје.", "Сака чај."], questions: [{ question: "Каде живее Ема?", gloss: "Where does Ema live?", expected: "Во Скопје." }, { question: "Што сака?", gloss: "What does she want?", expected: "Чај." }] },
+  answers: [{ scribe: "во скопје" }, {}],
+});
+for (const want of ["Task (reading)", "Ема живее во Скопје.", "0. Каде живее Ема? (Where does Ema live?) → Во Скопје.", "0. engine 1: во скопје | engine 2: (nothing)", "1. engine 1: (nothing)", "m-read"]) assert.ok(rp.includes(want), want);
+
 console.log("exam.test.ts: all assertions passed ✓");

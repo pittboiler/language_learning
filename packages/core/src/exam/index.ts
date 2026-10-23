@@ -1,13 +1,14 @@
 // @ll/core/exam — marking one task of an open-book exam (midterm / final), with the pure roll-up of task
 // results re-exported from ./results. Language-agnostic: the pack supplies the task, the can-dos and the
-// grammar; the learner's answer arrives as written text or as what two speech engines heard.
+// grammar; the learner's answer arrives as written text or as what two speech engines heard (for a reading
+// task, once per question).
 import { MODELS, structuredCall } from "../llm/index.js";
 import type { ExamGrade } from "./results.js";
 export * from "./results.js";
 
 export interface ExamTaskInput {
   languageName: string;
-  mode: "speak" | "write";
+  mode: "speak" | "write" | "read";
   title: string;
   scene: string;
   steps: string[];
@@ -18,6 +19,10 @@ export interface ExamTaskInput {
   response: string;
   /** Speak: what each speech engine heard. */
   transcripts?: { scribe?: string; google?: string };
+  /** Read: the text they read, each question with the answer the text gives, and what the engines heard for
+   *  each question, in order. */
+  reading?: { text: string[]; questions: { question: string; gloss: string; expected: string }[] };
+  answers?: { scribe?: string; google?: string }[];
 }
 
 const SYSTEM = (lang: string) => `You mark one task of an open-book exam for an adult beginner learning ${lang} (around CEFR A1–A2).
@@ -30,7 +35,9 @@ Results per can-do: "met" = got it across, with at most small slips; "partly" = 
 
 Corrections: at most four, the most useful first. Quote exactly what they wrote or said, give the corrected ${lang}, and say why in one short English sentence. Never correct transcript noise, and never correct something that is already right.
 
-Summary: one or two warm, specific sentences in English, addressed to the learner as "you": what went well, and the one thing to work on.`;
+Summary: one or two warm, specific sentences in English, addressed to the learner as "you": what went well, and the one thing to work on.
+
+A reading task is different: they read a short text a little beyond the course (a few words they haven't learned, guessable from the rest), then answered questions about it aloud, one recording per question; each step is one question. Judge understanding: "yes" when the answer gives what the text says (a word or a short phrase is plenty, and a small slip in the ${lang} doesn't matter), "partly" when it's half right or only in English, "no" when it's wrong, missing or unusable. Corrections only where their ${lang} would confuse a listener. Set "unclear" only if none of the answers is usable.`;
 
 const SCHEMA = {
   type: "object",
@@ -46,6 +53,18 @@ const SCHEMA = {
 } as const;
 
 export function taskPrompt(t: ExamTaskInput): string {
+  if (t.mode === "read") {
+    const qs = t.reading?.questions ?? [];
+    const heard = (x?: { scribe?: string; google?: string }) => `engine 1: ${x?.scribe?.trim() || "(nothing)"} | engine 2: ${x?.google?.trim() || "(nothing)"}`;
+    return [
+      `Task (reading): ${t.title}`,
+      `Situation: ${t.scene}`,
+      `The text they read:\n${(t.reading?.text ?? []).join("\n")}`,
+      `Questions (each is a step), with the answer the text gives:\n${qs.map((q, i) => `${i}. ${q.question} (${q.gloss}) → ${q.expected}`).join("\n")}`,
+      `Can-dos to judge:\n${t.canDos.map((c) => `- ${c.id}: ${c.text}`).join("\n")}`,
+      `What they said for each question (two speech engines):\n${qs.map((_, i) => `${i}. ${heard(t.answers?.[i])}`).join("\n")}`,
+    ].join("\n\n");
+  }
   const answer = t.mode === "write"
     ? `What they wrote:\n${t.response.trim() || "(nothing)"}`
     : `What they said (two speech engines):\n- engine 1: ${t.transcripts?.scribe?.trim() || "(nothing)"}\n- engine 2: ${t.transcripts?.google?.trim() || "(nothing)"}`;
@@ -77,7 +96,7 @@ export async function gradeExamTask(t: ExamTaskInput): Promise<{ grade: ExamGrad
     canDos: t.canDos.map((c) => g.canDos.find((x) => x.id === c.id && ids.has(x.id)) ?? { id: c.id, result: "partly" as const, note: "" }),
     corrections: g.corrections.slice(0, 4),
     summary: g.summary,
-    unclear: t.mode === "speak" && g.unclear,
+    unclear: t.mode !== "write" && g.unclear,
   };
   return { grade, ms: out.ms, costUsd: out.costUsd };
 }

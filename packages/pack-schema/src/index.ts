@@ -431,10 +431,12 @@ export interface ExamCanDo {
 }
 
 /** An open-book exam task: a situation, the things to get across (in order), and a model answer built from
- *  existing lines (shown after — and used for "check yourself" when speech can't be heard clearly). */
+ *  existing lines (shown after — and used for "check yourself" when speech can't be heard clearly).
+ *  `read` (2026-10-23): a short text you haven't seen, a little beyond the course, and questions about it in the
+ *  target language, each answered aloud; `steps` are the questions in English and `model` one answer each. */
 export interface ExamTask {
   id: string;
-  mode: "speak" | "write";
+  mode: "speak" | "write" | "read";
   title: string;
   /** The situation, in English. */
   scene: string;
@@ -443,6 +445,9 @@ export interface ExamTask {
   canDoIds: string[];
   pointIds: string[];
   model: LineRef[];
+  /** read only: the text, line by line (its English is shown after), and the questions in order. New lines,
+   *  sourced `exam:<taskId>#t<i>` / `#q<i>` (and the answers `#a<i>`). */
+  reading?: { text: LineRef[]; questions: LineRef[] };
 }
 
 /** A midterm or final after a chapter. Not a gate: whatever the result, the course moves on, and the

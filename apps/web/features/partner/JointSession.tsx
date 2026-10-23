@@ -48,7 +48,7 @@ export const SECTION_LABEL: Record<jsession.JointPhase, string> = { warmup: "War
 /** The landing's agenda — fixed, so you know what a session is before you start one. */
 export const SESSION_AGENDA: [string, string][] = [
   ["Warm-up", "words you've both learned: one of you says it, the other checks"],
-  ["Grammar", "a point you've both learned: read the rule aloud, then quiz each other"],
+  ["Grammar", "a point you've both learned: say lines about other people, and spot the slips"],
   ["Story", "re-read one you've both read, line by line, then two quick questions"],
   ["Recap", "what you practised together, and what's next"],
 ];
@@ -135,10 +135,10 @@ export function JointSessionView({ store, partnershipId, packId, myId, partnerId
     </div>
   );
 }
-// The partnered grammar step (@ll/core/partner/grammar-together), synced like the story read-through: the
-// rule read aloud, then the point's questions (asker judges) and fill-ins (the answerer taps on their OWN
-// screen — a real answer, checked, with the "why" on both screens). A fill-in from the point's cards grades
-// the answerer's own grammar flashcard.
+// The partnered grammar step (@ll/core/partner/grammar-together), synced like the story read-through: person
+// ping-pong (the asker judges), and now and then "spot the slip" — one of you reads a line that may have a
+// wrong form in it, the other says if it sounded right and taps the right form on their OWN screen (checked,
+// with the "why" on both screens). A fill-in from the point's cards grades the answerer's own grammar flashcard.
 export function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId, progress, persist, next, onNext, onFinished }: {
   store: PartnerStore; partnershipId: string; packId: string; myId: string; partnerId: string; rowId: string;
   progress: Progress; persist: (p: Progress) => void; next: string; onNext: () => void; onFinished?: () => void;
@@ -148,6 +148,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
   const [g, setG] = useState<gtog.GrammarTogetherSession | null>(null);
   const [online, setOnline] = useState<string[]>([]);
   const [err, setErr] = useState("");
+  const [offAt, setOffAt] = useState<number | null>(null); // spot the slip: the turn you said sounded off
   const read = useCallback(async () => (await store.listArtifacts(partnershipId, "grammar-together")).find((x) => x.id === rowId)?.payload as gtog.GrammarTogetherSession | undefined, [store, partnershipId, rowId]);
   const refresh = useCallback(async () => { try { const r = await read(); if (r) setG(r); } catch { /* keep current */ } }, [read]);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -198,11 +199,15 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
 
   const sc = gtog.score(g);
   const prev = g.turns[g.turnIndex - 1];
+  // The line as it's read aloud: with the slip in it, when there is one.
+  const asRead = (t: Extract<gtog.GrammarTurn, { kind: "blank" }>) => t.slip ? cp.blankOut(t.line, t.answer).replace("___", t.slip) : t.line;
   const lastResult = prev && prev.kind !== "read" && prev.result ? (
     <div className="last-turn">
       <span className="muted small">{prev.result === "got" ? "✓" : "✗"}</span>
       {prev.kind === "blank"
-        ? <span className="small"><b>{prev.line}</b>{prev.choice && prev.choice !== prev.answer ? <> — picked “{prev.choice}”, it's <b>{prev.answer}</b></> : null}<span className="muted"> · {prev.why}</span></span>
+        ? <span className="small"><b>{prev.line}</b>{prev.slip
+          ? <> — “{prev.slip}” was the slip{prev.choice === prev.slip ? ", and it got past" : prev.choice !== prev.answer ? `; picked “${prev.choice}”` : ""}</>
+          : <> — read right{prev.result === "missed" ? ", nothing was off" : ""}</>}<span className="muted"> · {prev.why}</span></span>
         : prev.kind === "switch"
           ? <span className="small">{prev.pronoun}: <b>{prev.answer}</b><span className="muted"> · {prev.why}</span></span>
           : <span className="small">{prev.question} <span className="muted">— {prev.answer}</span></span>}
@@ -240,7 +245,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
     <div style={colStack}>{head}
       {/* Person ping-pong: how it works, and the rule on both screens (nobody reads it aloud). */}
       {pingPong && g.turnIndex === 0 && (
-        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps ✓ or ↻. Now and then, a fill-in on today&apos;s point.</div>
+        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps ✓ or ↻. Now and then, spot the slip: a line on today&apos;s point that may have one wrong word in it.</div>
       )}
       {pingPong && <details className="small"><summary>The rule: {point.title}</summary><p style={{ margin: "4px 0" }}>{point.rule}</p></details>}
       <div className="pbar"><div style={{ width: `${(g.turnIndex / (g.turns.length || 1)) * 100}%` }} /></div>
@@ -262,14 +267,13 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
           </div>
         </div>
       ) : (
+        // The listener sees only who to say it about: the line itself they hear from their partner (Jake,
+        // 2026-10-23), with a peek for when it doesn't land.
         <div className="fb">
-          <div className="muted small">Your partner reads this line:</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <b className="target" style={{ fontSize: 20 }}>{t.line}</b>
-          </div>
-          <div className="gloss">{t.gloss}</div>
-          <p className="lead" style={{ margin: "10px 0 4px" }}>Now say it about <b className="target">{t.pronoun}</b> ({t.personEn}), out loud.</p>
-          <HintButton hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
+          <div className="muted small">Listen to your partner read a line, then say it out loud about:</div>
+          <p className="lead" style={{ margin: "8px 0" }}><b className="target" style={{ fontSize: 24 }}>{t.pronoun}</b> <span className="muted">({t.personEn})</span></p>
+          <HintButton key={`forms${g.turnIndex}`} hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
+          <HintButton key={`line${g.turnIndex}`} hint={`${t.line} (${t.gloss})`} label="Didn't catch it? Show the line" />
           <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking…" : "waiting for your partner…"}</div>
         </div>
       ))}
@@ -300,23 +304,36 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
       ))}
       {t.kind === "blank" && (iAsk ? (
         <div className="fb">
-          <div className="muted small">Read this aloud, saying “hmm” at the gap — your partner picks the word:</div>
+          <div className="muted small">{t.slip ? "Spot the slip: read this aloud exactly as written. It has one wrong word in it, marked:" : "Spot the slip: read this aloud. This time it's right as it is:"}</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <SpeakButton onClick={() => play(t.line, 0.9)} />
-            <b className="target" style={{ fontSize: 20 }}><FocusText text={t.line} words={[t.answer]} /></b>
+            <b className="target" style={{ fontSize: 20 }}><FocusText text={asRead(t)} words={[gtog.readForm(t)]} /></b>
           </div>
+          {t.slip ? <div className="small">The slip: <b lang={pack.id}>{t.slip}</b>, where it should be <b lang={pack.id}>{t.answer}</b>.</div> : null}
           <div className="gloss">{t.gloss}</div>
-          <div className="muted small" style={{ marginTop: 6 }}>Why: {t.why}</div>
-          <div className="muted small" style={{ marginTop: 6 }}>🎯 {partnerOnline ? "Your partner is choosing…" : "waiting for your partner…"}</div>
+          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is deciding if it sounded right…" : "waiting for your partner…"}</div>
         </div>
       ) : (
         <div className="fb">
-          <div className="muted small">Your partner reads a line — which word fills the gap?</div>
-          <div className="target" style={{ fontSize: 20, margin: "8px 0" }}>{cp.blankOut(t.line, t.answer)}</div>
-          <div className="gloss">{t.gloss}</div>
-          <div className="row" style={{ marginTop: 8 }}>
-            {t.options.map((o) => <button key={o} className="btn" onClick={() => void act((s) => gtog.pick(s, myId, o))}>{o}</button>)}
-          </div>
+          <div className="muted small">Spot the slip: listen to your partner read a line. It means:</div>
+          <div className="gloss" style={{ fontSize: 18, margin: "6px 0" }}>{t.gloss}</div>
+          {offAt === g.turnIndex ? (
+            <>
+              <p className="lead" style={{ margin: "8px 0 4px" }}>Which word should it have been?</p>
+              <div className="row">
+                {t.options.filter((o) => o !== gtog.readForm(t)).map((o) => <button key={o} className="btn" lang={pack.id} onClick={() => void act((s) => gtog.pick(s, myId, o))}>{o}</button>)}
+                <button className="ghost small" onClick={() => setOffAt(null)}>← Back</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="lead" style={{ margin: "8px 0 4px" }}>Did it sound right?</p>
+              <div className="row">
+                <button className="btn" onClick={() => void act((s) => gtog.pick(s, myId, gtog.readForm(t)))}>Sounds right</button>
+                <button className="ghost" onClick={() => setOffAt(g.turnIndex)}>Something&apos;s off</button>
+              </div>
+            </>
+          )}
+          <HintButton key={`line${g.turnIndex}`} hint={asRead(t)} label="Didn't catch it? Show the line" />
         </div>
       ))}
     </div>

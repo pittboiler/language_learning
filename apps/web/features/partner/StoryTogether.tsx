@@ -1,6 +1,8 @@
 "use client";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import * as scoring from "@ll/core/familiarity/scoring";
 import * as api from "../../lib/api";
+import * as cp from "../../lib/course-player";
 import { type Progress } from "../../lib/store";
 import { localDay } from "../../lib/daily";
 import { captureWord, properNounLike } from "../../lib/capture";
@@ -12,7 +14,8 @@ import { TappableText, WordPanel } from "../reading/Reading";
 import { HintButton, Icon, SlowContext, SpeakButton, usePack, usePlay } from "../shared";
 
 // "Read it together": the dyad walks a story LINE BY LINE, taking turns. On your line you read it aloud
-// and say what it means (tap a word if you're stuck); your partner holds the English and taps got/not-quite.
+// and say roughly what it means, with the words you haven't been taught yet translated under it (tap any other
+// word if you're stuck); your partner holds the English and judges the gist.
 // On a line that uses today's grammar the reader also says which bit and why — and the checker holds that
 // answer too. It opens with the whole story played once, and ends with two of its questions asked
 // partner-to-partner. Realtime-synced over partner_artifact 'story-together'; turns from @ll/core/story-together.
@@ -138,8 +141,8 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
           <p className="lead" style={{ margin: "4px 0 6px" }}><b>{story.title}</b>{story.titleGloss ? <span className="muted"> — {story.titleGloss}</span> : null}</p>
           <ol style={{ margin: "4px 0 8px", paddingLeft: 20 }}>
             <li>You take turns, one line each. <b>{iGoFirst ? "You read first." : "Your partner reads first."}</b></li>
-            <li>The reader reads the line aloud in Macedonian, then says what it means in English.</li>
-            <li>The other one sees the English and taps <b>✓ Got it</b> or <b>↻ Not quite</b>. After each line you both see what it means.</li>
+            <li>The reader reads the line aloud in Macedonian, then says roughly what it means in English. Words you haven&apos;t learned yet are translated under the line.</li>
+            <li>The other one sees the English and taps <b>✓ Got the gist</b> or <b>↻ Not quite</b>. It doesn&apos;t have to be word for word. After each line you both see what it means.</li>
             {qs > 0 && <li>At the end, {qs === 1 ? "a question" : `${qs} questions`} about the story: one of you asks, the other answers.</li>}
           </ol>
           <div className="row" style={{ marginTop: 8 }}>
@@ -198,29 +201,71 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
         </div>
       )) : iRead ? (
         <div className="fb">
-          <div className="muted small">Your line — read it aloud, then tell your partner what it means{progress ? " (tap a word if you're stuck)" : ""}:</div>
+          <div className="muted small">Your line: read it aloud, then tell your partner roughly what it means{progress ? " (tap a word if you're stuck)" : ""}:</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
             <SpeakButton onClick={() => play(turn.text, 0.9)} />
             <b className="target" style={{ fontSize: 22 }}>{progress ? <TappableText text={turn.text} progress={progress} onTapWord={(sf) => onTap(sf, turn.text, turn.gloss)} /> : turn.text}</b>
           </div>
           <div className="translit">{translitOr(turn.text, turn.translit)}</div>
+          {progress && <NewWordsOnLine text={turn.text} storyId={story.id} progress={progress} />}
           {sel && progress && persist && <WordPanel sel={sel} progress={progress} persist={persist} config={config ?? null} onClose={() => setSel(null)} />}
           <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is checking your meaning…" : "waiting for your partner to check…"}</div>
         </div>
       ) : (
         <div className="fb">
-          <div className="muted small">Your partner reads this line &amp; says what it means — did they get it?</div>
+          <div className="muted small">Your partner reads this line and says roughly what it means. Did they get the gist? It doesn&apos;t have to be word for word.</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
             <SpeakButton onClick={() => play(turn.text, 0.9)} />
             <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
           </div>
           <div className="gloss">means: {turn.gloss}</div>
           <div className="row" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => check(true)}>✓ Got it</button>
+            <button className="btn" onClick={() => check(true)}>✓ Got the gist</button>
             <button className="ghost" onClick={() => check(false)}>↻ Not quite</button>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** The words on your line the course hasn't taught you yet (names aside, and any you've marked known), each
+ *  with what it means: the story's own word list first, else the shared look-up (course words, then the cache).
+ *  Without the course, every word you haven't met. So not knowing a word never stops you saying what the line
+ *  is about (Jake, 2026-10-23). */
+function NewWordsOnLine({ text, storyId, progress }: { text: string; storyId: string; progress: Progress }) {
+  const pack = usePack();
+  const forms = useMemo(() => (pack.course ? cp.formSlots(pack, pack.course) : undefined), [pack]);
+  const at = pack.course ? cp.currentSlot(pack.course, progress) : undefined;
+  const words = useMemo(() => {
+    const seen = new Set<string>();
+    return scoring.tokenize(text).filter((t) => {
+      if (!t.isWord || seen.has(t.lexKey)) return false;
+      seen.add(t.lexKey);
+      const e = progress.familiarity[t.lexKey];
+      if ((e && e.status === "known") || properNounLike(t.surface, pack)) return false;
+      return forms && at ? !cp.taughtBefore(forms.get(t.lexKey), at) : !e;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, forms, at?.order, at?.n]);
+  const own = useMemo(() => new Map((pack.stories?.find((x) => x.id === storyId)?.registersVocab ?? []).map((r) => [r.lexKey, r.gloss])), [pack, storyId]);
+  const [looked, setLooked] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let live = true;
+    for (const w of words) {
+      if (own.has(w.lexKey) || looked[w.lexKey]) continue;
+      api.gloss(w.surface, text, pack.id).then((r) => { if (live && r.gloss) setLooked((m) => ({ ...m, [w.lexKey]: r.gloss })); }).catch(() => {});
+    }
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [words]);
+  if (!words.length) return null;
+  return (
+    <div className="small" style={{ marginTop: 6 }}>
+      <span className="muted">New words: </span>
+      {words.map((w, i) => (
+        <span key={w.lexKey}>{i ? " · " : ""}<b lang={pack.id}>{w.surface}</b> <span className="muted">{own.get(w.lexKey) ?? looked[w.lexKey] ?? "…"}</span></span>
+      ))}
     </div>
   );
 }
