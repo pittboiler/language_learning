@@ -3,6 +3,10 @@
 // be able to do by then (can-dos, drawn from the chapters' conversations and grammar), then sets situations
 // that use them. Model answers are EXISTING lines (their audio is already cached); apps/web/test checks every
 // model line's text against its source, and every can-do / point / chapter id.
+// 2026-10-23 (Jake: he liked answering the story questions without knowing every word): each exam ends with a
+// reading task — a short NEW text a little beyond the course (a few words you haven't been taught, guessable
+// from the rest) and four questions about it in Macedonian, answered aloud. Every answer is in the text, so it
+// can be found without knowing every word. Its lines are new (sourced exam:<taskId>#…), pre-warmed with the rest.
 import type { CourseExam } from "@ll/pack-schema";
 
 export const exams: CourseExam[] = [
@@ -10,7 +14,7 @@ export const exams: CourseExam[] = [
     id: "midterm",
     afterChapterId: "s1-market",
     title: "Midterm · A morning in Skopje",
-    intro: "Halfway. This checks you can get through an ordinary morning: meet someone, order, shop, and keep going when you don't catch something. It's open book: each task starts with a prep screen with the grammar and words you'll need, and you can take as long as you like there. Say or write it your own way; there's no one right answer. Whatever happens, the course carries on, and you'll get a short list of what to look at again.",
+    intro: "Halfway. This checks you can get through an ordinary morning: meet someone, order, shop, and keep going when you don't catch something. It's open book: each task starts with a prep screen with the grammar and words you'll need, and you can take as long as you like there. Say or write it your own way; there's no one right answer. Last comes a short text you haven't seen, with a few words you haven't learned: answer questions about it out loud. Whatever happens, the course carries on, and you'll get a short list of what to look at again.",
     canDos: [
       { id: "m-repair", text: "Keep going when you don't understand: ask someone to repeat, slow down, or explain a word", chapterIds: ["s0-repair"], pointIds: ["pt-ne"] },
       { id: "m-greet", text: "Greet someone, ask how they are and say goodbye, casually (ти) or politely (вие)", chapterIds: ["s0-greet"], pointIds: ["pt-sum", "pt-ti-vie"] },
@@ -19,6 +23,7 @@ export const exams: CourseExam[] = [
       { id: "m-cafe", text: "Order at a café and pay, saying what you want", chapterIds: ["s1-cafe-order"], pointIds: ["pt-verbs-a", "pt-the", "pt-da"] },
       { id: "m-intro", text: "Introduce yourself: your name, where you're from, what you do, and that you're learning Macedonian", chapterIds: ["s1-greet-intro"], pointIds: ["pt-sum", "pt-verbs-e-i", "pt-se"] },
       { id: "m-market", text: "Shop at the market: how much of something, more than one, cheap or expensive, and “I'll take them”", chapterIds: ["s1-market"], pointIds: ["pt-plurals", "pt-adjectives", "pt-go-ja-gi"] },
+      { id: "m-read", text: "Read a short text with a few words you haven't learned, get the gist, and answer questions about it", chapterIds: ["s0-greet", "s1-cafe-order", "s1-market"], pointIds: ["pt-question-words", "pt-yes-no"] },
     ],
     tasks: [
       {
@@ -81,13 +86,42 @@ export const exams: CourseExam[] = [
           { text: "Имате ли вода? Колку чини?", gloss: "Do you have water? How much is it?", source: "scenario:gen-s0-survive#3" },
         ],
       },
+      {
+        id: "m-r-ema", mode: "read", title: "Read and answer: Ema's morning",
+        scene: "A short text about Ema's morning. You won't know every word, and that's fine: work out what you can from the rest. Then answer each question out loud, in Macedonian. A word or two is enough.",
+        steps: ["Where does Ema live?", "What does Ema want today?", "What does Ema buy at the market?", "Are the tomatoes cheap?"],
+        canDoIds: ["m-read"], pointIds: ["pt-question-words", "pt-yes-no", "pt-plurals"],
+        reading: {
+          text: [
+            { text: "Ема живее во Скопје.", gloss: "Ema lives in Skopje.", source: "exam:m-r-ema#t0" },
+            { text: "Секое утро пие кафе во едно мало кафуле.", gloss: "Every morning she drinks coffee in a small café.", source: "exam:m-r-ema#t1" },
+            { text: "Келнерот се вика Петар.", gloss: "The waiter is called Petar.", source: "exam:m-r-ema#t2" },
+            { text: "Денес Ема не сака кафе. Сака чај.", gloss: "Today Ema doesn't want coffee. She wants tea.", source: "exam:m-r-ema#t3" },
+            { text: "Потоа оди на пазар.", gloss: "Then she goes to the market.", source: "exam:m-r-ema#t4" },
+            { text: "Таму купува едно кило јаболка и едно кило домати.", gloss: "There she buys a kilo of apples and a kilo of tomatoes.", source: "exam:m-r-ema#t5" },
+            { text: "Јаболката се евтини, но доматите се скапи.", gloss: "The apples are cheap, but the tomatoes are expensive.", source: "exam:m-r-ema#t6" },
+          ],
+          questions: [
+            { text: "Каде живее Ема?", gloss: "Where does Ema live?", source: "exam:m-r-ema#q0" },
+            { text: "Што сака Ема денес?", gloss: "What does Ema want today?", source: "exam:m-r-ema#q1" },
+            { text: "Што купува Ема на пазар?", gloss: "What does Ema buy at the market?", source: "exam:m-r-ema#q2" },
+            { text: "Дали доматите се евтини?", gloss: "Are the tomatoes cheap?", source: "exam:m-r-ema#q3" },
+          ],
+        },
+        model: [
+          { text: "Во Скопје.", gloss: "In Skopje.", source: "exam:m-r-ema#a0" },
+          { text: "Чај.", gloss: "Tea.", source: "exam:m-r-ema#a1" },
+          { text: "Јаболка и домати.", gloss: "Apples and tomatoes.", source: "exam:m-r-ema#a2" },
+          { text: "Не, скапи се.", gloss: "No, they're expensive.", source: "exam:m-r-ema#a3" },
+        ],
+      },
     ],
   },
   {
     id: "final",
     afterChapterId: "s2-problems",
     title: "Final · A week in Macedonia",
-    intro: "The whole course. This checks you can make plans, find your way, talk about yourself and your days, and sort out a problem, as well as the everyday basics from the first half. Open book again: prep as long as you like, with the grammar and words for each task one tap away. The last speaking task is a short talk you prepare in advance, so notes are fine. Afterwards you'll see what you can do, and what's worth another look.",
+    intro: "The whole course. This checks you can make plans, find your way, talk about yourself and your days, and sort out a problem, as well as the everyday basics from the first half. Open book again: prep as long as you like, with the grammar and words for each task one tap away. The last speaking task is a short talk you prepare in advance, so notes are fine. Last of all, a message you haven't seen: answer questions about it out loud. Afterwards you'll see what you can do, and what's worth another look.",
     canDos: [
       { id: "f-way", text: "Ask for and follow directions, and say which way to go", chapterIds: ["s1-directions"], pointIds: ["pt-prepositions", "pt-commands", "pt-more-most"] },
       { id: "f-likes", text: "Say what you like and what you think, agree, and talk about plans", chapterIds: ["s2-smalltalk"], pointIds: ["pt-mi-ti-mu", "pt-future"] },
@@ -96,6 +130,7 @@ export const exams: CourseExam[] = [
       { id: "f-plans", text: "Make a plan by phone: a day, a time and a place, and confirm it", chapterIds: ["s2-arrange"], pointIds: ["pt-time", "pt-ajde-da"] },
       { id: "f-problem", text: "Report a problem, complain politely, and get it put right", chapterIds: ["s2-problems"], pointIds: ["pt-ima-nema", "pt-ti-vie"] },
       { id: "f-basics", text: "Still handle the basics from the first half: greeting, asking, ordering, introducing yourself", chapterIds: ["s0-greet", "s1-cafe-order", "s1-greet-intro"], pointIds: ["pt-sum", "pt-ne", "pt-yes-no"] },
+      { id: "f-read", text: "Read a message about someone's weekend and plans, with a few words you haven't learned, and answer questions about it", chapterIds: ["s2-pasttime", "s2-arrange"], pointIds: ["pt-past", "pt-future", "pt-question-words"] },
     ],
     tasks: [
       {
@@ -194,6 +229,33 @@ export const exams: CourseExam[] = [
           { text: "Не работи.", gloss: "It doesn't work.", source: "vocab:gen-s2-problems-v2" },
           { text: "Сакам да вратам.", gloss: "I want to return (it).", source: "vocab:gen-s2-problems-v6" },
           { text: "Можете ли да помогнете?", gloss: "Can you help?", source: "vocab:gen-s2-problems-v4" },
+        ],
+      },
+      {
+        id: "f-r-marko", mode: "read", title: "Read and answer: Marko's weekend",
+        scene: "A message from your friend Marko about his weekend. There are a few words you haven't learned: work out what you can from the rest. Then answer each question out loud, in Macedonian. A word or two is enough.",
+        steps: ["Where was Marko last weekend?", "How did they travel to Ohrid?", "What did they eat?", "Where will they go next Saturday?"],
+        canDoIds: ["f-read"], pointIds: ["pt-past", "pt-future", "pt-question-words"],
+        reading: {
+          text: [
+            { text: "Здраво! Минатиот викенд бев во Охрид со сестра ми.", gloss: "Hi! Last weekend I was in Ohrid with my sister.", source: "exam:f-r-marko#t0" },
+            { text: "Патувавме со автобус три часа.", gloss: "We travelled by bus for three hours.", source: "exam:f-r-marko#t1" },
+            { text: "Езерото е многу убаво, а водата беше топла.", gloss: "The lake is very beautiful, and the water was warm.", source: "exam:f-r-marko#t2" },
+            { text: "Јадевме риба во еден ресторан покрај езерото.", gloss: "We ate fish in a restaurant by the lake.", source: "exam:f-r-marko#t3" },
+            { text: "Следната сабота ќе одиме во Битола. Ајде со нас!", gloss: "Next Saturday we'll go to Bitola. Come with us!", source: "exam:f-r-marko#t4" },
+          ],
+          questions: [
+            { text: "Каде беше Марко минатиот викенд?", gloss: "Where was Marko last weekend?", source: "exam:f-r-marko#q0" },
+            { text: "Како патуваа до Охрид?", gloss: "How did they travel to Ohrid?", source: "exam:f-r-marko#q1" },
+            { text: "Што јадеа?", gloss: "What did they eat?", source: "exam:f-r-marko#q2" },
+            { text: "Каде ќе одат следната сабота?", gloss: "Where will they go next Saturday?", source: "exam:f-r-marko#q3" },
+          ],
+        },
+        model: [
+          { text: "Во Охрид.", gloss: "In Ohrid.", source: "exam:f-r-marko#a0" },
+          { text: "Со автобус.", gloss: "By bus.", source: "exam:f-r-marko#a1" },
+          { text: "Риба.", gloss: "Fish.", source: "exam:f-r-marko#a2" },
+          { text: "Во Битола.", gloss: "To Bitola.", source: "exam:f-r-marko#a3" },
         ],
       },
     ],

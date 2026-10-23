@@ -28,6 +28,8 @@ function speakables(): string[] {
   (mk.alphabet ?? []).forEach((a) => a.examples.forEach((e) => add(e.text)));
   (mk.sentences ?? []).forEach((s) => s.variants.forEach((v) => add(v.mk))); // Build a sentence: said when it's right
   (mk.conjugations ?? []).forEach((c) => Object.values(c.forms).forEach(add)); // the conjugation match
+  // The exams' reading tasks: new lines (the text, its questions and their answers), each with a 🔊.
+  (mk.course?.exams ?? []).forEach((e) => e.tasks.forEach((t) => { t.reading?.text.forEach((l) => add(l.text)); t.reading?.questions.forEach((l) => add(l.text)); if (t.reading) t.model.forEach((l) => add(l.text)); }));
   return [...set];
 }
 

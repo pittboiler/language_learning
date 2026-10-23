@@ -9,8 +9,9 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
-  const { packId, examId, taskId, response, transcripts } = (await req.json()) as {
+  const { packId, examId, taskId, response, transcripts, answers } = (await req.json()) as {
     packId?: string; examId: string; taskId: string; response?: string; transcripts?: { scribe?: string; google?: string };
+    answers?: { scribe?: string; google?: string }[];
   };
   const pack = getPack(packId);
   const ex = pack.course?.exams?.find((e) => e.id === examId);
@@ -28,6 +29,12 @@ export async function POST(req: Request) {
       grammar: points.map((p) => `${p.title}: ${p.rule}`),
       response: (response ?? "").slice(0, 4000),
       transcripts: task.mode === "speak" ? { scribe: transcripts?.scribe?.slice(0, 2000), google: transcripts?.google?.slice(0, 2000) } : undefined,
+      // A reading task: the text and the questions come from the pack too; only what was heard is the client's.
+      reading: task.mode === "read" && task.reading ? {
+        text: task.reading.text.map((l) => l.text),
+        questions: task.reading.questions.map((q, i) => ({ question: q.text, gloss: q.gloss, expected: task.model[i]?.text ?? "" })),
+      } : undefined,
+      answers: task.mode === "read" ? task.steps.map((_, i) => ({ scribe: answers?.[i]?.scribe?.slice(0, 500), google: answers?.[i]?.google?.slice(0, 500) })) : undefined,
     });
     return Response.json({ ...out.grade, ms: out.ms, costUsd: out.costUsd });
   } catch (e) {

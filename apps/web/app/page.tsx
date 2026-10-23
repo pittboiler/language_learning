@@ -4553,9 +4553,12 @@ function CourseMap({ progress, persist, navigate }: { progress: Progress; persis
 // ---------- midterm / final (course.exams) ----------
 // Open book: every task opens on a prep screen (the steps, the grammar inline, the chapters' words) for as long
 // as the learner likes; then they speak (recorded → both speech engines → marked) or write (marked). Speech the
-// engines can't hear — or no mic — becomes a self-check against the model answer. Not a gate: the results end
-// with a review list, and the course moves on either way.
+// engines can't hear — or no mic — becomes a self-check against the model answer. A reading task shows a new
+// text, then asks its questions one at a time, each answered aloud, and marks them together (its English shows
+// after). Not a gate: the results end with a review list, and the course moves on either way.
 type ExamAnswer = { response: string; grade?: ExamGrade; selfCheck?: boolean; skipped?: boolean };
+const MODE_LABEL: Record<ExamTask["mode"], string> = { speak: "speaking", write: "writing", read: "reading" };
+type Heard = { scribe?: string; google?: string };
 const RESULT_MARK: Record<CanDoResult, string> = { met: "✓", partly: "◐", "not-yet": "✗" };
 const RESULT_LABEL: Record<CanDoResult, string> = { met: "you can do this", partly: "nearly", "not-yet": "not yet" };
 const STEP_MARK: Record<"yes" | "partly" | "no", string> = { yes: "✓", partly: "◐", no: "✗" };
@@ -4580,7 +4583,7 @@ function ExamView({ exam, progress, persist, onFinish, onLater }: {
           <div className="muted small" style={{ marginBottom: 4 }}>By now you should be able to:</div>
           <ul style={{ margin: 0, paddingLeft: 18 }}>{exam.canDos.map((c) => <li key={c.id} className="small" style={{ margin: "3px 0" }}>{c.text}</li>)}</ul>
         </div>
-        <p className="muted small">{tasks.filter((t) => t.mode === "speak").length} speaking tasks, then {tasks.filter((t) => t.mode === "write").length} writing tasks · about {tasks.length * 4} minutes · any task can be skipped</p>
+        <p className="muted small">{cp.examMakeup(exam)} · about {tasks.length * 4} minutes · any task can be skipped</p>
         <div className="row">
           <button className="btn" onClick={() => setAt(0)}>Start →</button>
           {onLater && <button className="ghost small" onClick={onLater}>Take it later (from Progress)</button>}
@@ -4613,7 +4616,9 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   const [phase, setPhase] = useState<"prep" | "do" | "marking" | "result" | "self">("prep");
   const [selfWhy, setSelfWhy] = useState<"unclear" | "chosen">("chosen"); // why we're self-checking
   const [text, setText] = useState("");
-  const [heard, setHeard] = useState<{ scribe?: string; google?: string } | null>(null);
+  const [heard, setHeard] = useState<Heard | null>(null);
+  const [qi, setQi] = useState(0); // reading: the question you're on
+  const [said, setSaid] = useState<Heard[]>([]); // reading: what was heard for the questions before it
   const [recording, setRecording] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -4624,6 +4629,9 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   const chapterIds = [...new Set(exam.canDos.filter((c) => task.canDoIds.includes(c.id)).flatMap((c) => c.chapterIds))];
   const words = (pack.course?.chapters ?? []).filter((c) => chapterIds.includes(c.chapterId)).flatMap((c) => c.words);
   const speak = task.mode === "speak";
+  const reading = task.mode === "read" ? task.reading : undefined;
+  // What a reading task's answers were, for the attempt's record.
+  const readResponse = (all: Heard[]) => all.map((h) => h.scribe || h.google || "—").join(" / ");
 
   const reference = (
     <>
@@ -4666,20 +4674,20 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   const head = (
     <>
       <div className="pbar"><div style={{ width: `${(index / total) * 100}%` }} /></div>
-      <div className="muted small" style={{ marginBottom: 6 }}>{exam.title} · task {index + 1} of {total} · {speak ? "speaking" : "writing"}</div>
+      <div className="muted small" style={{ marginBottom: 6 }}>{exam.title} · task {index + 1} of {total} · {MODE_LABEL[task.mode]}</div>
       <div className="gram-title">{task.title}</div>
       <p style={{ margin: "4px 0 6px" }}>{task.scene}</p>
     </>
   );
 
-  const mark = async (body: { response?: string; transcripts?: { scribe?: string; google?: string } }) => {
+  const mark = async (body: { response?: string; transcripts?: Heard; answers?: Heard[] }) => {
     setPhase("marking"); setErr("");
     try {
       const g = await api.gradeExam({ examId: exam.id, taskId: task.id, ...body }, pack.id);
       if (g.error) throw new Error(g.error);
       if (g.unclear) { setSelfWhy("unclear"); setPhase("self"); return; }
       setGrade(g);
-      onAnswered({ response: body.response ?? body.transcripts?.scribe ?? body.transcripts?.google ?? "", grade: g });
+      onAnswered({ response: body.answers ? readResponse(body.answers) : body.response ?? body.transcripts?.scribe ?? body.transcripts?.google ?? "", grade: g });
       setPhase("result");
     } catch (e) {
       setErr((e as { message?: string }).message ?? "Couldn't mark that.");
@@ -4697,7 +4705,7 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
   };
   const model = (
     <div className="fb" style={{ marginTop: 10 }}>
-      <div className="muted small" style={{ marginBottom: 4 }}>One way to say it (yours can be different)</div>
+      <div className="muted small" style={{ marginBottom: 4 }}>{reading ? "The answers (yours can be worded differently)" : "One way to say it (yours can be different)"}</div>
       <div className="gram-ex-list">
         {task.model.map((m) => (
           <div className="gram-ex" key={m.source}><button className="gram-play" onClick={() => play(m.text)} aria-label={`Play ${m.text}`}>▶</button><span className="mk">{m.text}</span><span className="en">{m.gloss}</span></div>
@@ -4705,7 +4713,73 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
       </div>
     </div>
   );
+  // A reading task's text: Macedonian only while you read and answer, with its English once you're done.
+  const textCard = (english = false) => reading && (
+    <div className="fb" style={english ? { marginTop: 10 } : undefined}>
+      <div className="gram-kicker">{english ? "What the text said" : "The text"}</div>
+      <div className="gram-ex-list">
+        {reading.text.map((l) => (
+          <div className="gram-ex" key={l.source}><button className="gram-play" onClick={() => play(l.text)} aria-label={`Play ${l.text}`}>▶</button><span className="mk">{l.text}</span>{english && <span className="en">{l.gloss}</span>}</div>
+        ))}
+      </div>
+    </div>
+  );
+  const recordButton = recording ? <button className="rec" onClick={() => void stopRec()}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={() => void startRec()}>{busy ? "Listening back…" : "● Record"}</button>;
+  const cantRecord = <button className="linklike small" style={{ marginTop: 8 }} onClick={() => { rec.current.release(); setRecording(false); setPhase("self"); }}>Can&apos;t record? Check yourself against {reading ? "the answers" : "a model answer"}</button>;
 
+  if (phase === "prep" && reading) {
+    return (
+      <div>
+        {head}
+        {textCard()}
+        <p className="muted small">Read it as often as you like, and listen to any line. Next come {reading.questions.length} questions in Macedonian, one at a time, with the text still on screen.</p>
+        <div className="row" style={{ marginTop: 10 }}>
+          <button className="btn" onClick={() => setPhase("do")}>I&apos;m ready →</button>
+          <button className="ghost small" onClick={() => { onAnswered({ response: "", skipped: true }); onNext(); }}>Skip this task</button>
+        </div>
+      </div>
+    );
+  }
+  if (phase === "do" && reading) {
+    const q = reading.questions[qi]!;
+    const last = qi + 1 >= reading.questions.length;
+    const answer = (h: Heard) => {
+      const all = [...said, h];
+      if (last) { void mark({ answers: all }); return; }
+      setSaid(all); setHeard(null); setQi(qi + 1);
+    };
+    return (
+      <div>
+        {head}
+        {textCard()}
+        <div className="fb" style={{ marginTop: 10 }}>
+          <div className="muted small">Question {qi + 1} of {reading.questions.length}: answer out loud, in {pack.name}</div>
+          <div className="row" style={{ alignItems: "center", margin: "6px 0" }}>
+            <button className="gram-play" onClick={() => play(q.text)} aria-label={`Play ${q.text}`}>▶</button>
+            <b className="target" style={{ fontSize: 20 }}>{q.text}</b>
+          </div>
+          <HintButton key={qi} hint={q.gloss} label="What does it ask?" />
+          {!heard ? (
+            <div className="row" style={{ marginTop: 8 }}>
+              {recordButton}
+              {!recording && <button className="ghost small" onClick={() => answer({})}>Don&apos;t know: {last ? "skip it and mark" : "skip it"}</button>}
+            </div>
+          ) : (
+            <>
+              <div className="muted small" style={{ marginTop: 8 }}>We heard:</div>
+              <div className="target" style={{ margin: "6px 0" }}>{heard.scribe || heard.google || "(nothing clear)"}</div>
+              <div className="row">
+                <button className="btn" onClick={() => answer(heard)}>{last ? "Mark my answers →" : "Next question →"}</button>
+                <button className="ghost small" onClick={() => setHeard(null)}>Record again</button>
+              </div>
+            </>
+          )}
+          {cantRecord}
+        </div>
+        {err ? <div className="err">{err}</div> : null}
+      </div>
+    );
+  }
   if (phase === "prep") {
     return (
       <div>
@@ -4734,9 +4808,7 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
             {!heard ? (
               <>
                 <div className="muted small">Record yourself doing the whole thing, start to finish.</div>
-                <div className="row" style={{ marginTop: 8 }}>
-                  {recording ? <button className="rec" onClick={() => void stopRec()}>⏹ Stop</button> : <button className="btn" disabled={busy} onClick={() => void startRec()}>{busy ? "Listening back…" : "● Record"}</button>}
-                </div>
+                <div className="row" style={{ marginTop: 8 }}>{recordButton}</div>
               </>
             ) : (
               <>
@@ -4748,7 +4820,7 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
                 </div>
               </>
             )}
-            <button className="linklike small" style={{ marginTop: 8 }} onClick={() => { rec.current.release(); setRecording(false); setPhase("self"); }}>Can&apos;t record? Check yourself against a model answer</button>
+            {cantRecord}
           </div>
         ) : (
           <div className="fb">
@@ -4769,8 +4841,9 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
     return (
       <div>
         {head}
-        {err ? <div className="err">{err}</div> : <p className="small">{selfWhy === "unclear" ? "We couldn't hear that clearly, so check yourself: c" : "C"}ompare what you {speak ? "said" : "wrote"} with the model, step by step.</p>}
+        {err ? <div className="err">{err}</div> : <p className="small">{selfWhy === "unclear" ? "We couldn't hear that clearly, so check yourself: c" : "C"}ompare {reading ? "your answers with these, question by question" : `what you ${speak ? "said" : "wrote"} with the model, step by step`}.</p>}
         {model}
+        {textCard(true)}
         <div className="fb" style={{ marginTop: 10 }}>
           {task.steps.map((s, i) => (
             <div key={i} className="row" style={{ justifyContent: "space-between", gap: 8, margin: "4px 0" }}>
@@ -4784,7 +4857,7 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
           ))}
         </div>
         <div className="row" style={{ marginTop: 10 }}>
-          <button className="btn" disabled={!ready} onClick={() => { onAnswered({ response: text || heard?.scribe || heard?.google || "", grade: selfCheckGrade(self as ("yes" | "partly" | "no")[], task.canDoIds), selfCheck: true }); onNext(); }}>{index + 1 < total ? "Next task →" : "See your results →"}</button>
+          <button className="btn" disabled={!ready} onClick={() => { onAnswered({ response: reading ? readResponse([...said, ...(heard ? [heard] : [])]) : text || heard?.scribe || heard?.google || "", grade: selfCheckGrade(self as ("yes" | "partly" | "no")[], task.canDoIds), selfCheck: true }); onNext(); }}>{index + 1 < total ? "Next task →" : "See your results →"}</button>
         </div>
       </div>
     );
@@ -4807,6 +4880,7 @@ function ExamTaskView({ exam, task, index, total, onAnswered, onNext }: {
         )}
       </div>
       {model}
+      {textCard(true)}
       <div className="row" style={{ marginTop: 10 }}>
         <button className="btn" onClick={onNext}>{index + 1 < total ? "Next task →" : "See your results →"}</button>
       </div>
@@ -5926,7 +6000,8 @@ function LastTurnRecap({ session }: { session: together.TogetherSession }) {
 }
 
 // "Read it together": the dyad walks a story LINE BY LINE, taking turns. On your line you read it aloud
-// and say what it means (tap a word if you're stuck); your partner holds the English and taps got/not-quite.
+// and say roughly what it means, with the words you haven't been taught yet translated under it (tap any other
+// word if you're stuck); your partner holds the English and judges the gist.
 // On a line that uses today's grammar the reader also says which bit and why — and the checker holds that
 // answer too. It opens with the whole story played once, and ends with two of its questions asked
 // partner-to-partner. Realtime-synced over partner_artifact 'story-together'; turns from @ll/core/story-together.
@@ -6052,8 +6127,8 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
           <p className="lead" style={{ margin: "4px 0 6px" }}><b>{story.title}</b>{story.titleGloss ? <span className="muted"> — {story.titleGloss}</span> : null}</p>
           <ol style={{ margin: "4px 0 8px", paddingLeft: 20 }}>
             <li>You take turns, one line each. <b>{iGoFirst ? "You read first." : "Your partner reads first."}</b></li>
-            <li>The reader reads the line aloud in Macedonian, then says what it means in English.</li>
-            <li>The other one sees the English and taps <b>✓ Got it</b> or <b>↻ Not quite</b>. After each line you both see what it means.</li>
+            <li>The reader reads the line aloud in Macedonian, then says roughly what it means in English. Words you haven&apos;t learned yet are translated under the line.</li>
+            <li>The other one sees the English and taps <b>✓ Got the gist</b> or <b>↻ Not quite</b>. It doesn&apos;t have to be word for word. After each line you both see what it means.</li>
             {qs > 0 && <li>At the end, {qs === 1 ? "a question" : `${qs} questions`} about the story: one of you asks, the other answers.</li>}
           </ol>
           <div className="row" style={{ marginTop: 8 }}>
@@ -6112,29 +6187,71 @@ function StoryTogether({ store, partnershipId, packId, myId, partnerId, storyId,
         </div>
       )) : iRead ? (
         <div className="fb">
-          <div className="muted small">Your line — read it aloud, then tell your partner what it means{progress ? " (tap a word if you're stuck)" : ""}:</div>
+          <div className="muted small">Your line: read it aloud, then tell your partner roughly what it means{progress ? " (tap a word if you're stuck)" : ""}:</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
             <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
             <b className="target" style={{ fontSize: 22 }}>{progress ? <TappableText text={turn.text} progress={progress} onTapWord={(sf) => onTap(sf, turn.text, turn.gloss)} /> : turn.text}</b>
           </div>
           <div className="translit">{translitOr(turn.text, turn.translit)}</div>
+          {progress && <NewWordsOnLine text={turn.text} storyId={story.id} progress={progress} />}
           {sel && progress && persist && <WordPanel sel={sel} progress={progress} persist={persist} config={config ?? null} onClose={() => setSel(null)} />}
           <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking your meaning…" : "waiting for your partner to check…"}</div>
         </div>
       ) : (
         <div className="fb">
-          <div className="muted small">Your partner reads this line &amp; says what it means — did they get it?</div>
+          <div className="muted small">Your partner reads this line and says roughly what it means. Did they get the gist? It doesn&apos;t have to be word for word.</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
             <button className="spk" onClick={() => play(turn.text, 0.9)}>🔊</button>
             <b className="target" style={{ fontSize: 20 }}>{turn.text}</b>
           </div>
           <div className="gloss">means: {turn.gloss}</div>
           <div className="row" style={{ marginTop: 6 }}>
-            <button className="btn" onClick={() => check(true)}>✓ Got it</button>
+            <button className="btn" onClick={() => check(true)}>✓ Got the gist</button>
             <button className="ghost" onClick={() => check(false)}>↻ Not quite</button>
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+/** The words on your line the course hasn't taught you yet (names aside, and any you've marked known), each
+ *  with what it means: the story's own word list first, else the shared look-up (course words, then the cache).
+ *  Without the course, every word you haven't met. So not knowing a word never stops you saying what the line
+ *  is about (Jake, 2026-10-23). */
+function NewWordsOnLine({ text, storyId, progress }: { text: string; storyId: string; progress: Progress }) {
+  const pack = usePack();
+  const forms = useMemo(() => (pack.course ? cp.formSlots(pack, pack.course) : undefined), [pack]);
+  const at = pack.course ? cp.currentSlot(pack.course, progress) : undefined;
+  const words = useMemo(() => {
+    const seen = new Set<string>();
+    return scoring.tokenize(text).filter((t) => {
+      if (!t.isWord || seen.has(t.lexKey)) return false;
+      seen.add(t.lexKey);
+      const e = progress.familiarity[t.lexKey];
+      if ((e && e.status === "known") || properNounLike(t.surface, pack)) return false;
+      return forms && at ? !cp.taughtBefore(forms.get(t.lexKey), at) : !e;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, forms, at?.order, at?.n]);
+  const own = useMemo(() => new Map((pack.stories?.find((x) => x.id === storyId)?.registersVocab ?? []).map((r) => [r.lexKey, r.gloss])), [pack, storyId]);
+  const [looked, setLooked] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let live = true;
+    for (const w of words) {
+      if (own.has(w.lexKey) || looked[w.lexKey]) continue;
+      api.gloss(w.surface, text, pack.id).then((r) => { if (live && r.gloss) setLooked((m) => ({ ...m, [w.lexKey]: r.gloss })); }).catch(() => {});
+    }
+    return () => { live = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [words]);
+  if (!words.length) return null;
+  return (
+    <div className="small" style={{ marginTop: 6 }}>
+      <span className="muted">New words: </span>
+      {words.map((w, i) => (
+        <span key={w.lexKey}>{i ? " · " : ""}<b lang={pack.id}>{w.surface}</b> <span className="muted">{own.get(w.lexKey) ?? looked[w.lexKey] ?? "…"}</span></span>
+      ))}
     </div>
   );
 }
@@ -6772,7 +6889,7 @@ const SECTION_LABEL: Record<jsession.JointPhase, string> = { warmup: "Warm-up", 
 /** The landing's agenda — fixed, so you know what a session is before you start one. */
 const SESSION_AGENDA: [string, string][] = [
   ["Warm-up", "words you've both learned: one of you says it, the other checks"],
-  ["Grammar", "a point you've both learned: read the rule aloud, then quiz each other"],
+  ["Grammar", "a point you've both learned: say lines about other people, and spot the slips"],
   ["Story", "re-read one you've both read, line by line, then two quick questions"],
   ["Recap", "what you practised together, and what's next"],
 ];
@@ -6862,10 +6979,10 @@ function JointSessionView({ store, partnershipId, packId, myId, partnerId, sessi
   );
 }
 
-// The partnered grammar step (@ll/core/partner/grammar-together), synced like the story read-through: the
-// rule read aloud, then the point's questions (asker judges) and fill-ins (the answerer taps on their OWN
-// screen — a real answer, checked, with the "why" on both screens). A fill-in from the point's cards grades
-// the answerer's own grammar flashcard.
+// The partnered grammar step (@ll/core/partner/grammar-together), synced like the story read-through:
+// person ping-pong (the asker judges), and now and then "spot the slip" — one of you reads a line that may have a
+// wrong form in it, the other says if it sounded right and taps the right form on their OWN screen (checked,
+// with the "why" on both screens). A fill-in from the point's cards grades the answerer's own grammar flashcard.
 function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId, progress, persist, next, onNext, onFinished }: {
   store: PartnerStore; partnershipId: string; packId: string; myId: string; partnerId: string; rowId: string;
   progress: Progress; persist: (p: Progress) => void; next: string; onNext: () => void; onFinished?: () => void;
@@ -6875,6 +6992,7 @@ function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId,
   const [g, setG] = useState<gtog.GrammarTogetherSession | null>(null);
   const [online, setOnline] = useState<string[]>([]);
   const [err, setErr] = useState("");
+  const [offAt, setOffAt] = useState<number | null>(null); // spot the slip: the turn you said sounded off
   const read = useCallback(async () => (await store.listArtifacts(partnershipId, "grammar-together")).find((x) => x.id === rowId)?.payload as gtog.GrammarTogetherSession | undefined, [store, partnershipId, rowId]);
   const refresh = useCallback(async () => { try { const r = await read(); if (r) setG(r); } catch { /* keep current */ } }, [read]);
   useEffect(() => { void refresh(); }, [refresh]);
@@ -6925,11 +7043,15 @@ function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId,
 
   const sc = gtog.score(g);
   const prev = g.turns[g.turnIndex - 1];
+  // The line as it's read aloud: with the slip in it, when there is one.
+  const asRead = (t: Extract<gtog.GrammarTurn, { kind: "blank" }>) => t.slip ? cp.blankOut(t.line, t.answer).replace("___", t.slip) : t.line;
   const lastResult = prev && prev.kind !== "read" && prev.result ? (
     <div className="last-turn">
       <span className="muted small">{prev.result === "got" ? "✓" : "✗"}</span>
       {prev.kind === "blank"
-        ? <span className="small"><b>{prev.line}</b>{prev.choice && prev.choice !== prev.answer ? <> — picked “{prev.choice}”, it's <b>{prev.answer}</b></> : null}<span className="muted"> · {prev.why}</span></span>
+        ? <span className="small"><b>{prev.line}</b>{prev.slip
+          ? <> — “{prev.slip}” was the slip{prev.choice === prev.slip ? ", and it got past" : prev.choice !== prev.answer ? `; picked “${prev.choice}”` : ""}</>
+          : <> — read right{prev.result === "missed" ? ", nothing was off" : ""}</>}<span className="muted"> · {prev.why}</span></span>
         : prev.kind === "switch"
           ? <span className="small">{prev.pronoun}: <b>{prev.answer}</b><span className="muted"> · {prev.why}</span></span>
           : <span className="small">{prev.question} <span className="muted">— {prev.answer}</span></span>}
@@ -6967,7 +7089,7 @@ function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId,
     <div style={colStack}>{head}
       {/* Person ping-pong: how it works, and the rule on both screens (nobody reads it aloud). */}
       {pingPong && g.turnIndex === 0 && (
-        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps ✓ or ↻. Now and then, a fill-in on today&apos;s point.</div>
+        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps ✓ or ↻. Now and then, spot the slip: a line on today&apos;s point that may have one wrong word in it.</div>
       )}
       {pingPong && <details className="small"><summary>The rule: {point.title}</summary><p style={{ margin: "4px 0" }}>{point.rule}</p></details>}
       <div className="pbar"><div style={{ width: `${(g.turnIndex / (g.turns.length || 1)) * 100}%` }} /></div>
@@ -6989,14 +7111,13 @@ function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId,
           </div>
         </div>
       ) : (
+        // The listener sees only who to say it about: the line itself they hear from their partner (Jake,
+        // 2026-10-23), with a peek for when it doesn't land.
         <div className="fb">
-          <div className="muted small">Your partner reads this line:</div>
-          <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <b className="target" style={{ fontSize: 20 }}>{t.line}</b>
-          </div>
-          <div className="gloss">{t.gloss}</div>
-          <p className="lead" style={{ margin: "10px 0 4px" }}>Now say it about <b className="target">{t.pronoun}</b> ({t.personEn}), out loud.</p>
-          <HintButton hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
+          <div className="muted small">Listen to your partner read a line, then say it out loud about:</div>
+          <p className="lead" style={{ margin: "8px 0" }}><b className="target" style={{ fontSize: 24 }}>{t.pronoun}</b> <span className="muted">({t.personEn})</span></p>
+          <HintButton key={`forms${g.turnIndex}`} hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
+          <HintButton key={`line${g.turnIndex}`} hint={`${t.line} (${t.gloss})`} label="Didn't catch it? Show the line" />
           <div className="muted small" style={{ marginTop: 6 }}>🗣 {partnerOnline ? "Your partner is checking…" : "waiting for your partner…"}</div>
         </div>
       ))}
@@ -7027,23 +7148,36 @@ function GrammarTogether({ store, partnershipId, packId, myId, partnerId, rowId,
       ))}
       {t.kind === "blank" && (iAsk ? (
         <div className="fb">
-          <div className="muted small">Read this aloud, saying “hmm” at the gap — your partner picks the word:</div>
+          <div className="muted small">{t.slip ? "Spot the slip: read this aloud exactly as written. It has one wrong word in it, marked:" : "Spot the slip: read this aloud. This time it's right as it is:"}</div>
           <div className="row" style={{ alignItems: "center", margin: "8px 0" }}>
-            <button className="spk" onClick={() => play(t.line, 0.9)}>🔊</button>
-            <b className="target" style={{ fontSize: 20 }}><FocusText text={t.line} words={[t.answer]} /></b>
+            <b className="target" style={{ fontSize: 20 }}><FocusText text={asRead(t)} words={[gtog.readForm(t)]} /></b>
           </div>
+          {t.slip ? <div className="small">The slip: <b lang={pack.id}>{t.slip}</b>, where it should be <b lang={pack.id}>{t.answer}</b>.</div> : null}
           <div className="gloss">{t.gloss}</div>
-          <div className="muted small" style={{ marginTop: 6 }}>Why: {t.why}</div>
-          <div className="muted small" style={{ marginTop: 6 }}>🎯 {partnerOnline ? "Your partner is choosing…" : "waiting for your partner…"}</div>
+          <div className="muted small" style={{ marginTop: 6 }}>{partnerOnline ? "Your partner is deciding if it sounded right…" : "waiting for your partner…"}</div>
         </div>
       ) : (
         <div className="fb">
-          <div className="muted small">Your partner reads a line — which word fills the gap?</div>
-          <div className="target" style={{ fontSize: 20, margin: "8px 0" }}>{cp.blankOut(t.line, t.answer)}</div>
-          <div className="gloss">{t.gloss}</div>
-          <div className="row" style={{ marginTop: 8 }}>
-            {t.options.map((o) => <button key={o} className="btn" onClick={() => void act((s) => gtog.pick(s, myId, o))}>{o}</button>)}
-          </div>
+          <div className="muted small">Spot the slip: listen to your partner read a line. It means:</div>
+          <div className="gloss" style={{ fontSize: 18, margin: "6px 0" }}>{t.gloss}</div>
+          {offAt === g.turnIndex ? (
+            <>
+              <p className="lead" style={{ margin: "8px 0 4px" }}>Which word should it have been?</p>
+              <div className="row">
+                {t.options.filter((o) => o !== gtog.readForm(t)).map((o) => <button key={o} className="btn" lang={pack.id} onClick={() => void act((s) => gtog.pick(s, myId, o))}>{o}</button>)}
+                <button className="ghost small" onClick={() => setOffAt(null)}>← Back</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="lead" style={{ margin: "8px 0 4px" }}>Did it sound right?</p>
+              <div className="row">
+                <button className="btn" onClick={() => void act((s) => gtog.pick(s, myId, gtog.readForm(t)))}>Sounds right</button>
+                <button className="ghost" onClick={() => setOffAt(g.turnIndex)}>Something&apos;s off</button>
+              </div>
+            </>
+          )}
+          <HintButton key={`line${g.turnIndex}`} hint={asRead(t)} label="Didn't catch it? Show the line" />
         </div>
       ))}
     </div>

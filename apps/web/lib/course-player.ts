@@ -448,12 +448,18 @@ export function catchUpWords(course: Course, p: Progress, max = CATCH_UP_MAX): C
 // ---- agenda + recap (DESIGN §5) ---------------------------------------------------------------------
 export interface Agenda { title: string; items: string[] }
 
+/** What an exam asks of you, in the order it comes: "3 speaking tasks, then 2 writing tasks, then a reading task". */
+export function examMakeup(exam: CourseExam): string {
+  const n = (mode: string) => exam.tasks.filter((t) => t.mode === mode).length;
+  const part = (k: number, what: string) => (k === 1 ? `${what === "reading" ? "a" : "1"} ${what} task` : `${k} ${what} tasks`);
+  return [part(n("speak"), "speaking"), part(n("write"), "writing"), ...(n("read") ? [part(n("read"), "reading")] : [])].join(", then ");
+}
+
 /** The brief agenda that opens a session: where we are, then the blueprint's bullets for today. */
 export function sessionAgenda(pack: LanguagePack, course: Course, pos: CoursePosition): Agenda | undefined {
   if (pos.kind === "finished") return undefined;
   if (pos.kind === "exam") {
-    const speak = pos.exam.tasks.filter((t) => t.mode === "speak").length, write = pos.exam.tasks.length - speak;
-    return { title: pos.exam.title, items: [`Open book: a prep screen before every task, as long as you like`, `${speak} speaking task${speak === 1 ? "" : "s"}, then ${write} writing task${write === 1 ? "" : "s"}`, "Your results: what you can do, and what to look at again"] };
+    return { title: pos.exam.title, items: [`Open book: a prep screen before every task, as long as you like`, examMakeup(pos.exam), "Your results: what you can do, and what to look at again"] };
   }
   if (pos.kind === "stage-review") {
     const r = course.stageReviews.find((x) => x.afterChapterId === pos.afterChapterId);

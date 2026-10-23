@@ -170,8 +170,9 @@ export async function writeCorrect(attempt: string, taskId: string, packId?: str
 
 export type ExamGradeResponse = import("@ll/core/exam/results").ExamGrade & { ms?: number; costUsd?: number; error?: string };
 
-/** Mark one exam task (the server looks the task up by id). */
-export async function gradeExam(body: { examId: string; taskId: string; response?: string; transcripts?: { scribe?: string; google?: string } }, packId?: string): Promise<ExamGradeResponse> {
+/** Mark one exam task (the server looks the task up by id). A reading task sends `answers`: what the engines
+ *  heard for each question, in order. */
+export async function gradeExam(body: { examId: string; taskId: string; response?: string; transcripts?: { scribe?: string; google?: string }; answers?: { scribe?: string; google?: string }[] }, packId?: string): Promise<ExamGradeResponse> {
   return (
     await fetch("/api/exam", {
       method: "POST",

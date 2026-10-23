@@ -130,8 +130,19 @@ assert.equal(cp.position(course, fin).kind, "finished");
     for (const t of e.tasks) {
       assert.ok(t.canDoIds.length && t.canDoIds.every((id) => canDo.has(id)), `${t.id} can-dos`);
       assert.ok(t.pointIds.every((id) => pointIds.has(id)), `${t.id} points`);
+      if (t.mode === "read") {
+        // A reading task's lines are its own (new, pre-warmed): one question per step, and one answer each.
+        const r = t.reading!;
+        assert.ok(r.text.length >= 3 && r.questions.length === t.steps.length && t.model.length === t.steps.length, `${t.id}: a text, and an answer per question`);
+        r.questions.forEach((q, i) => assert.equal(q.gloss, t.steps[i], `${t.id}: step ${i} is question ${i} in English`));
+        const src = [...r.text.map((l, i) => [l, `t${i}`] as const), ...r.questions.map((l, i) => [l, `q${i}`] as const), ...t.model.map((l, i) => [l, `a${i}`] as const)];
+        for (const [l, k] of src) assert.equal(l.source, `exam:${t.id}#${k}`, `${t.id} ${k} source`);
+        continue;
+      }
       for (const m of t.model) assert.equal(lineText.get(m.source)?.trim(), m.text.trim(), `${t.id} model ${m.source}`);
     }
+    assert.ok(e.tasks.some((t) => t.mode === "read"), `${e.id}: ends with reading`);
+    assert.equal(cp.examMakeup(e), e.id === "midterm" ? "3 speaking tasks, then 2 writing tasks, then a reading task" : "4 speaking tasks, then 4 writing tasks, then a reading task");
     // Every can-do is assessed by at least one task.
     for (const c of e.canDos) assert.ok(e.tasks.some((t) => t.canDoIds.includes(c.id)), `${e.id}/${c.id} is assessed`);
   }
