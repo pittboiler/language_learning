@@ -495,3 +495,26 @@ textarea.text { display: block; width: 100%; min-height: 72px; background: var(-
 .build-result { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 18px; padding-top: 14px; border-top: 1.5px dotted var(--line-faint); }
 .build-answer { font-family: var(--font-text); font-size: 22px; font-weight: 600; }
 .build-result .btn { margin-left: auto; }
+
+/* ---- exams: task steps with their marks, can-do results ---- */
+.step-list { list-style: none; margin: 8px 0 10px; padding: 0; counter-reset: step; }
+.step-list li { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1.5px dotted var(--line-faint); font-size: 15px; counter-increment: step; }
+.step-list li:last-child { border-bottom: 0; }
+.step-list li::before { content: counter(step); font-family: var(--font-text); font-weight: 600; color: var(--accent); }
+.mark { font-size: 12px; font-weight: 600; white-space: nowrap; display: inline-flex; align-items: center; gap: 4px; }
+.mark.yes, .mark.met { color: var(--good); }
+.mark.partly, .mark.no, .mark.not-yet { color: var(--fix); }
+.cando { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: baseline; padding: 12px 2px; border-bottom: 1.5px dotted var(--line-faint); }
+.cando .notes { grid-column: 1 / -1; font-size: 13px; color: var(--text-muted); }
+.self-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 8px 0; border-bottom: 1.5px dotted var(--line-faint); }
+.self-row:last-child { border-bottom: 0; }
+.exam-ref summary { padding: 6px 0; }
+
+/* ---- warm-up match game ---- */
+.match-card { padding: 18px 16px 16px; margin: 6px 5px 0; }
+.match-col .opt { min-height: 50px; }
+.match-col .opt:lang(mk), .match-col .opt:lang(bg) { font-size: 19px; }
+.match-count { display: flex; align-items: center; gap: 10px; margin-top: 14px; font-size: 13px; color: var(--text-muted); }
+
+/* Buttons reset their font (font: inherit); a button tagged with the target language still gets its face. */
+button:lang(mk), button:lang(bg) { font-family: var(--font-text); }

@@ -7,7 +7,7 @@ import { type Progress } from "../../lib/store";
 import { buildLineGlosses } from "../../lib/capture";
 import { shuffle } from "../../lib/today-plan";
 import { ClozeCard, GrammarCard, PhraseCard } from "../flashcards/Cards";
-import { PRONOUNS, usePack, usePlay } from "../shared";
+import { MixedText, PRONOUNS, Stitches, usePack, usePlay } from "../shared";
 import { Tag } from "./TodayHeader";
 
 export function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: () => void }) {
@@ -38,6 +38,7 @@ export type WarmResult = { item: ReviewItem; ok: boolean };
 // A quick tap-to-match game: tap a word (hear it), then tap its meaning. Pairs matched on the first try
 // grade "good"; a wrong attempt first marks that word "again". Lighter + more fun than recalling each cold.
 export function MatchGame({ pairs, onDone, lead }: { pairs: { item: ReviewItem; target: string; gloss: string }[]; onDone: (results: WarmResult[]) => void; lead?: string }) {
+  const pack = usePack();
   const play = usePlay();
   // Each column shows the same pairs in an independent shuffle; buttons carry the pair index.
   const leftOrder = useMemo(() => shuffle(pairs.map((_, i) => i)), []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -59,21 +60,24 @@ export function MatchGame({ pairs, onDone, lead }: { pairs: { item: ReviewItem; 
     }
   };
   return (
-    <div className="fb">
-      <p className="lead" style={{ marginTop: 0 }}>{lead ?? "Match each word to its meaning — tap a word to hear it, then tap what it means."}</p>
+    <div className="framed match-card">
+      <p style={{ margin: "0 0 4px", lineHeight: 1.5 }}><MixedText text={lead ?? "Match each word to its meaning: tap a word to hear it, then tap what it means."} /></p>
       <div className="match-grid">
         <div className="match-col">
           {leftOrder.map((i) => (
-            <button key={i} className={`opt${matched.has(i) ? " right matched" : sel === i ? " sel" : ""}`} disabled={matched.has(i)} onClick={() => pickTarget(i)}>{pairs[i]!.target}</button>
+            <button key={i} lang={pack.id} className={`opt${matched.has(i) ? " right matched" : sel === i ? " sel" : ""}`} disabled={matched.has(i)} onClick={() => pickTarget(i)}>{pairs[i]!.target}</button>
           ))}
         </div>
         <div className="match-col">
           {rightOrder.map((i) => (
-            <button key={i} className={`opt${matched.has(i) ? " right matched" : wrong === i ? " wrong" : ""}`} disabled={matched.has(i)} onClick={() => pickGloss(i)}>{pairs[i]!.gloss}</button>
+            <button key={i} className={`opt${matched.has(i) ? " right matched" : wrong === i ? " wrong" : ""}`} disabled={matched.has(i)} onClick={() => pickGloss(i)}><MixedText text={pairs[i]!.gloss} /></button>
           ))}
         </div>
       </div>
-      <div className="muted small" style={{ marginTop: 10 }}>{matched.size}/{pairs.length} matched</div>
+      <div className="match-count">
+        <Stitches total={pairs.length} done={matched.size} size={10} label={`${matched.size} of ${pairs.length} matched`} />
+        <span>{matched.size} of {pairs.length} matched</span>
+      </div>
     </div>
   );
 }
@@ -141,7 +145,10 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
   const advance = () => setStepIdx((s) => s + 1);
   return (
     <div>
-      <Tag>Warm up · {stepIdx + 1} of {allSteps.length}</Tag>
+      <div className="row" style={{ gap: 10, marginBottom: 8 }}>
+        <span className="overline">Warm up · {stepIdx + 1} of {allSteps.length}</span>
+        <Stitches total={allSteps.length} done={stepIdx} now={stepIdx} size={10} label={`Warm-up step ${stepIdx + 1} of ${allSteps.length}`} />
+      </div>
       {step.kind === "conjugation" ? (
         <MatchGame
           key={stepIdx}

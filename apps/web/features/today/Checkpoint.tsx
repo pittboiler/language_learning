@@ -8,7 +8,7 @@ import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { ScenarioView } from "../conversation/ScenarioView";
 import { UseIt } from "../reading/StoryReader";
-import { gradeItem, usePack } from "../shared";
+import { Icon, gradeItem, usePack } from "../shared";
 import { SayIt } from "./Lessons";
 import { Tag } from "./TodayHeader";
 import { WarmResult, WarmupSession } from "./Warmup";
@@ -28,7 +28,7 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
   nextLabel?: string;
   /** Called once, when the result screen appears: the progress with the pass recorded (if passed). */
   onFinished?: (p: Progress, passed: boolean) => void;
-  /** The result screen's button (default "Carry on →"). */
+  /** The result screen's button (default "Carry on"). */
   doneLabel?: string;
   chapter: Chapter;
   items: ReviewItem[];
@@ -113,29 +113,29 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
           onComplete={() => { setSpoke(true); setPhase("result"); }}
         />
         <div className="row" style={{ marginTop: 12 }}>
-          <button className="ghost small" onClick={() => setPhase("result")}>Not now — finish the checkpoint →</button>
+          <button className="quiet" onClick={() => setPhase("result")}>Not now: finish the checkpoint</button>
         </div>
       </div>
     );
 
   return (
-    <div className="fb">
-      <Tag>Checkpoint · chapter {chapter.order}</Tag>
+    <div className="framed write-card">
+      <div className="overline">Checkpoint · chapter {chapter.order}</div>
       {passed ? (
         <>
-          <p className="lead" style={{ color: "var(--ok)", margin: 0 }}>✓ <b>{chapter.shortTitle}</b> is checked off — {score.got}/{score.total} recalled{scenario ? ", conversation done" : ""}.</p>
-          <p className="muted small">It stays in your reviews, but Today will move on to {nextLabel ?? `chapter ${chapter.order + 1}`}.</p>
+          <h3 className="lesson-title" style={{ fontSize: 24, display: "flex", alignItems: "center", gap: 8 }}><span className="result-ok"><Icon name="check" size={20} /></span>{chapter.shortTitle} is checked off</h3>
+          <p className="lesson-rule">{score.got} of {score.total} recalled{scenario ? ", conversation done" : ""}. It stays in your reviews, but Today will move on to {nextLabel ?? `chapter ${chapter.order + 1}`}.</p>
         </>
       ) : (
         <>
-          <p className="lead" style={{ margin: 0 }}>{score.got}/{score.total} recalled{scenario && !spoke ? " · conversation not done" : ""} — not quite yet.</p>
-          <p className="muted small">No harm done: this lesson still counts. <b>{chapter.shortTitle}</b> stays with you, and the checkpoint comes round again next session, after a short review of the words you found hardest.</p>
+          <h3 className="lesson-title" style={{ fontSize: 24 }}>Not quite yet</h3>
+          <p className="lesson-rule">{score.got} of {score.total} recalled{scenario && !spoke ? ", conversation not done" : ""}. No harm done: this lesson still counts. <b>{chapter.shortTitle}</b> stays with you, and the checkpoint comes round again next session, after a short review of the words you found hardest.</p>
         </>
       )}
-      <div className="row" style={{ marginTop: 10 }}>
+      <div className="write-actions">
         {/* The pass rides out with the same Progress the parent persists, so it can't be lost to a race
             between an effect-write and the step advance. */}
-        <button className="btn" onClick={() => onDone(progress)}>{doneLabel ?? "Carry on →"}</button>
+        <button className="btn" onClick={() => onDone(progress)}>{(doneLabel ?? "Carry on").replace(/\s*→$/, "")}</button>
       </div>
     </div>
   );
@@ -180,16 +180,17 @@ export function StageReview({ afterChapterId, items, scenario, progress, persist
         <p className="lead" style={{ marginTop: 0 }}>Now a conversation from this stage: <b>{scenario.title}</b>.</p>
         <ScenarioView progress={graded} persist={persist} config={config} lettersDone scenarioId={scenario.id} hidePicker bare askable restartIfDone onComplete={() => setPhase("result")} />
         <div className="row" style={{ marginTop: 12 }}>
-          <button className="ghost small" onClick={() => setPhase("result")}>Not now →</button>
+          <button className="quiet" onClick={() => setPhase("result")}>Not now</button>
         </div>
       </div>
     );
   return (
-    <div className="fb">
-      <Tag>Stage review</Tag>
-      <p className="lead" style={{ margin: 0 }}>Stage done{score.total ? ` · ${score.got}/${score.total} recalled` : ""}. Anything you missed comes back in your reviews.</p>
-      <div className="row" style={{ marginTop: 10 }}>
-        <button className="btn" onClick={() => onDone(graded)}>Carry on →</button>
+    <div className="framed write-card">
+      <div className="overline">Stage review</div>
+      <h3 className="lesson-title" style={{ fontSize: 24, display: "flex", alignItems: "center", gap: 8 }}><span className="result-ok"><Icon name="check" size={20} /></span>Stage done</h3>
+      <p className="lesson-rule">{score.total ? `${score.got} of ${score.total} recalled. ` : ""}Anything you missed comes back in your reviews.</p>
+      <div className="write-actions">
+        <button className="btn" onClick={() => onDone(graded)}>Carry on</button>
       </div>
     </div>
   );
