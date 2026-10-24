@@ -7,6 +7,8 @@ import type { GuidedCue } from "@ll/pack-schema";
 import { getPack } from "../../../lib/packs";
 import * as cp from "../../../lib/course-player";
 import { romanize } from "../../../lib/romanize";
+import { requireCaller } from "../../../lib/server-auth";
+import { recordCost, spend } from "../../../lib/usage";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -20,6 +22,8 @@ interface Body {
 }
 
 export async function POST(req: Request) {
+  const caller = await requireCaller(req);
+  if (caller instanceof Response) return caller;
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
   const body = (await req.json()) as Body;
   const pack = getPack(body.packId);
@@ -43,6 +47,8 @@ export async function POST(req: Request) {
     const t = cp.taughtFor(course, m.at);
     return { id: m.id, name: m.name, taughtWords: t.words, taughtGrammar: t.grammar };
   });
+  const over = await spend(caller, "guided-review");
+  if (over) return over;
   try {
     const review = await coach.reviewConversation({
       languageName: pack.name,
@@ -50,6 +56,7 @@ export async function POST(req: Request) {
       speakers,
       turns: guided.transcript(s, rows),
     });
+    recordCost(caller, "guided-review", review.costUsd);
     return Response.json({ ...review, fixes: review.fixes.map((f) => ({ ...f, betterTranslit: romanize(f.better) })) });
   } catch (e) {
     return Response.json({ error: String(e instanceof Error ? e.message : e) }, { status: 500 });

@@ -1,5 +1,28 @@
 // Typed client for the server API routes (which hold the provider keys).
-import { uid } from "./supabase";
+import { supabase, uid } from "./supabase";
+
+// Every /api route checks the caller's Supabase session (lib/server-auth.ts), so each request carries it as a
+// bearer token. A session is made first when there isn't one (anonymous, as the stores do), and a 401 gets
+// one retry with a refreshed token.
+async function bearer(): Promise<Record<string, string>> {
+  const sb = supabase();
+  if (!sb) return {};
+  try {
+    await uid();
+    const { data } = await sb.auth.getSession();
+    return data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {};
+  } catch {
+    return {};
+  }
+}
+async function call(path: string, init: RequestInit = {}): Promise<Response> {
+  const send = async () => fetch(path, { ...init, headers: { ...(init.headers as Record<string, string> | undefined), ...(await bearer()) } });
+  const res = await send();
+  const sb = supabase();
+  if (res.status !== 401 || !sb) return res;
+  await sb.auth.refreshSession().catch(() => {});
+  return send();
+}
 
 export interface Config {
   engines: { eleven: boolean; google: boolean; anthropic: boolean };
@@ -7,7 +30,7 @@ export interface Config {
 }
 
 export async function getConfig(): Promise<Config> {
-  return (await fetch("/api/config")).json();
+  return (await call("/api/config")).json();
 }
 
 // ---- Spoken lines: one voice at a time (2026-10-22, Jake: in Build a sentence the line sometimes came "well
@@ -21,7 +44,7 @@ function clipBlob(text: string, packId?: string): Promise<Blob> {
   const key = `${packId ?? ""}|${text}`;
   let p = clips.get(key);
   if (!p) {
-    p = fetch("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, packId }) })
+    p = call("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, packId }) })
       .then(async (r) => { if (!r.ok) throw new Error((await r.json()).error || "TTS failed"); return r.blob(); });
     p.catch(() => clips.delete(key)); // a failure isn't kept: the next play tries again
     clips.set(key, p);
@@ -90,7 +113,7 @@ export async function asr(blob: Blob, packId?: string): Promise<AsrResponse> {
   const fd = new FormData();
   fd.append("audio", blob, "rec.webm");
   if (packId) fd.append("packId", packId);
-  return (await fetch("/api/asr", { method: "POST", body: fd })).json();
+  return (await call("/api/asr", { method: "POST", body: fd })).json();
 }
 
 export interface FeedbackResponse {
@@ -104,6 +127,8 @@ export interface FeedbackResponse {
   ms: number;
   costUsd: number;
   gate: { agreed: boolean; confidence: "high" | "low" };
+  /** Both engines heard exactly the line, so the server answered without the LLM. */
+  fastPath?: boolean;
   error?: string;
 }
 
@@ -113,7 +138,7 @@ export async function feedback(
   packId?: string,
 ): Promise<FeedbackResponse> {
   return (
-    await fetch("/api/feedback", {
+    await call("/api/feedback", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ target, transcripts, packId }),
@@ -138,7 +163,7 @@ export async function chat(
   packId?: string,
 ): Promise<ChatResponse> {
   return (
-    await fetch("/api/chat", {
+    await call("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userText, history, scenarioId, packId }),
@@ -160,7 +185,7 @@ export interface WriteResponse {
 
 export async function writeCorrect(attempt: string, taskId: string, packId?: string, prompt?: string, reference?: string): Promise<WriteResponse> {
   return (
-    await fetch("/api/write", {
+    await call("/api/write", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ attempt, taskId, packId, prompt, reference }),
@@ -174,7 +199,7 @@ export type ExamGradeResponse = import("@ll/core/exam/results").ExamGrade & { ms
  *  heard for each question, in order. */
 export async function gradeExam(body: { examId: string; taskId: string; response?: string; transcripts?: { scribe?: string; google?: string }; answers?: { scribe?: string; google?: string }[] }, packId?: string): Promise<ExamGradeResponse> {
   return (
-    await fetch("/api/exam", {
+    await call("/api/exam", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ ...body, packId }),
@@ -209,7 +234,7 @@ export async function gloss(word: string, context: string, packId?: string): Pro
   const p = (async () => {
     try {
       const r: GlossResponse = await (
-        await fetch("/api/gloss", {
+        await call("/api/gloss", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ word, context, packId }),
@@ -236,7 +261,7 @@ export interface ImportResponse {
 /** Import + segment + gloss arbitrary target-language text into a gated reader (confidence:"unreviewed"). */
 export async function importText(text: string, packId?: string): Promise<ImportResponse> {
   return (
-    await fetch("/api/import", {
+    await call("/api/import", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text, packId }),
@@ -252,16 +277,14 @@ export interface ExplainResponse {
 }
 
 /** "Have a question?" — ask one scoped question about a Today conversation. Server caches the answer
- *  cross-user and rate-limits per user (25/day). `canned` carries a grammar-concept id for the derived
- *  chips (cacheable); free-text goes in `question`. */
+ *  cross-user and limits each signed-in caller (25 a day). `canned` carries a grammar-concept id for the
+ *  derived chips (cacheable); free-text goes in `question`. */
 export async function explain(opts: { packId?: string; convoId: string; lines: { text: string; gloss?: string }[]; question?: string; canned?: string; course?: { chapter: number; taught: string[]; later: { title: string; chapter: number }[] } }): Promise<ExplainResponse> {
-  let userId = "";
-  try { userId = await uid(); } catch { /* anon id best-effort — server treats missing id as unlimited-but-cached */ }
   try {
-    const res = await fetch("/api/explain", {
+    const res = await call("/api/explain", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...opts, userId }),
+      body: JSON.stringify(opts),
     });
     return (await res.json()) as ExplainResponse;
   } catch {
@@ -277,6 +300,6 @@ export async function guidedReview(body: {
   members: { id: string; name: string; at?: { order: number; n: number } }[];
   segments: { turn: number; transcripts?: { scribe?: string; google?: string }; text?: string; skipped?: boolean }[];
 }, packId?: string): Promise<GuidedReviewResponse> {
-  const r = await fetch("/api/guided-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, packId }) });
+  const r = await call("/api/guided-review", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...body, packId }) });
   return r.json();
 }

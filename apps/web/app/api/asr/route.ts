@@ -3,6 +3,8 @@
 // (Vercel) or falls back to the GOOGLE_APPLICATION_CREDENTIALS file (local dev).
 import speech from "@google-cloud/speech";
 import { getPack } from "../../../lib/packs";
+import { requireCaller } from "../../../lib/server-auth";
+import { recordCost, spend } from "../../../lib/usage";
 
 export const runtime = "nodejs";
 
@@ -82,9 +84,13 @@ async function transcribeGoogle(buf: Buffer, mime: string, googleLang: string): 
 }
 
 export async function POST(req: Request) {
+  const caller = await requireCaller(req);
+  if (caller instanceof Response) return caller;
   const form = await req.formData();
   const file = form.get("audio");
   if (!(file instanceof File)) return Response.json({ error: "no audio uploaded" }, { status: 400 });
+  const over = await spend(caller, "asr");
+  if (over) return over;
   const buf = Buffer.from(await file.arrayBuffer());
   const mime = file.type || "audio/webm";
   // Language hints come from the ACTIVE pack's AsrConfig (e.g. ["mkd","mk-MK"] / ["bg","bg-BG"]).
@@ -99,5 +105,6 @@ export async function POST(req: Request) {
   const out: { eleven?: EngineResult; google?: EngineResult } = {};
   if (eleven) out.eleven = eleven;
   if (google) out.google = google;
+  recordCost(caller, "asr");
   return Response.json(out);
 }
