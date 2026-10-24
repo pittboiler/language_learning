@@ -432,7 +432,7 @@ export const course: Course = {
           "kind": "blank",
           "line": {
             "text": "Добар ден! Како сте?",
-            "gloss": "Good day! How are you?",
+            "gloss": "Good day! How are you? (polite)",
             "source": "scenario:gen-s0-greet#0"
           },
           "blank": "сте",
@@ -447,7 +447,7 @@ export const course: Course = {
           "kind": "blank",
           "line": {
             "text": "Ана: „Здраво, Марко! Како си?“",
-            "gloss": "Ana: \"Hi, Marko! How are you?\"",
+            "gloss": "Ana: \"Hi, Marko! How are you?\" (casual, to a friend)",
             "source": "story:gen-s0-greet-story#1"
           },
           "blank": "си",
@@ -913,7 +913,7 @@ export const course: Course = {
           "kind": "blank",
           "line": {
             "text": "Здраво! Што сакаш?",
-            "gloss": "Hi! What would you like?",
+            "gloss": "Hi! What would you like? (casual, to one friend)",
             "source": "scenario:bar-order-a-drink#0"
           },
           "blank": "сакаш",
