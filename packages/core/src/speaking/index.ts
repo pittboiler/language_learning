@@ -128,6 +128,32 @@ export function clampScoreForCompleteness(score: number, gate: GateOutcome): num
   return gate.looksLikeFragment && gate.confidence === "high" ? Math.min(score, 20) : score;
 }
 
+/**
+ * The fast path: at least two engines answered and every one of them heard exactly the target line (after
+ * the same case and punctuation normalizing the gate uses). A transcript can't carry stress or accent, so a
+ * coach has nothing to add to that, and the app skips the LLM. One engine alone isn't enough: a single engine
+ * can drift toward the line it was hinted to expect.
+ */
+export function heardExactly(gate: GateOutcome, target: string): boolean {
+  const want = normalize(target);
+  const ok = gate.transcripts.filter((r) => r.ok && r.text.trim().length > 0);
+  return want.length > 0 && ok.length >= 2 && ok.every((r) => normalize(r.text) === want);
+}
+
+/** The feedback for an exact match (see heardExactly), written without the LLM. */
+export function exactMatchFeedback(target: ReviewItem): SpeakingFeedback {
+  const words = target.answer.split(/\s+/).map((w) => w.replace(/[.,!?;:()«»„“”"'`]/g, "")).filter(Boolean);
+  return {
+    overall: "Spot on: that's exactly the line.",
+    words: words.map((w) => ({ target: w, status: "correct" as const, note: "" })),
+    pronunciation: "Both speech engines heard exactly the line.",
+    stress: "",
+    tip: "",
+    asrCaveat: { likelyAsrError: false, explanation: "" },
+    score: 100,
+  };
+}
+
 export interface SpeakingContext {
   /** Pack-supplied language display name — NOT hardcoded in core. */
   languageName: string;

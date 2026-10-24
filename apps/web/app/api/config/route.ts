@@ -1,5 +1,6 @@
 // Reports which providers are configured (booleans only — never the keys) + the model tiers.
 import { existsSync } from "node:fs";
+import { requireCaller } from "../../../lib/server-auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -12,7 +13,9 @@ function hasGoogle(): boolean {
   return !!f && existsSync(f);
 }
 
-export async function GET() {
+export async function GET(req: Request) {
+  const caller = await requireCaller(req);
+  if (caller instanceof Response) return caller;
   return Response.json({
     engines: {
       eleven: !!clean(process.env.ELEVENLABS_API_KEY),

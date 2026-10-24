@@ -56,3 +56,10 @@ npx tsx apps/web/scripts/verify-partner-realtime.ts
 
 Expect two green checks — live-sync (postgres_changes) + presence. Until it's applied, the live UI
 still works but falls back to the manual ↻ refresh instead of updating instantly.
+
+## 8. Usage ledger (daily caps)
+Every `/api` route checks the caller's Supabase session, and each paid call (speech, coaching, AI look-ups,
+new audio clips) counts against per-user daily caps set in `apps/web/lib/usage.ts`. Run
+**`supabase/migrations/0007_api_usage.sql`** to create the ledger (`api_usage` plus two server-only
+functions). It needs `SUPABASE_SERVICE_ROLE_KEY` on the server. Until it's applied the app still works, but
+the caps aren't enforced and the server logs one warning saying so.

@@ -3,7 +3,7 @@
 //   npx tsx packages/core/test/speaking.test.ts
 import assert from "node:assert/strict";
 import type { AsrConfig } from "@ll/pack-schema";
-import { confidenceGate, clampScoreForCompleteness, type AsrResult } from "../src/speaking/index.js";
+import { confidenceGate, clampScoreForCompleteness, exactMatchFeedback, heardExactly, type AsrResult } from "../src/speaking/index.js";
 
 const dual: AsrConfig = { engines: ["scribe", "google"], languageHints: ["mkd", "mk-MK"], gate: "agreement" };
 const r = (engine: "scribe" | "google", text: string): AsrResult => ({ engine, text, ms: 0, ok: text.length > 0 });
@@ -55,4 +55,18 @@ assert.equal(g7.completeness, 0);
 assert.equal(g7.looksLikeFragment, false);
 assert.equal(g7.confidence, "low");
 
-console.log("✓ speaking completeness gate + score floor: all assertions passed");
+// 8. FAST PATH: both engines heard exactly the line ⇒ no LLM. Case and punctuation don't matter.
+const line = "Добар ден! Како сте?";
+assert.equal(heardExactly(confidenceGate([r("scribe", "Добар ден! Како сте?"), r("google", "добар ден како сте")], dual, line), line), true, "exact on both engines");
+assert.equal(heardExactly(confidenceGate([r("scribe", "Добар ден! Како сте?"), r("google", "добар ден како си")], dual, line), line), false, "one engine heard a different word");
+assert.equal(heardExactly(confidenceGate([r("scribe", "Добар ден! Како сте?"), r("google", "")], dual, line), line), false, "one engine alone never takes the fast path");
+assert.equal(heardExactly(confidenceGate([r("scribe", "добар ден"), r("google", "добар ден")], dual, line), line), false, "agreeing on part of the line isn't the line");
+assert.equal(heardExactly(confidenceGate([r("scribe", ""), r("google", "")], dual, line), line), false, "silence");
+assert.equal(heardExactly(confidenceGate([r("scribe", "здраво"), r("google", "здраво")], dual, ""), ""), false, "no target, no fast path");
+const fast = exactMatchFeedback({ id: "t", kind: "phrase", prompt: "", answer: line, gloss: "Good day! How are you?", i1Level: 1, tags: [] });
+assert.equal(fast.score, 100);
+assert.deepEqual(fast.words.map((w) => w.target), ["Добар", "ден", "Како", "сте"], "one entry per word, punctuation off");
+assert.ok(fast.words.every((w) => w.status === "correct"));
+assert.equal(fast.tip, "", "nothing to fix");
+
+console.log("✓ speaking completeness gate + score floor + exact-match fast path: all assertions passed");

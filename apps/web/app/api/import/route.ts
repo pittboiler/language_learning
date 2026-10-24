@@ -5,6 +5,8 @@
 // for content you want to promote into a pack — that's the trusted path; this is the quick look-up.
 import { structuredCall, MODELS } from "@ll/core/llm";
 import { getPack } from "../../../lib/packs";
+import { requireCaller } from "../../../lib/server-auth";
+import { recordCost, spend } from "../../../lib/usage";
 
 export const runtime = "nodejs";
 export const maxDuration = 30;
@@ -43,10 +45,14 @@ const IMPORT_SCHEMA: Record<string, unknown> = {
 };
 
 export async function POST(req: Request) {
+  const caller = await requireCaller(req);
+  if (caller instanceof Response) return caller;
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
   const { text, packId } = (await req.json()) as { text: string; packId?: string };
   const pack = getPack(packId);
   if (!text?.trim()) return Response.json({ error: "no text provided" }, { status: 400 });
+  const over = await spend(caller, "import");
+  if (over) return over;
   try {
     const { data, costUsd } = await structuredCall<{ segments: { text: string; gloss: string; translit: string }[]; chunks: { phrase: string; gloss: string }[] }>({
       model: MODELS.live,
@@ -55,6 +61,7 @@ export async function POST(req: Request) {
       schema: IMPORT_SCHEMA,
       maxTokens: 4000,
     });
+    recordCost(caller, "import", costUsd);
     return Response.json({ segments: data.segments, chunks: data.chunks, costUsd, confidence: "unreviewed" });
   } catch (e) {
     return Response.json({ error: String(e instanceof Error ? e.message : e) }, { status: 500 });

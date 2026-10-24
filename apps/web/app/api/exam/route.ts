@@ -3,11 +3,15 @@
 // client, so the rubric can't be edited from the browser.
 import * as exam from "@ll/core/exam";
 import { getPack } from "../../../lib/packs";
+import { requireCaller } from "../../../lib/server-auth";
+import { recordCost, spend } from "../../../lib/usage";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
+  const caller = await requireCaller(req);
+  if (caller instanceof Response) return caller;
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
   const { packId, examId, taskId, response, transcripts, answers } = (await req.json()) as {
     packId?: string; examId: string; taskId: string; response?: string; transcripts?: { scribe?: string; google?: string };
@@ -18,6 +22,8 @@ export async function POST(req: Request) {
   const task = ex?.tasks.find((t) => t.id === taskId);
   if (!ex || !task) return Response.json({ error: "unknown exam task" }, { status: 400 });
   const points = task.pointIds.map((id) => pack.course!.points.find((p) => p.id === id)).filter((p): p is NonNullable<typeof p> => !!p);
+  const over = await spend(caller, "exam");
+  if (over) return over;
   try {
     const out = await exam.gradeExamTask({
       languageName: pack.name,
@@ -36,6 +42,7 @@ export async function POST(req: Request) {
       } : undefined,
       answers: task.mode === "read" ? task.steps.map((_, i) => ({ scribe: answers?.[i]?.scribe?.slice(0, 500), google: answers?.[i]?.google?.slice(0, 500) })) : undefined,
     });
+    recordCost(caller, "exam", out.costUsd);
     return Response.json({ ...out.grade, ms: out.ms, costUsd: out.costUsd });
   } catch (e) {
     return Response.json({ error: String(e instanceof Error ? e.message : e) }, { status: 500 });

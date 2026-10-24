@@ -1,7 +1,7 @@
-// SERVER-ONLY. Shared cross-user cache + rate-limit counter for the "Have a question?" helper (see
-// migration 0006_ai_explain.sql). Reads/writes ai_explain and ai_ask_usage with the service-role key
-// (bypasses RLS). Everything degrades gracefully if Storage/DB is absent — the look-up never breaks and
-// the rate limit fails OPEN (the shared cache is the primary cost bound). Never import from client code.
+// SERVER-ONLY. Shared cross-user cache for the "Have a question?" helper (see migration 0006_ai_explain.sql).
+// Reads/writes ai_explain with the service-role key (bypasses RLS). Everything degrades gracefully if the DB
+// is absent: the look-up never breaks. The daily limit now lives in the usage ledger (lib/usage.ts).
+// Never import from client code.
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export interface CachedExplain {
@@ -50,22 +50,5 @@ export async function putCachedExplain(packId: string, convoId: string, question
     await sb.from("ai_explain").upsert({ pack_id: packId, convo_id: convoId, question, answer: v.answer, model: v.model ?? "" });
   } catch {
     /* ignore — cache is an optimization */
-  }
-}
-
-/** Increment this user's ask count for today (UTC) and return whether they're still under `limit`. Fails
- *  OPEN (returns true) on any DB error — the shared cache is the real cost bound; a soft over-count is fine. */
-export async function bumpUsage(userId: string, limit: number): Promise<boolean> {
-  const sb = svc();
-  if (!sb || !userId) return true;
-  const day = new Date().toISOString().slice(0, 10);
-  try {
-    const { data } = await sb.from("ai_ask_usage").select("count").eq("user_id", userId).eq("day", day).maybeSingle();
-    const count = (data as { count?: number } | null)?.count ?? 0;
-    if (count >= limit) return false;
-    await sb.from("ai_ask_usage").upsert({ user_id: userId, day, count: count + 1 });
-    return true;
-  } catch {
-    return true; // fail-open
   }
 }

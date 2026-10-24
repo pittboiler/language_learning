@@ -7,6 +7,8 @@ import { getPack } from "../../../lib/packs";
 import { getCachedGloss, putCachedGloss, normalizeContext } from "../../../lib/gloss-cache";
 import { glossOverride, baseFormCandidates } from "../../../lib/gloss-overrides";
 import { romanize } from "../../../lib/romanize";
+import { requireCaller } from "../../../lib/server-auth";
+import { recordCost, spend } from "../../../lib/usage";
 
 // Transliteration is a deterministic property of the (Cyrillic) spelling, so we compute it locally
 // rather than trust the LLM — the LLM occasionally slips a homoglyph (надвор → "nadvop"). For a
@@ -29,6 +31,8 @@ const GLOSS_SCHEMA: Record<string, unknown> = {
 };
 
 export async function POST(req: Request) {
+  const caller = await requireCaller(req);
+  if (caller instanceof Response) return caller;
   const { word, context, packId } = (await req.json()) as { word: string; context?: string; packId?: string };
   const pack = getPack(packId);
   const key = normalize(word);
@@ -61,6 +65,8 @@ export async function POST(req: Request) {
 
   // 3. Haiku fallback (mechanical), temperature 0 so the same word+sentence resolves reproducibly.
   if (!process.env.ANTHROPIC_API_KEY) return Response.json({ gloss: "", translit: "", source: "none" });
+  const over = await spend(caller, "gloss");
+  if (over) return over;
   try {
     const { data, costUsd } = await structuredCall<{ gloss: string; lemma: string; translit: string }>({
       model: MODELS.mechanical,
@@ -74,6 +80,7 @@ export async function POST(req: Request) {
     const translit = translitFor(word, data.translit);
     // Store for everyone else (best-effort; keyed by normalized word + sentence).
     await putCachedGloss(pack.id, key, ctxKey, { gloss: data.gloss, translit, lemma: data.lemma });
+    recordCost(caller, "gloss", costUsd);
     return Response.json({ gloss: data.gloss, translit, lemma: data.lemma, source: "llm", costUsd });
   } catch (e) {
     return Response.json({ gloss: "", translit: "", source: "error", error: String(e instanceof Error ? e.message : e) }, { status: 500 });
