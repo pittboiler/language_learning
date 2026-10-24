@@ -24,11 +24,13 @@ export async function uid(): Promise<string> {
   const sb = supabase();
   if (!sb) throw new Error("Supabase not configured");
   let { data } = await sb.auth.getSession();
+  let failed = "";
   if (!data.session) {
-    await sb.auth.signInAnonymously();
+    const { error } = await sb.auth.signInAnonymously();
+    if (error) failed = `: ${error.message}`;
     ({ data } = await sb.auth.getSession());
   }
-  if (!data.session) throw new Error("Supabase anonymous sign-in failed (is Anonymous auth enabled?)");
+  if (!data.session) throw new Error(`anonymous sign-in failed${failed || " (is Anonymous auth enabled?)"}`);
   return data.session.user.id;
 }
 

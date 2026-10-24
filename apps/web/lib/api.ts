@@ -2,26 +2,38 @@
 import { supabase, uid } from "./supabase";
 
 // Every /api route checks the caller's Supabase session (lib/server-auth.ts), so each request carries it as a
-// bearer token. A session is made first when there isn't one (anonymous, as the stores do), and a 401 gets
-// one retry with a refreshed token.
-async function bearer(): Promise<Record<string, string>> {
+// bearer token. The first try makes the anonymous session when there's none yet (a first visit, as the stores
+// do). A 401 gets one retry after refreshing the token, with the SAME identity: never a new anonymous one,
+// which would orphan the learner's saved progress and partnerships. With no session to send, the request
+// isn't made: the learner sees why, and the console says so.
+async function sessionToken(make: boolean): Promise<string | { why: string; made: boolean }> {
   const sb = supabase();
-  if (!sb) return {};
+  if (!sb) return ""; // no Supabase (local dev): the server treats every request as one local caller
   try {
-    await uid();
-    const { data } = await sb.auth.getSession();
-    return data.session ? { Authorization: `Bearer ${data.session.access_token}` } : {};
-  } catch {
-    return {};
+    if (make) await uid();
+    const { data, error } = await sb.auth.getSession();
+    return data.session ? data.session.access_token : { why: error?.message ?? "no session", made: make };
+  } catch (e) {
+    return { why: e instanceof Error ? e.message : String(e), made: make };
   }
 }
 async function call(path: string, init: RequestInit = {}): Promise<Response> {
-  const send = async () => fetch(path, { ...init, headers: { ...(init.headers as Record<string, string> | undefined), ...(await bearer()) } });
-  const res = await send();
+  let unsent: Response | null = null; // the refusal made here when there was no session to send
+  const send = async (make: boolean) => {
+    const token = await sessionToken(make);
+    if (typeof token !== "string") {
+      console.warn(`[session] no session for ${path}: ${token.why}`);
+      const error = token.made ? `We couldn't start your session (${token.why}). Reload the page and try again.` : "Your session ended. Reload the page and try again.";
+      return (unsent = new Response(JSON.stringify({ error, code: "no_session" }), { status: 401, headers: { "Content-Type": "application/json" } }));
+    }
+    return fetch(path, { ...init, headers: { ...(init.headers as Record<string, string> | undefined), ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
+  };
+  const res = await send(true);
   const sb = supabase();
-  if (res.status !== 401 || !sb) return res;
-  await sb.auth.refreshSession().catch(() => {});
-  return send();
+  if (res === unsent || res.status !== 401 || !sb) return res;
+  const { error } = await sb.auth.refreshSession();
+  if (error) console.warn(`[session] ${path} was refused and the refresh failed: ${error.message}`);
+  return send(false);
 }
 
 export interface Config {
