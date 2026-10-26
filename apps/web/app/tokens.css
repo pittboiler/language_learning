@@ -1,41 +1,47 @@
-/* Vez design tokens (red and black embroidery on linen). Light by default; dark follows the system
-   setting unless the learner picks one, via <html data-theme="light|dark">. Not imported yet: the
-   restyle imports this before globals.css and deletes globals.css's own :root block. */
+/* Café design tokens (2026-10-26, Jake: Vez felt busy and negative): a slow morning in a Skopje café, cream
+   and cocoa with an apricot accent, soft round shapes, hardly any lines. Light by default; dark follows the
+   system setting unless the learner picks one, via <html data-theme="light|dark">.
+   Apricot is too light to read as text on cream, so the accent comes in two shades: --accent-fill for
+   buttons, the mic and progress (cocoa text on it), and --accent for text, links and selected outlines. */
 
 :root {
   color-scheme: light;
 
   /* colour */
-  --bg: #EEEBE5;            /* page (linen) */
-  --surface: #FAF8F4;       /* cards, sheets */
-  --surface-sunk: #E4DFD6;  /* wells, tracks, disabled fills */
-  --text: #1C1815;
-  --text-muted: #5C544D;
-  --line: #D3CBBF;          /* borders */
-  --line-faint: #C9C0B4;    /* dotted leaders, upcoming stitches (decorative only) */
-  --accent: #9E1F28;        /* red thread: actions, brand, progress, new words */
-  --accent-strong: #7F1820; /* hover / pressed */
-  --accent-soft: #F2DEDC;
-  --on-accent: #FFFFFF;
-  --fix: #8A5A00;           /* gold thread: needs work, words still being learned */
-  --fix-soft: #F5E7C8;
-  --good: #2C4A7A;          /* indigo thread: correct, said clearly */
-  --good-soft: #DFE6F2;
-  --focus: #2C4A7A;
-  --scrim: rgba(28, 24, 21, .45);
-  --sheet-shadow: 0 -8px 24px rgba(28, 24, 21, .10);
+  --bg: #F7F1E8;            /* page (cream) */
+  --side: #EFE6D9;          /* the desktop sidebar */
+  --surface: #FFFDF9;       /* cards, sheets */
+  --surface-sunk: #F0E7DA;  /* wells, tracks, quiet buttons, disabled fills */
+  --text: #3A2A20;          /* cocoa */
+  --text-muted: #7A6758;
+  --line: #E9DECF;          /* borders, kept faint */
+  --line-faint: #EFE6D9;    /* hairlines between list rows (decorative only) */
+  --accent: #A9531A;        /* apricot, as text: links, selected outlines, the current step */
+  --accent-fill: #F0A15A;   /* apricot, as a fill: primary buttons, the mic, progress */
+  --accent-strong: #E08A3C; /* fill hover / pressed */
+  --accent-soft: #FBE7D3;
+  --on-accent: #3A2A20;
+  --fix: #8C4F7E;           /* plum: not quite, words still being learned */
+  --fix-soft: #F3E3EF;
+  --good: #3F7A55;          /* sage: correct, said clearly */
+  --good-soft: #E0EFE4;
+  --focus: #A9531A;
+  --scrim: rgba(58, 42, 32, .4);
+  --sheet-shadow: 0 -8px 24px rgba(58, 42, 32, .10);
+  --card-shadow: 0 1px 2px rgba(58, 42, 32, .06), 0 8px 24px rgba(58, 42, 32, .07);
 
   /* words in a story */
   --word-new-bg: var(--accent-soft);
   --word-learning-line: var(--fix);
   --word-tapped-ring: var(--accent);
 
-  /* type: load Literata + Golos Text with next/font/google (variable: --font-literata / --font-golos) */
-  --font-text: var(--font-literata, "Literata"), Georgia, "Times New Roman", serif; /* Macedonian, headings, glosses */
-  --font-ui: var(--font-golos, "Golos Text"), system-ui, -apple-system, "Segoe UI", sans-serif;
-  --text-xs: 12px;   /* overlines (600, +0.12em, uppercase), meta */
+  /* type: Literata (next/font, --font-literata) for Macedonian and headings, Nunito (--font-nunito) for the
+     interface; both include Cyrillic */
+  --font-text: var(--font-literata, "Literata"), Georgia, "Times New Roman", serif;
+  --font-ui: var(--font-nunito, "Nunito"), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --text-xs: 12px;
   --text-sm: 13px;
-  --text-base: 15px; /* interface */
+  --text-base: 16px; /* interface */
   --text-md: 17px;
   --text-lg: 19px;   /* Macedonian reading text */
   --text-xl: 24px;
@@ -45,67 +51,74 @@
   /* space, shape, size */
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
-  --radius-sm: 6px;  /* cards, tiles, panels */
-  --radius: 8px;     /* buttons, inputs */
-  --radius-sheet: 24px;
-  --radius-pill: 999px;
-  --tap: 44px;       /* minimum touch target */
-  --button-h: 52px;  /* primary actions */
-  --frame: 0 0 0 4px var(--surface), 0 0 0 5px var(--line); /* the double-rule "menu card" border */
+  --radius-sm: 18px;   /* cards, tiles, panels */
+  --radius: 14px;      /* inputs, answer tiles */
+  --radius-card: 24px; /* framed cards */
+  --radius-sheet: 28px;
+  --radius-pill: 999px; /* buttons, chips, tabs */
+  --tap: 44px;         /* minimum touch target */
+  --button-h: 52px;    /* primary actions */
+  --frame: var(--card-shadow); /* framed cards: one soft surface, no double rule */
 
-  /* legacy names used by today's globals.css, so screens can move over one at a time */
+  /* legacy names, kept so older inline styles still resolve */
   --card: var(--surface);
   --fg: var(--text);
   --mut: var(--text-muted);
   --ok: var(--good);
   --warn: var(--fix);
-  --bad: var(--accent);
+  --bad: var(--fix);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
-    --bg: #141110;
-    --surface: #1E1A18;
-    --surface-sunk: #29231F;
-    --text: #F0EAE3;
-    --text-muted: #AFA59A;
-    --line: #3B342F;
-    --line-faint: #4A423C;
-    --accent: #EC7A73;
-    --accent-strong: #F29790;
-    --accent-soft: #3D2120;
-    --on-accent: #141110;
-    --fix: #E3B04B;
-    --fix-soft: #3A2C12;
-    --good: #9DB7E8;
-    --good-soft: #1E2738;
-    --focus: #9DB7E8;
+    --bg: #1C1611;
+    --side: #161210;
+    --surface: #282019;
+    --surface-sunk: #352A21;
+    --text: #F3E9DD;
+    --text-muted: #BCA996;
+    --line: #3A2F26;
+    --line-faint: #30271F;
+    --accent: #F4B27A;
+    --accent-fill: #F0A15A;
+    --accent-strong: #F4B27A;
+    --accent-soft: #3B2B1E;
+    --on-accent: #2A1C12;
+    --fix: #DDAAD3;
+    --fix-soft: #372536;
+    --good: #9CCDA9;
+    --good-soft: #20302A;
+    --focus: #F4B27A;
     --scrim: rgba(0, 0, 0, .6);
     --sheet-shadow: 0 -8px 24px rgba(0, 0, 0, .45);
+    --card-shadow: none;
   }
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #141110;
-  --surface: #1E1A18;
-  --surface-sunk: #29231F;
-  --text: #F0EAE3;
-  --text-muted: #AFA59A;
-  --line: #3B342F;
-  --line-faint: #4A423C;
-  --accent: #EC7A73;
-  --accent-strong: #F29790;
-  --accent-soft: #3D2120;
-  --on-accent: #141110;
-  --fix: #E3B04B;
-  --fix-soft: #3A2C12;
-  --good: #9DB7E8;
-  --good-soft: #1E2738;
-  --focus: #9DB7E8;
+  --bg: #1C1611;
+  --side: #161210;
+  --surface: #282019;
+  --surface-sunk: #352A21;
+  --text: #F3E9DD;
+  --text-muted: #BCA996;
+  --line: #3A2F26;
+  --line-faint: #30271F;
+  --accent: #F4B27A;
+  --accent-fill: #F0A15A;
+  --accent-strong: #F4B27A;
+  --accent-soft: #3B2B1E;
+  --on-accent: #2A1C12;
+  --fix: #DDAAD3;
+  --fix-soft: #372536;
+  --good: #9CCDA9;
+  --good-soft: #20302A;
+  --focus: #F4B27A;
   --scrim: rgba(0, 0, 0, .6);
   --sheet-shadow: 0 -8px 24px rgba(0, 0, 0, .45);
+  --card-shadow: none;
 }
 
 /* Target-language text is set upright in the text face and tagged with its lang (mk, or bg for the

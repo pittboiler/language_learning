@@ -8,7 +8,7 @@ import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { GrammarExplainer } from "../grammar/GrammarCards";
-import { Icon, MixedText, SpeakButton, usePack, usePlay, useRecorder } from "../shared";
+import { Icon, MixedText, SpeakButton, usePack, usePlay, useRecorder, useShortcuts } from "../shared";
 
 // ---------- Library view 2: scenarios ----------
 export function ScenarioView({ progress, persist, config, lettersDone, scenarioId, hidePicker, bare, onComplete, onMiss, askable, restartIfDone, focusPoints }: { progress: Progress; persist: (p: Progress) => void; config: api.Config | null; lettersDone: boolean; scenarioId?: string; hidePicker?: boolean; bare?: boolean; onComplete?: () => void; onMiss?: (turn: DialogueTurn) => void; askable?: boolean; restartIfDone?: boolean; focusPoints?: string[] }) {
@@ -356,9 +356,17 @@ export function LearnerTurn({ turn, config, onDone, onMiss, focusWords, lineLabe
   const again = () => { retry(); void onRec(); };
   const fix = useMemo(() => new Set((fb?.words ?? []).filter((w) => w.status !== "correct").map((w) => familiarity.normalize(w.target))), [fb]);
   const heard = asr?.eleven?.ok && asr.eleven.text ? asr.eleven.text : asr?.google?.ok ? asr.google.text : "";
+  // On a computer: Space records (and stops), H plays the line, S is "I said it", Enter moves on once it's heard.
+  const rootRef = useRef<HTMLDivElement>(null);
+  useShortcuts(rootRef, {
+    Space: spin ? undefined : () => void (finished ? again() : onRec()),
+    h: () => play(turn.text),
+    s: finished ? undefined : onDone,
+    Enter: finished ? onDone : undefined,
+  });
 
   return (
-    <div>
+    <div ref={rootRef}>
       <div className="stitch-rule">{lineLabel ?? "Your line"}</div>
       <SayLine text={turn.text} focus={focusWords} fix={fix} />
       {turn.translit && (showTranslit
@@ -382,6 +390,11 @@ export function LearnerTurn({ turn, config, onDone, onMiss, focusWords, lineLabe
       <div className="speak-hint" aria-live="polite">
         {spin || (recording ? "Listening… tap to stop" : finished ? (lowScore ? "Tap the mic to try again" : "Tap the mic to say it again") : "Tap the mic, then say it slowly and clearly")}
       </div>
+      {!spin && !recording && (
+        <div className="kbd-hint" aria-hidden="true">
+          {finished ? <><kbd>Enter</kbd> next · <kbd>Space</kbd> say it again · <kbd>H</kbd> hear it</> : <><kbd>Space</kbd> record · <kbd>H</kbd> hear it · <kbd>S</kbd> I said it</>}
+        </div>
+      )}
     </div>
   );
 }

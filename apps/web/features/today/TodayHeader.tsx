@@ -3,7 +3,7 @@ import { type ReactNode } from "react";
 import * as chapterSpine from "@ll/core/chapters";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
-import { NoteAt, Stitches, currentStory, usePack } from "../shared";
+import { NoteAt, currentStory, usePack } from "../shared";
 
 /** The small label over a lesson step ("Speak · Order a drink"). */
 export function Tag({ children }: { children: ReactNode }) {
@@ -38,9 +38,9 @@ export function TodayHeader({ progress, replay }: { progress: Progress; replay?:
           {replay && <p className="muted small" style={{ margin: "6px 0 0" }}>Your place in the course doesn&apos;t move. <button className="linklike small" onClick={replay.onExit}>Back to where you were</button></p>}
           {pos.kind === "session" && ch && (
             <div className="today-sub">
+              {/* One progress row on screen: the steps of today's session (below). The session within the chapter
+                  is said in words here, and shown in the desktop sidebar. */}
               <span>Session {pos.session.n} of {pos.chapter.sessions.length}{role ? ` · ${role}` : ""}</span>
-              <Stitches total={pos.chapter.sessions.length} done={pos.session.n - 1} now={pos.session.n - 1}
-                label={`Session ${pos.session.n} of ${pos.chapter.sessions.length}`} />
             </div>
           )}
           {pos.kind === "stage-review" && <div className="today-sub">Everything so far</div>}

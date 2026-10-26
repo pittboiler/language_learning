@@ -244,19 +244,53 @@ export const ReplayContext = createContext<((at: NoteAt) => void) | null>(null);
 // One-shot hand-offs between views (set just before navigating, read once on mount).
 export const pending: { guidedDeck: string | null; pointFocus: string | null; readerId: string | null; notesFocus: NoteAt | null } = { guidedDeck: null, pointFocus: null, readerId: null, notesFocus: null };
 
-// ---------- Vez building blocks ----------
-/** Progress as cross-stitches: done (a red X), now (half a stitch), to come (a faint dash). */
+// ---------- Café building blocks ----------
+/** Progress as filled segments (2026-10-26: the old cross-stitch X marks read as "wrong"): done ones filled,
+ *  the current one outlined, the rest a quiet track. The name and props are the cross-stitch ones, so every
+ *  caller keeps working; `size` sets the height, and segments are wider when there are fewer of them. */
 export function Stitches({ total, done, now = -1, size = 12, label }: { total: number; done: number; now?: number; size?: number; label: string }) {
+  const h = Math.max(6, Math.round(size * 0.7));
+  const w = total <= 6 ? h * 4 : total <= 10 ? h * 3 : h * 2;
   return (
     <span className="stitches" role="img" aria-label={label}>
       {Array.from({ length: total }, (_, i) => (
-        <svg key={i} width={size} height={size} viewBox="0 0 12 12" fill="none" strokeLinecap="round" aria-hidden="true"
-          stroke={i === now ? "var(--text)" : i < done ? "var(--accent)" : "var(--line-faint)"} strokeWidth={i < done || i === now ? 2.2 : 2}>
-          <path d={i === now ? "M2 2l8 8" : i < done ? "M2 2l8 8M10 2l-8 8" : "M2 10h8"} />
-        </svg>
+        <span key={i} className={`seg${i === now ? " now" : i < done ? " done" : ""}`} style={{ width: w, height: h, borderRadius: h / 2 }} />
       ))}
     </span>
   );
+}
+
+/** Keyboard shortcuts for whatever is on screen (desktop): `keys` maps a key ("Space", "h", "Enter"…) to what
+ *  it does. Only the most recently mounted handler whose element is visible gets the key, so a screen kept
+ *  mounted but hidden (Today behind another tab) never hears it. Typing in a field, a modifier key, or Space /
+ *  Enter on a focused button (which press it already) are left alone. */
+type ShortcutEntry = { el: () => HTMLElement | null; keys: () => Record<string, (() => void) | undefined> };
+const shortcutStack: ShortcutEntry[] = [];
+let shortcutListening = false;
+function onShortcutKey(e: KeyboardEvent) {
+  if (e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+  const t = e.target as HTMLElement | null;
+  if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+  const key = e.key === " " ? "Space" : e.key.length === 1 ? e.key.toLowerCase() : e.key;
+  if ((key === "Space" || key === "Enter") && t && /^(BUTTON|A|SUMMARY)$/.test(t.tagName)) return;
+  for (let i = shortcutStack.length - 1; i >= 0; i--) {
+    const entry = shortcutStack[i]!;
+    const el = entry.el();
+    if (!el || el.offsetParent === null) continue;
+    const run = entry.keys()[key];
+    if (run) { e.preventDefault(); run(); }
+    return;
+  }
+}
+export function useShortcuts(ref: { current: HTMLElement | null }, keys: Record<string, (() => void) | undefined>) {
+  const latest = useRef(keys);
+  latest.current = keys;
+  useEffect(() => {
+    const entry: ShortcutEntry = { el: () => ref.current, keys: () => latest.current };
+    shortcutStack.push(entry);
+    if (!shortcutListening) { window.addEventListener("keydown", onShortcutKey); shortcutListening = true; }
+    return () => { const i = shortcutStack.indexOf(entry); if (i >= 0) shortcutStack.splice(i, 1); };
+  }, [ref]);
 }
 
 const CYRILLIC_RUN = /[Ѐ-ӿ]+(?:[\s,'’-]+[Ѐ-ӿ]+)*/g;
@@ -284,6 +318,11 @@ const ICON_PATHS: Record<string, string> = {
   next: "M9 6l6 6-6 6",
   restart: "M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4",
   plus: "M12 5v14M5 12h14",
+  // the four sections, in the desktop sidebar
+  today: "M5 5h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2zM3 10h18M8 3v4M16 3v4",
+  library: "M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2zM8 7h7",
+  progress: "M5 20V11M12 20V5M19 20v-6",
+  partner: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6",
 };
 /** The app's line icons (no emoji in the interface). Decorative unless the caller labels the button. */
 export function Icon({ name, size = 18 }: { name: keyof typeof ICON_PATHS; size?: number }) {

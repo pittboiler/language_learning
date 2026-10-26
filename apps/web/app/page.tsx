@@ -24,6 +24,7 @@ import { PartnerPanel, publishMine } from "../features/partner/PartnerPanel";
 import { ProgressDash } from "../features/progress/ProgressDash";
 import { CourseOrderContext, LibView, NoteAt, PackContext, ReplayContext, Section, SlowContext, computeLevel, effectiveRate, focusLetters, isDue, nameCard } from "../features/shared";
 import { Today } from "../features/today/Today";
+import { Rail, SECTIONS, Sidebar } from "../features/shell/StudyDesk";
 
 export default function Home() {
   const store = useMemo(() => getStore(), []);
@@ -128,27 +129,33 @@ export default function Home() {
 
   if (!ready) return <main style={{ padding: 24 }}>Loading…</main>;
 
+  const meta = `Level ${level.cefrBand} · ${vocab.knownWordCount} words known`;
+  const goSection = (s: Section) => { setReplay(null); setSection(s); };
+  const speedButton = <button className="ghost small" aria-label={`Playback speed: ${progress.settings?.slow ? "slow" : "normal"}`} title="Playback speed for all spoken audio" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !progress.settings?.slow } })}>{progress.settings?.slow ? `${effectiveRate(progress.settings)}×` : "1×"}</button>;
+  const accountButton = <button className="avatar" aria-label="Account and settings" title="Account & settings" onClick={() => setAcctOpen(true)}>{(authUser && !authUser.isAnonymous && authUser.email ? authUser.email[0]! : "").toUpperCase() || <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" /></svg>}</button>;
+
   return (
     <PackContext.Provider value={pack}>
       <SlowContext.Provider value={effectiveRate(progress.settings)}>
+      {/* The study desk: on wide screens a sidebar and a rail flank the page (features/shell); below that, the
+          header and the tabs (a bottom bar on phones) as before. */}
+      <div className="app">
+      <Sidebar progress={progress} section={replay ? null : section} onSection={goSection} meta={meta}
+        footer={<>{speedButton}{accountButton}</>} />
+      <div className="app-main">
       <header>
         <div className="brand">
           <h1>{pack.name}</h1>
-          <span className="header-meta">Level {level.cefrBand} · {vocab.knownWordCount} words known</span>
+          <span className="header-meta">{meta}</span>
         </div>
         <div className="header-actions">
-          <button className="ghost small" aria-label={`Playback speed: ${progress.settings?.slow ? "slow" : "normal"}`} title="Playback speed for all spoken audio" onClick={() => persist({ ...progress, settings: { ...progress.settings, slow: !progress.settings?.slow } })}>{progress.settings?.slow ? `${effectiveRate(progress.settings)}×` : "1×"}</button>
-          <button className="avatar" aria-label="Account and settings" title="Account & settings" onClick={() => setAcctOpen(true)}>{(authUser && !authUser.isAnonymous && authUser.email ? authUser.email[0]! : "").toUpperCase() || <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8" /></svg>}</button>
+          {speedButton}
+          {accountButton}
         </div>
       </header>
-      <nav>
-        {([
-          ["today", "Today"],
-          ["library", "Library"],
-          ["progress", "Progress"],
-          ["partnered", "Partnered"],
-        ] as [Section, string][]).map(([s, label]) => (
-          <button key={s} className={section === s && !replay ? "active" : ""} onClick={() => { setReplay(null); setSection(s); }}>{label}</button>
+      <nav className="top-nav">
+        {SECTIONS.map(([s, label]) => (
+          <button key={s} className={section === s && !replay ? "active" : ""} onClick={() => goSection(s)}>{label}</button>
         ))}
       </nav>
       <CourseOrderContext.Provider value={cp.courseV2On(pack, progress) && pack.course ? cp.currentSlot(pack.course, progress).order : undefined}>
@@ -174,6 +181,9 @@ export default function Home() {
       </main>
       </ReplayContext.Provider>
       </CourseOrderContext.Provider>
+      </div>
+      <Rail progress={progress} section={replay ? null : section} dueCount={dueCount} onReview={() => goSection("progress")} />
+      </div>
       {acctOpen && <AccountPanel progress={progress} persist={persist} config={config} onClose={() => setAcctOpen(false)} />}
       </SlowContext.Provider>
     </PackContext.Provider>
