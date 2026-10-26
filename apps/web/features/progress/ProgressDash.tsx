@@ -5,14 +5,14 @@ import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { CourseMap } from "./CourseMap";
 import { ChapterProgressMap } from "./MyNotes";
-import { LibView, Section, computeLevel, usePack } from "../shared";
+import { LibView, Section, computeLevel, currentStreak, usePack } from "../shared";
 
 // ---------- Progress section: functional stats + Strengthen ----------
 export function ProgressDash({ progress, persist, navigate, dueCount }: { progress: Progress; persist: (p: Progress) => void; navigate: (sec: Section, lv?: LibView) => void; dueCount: number }) {
   const pack = usePack();
   const vocab = scoring.computeMetrics(progress.familiarity);
   const level = computeLevel(pack, progress);
-  const streak = progress.streak?.count ?? 0;
+  const streak = currentStreak(progress);
   const stat = (l: string, v: ReactNode, accent?: boolean) => (
     <div className="stat" key={l}><div className={`v ${accent ? "accent" : ""}`}>{v}</div><div className="l">{l}</div></div>
   );

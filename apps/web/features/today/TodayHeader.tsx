@@ -3,7 +3,7 @@ import { type ReactNode } from "react";
 import * as chapterSpine from "@ll/core/chapters";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
-import { NoteAt, currentStory, usePack } from "../shared";
+import { NoteAt, currentStory, currentStreak, usePack } from "../shared";
 
 /** The small label over a lesson step ("Speak · Order a drink"). */
 export function Tag({ children }: { children: ReactNode }) {
@@ -21,7 +21,7 @@ function Streak({ count }: { count: number }) {
 // can never disagree with what the session goes on to teach.
 export function TodayHeader({ progress, replay }: { progress: Progress; replay?: { at: NoteAt; onExit: () => void } }) {
   const pack = usePack();
-  const streak = progress.streak?.count ?? 0;
+  const streak = currentStreak(progress);
   if (cp.courseV2On(pack, progress)) {
     const pos = cp.position(pack.course!, progress.course);
     const ch = pos.kind === "session" ? (pack.chapters ?? []).find((c) => c.id === pos.chapter.chapterId) : undefined;

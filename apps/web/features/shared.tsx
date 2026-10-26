@@ -75,6 +75,13 @@ export const bumpStreak = (p: Progress): Progress => {
   const count = s.lastDay === yesterday ? s.count + 1 : 1;
   return { ...p, streak: { count, lastDay: today } };
 };
+/** The streak as it stands today: the stored count only resets on the next activity, so a streak whose last
+ *  day is older than yesterday has already lapsed and counts as 0. */
+export const currentStreak = (p: Progress): number => {
+  const s = p.streak;
+  if (!s?.count) return 0;
+  return s.lastDay === localDay() || s.lastDay === localDay(new Date(Date.now() - 86400000)) ? s.count : 0;
+};
 // Mark a grammar concept's rule as introduced (so later it's surfaced just-in-time, not re-taught).
 export const markSeen = (p: Progress, conceptId: string): Progress => ({ ...p, seenGrammar: { ...p.seenGrammar, [conceptId]: true } });
 // Capture a batch of pre-taught words into familiarity (the "new words" step before the story). These

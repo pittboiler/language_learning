@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { type Progress } from "../../lib/store";
 import { localDay } from "../../lib/daily";
 import * as cp from "../../lib/course-player";
-import { Icon, SpeakButton, usePack, usePlay, type Section } from "../shared";
+import { Icon, SpeakButton, currentStreak, usePack, usePlay, type Section } from "../shared";
 
 export const SECTIONS: [Section, string, "today" | "library" | "progress" | "partner"][] = [
   ["today", "Today", "today"],
@@ -77,7 +77,7 @@ export function Rail({ progress, section, dueCount, onReview }: { progress: Prog
   const pos = cp.courseV2On(pack, progress) && pack.course ? cp.position(pack.course, progress.course) : undefined;
   const session = section === "today" && pos?.kind === "session" ? pos.session : undefined;
   const point = session?.pointId ? pack.course?.points.find((p) => p.id === session.pointId) : undefined;
-  const streak = progress.streak?.count ?? 0;
+  const streak = currentStreak(progress);
   return (
     <aside className="rail" aria-label="Alongside">
       {session && session.words.length > 0 && (
