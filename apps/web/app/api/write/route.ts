@@ -10,7 +10,7 @@ export const maxDuration = 30;
 export async function POST(req: Request) {
   const caller = await requireCaller(req);
   if (caller instanceof Response) return caller;
-  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
+  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "This isn't available right now." }, { status: 400 });
   const { attempt, taskId, packId, prompt, reference } = (await req.json()) as { attempt: string; taskId: string; packId?: string; prompt?: string; reference?: string };
   const pack = getPack(packId);
   // An inline prompt (a Today writing line, or the free capstone) wins; else look up a pack task. A writing

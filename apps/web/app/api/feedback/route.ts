@@ -33,7 +33,7 @@ export async function POST(req: Request) {
   if (speaking.heardExactly(gate, target.answer)) {
     return Response.json({ ...speaking.exactMatchFeedback(item), ms: 0, costUsd: 0, gate: gateOut, fastPath: true });
   }
-  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
+  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "This isn't available right now." }, { status: 400 });
   const over = await spend(caller, "feedback");
   if (over) return over;
   try {

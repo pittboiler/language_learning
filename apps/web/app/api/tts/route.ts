@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   const caller = await requireCaller(req);
   if (caller instanceof Response) return caller;
   const key = process.env.ELEVENLABS_API_KEY;
-  if (!key || key.startsWith("PASTE_")) return Response.json({ error: "ElevenLabs not configured" }, { status: 400 });
+  if (!key || key.startsWith("PASTE_")) return Response.json({ error: "Audio isn't available right now." }, { status: 400 });
   const { text, packId } = (await req.json()) as { text: string; packId?: string };
   if (!text?.trim()) return Response.json({ error: "no text" }, { status: 400 });
 

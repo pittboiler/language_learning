@@ -62,7 +62,7 @@ export function Reading({ progress, persist, config }: { progress: Progress; per
           <textarea className="text" aria-label={`${pack.name} text to import`} style={{ width: "100%", minHeight: 90, marginTop: 10 }} placeholder={`Paste ${pack.name} text. It's split into lines, translated and scored for difficulty.`} value={raw} onChange={(e) => setRaw(e.target.value)} />
           <div className="write-actions">
             <button className="btn" onClick={doImport} disabled={importing || !config?.engines.anthropic}>{importing ? "Importing…" : "Import"}</button>
-            {!config?.engines.anthropic && <span className="muted small">Import needs Claude configured.</span>}
+            {!config?.engines.anthropic && <span className="muted small">Importing isn&apos;t available right now.</span>}
           </div>
           {importErr && <div className="err">{importErr}</div>}
         </div>
@@ -165,7 +165,7 @@ export function WordPanel({ sel, progress, persist, config, onClose }: {
               <div className="word-gloss gloss">{g.gloss}</div>
             </>
           ) : (
-            <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No translation found." : "Translation needs Claude configured."}</div>
+            <div className="muted small" style={{ marginTop: 4 }}>{config?.engines.anthropic ? "No translation found." : "Translations aren't available right now."}</div>
           )}
         </div>
         <SpeakButton label={`Play ${sel.surface}`} onClick={() => play(sel.surface, 0.8)} />

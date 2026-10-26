@@ -33,7 +33,7 @@ For a spoken answer you get what two speech-recognition engines heard. They ofte
 
 Results per can-do: "met" = got it across, with at most small slips; "partly" = some of it, or with errors that get in the way; "not-yet" = missing or not understandable. Judge only the can-dos listed.
 
-Corrections: at most four, the most useful first. Quote exactly what they wrote or said, give the corrected ${lang}, and say why in one short English sentence. Never correct transcript noise, and never correct something that is already right.
+Corrections: at most four, the most useful first. Quote exactly what they wrote or said, give the corrected ${lang}, and say why in one short English sentence. Never correct transcript noise, and never correct something that is already right. Everything you write is shown to the learner as if you had listened yourself: never mention transcripts, speech recognition, engines, ASR or any product name. When you can't tell whether something was said, say we may not have caught it; never suggest the learner did something wrong.
 
 Summary: one or two warm, specific sentences in English, addressed to the learner as "you": what went well, and the one thing to work on.
 

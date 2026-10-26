@@ -196,7 +196,7 @@ export function HaveAQuestion({ convoId, lines, conceptIds, sources, progress }:
       const r = await api.explain({ packId: pack.id, convoId, lines, question, canned, ...(courseCtx ? { course: courseCtx } : {}) });
       if (r.answer) setAnswer(r.answer);
       else if (r.error === "rate_limited") setErr("You've asked a lot today. Take a look at the grammar reference for now, and come back tomorrow.");
-      else if (r.error === "unconfigured") setErr("AI help isn't configured in this environment.");
+      else if (r.error === "unconfigured") setErr("AI help isn't available right now.");
       else setErr("Couldn't answer that one. Try rephrasing.");
     } catch {
       setErr("Something went wrong. Try again.");
@@ -385,30 +385,27 @@ export function LearnerTurn({ turn, config, onDone, onMiss, focusWords, lineLabe
     </div>
   );
 }
-const WORD_STATUS: Record<string, string> = { correct: "clear", mispronounced: "sounded off", wrong: "a different word", missed: "missed", uncertain: "unclear" };
+const WORD_STATUS: Record<string, string> = { correct: "clear", mispronounced: "almost there", wrong: "sounded like a different word", missed: "we didn't catch it", uncertain: "hard to tell" };
 /** Coaching after an attempt: one friendly sentence, the single most useful fix, and what we heard. The score
- *  and the two engines' transcripts stay one tap away, so a number never leads. */
+ *  and the word-by-word notes stay one tap away, so a number never leads. The speech engines are never named
+ *  (Jake, 2026-10-26: this is customer-facing): when they may have missed something, the card says so plainly. */
 export function FeedbackCard({ fb, asr }: { fb: api.FeedbackResponse; asr?: api.AsrResponse | null }) {
   const pack = usePack();
   const misses = fb.words.filter((w) => w.status !== "correct");
   const good = fb.score >= 80 && misses.length === 0;
   const heard = asr?.eleven?.ok && asr.eleven.text ? asr.eleven.text : asr?.google?.ok ? asr.google.text : "";
+  const unsure = fb.asrCaveat.likelyAsrError || fb.gate.confidence === "low";
   return (
     <div className={`feedback ${good ? "good" : "fix"}`} role="status">
       <div className="feedback-title"><MixedText text={fb.overall} /></div>
       {fb.tip && !good && <div style={{ fontSize: 15, lineHeight: 1.5 }}><MixedText text={fb.tip} /></div>}
-      {fb.asrCaveat.likelyAsrError && <div className="heard">This may be the speech recognition mishearing you: <MixedText text={fb.asrCaveat.explanation} /></div>}
-      {fb.gate.confidence === "low" && !fb.asrCaveat.likelyAsrError && <div className="heard">The two speech engines disagreed, so take this one lightly.</div>}
+      {unsure && <div className="heard">We may not have caught every word, so take this one lightly.</div>}
       {heard && <div className="heard">We heard: <span lang={pack.id}>{heard}</span></div>}
       <details>
         <summary>Details</summary>
         <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 4 }}>
-          <span>Score {fb.score}/100 · {fb.gate.confidence === "high" ? "both speech engines agreed" : "the speech engines disagreed"}</span>
+          <span>Score {fb.score}/100</span>
           {fb.words.map((w, i) => <span key={i}><b lang={pack.id}>{w.target}</b>: {WORD_STATUS[w.status] ?? w.status}{w.note ? <>. <MixedText text={w.note} /></> : null}</span>)}
-          {asr && (["eleven", "google"] as const).map((eng) => {
-            const e = asr[eng];
-            return <span key={eng}>{eng === "eleven" ? "Scribe" : "Google"} heard: {e ? (e.ok ? <span lang={pack.id}>{e.text || "(nothing)"}</span> : `error: ${e.error}`) : "(off)"}</span>;
-          })}
         </div>
       </details>
     </div>
@@ -454,7 +451,7 @@ export function Completion({ scenarioId, config, onComplete }: { scenarioId: str
       return;
     }
     setRecording(false);
-    setSpin("Transcribing…");
+    setSpin("Listening back…");
     try {
       const a = await api.asr(await rec.current.stop(), pack.id);
       const t = a.eleven?.text || a.google?.text || "";

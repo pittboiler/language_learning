@@ -61,7 +61,7 @@ export function WritingCapstone({ prompt, config, onDone }: { prompt: string; co
       <textarea className="text" aria-label={`Your writing in ${pack.name}`} placeholder={`Write in ${pack.name}, e.g. "sakam kafe, ve molam"`} value={text} onChange={(e) => setText(e.target.value)} />
       <div className="write-actions">
         <button className="btn" onClick={submit} disabled={spin || !text.trim() || !config?.engines.anthropic}>{spin ? "Checking\u2026" : "Check my writing"}</button>
-        {!config?.engines.anthropic && <span className="muted small">Claude not configured</span>}
+        {!config?.engines.anthropic && <span className="muted small">Checking isn&apos;t available right now.</span>}
       </div>
       {err && <div className="err">{err}</div>}
       {result && <Correction r={result} />}
@@ -242,7 +242,7 @@ export function Writing({ config }: { config: api.Config | null }) {
           />
           <div className="write-actions">
             <button className="btn" onClick={submit} disabled={spin || !config?.engines.anthropic}>{spin ? "Checking…" : "Check my writing"}</button>
-            {!config?.engines.anthropic && <span className="muted small">Claude not configured</span>}
+            {!config?.engines.anthropic && <span className="muted small">Checking isn&apos;t available right now.</span>}
           </div>
           {err && <div className="err">{err}</div>}
           {result && <Correction r={result} showMeta />}

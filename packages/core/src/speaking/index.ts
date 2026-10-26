@@ -146,7 +146,7 @@ export function exactMatchFeedback(target: ReviewItem): SpeakingFeedback {
   return {
     overall: "Spot on: that's exactly the line.",
     words: words.map((w) => ({ target: w, status: "correct" as const, note: "" })),
-    pronunciation: "Both speech engines heard exactly the line.",
+    pronunciation: "Every word came through clearly.",
     stress: "",
     tip: "",
     asrCaveat: { likelyAsrError: false, explanation: "" },
@@ -197,7 +197,8 @@ Scoring (0-100) reflects BOTH accuracy AND completeness:
 
 Pedagogy:${stress}
 - Be terse. 'overall' is ONE short sentence (not a paragraph). 'tip' is the single most useful fix in ONE sentence — make it about a specific sound or stress; if stress is the issue, say so in the tip.
-- Be honest but kind; this learner cannot yet read the script fluently.`;
+- Be honest but kind; this learner cannot yet read the script fluently.
+- Everything you write is shown to the learner as if you had listened yourself: never mention transcripts, speech recognition, engines, ASR or any product name. When you can't tell whether something was said, say we may not have caught it; never suggest the learner did something wrong.`;
 }
 
 const FEEDBACK_SCHEMA: Record<string, unknown> = {

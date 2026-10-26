@@ -78,7 +78,6 @@ export function AccountPanel({ progress, persist, config, onClose }: { progress:
   const autoplay = progress.settings?.autoplay ?? false;
   const slow = progress.settings?.slow ?? false;
   const slowRate = progress.settings?.slowRate ?? 0.75;
-  const badge = (l: string, on?: boolean) => <span className={`badge ${on ? "on" : "off"}`} key={l}>{l} {on ? "on" : "off"}</span>;
   return (
     <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--scrim)", zIndex: 50, display: "flex", justifyContent: "flex-end" }}>
       <div className="drawer" role="dialog" aria-modal="true" aria-label="Account and settings" onClick={(e) => e.stopPropagation()}>
@@ -133,10 +132,9 @@ export function AccountPanel({ progress, persist, config, onClose }: { progress:
           <span className="muted small">Today follows the redesigned course: one grammar point at a time, a fixed plan per chapter, and review days built in.</span>
         </div>
       ) : null}
-      <div className="setting-row">
-        <b>Speech &amp; AI</b>
-        {config ? [badge("Scribe", config.engines.eleven), badge("Google", config.engines.google), badge("Claude", config.engines.anthropic)] : <span className="muted small">…</span>}
-      </div>
+      {config && !(config.engines.anthropic && (config.engines.eleven || config.engines.google)) && (
+        <div className="setting-row"><span className="muted small">Some speaking and feedback features aren&apos;t available right now.</span></div>
+      )}
       {packUnreviewed(pack) && (
         <div className="setting-row">
           <span className="badge warn">Not reviewed yet</span>

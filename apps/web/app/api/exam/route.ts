@@ -12,7 +12,7 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   const caller = await requireCaller(req);
   if (caller instanceof Response) return caller;
-  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
+  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "This isn't available right now." }, { status: 400 });
   const { packId, examId, taskId, response, transcripts, answers } = (await req.json()) as {
     packId?: string; examId: string; taskId: string; response?: string; transcripts?: { scribe?: string; google?: string };
     answers?: { scribe?: string; google?: string }[];

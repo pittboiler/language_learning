@@ -47,7 +47,7 @@ const IMPORT_SCHEMA: Record<string, unknown> = {
 export async function POST(req: Request) {
   const caller = await requireCaller(req);
   if (caller instanceof Response) return caller;
-  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "Anthropic not configured" }, { status: 400 });
+  if (!process.env.ANTHROPIC_API_KEY) return Response.json({ error: "This isn't available right now." }, { status: 400 });
   const { text, packId } = (await req.json()) as { text: string; packId?: string };
   const pack = getPack(packId);
   if (!text?.trim()) return Response.json({ error: "no text provided" }, { status: 400 });
