@@ -1,8 +1,9 @@
 "use client";
 // The study desk (2026-10-26, Jake: on a computer it felt like a phone app): on wide screens the sections move
 // into a sidebar with your place in the course, and a rail beside the page holds what's relevant now — today's
-// words and point, your week, what's due. Narrower screens never show either (globals.css), so phones keep the
-// header, the tabs and the bottom bar.
+// words and point, and your week. (No flashcards-due card: today's warm-up already reviews them, so it only
+// pulled you off the day's path — Jake, 2026-10-30.) Narrower screens never show either (globals.css), so phones
+// keep the header, the tabs and the bottom bar.
 import type { ReactNode } from "react";
 import { type Progress } from "../../lib/store";
 import { localDay } from "../../lib/daily";
@@ -71,7 +72,7 @@ function week(progress: Progress): { day: string; on: boolean; today: boolean }[
   });
 }
 
-export function Rail({ progress, section, dueCount, onReview }: { progress: Progress; section: Section | null; dueCount: number; onReview: () => void }) {
+export function Rail({ progress, section }: { progress: Progress; section: Section | null }) {
   const pack = usePack();
   const play = usePlay();
   const pos = cp.courseV2On(pack, progress) && pack.course ? cp.position(pack.course, progress.course) : undefined;
@@ -105,11 +106,6 @@ export function Rail({ progress, section, dueCount, onReview }: { progress: Prog
         <div className="week" role="img" aria-label={`${week(progress).filter((d) => d.on).length} of the last 7 days`}>
           {week(progress).map((d, i) => <span key={i}><i className={`${d.on ? "on" : ""}${d.today ? " today" : ""}`} />{d.day}</span>)}
         </div>
-      </section>
-      <section className="rail-card">
-        <div className="rail-title">{dueCount > 0 ? "Ready to review" : "All caught up"}</div>
-        <div className="muted small" style={{ lineHeight: 1.5 }}>{dueCount > 0 ? `${dueCount} ${dueCount === 1 ? "card is" : "cards are"} due today.` : "Nothing is due right now. New cards come back as you learn."}</div>
-        {dueCount > 0 && <button className="ghost small" style={{ alignSelf: "flex-start" }} onClick={onReview}>Review now</button>}
       </section>
     </aside>
   );

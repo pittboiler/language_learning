@@ -182,7 +182,7 @@ export default function Home() {
       </ReplayContext.Provider>
       </CourseOrderContext.Provider>
       </div>
-      <Rail progress={progress} section={replay ? null : section} dueCount={dueCount} onReview={() => goSection("progress")} />
+      <Rail progress={progress} section={replay ? null : section} />
       </div>
       {acctOpen && <AccountPanel progress={progress} persist={persist} config={config} onClose={() => setAcctOpen(false)} />}
       </SlowContext.Provider>
