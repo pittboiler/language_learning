@@ -96,6 +96,17 @@ export const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Se
   return all.find((v) => !seen.has(v.lemma)) ?? all[(progress.seenConjugations?.length ?? 0) % all.length];
 };
 
+/** On the course, a verb drilled in the last CONJ_GAP lessons sits out (Jake, 2026-10-31): until chapter 4
+ *  сум is the only verb, and matching its six forms every day for some 25 lessons was too much, so it now
+ *  comes every third lesson. Once there are several verbs the daily rotation spaces them anyway. A verb not
+ *  drilled yet always goes first. */
+export const CONJ_GAP = 2;
+export function courseConjVerb(pack: LanguagePack, progress: Progress, verbs: Set<string>): ConjugationSet | undefined {
+  const recent = new Set((progress.courseLog ?? []).slice(-CONJ_GAP).flatMap((e) => e.drilled ?? []));
+  const rested = new Set([...verbs].filter((v) => !recent.has(v)));
+  return rested.size ? pickConjVerb(pack, progress, undefined, rested) : undefined;
+}
+
 // ---------- Today, new course: play the blueprint (lib/course-player.ts) ----------
 // The blueprint fixes the session's content; this only maps it onto Today's steps and fills the review
 // parts (warm-up with an earlier-chapter share, checkpoint and stage-review items) from the learner's state.
@@ -202,9 +213,9 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
   const warm = cp.pickWarmup({ pool, progress, now, current: { order, n: s.n }, slotOf, size: review ? cp.REVIEW_ITEMS : cp.WARMUP_ITEMS, share: review ? cp.EARLIER_SHARE.review : cp.EARLIER_SHARE.normal });
   // The conjugation drill only drills verbs whose group's point has been TAUGHT (in an earlier session): сум
   // from chapter 1 (before 2026-10-14 it waited for chapter 4, so сме / сте / се went undrilled for three
-  // chapters), -а verbs from chapter 4, -е/-и from 5 (drillableVerbs).
-  const verbs = drillableVerbs(pack, progress);
-  const conjVerb = verbs.size ? pickConjVerb(pack, progress, undefined, verbs) : undefined;
+  // chapters), -а verbs from chapter 4, -е/-и from 5 (drillableVerbs), and not one drilled in the last two
+  // lessons (courseConjVerb).
+  const conjVerb = courseConjVerb(pack, progress, drillableVerbs(pack, progress));
   // Review days also bring back the words you picked yourself (★ saved, ＋ Learn); other days stay on the course.
   const keyOf = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
   const own = review ? cp.ownWordsDue(pack, progress, now, 4).filter((o) => !warm.some((w) => keyOf(w) === keyOf(o))) : [];

@@ -8,7 +8,7 @@ import * as familiarity from "@ll/core/familiarity";
 import type { CourseSession } from "@ll/pack-schema";
 import type { Progress } from "../lib/store.js";
 import * as cp from "../lib/course-player.js";
-import { courseSteps, type TodayStep } from "../lib/today-plan.js";
+import { courseConjVerb, courseSteps, drillableVerbs, type TodayStep } from "../lib/today-plan.js";
 
 const course = pack.course!;
 const letters = Object.fromEntries(pack.alphabet.map((a) => [a.glyph, true]));
@@ -123,3 +123,33 @@ assert.equal(sessions, course.chapters.reduce((n, c) => n + c.sessions.length, 0
   assert.ok(!courseSteps(pack, { ...before, familiarity: fam }).some((x) => x.kind === "newwords"), "once met, nothing to catch up");
 }
 console.log(`today-plan.test.ts: ${sessions} sessions — every agenda matches its session and every recap its lesson ✓`);
+
+// The verb drill spaces itself out (Jake, 2026-10-31): a verb drilled in the last two lessons sits out, so сум,
+// the only verb until chapter 4, comes every third lesson; a verb not drilled yet never waits; with several
+// verbs the daily rotation is unchanged.
+{
+  const base = { ...progress, seenGrammar: {}, courseLog: [] as NonNullable<Progress["courseLog"]>, seenConjugations: [] as string[] };
+  const log = (...drilled: string[][]) => drilled.map((d, i) => ({ chapterId: "x", n: i + 1, startedAt: "", at: "", ...(d.length ? { drilled: d } : {}) }));
+  const sum = new Set(["е"]);
+  assert.equal(courseConjVerb(pack, base, sum)?.lemma, "е", "first time: drilled");
+  assert.equal(courseConjVerb(pack, { ...base, courseLog: log(["е"]) }, sum), undefined, "drilled last lesson: sits out");
+  assert.equal(courseConjVerb(pack, { ...base, courseLog: log(["е"], []) }, sum), undefined, "two lessons ago: still out");
+  assert.equal(courseConjVerb(pack, { ...base, courseLog: log(["е"], [], []) }, sum)?.lemma, "е", "three lessons on: back");
+  assert.equal(courseConjVerb(pack, { ...base, seenConjugations: ["е"], courseLog: log(["е"]) }, new Set(["е", "сака"]))?.lemma, "сака", "a new verb doesn't wait");
+  // Walk chapters 1–4 drilling whatever comes up: сум about every third lesson until the -а verbs arrive, then daily.
+  let p: Progress = { ...base };
+  const byLesson: (string | undefined)[] = [];
+  for (const ch of course.chapters.filter((c) => c.order <= 5)) for (const s of ch.sessions) {
+    p = { ...p, course: { chapterId: ch.chapterId, session: s.n, v: course.version }, seenGrammar: { ...p.seenGrammar } };
+    const verbs = drillableVerbs(pack, p);
+    const v = verbs.size ? courseConjVerb(pack, p, verbs)?.lemma : undefined;
+    byLesson.push(verbs.size ? v ?? "-" : undefined);
+    p = { ...p, seenGrammar: { ...p.seenGrammar, ...(s.role === "teach" && s.pointId ? { [s.pointId]: true } : {}) }, courseLog: [...(p.courseLog ?? []), ...log(v ? [v] : [])], seenConjugations: [...(p.seenConjugations ?? []), ...(v ? [v] : [])] };
+  }
+  const sumOnly = byLesson.filter((x) => x === "е" || x === "-");
+  assert.ok(sumOnly.length > 20, "сум is the only verb for a long stretch");
+  assert.ok(sumOnly.slice(0, 21).filter((x) => x === "е").length === 7, `сум every third lesson: ${sumOnly.slice(0, 21).join(" ")}`);
+  const later = byLesson.slice(byLesson.findIndex((x) => x && x !== "е" && x !== "-"));
+  assert.ok(later.slice(0, 8).every((x) => x && x !== "-"), `with several verbs, one every lesson: ${later.slice(0, 8).join(" ")}`);
+}
+console.log("today-plan.test.ts (verb drill spacing): all assertions passed ✓");
