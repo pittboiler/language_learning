@@ -315,6 +315,11 @@ input.text { flex: 1; min-width: 180px; min-height: 48px; background: var(--surf
 /* ---- shared controls: the round play button, every older .spk button looks the same ---- */
 .play-btn, .spk { width: 36px; height: 36px; flex: none; border-radius: 18px; border: 1.5px solid transparent; background: var(--surface-sunk); color: var(--text); display: inline-flex; align-items: center; justify-content: center; padding: 0; margin: 0 8px 0 0; font-size: 14px; cursor: pointer; vertical-align: middle; }
 .play-btn:hover, .spk:hover { border-color: var(--line); }
+/* A line still loading pulses; one that couldn't play shows a retry mark (a tap tries again). */
+.play-btn.loading { animation: play-wait 1s ease-in-out infinite alternate; }
+.play-btn.failed { color: var(--fix); border-color: var(--fix); }
+@keyframes play-wait { from { opacity: 1; } to { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .play-btn.loading { animation: none; opacity: .6; } }
 
 /* ---- story reader: tools row, legend, lines, the word sheet ---- */
 .reader-tools { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 12px; }

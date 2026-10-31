@@ -21,11 +21,12 @@ export const usePack = () => useContext(PackContext);
  *  "normal", else the user's chosen slow rate (settings.slowRate, default 0.75). ONE setting app-wide. */
 export const SlowContext = createContext(1);
 /** Play TTS in the active pack's voice at the global playback rate. The per-call speed arg is now
- *  ignored (rate is a global setting); it stays only for call-site compatibility. */
+ *  ignored (rate is a global setting); it stays only for call-site compatibility. Never throws: resolves
+ *  false when the line couldn't be played (a SpeakButton shows that). */
 export function usePlay() {
   const pack = usePack();
   const rate = useContext(SlowContext);
-  return useCallback((text: string, _speed?: number) => api.playTts(text, rate, pack.id).catch(() => {}), [pack.id, rate]);
+  return useCallback((text: string, _speed?: number): Promise<boolean> => api.playTts(text, rate, pack.id).catch(() => false), [pack.id, rate]);
 }
 /** A mic recorder that lets go of the mic when its view goes away mid-recording (a skip, the next step,
  *  leaving the exam), not only when Stop is pressed — otherwise the tab keeps the mic. */
@@ -340,6 +341,18 @@ export function Icon({ name, size = 18 }: { name: keyof typeof ICON_PATHS; size?
   );
 }
 /** The round "play this line" button used next to every spoken line. */
-export function SpeakButton({ onClick, label = "Listen" }: { onClick: () => void; label?: string }) {
-  return <button type="button" className="play-btn" aria-label={label} title={label} onClick={onClick}><Icon name="speaker" size={16} /></button>;
+/** A speaker button. When its action is a play (it returns the play's promise), it shows the line loading,
+ *  and if the line couldn't be played it says so and a tap tries again, rather than doing nothing. */
+export function SpeakButton({ onClick, label = "Listen" }: { onClick: () => unknown; label?: string }) {
+  const [state, setState] = useState<"idle" | "loading" | "failed">("idle");
+  const click = () => {
+    const r = onClick();
+    if (!(r instanceof Promise)) return;
+    setState("idle");
+    const slow = setTimeout(() => setState("loading"), 300);
+    const settle = (ok: boolean) => { clearTimeout(slow); setState(ok ? "idle" : "failed"); };
+    r.then((v) => settle(v !== false), () => settle(false));
+  };
+  const name = state === "failed" ? "Couldn't play that: tap to try again" : state === "loading" ? `${label} (loading)` : label;
+  return <button type="button" className={`play-btn${state === "idle" ? "" : ` ${state}`}`} aria-label={name} title={name} onClick={click}><Icon name={state === "failed" ? "restart" : "speaker"} size={16} /></button>;
 }

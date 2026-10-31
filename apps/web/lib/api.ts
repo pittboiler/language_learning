@@ -50,22 +50,46 @@ export async function getConfig(): Promise<Config> {
 // a line can be fetched AHEAD (prefetchTts, when its card appears), the newest play wins (a line still
 // loading is dropped once another is asked for), and stopTts drops whatever's loading or playing (a card
 // moving on). Fetched clips are kept for the session, so a replay is instant.
+// 2026-10-31 (Jake: in Build a sentence „Не знам“ stayed silent however often he tapped): a line must never
+// get stuck. A request that hangs gives up after CLIP_TIMEOUT_MS, only real audio is kept, a clip that won't
+// play is fetched afresh on the next tap, and the caller learns it failed (the speaker button shows it).
 const CLIPS_KEPT = 200;
+/** Longer than the server's own limit (a first play's checked takes, 30 s), so only a stalled request ends here. */
+const CLIP_TIMEOUT_MS = 35_000;
 const clips = new Map<string, Promise<Blob>>();
+/** Clips already fetched, so a tap plays at once, inside the tap (Safari refuses a sound that starts later). */
+const ready = new Map<string, Blob>();
+const clipKey = (text: string, packId?: string) => `${packId ?? ""}|${text}`;
+function forget(key: string): void {
+  clips.delete(key);
+  ready.delete(key);
+}
 function clipBlob(text: string, packId?: string): Promise<Blob> {
-  const key = `${packId ?? ""}|${text}`;
+  const key = clipKey(text, packId);
   let p = clips.get(key);
   if (!p) {
-    p = call("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, packId }) })
-      .then(async (r) => { if (!r.ok) throw new Error((await r.json()).error || "TTS failed"); return r.blob(); });
-    p.catch(() => clips.delete(key)); // a failure isn't kept: the next play tries again
+    p = call("/api/tts", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, packId }), signal: AbortSignal.timeout(CLIP_TIMEOUT_MS) })
+      .then(async (r) => {
+        if (!r.ok) throw new Error((await r.json().catch(() => ({}))).error || "TTS failed");
+        const blob = await r.blob();
+        // Anything but audio (an error page, an empty body) would otherwise sit here and keep the line silent.
+        if (!blob.size || !(r.headers.get("content-type") ?? blob.type).startsWith("audio/")) throw new Error("not audio");
+        ready.set(key, blob);
+        return blob;
+      });
+    p.catch(() => forget(key)); // a failure isn't kept: the next play tries again
     clips.set(key, p);
-    if (clips.size > CLIPS_KEPT) clips.delete(clips.keys().next().value!);
+    if (clips.size > CLIPS_KEPT) forget(clips.keys().next().value!);
   }
   return p;
 }
-let playing: HTMLAudioElement | null = null;
+// One audio element for every line: once a tap has started it, later plays on it are allowed everywhere.
+let player: HTMLAudioElement | null = null;
+let playerUrl: string | null = null;
 let generation = 0;
+/** 10 ms of silence: started inside the tap while the clip is still loading, so the tap's permission to make a
+ *  sound carries over to the clip (iOS and Safari only let a sound start inside a tap). */
+const SILENCE = "data:audio/wav;base64,UklGRnQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAACAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA==";
 
 /** Start fetching a line now, so it plays at once when asked for. */
 export function prefetchTts(text: string, packId?: string): void {
@@ -75,25 +99,39 @@ export function prefetchTts(text: string, packId?: string): void {
 /** Stop the line playing, and drop any line still loading. */
 export function stopTts(): void {
   generation++;
-  playing?.pause();
-  playing = null;
+  player?.pause();
 }
 
 /** Synthesize (cached) + play TTS for the active pack's voice. The clip is natural speed; `rate` is the
  *  client-side playbackRate for the slow/normal toggle (1 = normal, 0.75 = slow) — pitch-preserved. The
- *  newest call wins: a line that arrives after another was asked for (or after stopTts) isn't played. */
-export async function playTts(text: string, rate = 1, packId?: string): Promise<void> {
+ *  newest call wins: a line that arrives after another was asked for (or after stopTts) isn't played.
+ *  Resolves true once the line is playing (or another took its place), false when it couldn't be played. */
+export async function playTts(text: string, rate = 1, packId?: string): Promise<boolean> {
   const mine = ++generation;
-  const blob = await clipBlob(text, packId);
-  if (mine !== generation) return;
-  playing?.pause();
-  const url = URL.createObjectURL(blob);
-  const audio = new Audio(url);
-  audio.preservesPitch = true;
-  audio.playbackRate = rate;
-  audio.onended = () => URL.revokeObjectURL(url);
-  playing = audio;
-  await audio.play();
+  const key = clipKey(text, packId);
+  const el = (player ??= new Audio());
+  el.pause();
+  let blob = ready.get(key);
+  if (!blob) {
+    el.src = SILENCE;
+    el.play().catch(() => {});
+    try { blob = await clipBlob(text, packId); } catch { return mine !== generation; }
+    if (mine !== generation) return true;
+  }
+  if (playerUrl) URL.revokeObjectURL(playerUrl);
+  playerUrl = URL.createObjectURL(blob);
+  el.src = playerUrl;
+  el.preservesPitch = true;
+  el.defaultPlaybackRate = rate; // a new source resets the rate to this
+  el.playbackRate = rate;
+  try {
+    await el.play();
+    return true;
+  } catch (e) {
+    if (mine !== generation || (e as { name?: string }).name === "AbortError") return true; // a newer line took over
+    forget(key); // a clip that won't play is fetched afresh next time
+    return false;
+  }
 }
 
 /** Play a TTS clip and resolve when it FINISHES — for sequential, synced story playback. `rate` =
