@@ -219,6 +219,31 @@ export const taughtBefore = (slot: CourseSlot | undefined, current: CourseSlot):
 /** A partner's published place in the course, as a slot (their current, not-yet-done session). */
 export const slotOfShare = (s: CoursePositionShare): CourseSlot => ({ order: s.chapterOrder, n: s.session });
 
+/** Sessions together draw on material from this many lessons back, so none of it is brand new (Jake,
+ *  2026-10-31): the last two lessons' words and point wait a little before they're practised together. */
+export const PARTNER_LAG = 2;
+
+/** The slot `lag` sessions before `at`, in course order (never before the first session). A place past a
+ *  chapter's sessions (its stage review or exam) counts back from the next chapter's first session. */
+export function slotBefore(course: Course, at: CourseSlot, lag: number): CourseSlot {
+  const all = course.chapters.flatMap((c) => c.sessions.map((s) => ({ order: c.order, n: s.n })));
+  const i = all.findIndex((s) => cmpSlot(s, at) >= 0);
+  const j = (i < 0 ? all.length : i) - lag;
+  return lag <= 0 ? at : all[Math.max(0, j)]!;
+}
+
+/** A partner's place moved `lag` lessons back: the slot, and only the points taught before it. */
+export function lagShare(course: Course, s: CoursePositionShare, lag: number): CoursePositionShare {
+  const at = slotBefore(course, slotOfShare(s), lag);
+  const ps = pointSlots(course);
+  return {
+    chapterId: course.chapters.find((c) => c.order === at.order)?.chapterId ?? s.chapterId,
+    chapterOrder: at.order,
+    session: at.n,
+    points: s.points.filter((id) => taughtBefore(ps.get(id), at)),
+  };
+}
+
 /** Where each story is first read (its own chapter's session, not a later reuse). */
 export function storySlots(course: Course): Map<string, CourseSlot> {
   const m = new Map<string, CourseSlot>();

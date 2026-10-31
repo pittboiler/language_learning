@@ -6,10 +6,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-cafe-order-v1",
     "kind": "phrase",
-    "prompt": "One beer, please.",
+    "prompt": "One beer, please. (to the waiter)",
     "answer": "Едно пиво, ве молам.",
     "translit": "Edno pivo, ve molam.",
-    "gloss": "One beer, please.",
+    "gloss": "One beer, please. (to the waiter)",
     "note": "Polite request; 'ве молам' = please (formal).",
     "i1Level": 2,
     "tags": [
@@ -151,10 +151,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-cafe-order-v8",
     "kind": "phrase",
-    "prompt": "Here you go / Go ahead",
+    "prompt": "Here you go / Go ahead (formal)",
     "answer": "Повелете",
     "translit": "Povelete",
-    "gloss": "Here you go / Go ahead",
+    "gloss": "Here you go / Go ahead (formal)",
     "note": "Stress: po-VE-le-te; polite, very common.",
     "i1Level": 1,
     "tags": [
@@ -171,10 +171,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-cafe-order-v9",
     "kind": "phrase",
-    "prompt": "The bill, please.",
+    "prompt": "The bill, please. (to the waiter)",
     "answer": "Сметката, ве молам.",
     "translit": "Smetkata, ve molam.",
-    "gloss": "The bill, please.",
+    "gloss": "The bill, please. (to the waiter)",
     "note": "'сметката' = the bill, with definite article -та.",
     "i1Level": 2,
     "tags": [
@@ -331,10 +331,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-greet-intro-v6",
     "kind": "phrase",
-    "prompt": "What do you do?",
+    "prompt": "What do you do? (casual)",
     "answer": "Што работиш?",
     "translit": "Što rabotiš?",
-    "gloss": "What do you do?",
+    "gloss": "What do you do? (casual)",
     "note": "Stress on RA-bo-tiš; literally 'what do you work?'",
     "i1Level": 2,
     "tags": [
@@ -391,10 +391,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-greet-intro-v9",
     "kind": "vocab",
-    "prompt": "am / are / is",
+    "prompt": "am / are (casual, one person) / is",
     "answer": "сум / си / е",
     "translit": "sum / si / e",
-    "gloss": "am / are / is",
+    "gloss": "am / are (casual, one person) / is",
     "note": "Present of 'to be': 1sg/2sg/3sg.",
     "i1Level": 1,
     "tags": [
@@ -574,10 +574,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-market-v9",
     "kind": "phrase",
-    "prompt": "Do you have …?",
+    "prompt": "Do you have …? (formal)",
     "answer": "Имате ли …?",
     "translit": "Imate li …?",
-    "gloss": "Do you have …?",
+    "gloss": "Do you have …? (formal)",
     "note": "'li' marks yes/no question; polite plural form",
     "i1Level": 1,
     "tags": [
@@ -594,10 +594,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-market-v10",
     "kind": "phrase",
-    "prompt": "That's all, thanks.",
+    "prompt": "That's all, thanks. (casual)",
     "answer": "Само тоа, фала.",
     "translit": "Samo toa, fala.",
-    "gloss": "That's all, thanks.",
+    "gloss": "That's all, thanks. (casual)",
     "note": "'fala' is informal thanks; 'toa' = that",
     "i1Level": 2,
     "tags": [
@@ -817,10 +817,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-s1-directions-v11",
     "kind": "phrase",
-    "prompt": "Turn left.",
+    "prompt": "Turn left. (formal)",
     "answer": "Свртете лево.",
     "translit": "Svrtete levo.",
-    "gloss": "Turn left.",
+    "gloss": "Turn left. (formal)",
     "note": "Polite/plural imperative",
     "i1Level": 3,
     "tags": [

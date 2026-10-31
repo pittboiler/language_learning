@@ -515,10 +515,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-shopping-v5",
     "kind": "phrase",
-    "prompt": "here you are / go ahead",
+    "prompt": "here you are / go ahead (formal)",
     "answer": "повелете",
     "translit": "povelete",
-    "gloss": "here you are / go ahead",
+    "gloss": "here you are / go ahead (formal)",
     "i1Level": 2,
     "tags": [
       "generated",
@@ -529,10 +529,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-shopping-v6",
     "kind": "phrase",
-    "prompt": "thank you",
+    "prompt": "thank you (formal)",
     "answer": "благодарам",
     "translit": "blagodaram",
-    "gloss": "thank you",
+    "gloss": "thank you (formal)",
     "i1Level": 2,
     "tags": [
       "generated",
@@ -697,10 +697,10 @@ export const generatedVocab: ReviewItem[] = [
   {
     "id": "gen-phone-v6",
     "kind": "phrase",
-    "prompt": "Have a nice day / goodbye",
+    "prompt": "Have a nice day / goodbye (formal)",
     "answer": "Пријатно",
     "translit": "Priyatno",
-    "gloss": "Have a nice day / goodbye",
+    "gloss": "Have a nice day / goodbye (formal)",
     "i1Level": 2,
     "tags": [
       "generated",

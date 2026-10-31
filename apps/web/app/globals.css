@@ -228,6 +228,9 @@ input.text { flex: 1; min-width: 180px; min-height: 48px; background: var(--surf
 .gram-plain { background: var(--surface-sunk); border-radius: var(--radius-sm); padding: 10px 12px; margin: 10px 0 14px; }
 .gram-plain .lab { font-size: 14px; font-weight: 800; color: var(--accent); }
 .gram-plain p { margin: 4px 0 0; font-size: 14px; line-height: 1.5; }
+/* Partner turns: what this screen's partner does, set apart from the rule box. */
+.role-part { background: var(--accent-soft); margin: 8px 0 12px; }
+.role-part p { font-size: 15px; }
 .gram-table { width: 100%; border-collapse: collapse; margin: 4px 0 14px; }
 .gram-table th { font-size: 13px; font-weight: 800; color: var(--text-muted); text-align: left; padding: 0 12px 6px 0; }
 .gram-table td { font-size: 15px; padding: 9px 12px 9px 0; border-top: 1px solid var(--line-faint); vertical-align: middle; }

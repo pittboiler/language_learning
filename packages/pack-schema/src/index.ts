@@ -37,6 +37,9 @@ export interface ReviewItem {
   breakdown?: { part: string; gloss: string }[];
   /** One-line "how the pieces fit together" grammar takeaway for a phrase/chunk (learner-facing). */
   takeaway?: string;
+  /** Flashcards only: an item that bundles several forms ("еден / една / едно", "мајка / татко") is drilled
+   *  as one card per part, each keyed by its own answer. Lessons and the warm-up keep the bundle. */
+  parts?: { prompt: string; answer: string }[];
   /** Trust level for generated items; gated until reviewed. Omit ⇒ treated as authored pack data. */
   confidence?: Confidence;
   /** Language-specific fields (gender, aspect, stress notes, …) live here so the schema stays generic. */

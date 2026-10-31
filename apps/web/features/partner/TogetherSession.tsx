@@ -18,15 +18,22 @@ import { HintButton, Icon, SpeakButton, Stitches, useHintFor, usePack, usePlay }
 // The session itself. One partner PRODUCES (says the target from the English prompt); the other CHECKS
 // (holds the answer, taps ✓/↻). Roles flip per item. Synced over the same Realtime channel LiveConvo uses.
 // Each partner grades their OWN produced turns into their private SRS (familiarity is per-user).
-// Drillable pool for the Together drill. On the course: the course words BOTH partners have been taught
-// (sessions each has finished — the partner's from their published position). Otherwise: single words +
-// phrases with a gloss and a target form.
+// Drillable pool for the Together drill. On the course: the course words BOTH partners had been taught
+// PARTNER_LAG lessons ago (fewer lessons back when that leaves under 6), so no word is brand new — the
+// partner's place from their published position. Otherwise: single words + phrases with a gloss and a
+// target form.
 export const togetherCandidates = (pack: LanguagePack, progress: Progress, partnerCourse?: joint.CoursePositionShare): together.TogetherCandidate[] => {
-  if (pack.course && cp.courseV2On(pack, progress)) {
-    const mine = cp.currentSlot(pack.course, progress);
+  const course = pack.course;
+  if (course && cp.courseV2On(pack, progress)) {
+    const mine = cp.currentSlot(course, progress);
+    const theirs = partnerCourse ? cp.slotOfShare(partnerCourse) : mine;
     const translit = (k: string) => pack.vocab.find((v) => familiarity.deriveKeyForItem(v).lexKey === k)?.translit;
-    return cp.wordsTaughtToBoth(pack.course, mine, partnerCourse ? cp.slotOfShare(partnerCourse) : mine)
-      .map((w) => ({ lexKey: w.lexKey, prompt: w.gloss, answer: w.display, translit: translit(w.lexKey) }));
+    let words = cp.wordsTaughtToBoth(course, mine, theirs);
+    for (let lag = cp.PARTNER_LAG; lag > 0; lag--) {
+      const back = cp.wordsTaughtToBoth(course, cp.slotBefore(course, mine, lag), cp.slotBefore(course, theirs, lag));
+      if (back.length >= 6) { words = back; break; }
+    }
+    return words.map((w) => ({ lexKey: w.lexKey, prompt: w.gloss, answer: w.display, translit: translit(w.lexKey) }));
   }
   return pack.vocab
     .filter((v) => (v.kind === "vocab" || v.kind === "phrase") && !!v.answer && !!v.gloss)

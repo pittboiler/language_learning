@@ -78,4 +78,15 @@ plan = planJointSession({ course, me: pos(2, 2, ["p1", "p2", "p3"]), partner: po
 assert.equal(plan.storyId, "st2");
 assert.deepEqual(plan.storyLines, [1, 3, 4]);
 
+// 7. Material from a couple of lessons back (`content`): the focus and story come from the moved-back places,
+//    the framing still says where you each really are, and a point you've both had that's lagged out is
+//    named as next, "once it's a lesson or two behind you".
+plan = planJointSession({ course, me: pos(2, 3, ["p1", "p2", "p3", "p4"]), partner: pos(2, 3, ["p1", "p2", "p3", "p4"]), content: { me: pos(2, 1, ["p1", "p2"]), partner: pos(2, 1, ["p1", "p2"]) }, drillCount: 3, titles });
+assert.equal(plan.focusPointId, "p2", "p3 and p4 were taught in the last two lessons");
+assert.equal(plan.storyId, "st1", "st2 is today's-ish story at the moved-back place");
+assert.equal(plan.alignment, "same");
+assert.match(plan.framing, /chapter 2, session 3/, "framing uses the real places");
+assert.equal(plan.next?.pointId, "p3");
+assert.match(plan.next!.label, /once it's a lesson or two behind you both/);
+
 console.log("joint.test.ts: all assertions passed ✓");

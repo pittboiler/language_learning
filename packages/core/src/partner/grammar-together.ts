@@ -4,7 +4,8 @@
 //   rule  — the ASKER holds a rule question and its answer; the ANSWERER says the answer aloud; the asker
 //           judges it (✓ / ↻), exactly like the drill.
 //   blank — "spot the slip" (2026-10-23, replacing the read-it-with-a-gap version): the asker reads a whole
-//           line aloud, which may have one wrong form planted in it (their screen says which); the answerer,
+//           line aloud, which may have one wrong form planted in it (behind a peek on their screen, and they
+//           don't say: 2026-10-31); the answerer,
 //           with only its meaning on screen, says whether it sounded right and, if not, TAPS the right form.
 //           The pick is checked against the answer, and both screens show it with the "why".
 //   switch — "person ping-pong" (2026-10-16): the asker reads a line from a story you've both read; the

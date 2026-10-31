@@ -224,11 +224,13 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
       const turns = together.buildQueue(members, projections, cands, { limit: 10 });
       const drillRowId = await sharedArtifactId("together", pid, "recall");
       if (turns.length) await store.putArtifact(pid, packId, "together", { ...together.startTogether(drillRowId, packId, members[0], members[1], turns), day, startedBy: myId }, drillRowId);
-      // Grammar: the latest point you've both been taught.
+      // Grammar: the latest point you'd both been taught a lesson or two ago.
       let grammarRowId: string | undefined;
       const myPos = cp.positionShare(pack, progress);
       if (plan?.focusPointId && pack.course && myPos) {
-        const items = cp.grammarTogetherItems(pack, pack.course, plan.focusPointId, cp.slotOfShare(myPos), cp.slotOfShare(partnerState?.course ?? myPos), (w) => properNounLike(w, pack));
+        // The lines come from the same lessons back as the point (stories you'd both read by then).
+        const back = (s: joint.CoursePositionShare) => cp.slotBefore(pack.course!, cp.slotOfShare(s), plan.lag);
+        const items = cp.grammarTogetherItems(pack, pack.course, plan.focusPointId, back(myPos), back(partnerState?.course ?? myPos), (w) => properNounLike(w, pack));
         if (items.length > 1) {
           grammarRowId = await sharedArtifactId("grammar-together", pid, day);
           await store.putArtifact(pid, packId, "grammar-together", { ...gtog.startGrammarTogether(grammarRowId, packId, plan.focusPointId, myId, partnerId, items), day, startedBy: myId }, grammarRowId);

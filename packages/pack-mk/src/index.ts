@@ -8,6 +8,7 @@ import { guidedConversations } from "./guided-cues.js";
 import { handNotes } from "./hand-notes.js";
 import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
+import { flashcardSplits } from "./flashcard-splits.js";
 import { conjugations } from "./conjugations.js";
 import { sentences } from "./sentences.js";
 import { coreWords } from "./words.js";
@@ -35,11 +36,22 @@ const promotedVocab = generatedVocab.map((v) => ({ ...v, confidence: "validated"
 
 // Attach the pre-authored word-by-word breakdown + grammar takeaway (breakdowns.ts) to any review item
 // whose `answer` has one, so multi-word phrases/chunks explain their pieces on the flashcard reveal.
-function withBreakdowns(items: ReviewItem[]): ReviewItem[] {
+function withCardExtras(items: ReviewItem[]): ReviewItem[] {
   return items.map((it) => {
     const b = breakdowns[it.answer.trim()];
-    return b ? { ...it, breakdown: b.breakdown, takeaway: b.takeaway } : it;
+    const parts = splitParts(it);
+    return b || parts ? { ...it, ...(b ? { breakdown: b.breakdown, takeaway: b.takeaway } : {}), ...(parts ? { parts } : {}) } : it;
   });
+}
+
+// The flashcard parts of a bundled card: the hand-written split (flashcard-splits.ts), else a comma list of
+// single words whose English lists the same number ("two, three, four, five" → два, три, четири, пет).
+function splitParts(it: ReviewItem): ReviewItem["parts"] {
+  const own = flashcardSplits[it.answer.trim()];
+  if (own) return own;
+  const mk = it.answer.split(/\s*,\s*/), en = it.gloss.split(/\s*,\s*/);
+  if (mk.length < 2 || mk.length !== en.length || mk.some((w) => !w || /\s/.test(w)) || /[.!?…]/.test(it.answer)) return undefined;
+  return mk.map((answer, i) => ({ prompt: en[i]!, answer }));
 }
 
 // Merge grammar concepts by id: the first (hand-authored) concept owns the teaching fields
@@ -73,7 +85,7 @@ export const macedonian: LanguagePack = {
   alphabet,
   phonology,
   grammar: mergeGrammar(grammar, stage1.promotedGrammar),
-  vocab: withBreakdowns([...vocab, ...coreWords, ...level1Additions, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]),
+  vocab: withCardExtras([...vocab, ...coreWords, ...level1Additions, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]),
   // Plain-English briefs on the chapters' main conversations (their goal is the generator's brief).
   scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios, ...varietyConversations]
     .map((s) => (scenarioBriefs[s.id] && !s.brief ? { ...s, brief: scenarioBriefs[s.id] } : s)),
@@ -89,7 +101,7 @@ export const macedonian: LanguagePack = {
       qa: st.qa.map((q) => (fix.qa?.[q.id] ? { ...q, ...fix.qa[q.id] } : q)),
     };
   }),
-  srsSeed: withBreakdowns(vocab.slice(0, 6)),
+  srsSeed: withCardExtras(vocab.slice(0, 6)),
   writingTasks: [...writingTasks, ...stage1.promotedWritingTasks, ...stage2.promotedWritingTasks],
   infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],
   conjugations,

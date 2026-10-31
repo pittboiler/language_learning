@@ -2044,7 +2044,7 @@ export const course: Course = {
           "back": "Put немој да in front of a normal verb.",
           "example": {
             "text": "Немој да одиш!",
-            "gloss": "Don't go!",
+            "gloss": "Don't go! (to a friend)",
             "source": "grammar:imperatives#3"
           }
         },
@@ -2082,7 +2082,7 @@ export const course: Course = {
           "kind": "blank",
           "line": {
             "text": "Немој да одиш!",
-            "gloss": "Don't go!",
+            "gloss": "Don't go! (to a friend)",
             "source": "grammar:imperatives#3"
           },
           "blank": "одиш",
@@ -3511,7 +3511,7 @@ export const course: Course = {
         {
           "lexKey": "ти",
           "display": "ти",
-          "gloss": "you (sg.)"
+          "gloss": "you (casual, one person)"
         },
         {
           "lexKey": "извинете",
@@ -3536,12 +3536,12 @@ export const course: Course = {
         {
           "lexKey": "побавно, ве молам",
           "display": "Побавно, ве молам.",
-          "gloss": "Slower, please."
+          "gloss": "Slower, please. (formal)"
         },
         {
           "lexKey": "уште еднаш, ве молам",
           "display": "Уште еднаш, ве молам.",
-          "gloss": "Once more, please."
+          "gloss": "Once more, please. (formal)"
         },
         {
           "lexKey": "како се вели … на македонски",
@@ -3630,7 +3630,7 @@ export const course: Course = {
             {
               "lexKey": "ти",
               "display": "ти",
-              "gloss": "you (sg.)"
+              "gloss": "you (casual, one person)"
             },
             {
               "lexKey": "извинете",
@@ -3721,12 +3721,12 @@ export const course: Course = {
             {
               "lexKey": "побавно, ве молам",
               "display": "Побавно, ве молам.",
-              "gloss": "Slower, please."
+              "gloss": "Slower, please. (formal)"
             },
             {
               "lexKey": "уште еднаш, ве молам",
               "display": "Уште еднаш, ве молам.",
-              "gloss": "Once more, please."
+              "gloss": "Once more, please. (formal)"
             },
             {
               "lexKey": "како се вели … на македонски",
@@ -4080,7 +4080,7 @@ export const course: Course = {
         {
           "lexKey": "добро сум, фала",
           "display": "Добро сум, фала.",
-          "gloss": "I'm well, thanks."
+          "gloss": "I'm well, thanks. (casual)"
         },
         {
           "lexKey": "да",
@@ -4095,17 +4095,17 @@ export const course: Course = {
         {
           "lexKey": "фала",
           "display": "Фала",
-          "gloss": "Thanks"
+          "gloss": "Thanks (casual)"
         },
         {
           "lexKey": "благодарам / нема за што",
           "display": "Благодарам / Нема за што",
-          "gloss": "thank you / you're welcome"
+          "gloss": "thank you (formal) / you're welcome"
         },
         {
           "lexKey": "ве молам",
           "display": "Ве молам",
-          "gloss": "Please / You're welcome"
+          "gloss": "Please / You're welcome (formal)"
         },
         {
           "lexKey": "добро утро / добра вечер / добра ноќ",
@@ -4120,7 +4120,7 @@ export const course: Course = {
         {
           "lexKey": "пријатно / чао",
           "display": "Пријатно / Чао",
-          "gloss": "goodbye, have a nice day / bye"
+          "gloss": "goodbye, have a nice day (formal) / bye (casual)"
         },
         {
           "lexKey": "и / а / или",
@@ -4142,22 +4142,22 @@ export const course: Course = {
         {
           "lexKey": "она",
           "display": "она",
-          "gloss": "that"
+          "gloss": "that (one over there)"
         },
         {
           "lexKey": "ова",
           "display": "ова",
-          "gloss": "this"
+          "gloss": "this (“this is …”)"
         },
         {
           "lexKey": "оваа",
           "display": "оваа",
-          "gloss": "this"
+          "gloss": "this (with a feminine noun)"
         },
         {
           "lexKey": "овој",
           "display": "овој",
-          "gloss": "this"
+          "gloss": "this (with a masculine noun)"
         }
       ],
       "sessions": [
@@ -4326,7 +4326,7 @@ export const course: Course = {
             {
               "lexKey": "добро сум, фала",
               "display": "Добро сум, фала.",
-              "gloss": "I'm well, thanks."
+              "gloss": "I'm well, thanks. (casual)"
             },
             {
               "lexKey": "да",
@@ -4382,17 +4382,17 @@ export const course: Course = {
             {
               "lexKey": "фала",
               "display": "Фала",
-              "gloss": "Thanks"
+              "gloss": "Thanks (casual)"
             },
             {
               "lexKey": "благодарам / нема за што",
               "display": "Благодарам / Нема за што",
-              "gloss": "thank you / you're welcome"
+              "gloss": "thank you (formal) / you're welcome"
             },
             {
               "lexKey": "ве молам",
               "display": "Ве молам",
-              "gloss": "Please / You're welcome"
+              "gloss": "Please / You're welcome (formal)"
             }
           ],
           "story": {
@@ -4488,7 +4488,7 @@ export const course: Course = {
             {
               "lexKey": "пријатно / чао",
               "display": "Пријатно / Чао",
-              "gloss": "goodbye, have a nice day / bye"
+              "gloss": "goodbye, have a nice day (formal) / bye (casual)"
             }
           ],
           "story": {
@@ -4677,7 +4677,7 @@ export const course: Course = {
         {
           "lexKey": "имате ли",
           "display": "Имате ли …?",
-          "gloss": "Do you have …?"
+          "gloss": "Do you have …? (formal)"
         },
         {
           "lexKey": "денар / денари",
@@ -4993,7 +4993,7 @@ export const course: Course = {
             {
               "lexKey": "имате ли",
               "display": "Имате ли …?",
-              "gloss": "Do you have …?"
+              "gloss": "Do you have …? (formal)"
             },
             {
               "lexKey": "денар / денари",
@@ -5255,7 +5255,7 @@ export const course: Course = {
         {
           "lexKey": "едно пиво, ве молам",
           "display": "Едно пиво, ве молам.",
-          "gloss": "One beer, please."
+          "gloss": "One beer, please. (to the waiter)"
         },
         {
           "lexKey": "кафе",
@@ -5310,12 +5310,12 @@ export const course: Course = {
         {
           "lexKey": "повелете",
           "display": "Повелете",
-          "gloss": "Here you go / Go ahead"
+          "gloss": "Here you go / Go ahead (formal)"
         },
         {
           "lexKey": "сметката, ве молам",
           "display": "Сметката, ве молам.",
-          "gloss": "The bill, please."
+          "gloss": "The bill, please. (to the waiter)"
         },
         {
           "lexKey": "наздравје",
@@ -5384,7 +5384,7 @@ export const course: Course = {
             {
               "lexKey": "едно пиво, ве молам",
               "display": "Едно пиво, ве молам.",
-              "gloss": "One beer, please."
+              "gloss": "One beer, please. (to the waiter)"
             }
           ],
           "story": {
@@ -5637,12 +5637,12 @@ export const course: Course = {
             {
               "lexKey": "повелете",
               "display": "Повелете",
-              "gloss": "Here you go / Go ahead"
+              "gloss": "Here you go / Go ahead (formal)"
             },
             {
               "lexKey": "сметката, ве молам",
               "display": "Сметката, ве молам.",
-              "gloss": "The bill, please."
+              "gloss": "The bill, please. (to the waiter)"
             }
           ],
           "story": {
@@ -5832,7 +5832,7 @@ export const course: Course = {
         {
           "lexKey": "од каде си",
           "display": "Од каде си?",
-          "gloss": "Where are you from?"
+          "gloss": "Where are you from? (casual)"
         },
         {
           "lexKey": "од … сум",
@@ -5842,7 +5842,7 @@ export const course: Course = {
         {
           "lexKey": "што работиш",
           "display": "Што работиш?",
-          "gloss": "What do you do?"
+          "gloss": "What do you do? (casual)"
         },
         {
           "lexKey": "работам",
@@ -6026,7 +6026,7 @@ export const course: Course = {
             {
               "lexKey": "од каде си",
               "display": "Од каде си?",
-              "gloss": "Where are you from?"
+              "gloss": "Where are you from? (casual)"
             }
           ],
           "story": {
@@ -6072,7 +6072,7 @@ export const course: Course = {
             {
               "lexKey": "што работиш",
               "display": "Што работиш?",
-              "gloss": "What do you do?"
+              "gloss": "What do you do? (casual)"
             },
             {
               "lexKey": "работам",
@@ -6393,7 +6393,7 @@ export const course: Course = {
         {
           "lexKey": "само тоа, фала",
           "display": "Само тоа, фала.",
-          "gloss": "That's all, thanks."
+          "gloss": "That's all, thanks. (casual)"
         },
         {
           "lexKey": "пазар",
@@ -6686,7 +6686,7 @@ export const course: Course = {
             {
               "lexKey": "само тоа, фала",
               "display": "Само тоа, фала.",
-              "gloss": "That's all, thanks."
+              "gloss": "That's all, thanks. (casual)"
             },
             {
               "lexKey": "пазар",
@@ -6839,7 +6839,7 @@ export const course: Course = {
         {
           "lexKey": "свртете лево",
           "display": "Свртете лево.",
-          "gloss": "Turn left."
+          "gloss": "Turn left. (formal)"
         },
         {
           "lexKey": "лево",
@@ -7024,7 +7024,7 @@ export const course: Course = {
             {
               "lexKey": "свртете лево",
               "display": "Свртете лево.",
-              "gloss": "Turn left."
+              "gloss": "Turn left. (formal)"
             },
             {
               "lexKey": "лево",
@@ -7454,7 +7454,7 @@ export const course: Course = {
         {
           "lexKey": "дека",
           "display": "дека",
-          "gloss": "that"
+          "gloss": "that (as in “I know that …”)"
         },
         {
           "lexKey": "дожд",
@@ -7762,7 +7762,7 @@ export const course: Course = {
             {
               "lexKey": "дека",
               "display": "дека",
-              "gloss": "that"
+              "gloss": "that (as in “I know that …”)"
             },
             {
               "lexKey": "дожд",
@@ -8344,7 +8344,7 @@ export const course: Course = {
         {
           "lexKey": "твој",
           "display": "твој",
-          "gloss": "your, yours (sg.)"
+          "gloss": "your, yours (casual, one person)"
         },
         {
           "lexKey": "негов / нејзин",
@@ -8379,7 +8379,7 @@ export const course: Course = {
         {
           "lexKey": "на колку години си",
           "display": "На колку години си?",
-          "gloss": "How old are you?"
+          "gloss": "How old are you? (casual)"
         },
         {
           "lexKey": "човек",
@@ -8556,7 +8556,7 @@ export const course: Course = {
             {
               "lexKey": "твој",
               "display": "твој",
-              "gloss": "your, yours (sg.)"
+              "gloss": "your, yours (casual, one person)"
             },
             {
               "lexKey": "негов / нејзин",
@@ -8691,7 +8691,7 @@ export const course: Course = {
             {
               "lexKey": "на колку години си",
               "display": "На колку години си?",
-              "gloss": "How old are you?"
+              "gloss": "How old are you? (casual)"
             },
             {
               "lexKey": "човек",
@@ -8852,7 +8852,7 @@ export const course: Course = {
         {
           "lexKey": "оставете порака",
           "display": "Оставете порака.",
-          "gloss": "Leave a message."
+          "gloss": "Leave a message. (formal)"
         },
         {
           "lexKey": "порака",
@@ -9018,7 +9018,7 @@ export const course: Course = {
             {
               "lexKey": "оставете порака",
               "display": "Оставете порака.",
-              "gloss": "Leave a message."
+              "gloss": "Leave a message. (formal)"
             },
             {
               "lexKey": "порака",
@@ -9163,7 +9163,7 @@ export const course: Course = {
         {
           "lexKey": "можете ли да помогнете",
           "display": "Можете ли да помогнете?",
-          "gloss": "Can you help?"
+          "gloss": "Can you help? (formal)"
         },
         {
           "lexKey": "погрешно",
@@ -9188,7 +9188,7 @@ export const course: Course = {
         {
           "lexKey": "извинете, ама",
           "display": "Извинете, ама …",
-          "gloss": "Sorry, but …"
+          "gloss": "Sorry, but … (formal)"
         },
         {
           "lexKey": "не разбирам зошто",
@@ -9286,7 +9286,7 @@ export const course: Course = {
             {
               "lexKey": "можете ли да помогнете",
               "display": "Можете ли да помогнете?",
-              "gloss": "Can you help?"
+              "gloss": "Can you help? (formal)"
             },
             {
               "lexKey": "погрешно",
@@ -9372,7 +9372,7 @@ export const course: Course = {
             {
               "lexKey": "извинете, ама",
               "display": "Извинете, ама …",
-              "gloss": "Sorry, but …"
+              "gloss": "Sorry, but … (formal)"
             }
           ],
           "story": {

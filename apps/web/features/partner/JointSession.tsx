@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import type { LanguagePack, Scenario } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import * as api from "../../lib/api";
@@ -47,20 +47,24 @@ export type SessionRow = jsession.JointSessionState;
 export const SECTION_LABEL: Record<jsession.JointPhase, string> = { warmup: "Warm-up", grammar: "Grammar", story: "Story", recap: "Recap" };
 /** The landing's agenda — fixed, so you know what a session is before you start one. */
 export const SESSION_AGENDA: [string, string][] = [
-  ["Warm-up", "words you've both learned: one of you says it, the other checks"],
-  ["Grammar", "a point you've both learned: say lines about other people, and spot the slips"],
+  ["Warm-up", "words you've both had for a few lessons: one of you says it, the other checks"],
+  ["Grammar", "a point from a lesson or two back: say lines about other people, and spot the slips"],
   ["Story", "re-read one you've both read, line by line, then two quick questions"],
   ["Recap", "what you practised together, and what's next"],
 ];
-/** The joint plan over both partners' places in the course (focus point, story, framing, what's next). */
-export function jointPlanFor(pack: LanguagePack, progress: Progress, partnerCourse: joint.CoursePositionShare | undefined): joint.JointPlan | undefined {
+/** The joint plan over both partners' places in the course (focus point, story, framing, what's next). Its
+ *  material comes from PARTNER_LAG lessons back (one, then none, when that leaves no point to share);
+ *  `lag` says how far back, for the grammar lines to match. */
+export function jointPlanFor(pack: LanguagePack, progress: Progress, partnerCourse: joint.CoursePositionShare | undefined): (joint.JointPlan & { lag: number }) | undefined {
   const me = cp.positionShare(pack, progress);
-  if (!me || !pack.course) return undefined;
-  const pt = (id: string) => pack.course!.points.find((x) => x.id === id)?.title ?? id;
-  return joint.planJointSession({
-    course: pack.course,
+  const course = pack.course;
+  if (!me || !course) return undefined;
+  const pt = (id: string) => course.points.find((x) => x.id === id)?.title ?? id;
+  const planAt = (lag: number) => joint.planJointSession({
+    course,
     me,
     partner: partnerCourse,
+    content: { me: cp.lagShare(course, me, lag), partner: partnerCourse && cp.lagShare(course, partnerCourse, lag) },
     drillCount: 0,
     titles: {
       point: pt,
@@ -69,6 +73,8 @@ export function jointPlanFor(pack: LanguagePack, progress: Progress, partnerCour
       chapter: (o) => { const c = (pack.chapters ?? []).find((x) => x.order === o); return c ? `chapter ${o} (${c.shortTitle})` : `chapter ${o}`; },
     },
   });
+  for (let lag = cp.PARTNER_LAG; lag > 0; lag--) { const plan = planAt(lag); if (plan.focusPointId) return { ...plan, lag }; }
+  return { ...planAt(0), lag: 0 };
 }
 export function JointSessionView({ store, partnershipId, packId, myId, partnerId, sessionRowId, progress, persist, config, partnerState, onExit }: {
   store: PartnerStore; partnershipId: string; packId: string; myId: string; partnerId: string; sessionRowId: string;
@@ -134,6 +140,10 @@ export function JointSessionView({ store, partnershipId, packId, myId, partnerId
       )}
     </div>
   );
+}
+/** What this screen's partner does on this turn, in one line, so the two roles never blur. */
+function RolePart({ label, children }: { label: string; children: ReactNode }) {
+  return <div className="gram-plain role-part"><span className="lab">{label}</span><p>{children}</p></div>;
 }
 // The partnered grammar step (@ll/core/partner/grammar-together), synced like the story read-through: person
 // ping-pong (the asker judges), and now and then "spot the slip" — one of you reads a line that may have a
@@ -240,7 +250,7 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
     <div style={colStack}>{head}
       {/* Person ping-pong: how it works, and the rule on both screens (nobody reads it aloud). */}
       {pingPong && g.turnIndex === 0 && (
-        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen. The reader sees the answer and taps Got it or Not quite. Now and then, spot the slip: a line on today&apos;s point that may have one wrong word in it.</div>
+        <div className="muted small">Take turns: one of you reads a line aloud, the other says it about the person on their screen, and the reader checks it. Now and then, spot the slip: the reader reads a line that may have one wrong word in it and says nothing more; the listener decides if it sounded right.</div>
       )}
       {pingPong && <details className="small"><summary>The rule: <MixedText text={point.title} /></summary><p style={{ margin: "4px 0" }}><MixedText text={point.rule} /></p></details>}
       <div className="today-sub" style={{ marginTop: 0 }}>
@@ -251,7 +261,8 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
       {lastResult}
       {t.kind === "switch" && (iAsk ? (
         <div className="framed write-card">
-          <div className="overline">Read this line aloud to your partner</div>
+          <div className="overline">Switch the person · you read and check</div>
+          <RolePart label="Your part">Read this line aloud. Your partner says it about someone else; check what they say against the answer below.</RolePart>
           <div className="model-line"><SpeakButton label="Play the line" onClick={() => play(t.line, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{t.line}</span></div>
           <div className="say-gloss">{t.gloss}</div>
           <p style={{ margin: "12px 0 0", lineHeight: 1.55 }}>They say it about <b lang={pack.id}>{t.pronoun}</b> ({t.personEn}). The answer: <b lang={pack.id} className="rmk">{t.answer}</b></p>
@@ -264,7 +275,8 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
         // The listener sees only who to say it about: the line itself they hear from their partner (Jake,
         // 2026-10-23), with a peek for when it doesn't land.
         <div className="framed write-card">
-          <div className="overline">Listen to your partner read a line, then say it out loud about</div>
+          <div className="overline">Switch the person · you answer</div>
+          <RolePart label="Your part">Listen to your partner&apos;s line, then say it out loud about this person instead:</RolePart>
           <div className="model-line" style={{ margin: "10px 0 6px" }}><span className="say-line" lang={pack.id} style={{ margin: 0 }}>{t.pronoun}</span><span className="muted">({t.personEn})</span></div>
           <HintButton key={`forms${g.turnIndex}`} hint={t.why.split(". All six: ")[1] ? `All six: ${t.why.split(". All six: ")[1]}` : t.why} label="Show the forms" />
           <HintButton key={`line${g.turnIndex}`} hint={`${t.line} (${t.gloss})`} label="Didn't catch it? Show the line" />
@@ -298,15 +310,19 @@ export function GrammarTogether({ store, partnershipId, packId, myId, partnerId,
       ))}
       {t.kind === "blank" && (iAsk ? (
         <div className="framed write-card">
-          <div className="overline">{t.slip ? "Spot the slip: read this aloud exactly as written. It has one wrong word in it, marked" : "Spot the slip: read this aloud. This time it's right as it is"}</div>
-          <div className="say-line" lang={pack.id} style={{ fontSize: 24, margin: "10px 0 4px" }}><FocusText text={asRead(t)} words={[gtog.readForm(t)]} /></div>
+          {/* The reader must not give it away (Jake, 2026-10-31): whether it's right stays behind a peek. */}
+          <div className="overline">Spot the slip · you read</div>
+          <RolePart label="Your part">Read the line aloud exactly as it&apos;s written, then stop. <b>Don&apos;t say whether it&apos;s right or wrong</b>, and don&apos;t hint: your partner decides.</RolePart>
+          <div className="say-line" lang={pack.id} style={{ fontSize: 24, margin: "10px 0 4px" }}>{asRead(t)}</div>
           <div className="say-gloss">{t.gloss}</div>
-          {t.slip ? <p style={{ margin: "10px 0 0" }}>The slip: <b lang={pack.id}>{t.slip}</b>, where it should be <b lang={pack.id}>{t.answer}</b>.</p> : null}
+          <HintButton key={`peek${g.turnIndex}`} hint={t.slip ? `It has a slip: ${t.slip}, where it should be ${t.answer}.` : "It's right as it's written."} label="Peek at the answer (keep it to yourself)" />
           <div className="muted small" style={{ marginTop: 10 }}>{partnerOnline ? "Your partner is deciding if it sounded right…" : "Waiting for your partner…"}</div>
         </div>
       ) : (
         <div className="framed write-card">
-          <div className="overline">Spot the slip: listen to your partner read a line. It means</div>
+          <div className="overline">Spot the slip · you decide</div>
+          <RolePart label="Your part">Your partner reads a line aloud. It may have one wrong word in it, or none, and they won&apos;t tell you which: you decide.</RolePart>
+          <div className="activity-sub" style={{ marginTop: 4 }}>The line means</div>
           <div className="card-prompt" style={{ fontSize: 20 }}>{t.gloss}</div>
           {offAt === g.turnIndex ? (
             <>

@@ -603,10 +603,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-ama",
     "kind": "vocab",
-    "prompt": "but",
+    "prompt": "but (casual)",
     "answer": "ама",
     "translit": "ama",
-    "gloss": "but",
+    "gloss": "but (casual)",
     "note": "colloquial conjunction, like 'но'",
     "i1Level": 1,
     "tags": [
@@ -631,10 +631,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-deka",
     "kind": "vocab",
-    "prompt": "that",
+    "prompt": "that (as in “I know that …”)",
     "answer": "дека",
     "translit": "deka",
-    "gloss": "that",
+    "gloss": "that (as in “I know that …”)",
     "note": "conjunction introducing clause",
     "i1Level": 1,
     "tags": [
@@ -687,10 +687,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-no",
     "kind": "vocab",
-    "prompt": "but",
+    "prompt": "but (more formal)",
     "answer": "но",
     "translit": "no",
-    "gloss": "but",
+    "gloss": "but (more formal)",
     "note": "contrastive conjunction",
     "i1Level": 1,
     "tags": [
@@ -795,10 +795,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-prijatel",
     "kind": "vocab",
-    "prompt": "friend",
+    "prompt": "friend (a man)",
     "answer": "пријател",
     "translit": "priyatel",
-    "gloss": "friend",
+    "gloss": "friend (a man)",
     "i1Level": 1,
     "tags": [
       "family & people"
@@ -1294,10 +1294,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-eden",
     "kind": "vocab",
-    "prompt": "one",
+    "prompt": "one (with a masculine noun)",
     "answer": "еден",
     "translit": "eden",
-    "gloss": "one",
+    "gloss": "one (with a masculine noun)",
     "note": "number; masculine form (edna f., edno n.)",
     "i1Level": 1,
     "tags": [
@@ -1589,10 +1589,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-tvoj",
     "kind": "vocab",
-    "prompt": "your, yours (sg.)",
+    "prompt": "your, yours (casual, one person)",
     "answer": "твој",
     "translit": "tvoy",
-    "gloss": "your, yours (sg.)",
+    "gloss": "your, yours (casual, one person)",
     "note": "possessive, informal singular",
     "i1Level": 1,
     "tags": [
@@ -1603,10 +1603,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-vash",
     "kind": "vocab",
-    "prompt": "your, yours (pl.)",
+    "prompt": "your, yours (you all, or polite)",
     "answer": "ваш",
     "translit": "vash",
-    "gloss": "your, yours (pl.)",
+    "gloss": "your, yours (you all, or polite)",
     "note": "2nd person plural/polite possessive",
     "i1Level": 1,
     "tags": [
@@ -1827,10 +1827,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-ti",
     "kind": "vocab",
-    "prompt": "you (sg.)",
+    "prompt": "you (casual, one person)",
     "answer": "ти",
     "translit": "ti",
-    "gloss": "you (sg.)",
+    "gloss": "you (casual, one person)",
     "note": "2nd person singular, informal",
     "i1Level": 1,
     "tags": [
@@ -2009,10 +2009,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-ona",
     "kind": "vocab",
-    "prompt": "that",
+    "prompt": "that (one over there)",
     "answer": "она",
     "translit": "ona",
-    "gloss": "that",
+    "gloss": "that (one over there)",
     "note": "demonstrative, distal neuter",
     "i1Level": 1,
     "tags": [
@@ -2023,10 +2023,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-ova",
     "kind": "vocab",
-    "prompt": "this",
+    "prompt": "this (“this is …”)",
     "answer": "ова",
     "translit": "ova",
-    "gloss": "this",
+    "gloss": "this (“this is …”)",
     "note": "demonstrative, neuter/general",
     "i1Level": 1,
     "tags": [
@@ -2037,10 +2037,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-ovaa",
     "kind": "vocab",
-    "prompt": "this",
+    "prompt": "this (with a feminine noun)",
     "answer": "оваа",
     "translit": "ovaa",
-    "gloss": "this",
+    "gloss": "this (with a feminine noun)",
     "note": "demonstrative, feminine",
     "i1Level": 1,
     "tags": [
@@ -2051,10 +2051,10 @@ export const coreWords: ReviewItem[] = [
   {
     "id": "word-ovoj",
     "kind": "vocab",
-    "prompt": "this",
+    "prompt": "this (with a masculine noun)",
     "answer": "овој",
     "translit": "ovoy",
-    "gloss": "this",
+    "gloss": "this (with a masculine noun)",
     "note": "demonstrative, masculine",
     "i1Level": 1,
     "tags": [

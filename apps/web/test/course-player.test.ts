@@ -391,6 +391,25 @@ for (const c of course.chapters) {
   assert.equal(cp.wordsTaughtToBoth(course, { order: 1, n: 1 }, { order: 3, n: 1 }).length, 0);
 }
 
+// Partner sessions sit PARTNER_LAG lessons back: slotBefore walks back across chapters, never before the start,
+// and a place past a chapter (its exam) counts back from the next chapter's first session.
+{
+  const [c1, c2] = [course.chapters[0]!, course.chapters[1]!];
+  assert.deepEqual(cp.slotBefore(course, { order: c2.order, n: 2 }, 2), { order: c1.order, n: c1.sessions.at(-1)!.n }, "back across a chapter");
+  assert.deepEqual(cp.slotBefore(course, { order: c1.order, n: 1 }, 2), { order: c1.order, n: 1 }, "never before the first session");
+  assert.deepEqual(cp.slotBefore(course, { order: c1.order, n: 999 }, 1), { order: c1.order, n: c1.sessions.at(-1)!.n }, "from an exam: the chapter's last session");
+  assert.deepEqual(cp.slotBefore(course, { order: c2.order, n: 3 }, 0), { order: c2.order, n: 3 });
+  // Points taught in the last two lessons drop out of the moved-back place.
+  const ps = cp.pointSlots(course);
+  const teachAt = [...ps.entries()].find(([, sl]) => sl.order > 1 && sl.n > 1)!;
+  const [pid, sl] = teachAt;
+  const share = { chapterId: "x", chapterOrder: sl.order, session: sl.n + 1, points: [...ps.keys()].filter((id) => cp.taughtBefore(ps.get(id), { order: sl.order, n: sl.n + 1 })) };
+  assert.ok(share.points.includes(pid));
+  const back = cp.lagShare(course, share, cp.PARTNER_LAG);
+  assert.ok(!back.points.includes(pid), "the point from the last lesson isn't practised together yet");
+  assert.ok(back.points.length < share.points.length && back.points.every((id) => share.points.includes(id)));
+}
+
 // The partnered grammar step (person ping-pong): lines from stories you've BOTH read, said about someone else
 // — a different person each, verbs only once both of you know them — with a couple of fill-ins on the point;
 // no rule read aloud, no rule quiz.

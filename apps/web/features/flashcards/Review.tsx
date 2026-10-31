@@ -8,12 +8,14 @@ import { type Progress } from "../../lib/store";
 import { buildLineGlosses } from "../../lib/capture";
 import * as cp from "../../lib/course-player";
 import { reviewPool } from "../../lib/today-plan";
+import { romanize } from "../../lib/romanize";
 import { ClozeCard, GrammarCard, PhraseCard } from "./Cards";
 import { gradeItem, nameCard, usePack } from "../shared";
 
 // ---------- Progress section: Strengthen (unified SRS over phrases + grammar) ----------
 export type ReviewUnit =
-  | { type: "pool"; key: string; item: ReviewItem; strength: number }
+  // `parentKey`: a part of a bundled card ("една" of "еден / една / едно"), filed and scheduled with it
+  | { type: "pool"; key: string; item: ReviewItem; strength: number; parentKey?: string }
   | { type: "captured"; key: string; entry: FamiliarityEntry; strength: number };
 export function Review({ progress, persist }: { progress: Progress; persist: (p: Progress) => void }) {
   const pack = usePack();
@@ -30,17 +32,29 @@ export function Review({ progress, persist }: { progress: Progress; persist: (p:
     const now = new Date();
     // New course: grammar is the taught points' cards (rule + blank), not the old per-concept drills.
     const pool = v2 && pack.course ? [...pack.vocab, ...cp.taughtPointItems(pack.course, progress)] : reviewPool(pack);
-    const poolKeys = new Set(pool.map((it) => familiarity.deriveKeyForItem(it).lexKey));
-    const poolUnits: ReviewUnit[] = pool.map((it) => {
-      const k = familiarity.deriveKeyForItem(it).lexKey;
-      return { type: "pool", key: k, item: it, strength: progress.familiarity[k]?.strength ?? 0 };
+    // A bundled card is drilled one part per card (Jake, 2026-10-31); a part another card already drills
+    // ("кој" of "кој / кога / зошто") is left to that card.
+    const keyOf = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
+    const poolKeys = new Set(pool.filter((it) => !it.parts?.length).map(keyOf));
+    const bundleKeys = new Set(pool.filter((it) => it.parts?.length).map(keyOf)); // drilled as their parts
+    const poolUnits: ReviewUnit[] = pool.flatMap((it): ReviewUnit[] => {
+      const k = keyOf(it);
+      if (!it.parts?.length) return [{ type: "pool", key: k, item: it, strength: progress.familiarity[k]?.strength ?? 0 }];
+      return it.parts.flatMap((pt, i): ReviewUnit[] => {
+        const part: ReviewItem = { id: `${it.id}~${i}`, kind: /\s/.test(pt.answer.trim()) ? "phrase" : "vocab", prompt: pt.prompt, gloss: pt.prompt, answer: pt.answer, translit: romanize(pt.answer), i1Level: it.i1Level, tags: it.tags, confidence: it.confidence };
+        const pk = keyOf(part);
+        if (poolKeys.has(pk)) return [];
+        poolKeys.add(pk);
+        return [{ type: "pool", key: pk, item: part, strength: progress.familiarity[pk]?.strength ?? 0, parentKey: k }];
+      });
     });
     const capturedUnits: ReviewUnit[] = Object.values(progress.familiarity)
-      .filter((e) => familiarity.isStudied(e) && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !nameCard(e.display, pack))
+      .filter((e) => familiarity.isStudied(e) && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !bundleKeys.has(e.lexKey) && !nameCard(e.display, pack))
       .map((e) => ({ type: "captured", key: e.lexKey, entry: e, strength: e.strength }));
     const isWord = (u: ReviewUnit) => u.type === "pool" ? (u.item.kind === "vocab" || (u.item.kind === "phrase" && !/\s/.test(u.item.answer.trim()))) : u.entry.kind === "word" && !progress.contexts?.[u.key];
     const dueMs = (u: ReviewUnit): number | null => {
-      const srs = u.type === "captured" ? u.entry.srs : progress.familiarity[u.key]?.srs;
+      // A part you haven't drilled yet comes due with its bundle.
+      const srs = u.type === "captured" ? u.entry.srs : (progress.familiarity[u.key] ?? (u.parentKey ? progress.familiarity[u.parentKey] : undefined))?.srs;
       return srs && new Date(srs.due) <= now ? new Date(srs.due).getTime() : null; // null ⇒ not currently due (new / scheduled ahead)
     };
     return [...poolUnits, ...capturedUnits].sort((a, b) => {
@@ -73,7 +87,7 @@ export function Review({ progress, persist }: { progress: Progress; persist: (p:
     if (u.type === "captured") return { key: "captured", label: "saved by you", order: 1001 };
     if (u.item.kind === "grammar") return { key: "grammar", label: "grammar", order: 1002 };
     if (v2 && pack.course) {
-      const at = cp.chapterOfWord(pack.course, u.key);
+      const at = cp.chapterOfWord(pack.course, u.key) ?? (u.parentKey ? cp.chapterOfWord(pack.course, u.parentKey) : undefined);
       const pc = at ? (pack.chapters ?? []).find((c) => c.id === at.chapterId) : undefined;
       return pc ? { key: pc.id, label: `${pc.order}. ${pc.shortTitle}`, order: pc.order } : { key: "more", label: "not in the lessons", order: 1000 };
     }

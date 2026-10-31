@@ -216,7 +216,7 @@ export const level1Additions: ReviewItem[] = [
   item({
     id: "add-thanks", kind: "phrase", tags: ["s0-greet"],
     answer: "Благодарам / Нема за што", translit: "Blagodaram / Nema za shto",
-    gloss: "thank you / you're welcome",
+    gloss: "thank you (formal) / you're welcome",
     breakdown: parts("Благодарам, Нема за што", "thank you, you're welcome"),
     takeaway: "Благодарам is a fuller thank-you than Фала. The answer to both: Нема за што.",
     meta: { wordNote: "Благодарам is a fuller thank-you than Фала. The answer to either one: Нема за што (you're welcome; literally “there's nothing for which”)." },
@@ -224,7 +224,7 @@ export const level1Additions: ReviewItem[] = [
   item({
     id: "add-bye", kind: "phrase", tags: ["s0-greet"],
     answer: "Пријатно / Чао", translit: "Priyatno / Chao",
-    gloss: "goodbye, have a nice day / bye",
+    gloss: "goodbye, have a nice day (formal) / bye (casual)",
     breakdown: parts("Пријатно, Чао", "goodbye (have a nice day), bye"),
     takeaway: "Three goodbyes: Догледање (until we see each other), Пријатно (have a nice day), Чао (to friends).",
     meta: { wordNote: "Ways to say goodbye: Догледање (until we see each other), Пријатно (have a nice day; also said before a meal: enjoy!), Чао (bye, to friends)." },

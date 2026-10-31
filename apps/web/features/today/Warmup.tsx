@@ -37,7 +37,9 @@ export function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: (
 export type WarmResult = { item: ReviewItem; ok: boolean };
 // A quick tap-to-match game: tap a word (hear it), then tap its meaning. Pairs matched on the first try
 // grade "good"; a wrong attempt first marks that word "again". Lighter + more fun than recalling each cold.
-export function MatchGame({ pairs, onDone, lead }: { pairs: { item: ReviewItem; target: string; gloss: string }[]; onDone: (results: WarmResult[]) => void; lead?: string }) {
+// `glossFirst`: the English column comes first (left) and you start there, then find the form, rather
+// than starting from the form (the conjugation match alternates the two).
+export function MatchGame({ pairs, onDone, lead, glossFirst = false }: { pairs: { item: ReviewItem; target: string; gloss: string }[]; onDone: (results: WarmResult[]) => void; lead?: string; glossFirst?: boolean }) {
   const pack = usePack();
   const play = usePlay();
   // Each column shows the same pairs in an independent shuffle; buttons carry the pair index.
@@ -47,8 +49,10 @@ export function MatchGame({ pairs, onDone, lead }: { pairs: { item: ReviewItem; 
   const [matched, setMatched] = useState<Set<number>>(new Set());
   const [missed, setMissed] = useState<Set<number>>(new Set());
   const [wrong, setWrong] = useState<number | null>(null);
-  const pickTarget = (i: number) => { if (matched.has(i)) return; setSel(i); play(pairs[i]!.target, 0.8); };
-  const pickGloss = (i: number) => {
+  // Tapping a form always plays it, whichever column you start from.
+  const pickFirst = (i: number) => { if (matched.has(i)) return; setSel(i); if (!glossFirst) play(pairs[i]!.target, 0.8); };
+  const pickSecond = (i: number) => {
+    if (glossFirst) play(pairs[i]!.target, 0.8);
     if (matched.has(i) || sel === null) return;
     if (i === sel) {
       const next = new Set(matched); next.add(i); setMatched(next); setSel(null);
@@ -59,18 +63,20 @@ export function MatchGame({ pairs, onDone, lead }: { pairs: { item: ReviewItem; 
       setTimeout(() => setWrong((w) => (w === i ? null : w)), 450);
     }
   };
+  const target = (i: number) => <span lang={pack.id}>{pairs[i]!.target}</span>;
+  const gloss = (i: number) => <MixedText text={pairs[i]!.gloss} />;
   return (
     <div className="framed match-card">
       <p style={{ margin: "0 0 4px", lineHeight: 1.5 }}><MixedText text={lead ?? "Match each word to its meaning: tap a word to hear it, then tap what it means."} /></p>
       <div className="match-grid">
         <div className="match-col">
           {leftOrder.map((i) => (
-            <button key={i} lang={pack.id} className={`opt${matched.has(i) ? " right matched" : sel === i ? " sel" : ""}`} disabled={matched.has(i)} onClick={() => pickTarget(i)}>{pairs[i]!.target}</button>
+            <button key={i} className={`opt${matched.has(i) ? " right matched" : sel === i ? " sel" : ""}`} disabled={matched.has(i)} onClick={() => pickFirst(i)}>{glossFirst ? gloss(i) : target(i)}</button>
           ))}
         </div>
         <div className="match-col">
           {rightOrder.map((i) => (
-            <button key={i} className={`opt${matched.has(i) ? " right matched" : wrong === i ? " wrong" : ""}`} disabled={matched.has(i)} onClick={() => pickGloss(i)}><MixedText text={pairs[i]!.gloss} /></button>
+            <button key={i} className={`opt${matched.has(i) ? " right matched" : wrong === i ? " wrong" : ""}`} disabled={matched.has(i)} onClick={() => pickSecond(i)}>{glossFirst ? target(i) : gloss(i)}</button>
           ))}
         </div>
       </div>
@@ -82,7 +88,7 @@ export function MatchGame({ pairs, onDone, lead }: { pairs: { item: ReviewItem; 
   );
 }
 export type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
-export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard } | { kind: "conjugation"; verb: ConjugationSet };
+export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard } | { kind: "conjugation"; verb: ConjugationSet; personFirst: boolean };
 export function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss }: {
   items: ReviewItem[];
   conjVerb?: ConjugationSet;
@@ -116,7 +122,9 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
     // A one-word "match" is silly — turn a lone match candidate into a recall card instead.
     if (matchPairs.length === 1) { cards.unshift({ item: matchPairs[0]!.item, format: "recall" }); matchPairs.length = 0; }
     const steps: WarmStep[] = [];
-    if (conjVerb) steps.push({ kind: "conjugation", verb: conjVerb });
+    // The columns swap from one drill to the next (Jake, 2026-10-31): person → form one day, form → person
+    // the next, so you both produce the endings and recognise them. Fixed at mount, so finishing can't flip it.
+    if (conjVerb) steps.push({ kind: "conjugation", verb: conjVerb, personFirst: (progress.seenConjugations?.length ?? 0) % 2 === 0 });
     // A big set (a checkpoint's whole chapter) is matched six at a time: one grid of eighteen is a wall.
     if (matchPairs.length >= 2) {
       const groups = Math.ceil(matchPairs.length / 6);
@@ -152,7 +160,10 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
       {step.kind === "conjugation" ? (
         <MatchGame
           key={stepIdx}
-          lead={`Match each pronoun to the right form of “${step.verb.gloss}” (${step.verb.lemma}).`}
+          glossFirst={step.personFirst}
+          lead={step.personFirst
+            ? `Tap a person, then the form of “${step.verb.gloss}” (${step.verb.lemma}) that goes with it.`
+            : `Tap a form of “${step.verb.gloss}” (${step.verb.lemma}) to hear it, then the person it goes with.`}
           pairs={PRONOUNS.map((pr) => ({ item: { id: `conj-${step.verb.lemma}-${pr.key}`, kind: "vocab", prompt: pr.en, answer: step.verb.forms[pr.key], gloss: `${pr.en} · ${pr.mk}`, i1Level: 0, tags: [] }, target: step.verb.forms[pr.key], gloss: `${pr.en} · ${pr.mk}` }))}
           onDone={() => { persist({ ...progress, seenConjugations: [...(progress.seenConjugations ?? []), step.verb.lemma] }); advance(); }}
         />

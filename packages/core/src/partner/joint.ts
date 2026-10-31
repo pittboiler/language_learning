@@ -3,7 +3,8 @@
 // joint session over the OVERLAP: the latest grammar point both have been taught, the furthest chapter both
 // have reached, a story that uses that point, and a conversation both have unlocked. Being ahead never
 // pushes your material onto your partner (the same rule the drill queue follows) — instead the plan says
-// who's ahead, frames the roles, and names the next point you'll be able to share.
+// who's ahead, frames the roles, and names the next point you'll be able to share. The caller can move the
+// overlap back (`content`: a couple of lessons behind, so nothing in the session is brand new).
 // Pure + language-agnostic: it reads only the Course structure and the two positions.
 import type { Course } from "@ll/pack-schema";
 
@@ -63,6 +64,9 @@ export interface JointInputs {
   titles: { point: (id: string) => string; story: (id: string) => string; scenario: (id: string) => string; chapter: (order: number) => string };
   /** Display name for the partner in framing text (default "your partner"). */
   partnerName?: string;
+  /** Where to draw today's material from, when it isn't where you each are: a couple of lessons back, so
+   *  nothing in the session is brand new. The framing (who's where, who's ahead) still uses `me`/`partner`. */
+  content?: { me: CoursePositionShare; partner?: CoursePositionShare };
 }
 
 const order = (course: Course, id: string) => course.points.find((p) => p.id === id)?.order ?? 0;
@@ -91,9 +95,14 @@ export function planJointSession(inp: JointInputs): JointPlan {
   // Overlap. Without the partner's position, fall back to mine (the drill is still both-studied-only).
   const mine = new Set(me.points);
   const theirs = partner ? new Set(partner.points) : mine;
-  const shared = course.points.filter((p) => mine.has(p.id) && theirs.has(p.id)).map((p) => p.id);
+  // Today's material comes from the content positions (default: where you each are).
+  const cMe = inp.content?.me ?? me;
+  const cPartner = inp.content ? inp.content.partner : partner;
+  const cMine = new Set(cMe.points);
+  const cTheirs = cPartner ? new Set(cPartner.points) : cMine;
+  const shared = course.points.filter((p) => cMine.has(p.id) && cTheirs.has(p.id)).map((p) => p.id);
   const focusPointId = shared.sort((a, b) => order(course, b) - order(course, a))[0];
-  const sharedChapterOrder = partner ? Math.min(me.chapterOrder, partner.chapterOrder) : me.chapterOrder;
+  const sharedChapterOrder = cPartner ? Math.min(cMe.chapterOrder, cPartner.chapterOrder) : cMe.chapterOrder;
 
   // Who's ahead, by points taught (sessions break ties within a chapter).
   const gap = partner ? Math.abs(mine.size - theirs.size) : 0;
@@ -124,7 +133,7 @@ export function planJointSession(inp: JointInputs): JointPlan {
   }
   const readBy = (slot: { order: number; n: number }, p: CoursePositionShare) => slot.order < p.chapterOrder || (slot.order === p.chapterOrder && slot.n < p.session);
   const reread = [...storySlot.entries()]
-    .filter(([, slot]) => readBy(slot, me) && (!partner || readBy(slot, partner)))
+    .filter(([, slot]) => readBy(slot, cMe) && (!cPartner || readBy(slot, cPartner)))
     .sort((a, b) => (focusLines.get(b[0])?.length ?? 0) - (focusLines.get(a[0])?.length ?? 0) || b[1].order - a[1].order || b[1].n - a[1].n)[0];
   if (reread) {
     storyId = reread[0];
@@ -140,7 +149,7 @@ export function planJointSession(inp: JointInputs): JointPlan {
   // Conversation: the latest chapter whose conversation BOTH have unlocked.
   let scenarioId: string | undefined;
   for (let o = sharedChapterOrder; o >= 0 && !scenarioId; o--) {
-    const ok = unlockedSpeak(course, me, o) && (!partner || unlockedSpeak(course, partner, o));
+    const ok = unlockedSpeak(course, cMe, o) && (!cPartner || unlockedSpeak(course, cPartner, o));
     if (ok) scenarioId = byOrder(course, o)?.checkpoint.scenarioId;
   }
 
@@ -163,10 +172,13 @@ export function planJointSession(inp: JointInputs): JointPlan {
         ? `You're ${pts(gap)} ahead (${chap(me)}; ${who} is at ${chap(partner!)}). Today stays on what you've both learned: you'll mostly check, ${who} will mostly answer.`
         : `${Who} is ${pts(gap)} ahead (${chap(partner!)}; you're at ${chap(me)}). Today stays on what you've both learned: ${who} will mostly check, you'll mostly answer.`;
 
-  // The next point you can share: the earliest point in the spine that at least one of you hasn't been taught.
+  // The next point you can share: the earliest point in the spine that isn't in today's material. One you've
+  // both been taught already just has to settle a lesson or two first.
   let next: JointPlan["next"];
-  const nextPoint = course.points.find((p) => !(mine.has(p.id) && theirs.has(p.id)));
-  if (nextPoint) {
+  const nextPoint = course.points.find((p) => !(cMine.has(p.id) && cTheirs.has(p.id)));
+  if (nextPoint && mine.has(nextPoint.id) && theirs.has(nextPoint.id)) {
+    next = { pointId: nextPoint.id, waitingOn: "both", label: `Next together: ${titles.point(nextPoint.id)}, once it's a lesson or two behind you both.` };
+  } else if (nextPoint) {
     const waitingOn = !mine.has(nextPoint.id) && !theirs.has(nextPoint.id) ? "both" : !mine.has(nextPoint.id) ? "you" : "partner";
     const ch = course.chapters.find((c) => c.pointIds.includes(nextPoint.id));
     const s = ch?.sessions.find((x) => x.pointId === nextPoint.id && x.role === "teach")?.n;

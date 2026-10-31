@@ -487,10 +487,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s2-home-family-v8",
     "kind": "phrase",
-    "prompt": "How old are you?",
+    "prompt": "How old are you? (casual)",
     "answer": "На колку години си?",
     "translit": "Na kolku godini si?",
-    "gloss": "How old are you?",
+    "gloss": "How old are you? (casual)",
     "note": "Literally 'At how many years are you?'",
     "i1Level": 3,
     "tags": [
@@ -667,10 +667,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s2-arrange-v8",
     "kind": "phrase",
-    "prompt": "Leave a message.",
+    "prompt": "Leave a message. (formal)",
     "answer": "Оставете порака.",
     "translit": "Ostavete poraka.",
-    "gloss": "Leave a message.",
+    "gloss": "Leave a message. (formal)",
     "note": "Polite plural imperative; 'порака' = message (fem.).",
     "i1Level": 3,
     "tags": [
@@ -747,10 +747,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s2-problems-v4",
     "kind": "phrase",
-    "prompt": "Can you help?",
+    "prompt": "Can you help? (formal)",
     "answer": "Можете ли да помогнете?",
     "translit": "Možete li da pomognete?",
-    "gloss": "Can you help?",
+    "gloss": "Can you help? (formal)",
     "note": "Polite/plural form; li marks the question",
     "i1Level": 3,
     "tags": [
@@ -807,10 +807,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s2-problems-v7",
     "kind": "phrase",
-    "prompt": "Sorry, but …",
+    "prompt": "Sorry, but … (formal)",
     "answer": "Извинете, ама …",
     "translit": "Izvinete, ama …",
-    "gloss": "Sorry, but …",
+    "gloss": "Sorry, but … (formal)",
     "note": "Polite 'excuse me'; ama = colloquial 'but'",
     "i1Level": 3,
     "tags": [

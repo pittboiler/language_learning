@@ -66,10 +66,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s0-repair-v4",
     "kind": "phrase",
-    "prompt": "Slower, please.",
+    "prompt": "Slower, please. (formal)",
     "answer": "Побавно, ве молам.",
     "translit": "Pobavno, ve molam.",
-    "gloss": "Slower, please.",
+    "gloss": "Slower, please. (formal)",
     "note": "Stress poBАvno.",
     "i1Level": 0,
     "tags": [
@@ -86,10 +86,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s0-repair-v5",
     "kind": "phrase",
-    "prompt": "Once more, please.",
+    "prompt": "Once more, please. (formal)",
     "answer": "Уште еднаш, ве молам.",
     "translit": "Ušte ednaš, ve molam.",
-    "gloss": "Once more, please.",
+    "gloss": "Once more, please. (formal)",
     "note": "ednaš = once.",
     "i1Level": 0,
     "tags": [
@@ -346,10 +346,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s0-greet-v6",
     "kind": "phrase",
-    "prompt": "I'm well, thanks.",
+    "prompt": "I'm well, thanks. (casual)",
     "answer": "Добро сум, фала.",
     "translit": "Dobro sum, fala.",
-    "gloss": "I'm well, thanks.",
+    "gloss": "I'm well, thanks. (casual)",
     "note": "Standard reply to 'How are you?'",
     "i1Level": 1,
     "tags": [
@@ -366,10 +366,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s0-greet-v7",
     "kind": "phrase",
-    "prompt": "Thanks",
+    "prompt": "Thanks (casual)",
     "answer": "Фала",
     "translit": "Fala",
-    "gloss": "Thanks",
+    "gloss": "Thanks (casual)",
     "note": "Colloquial; also благодарам (blagodaram) is more formal.",
     "i1Level": 0,
     "tags": [
@@ -386,10 +386,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s0-greet-v8",
     "kind": "phrase",
-    "prompt": "Please / You're welcome",
+    "prompt": "Please / You're welcome (formal)",
     "answer": "Ве молам",
     "translit": "Ve molam",
-    "gloss": "Please / You're welcome",
+    "gloss": "Please / You're welcome (formal)",
     "note": "Means both 'please' and 'you're welcome'.",
     "i1Level": 0,
     "tags": [
@@ -566,10 +566,10 @@ export const promotedVocab: ReviewItem[] = [
   {
     "id": "gen-s0-survive-v5",
     "kind": "phrase",
-    "prompt": "Do you have …?",
+    "prompt": "Do you have …? (formal)",
     "answer": "Имате ли …?",
     "translit": "Imate li …?",
-    "gloss": "Do you have …?",
+    "gloss": "Do you have …? (formal)",
     "note": "Polite/plural form of 'imaš'.",
     "i1Level": 1,
     "tags": [
