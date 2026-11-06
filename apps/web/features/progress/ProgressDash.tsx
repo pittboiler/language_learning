@@ -5,7 +5,7 @@ import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { CourseMap } from "./CourseMap";
 import { ChapterProgressMap } from "./MyNotes";
-import { LibView, Section, computeLevel, currentStreak, usePack } from "../shared";
+import { LibView, Section, computeLevel, currentStreak, lastWeek, usePack } from "../shared";
 
 // ---------- Progress section: functional stats + Strengthen ----------
 export function ProgressDash({ progress, persist, navigate, dueCount }: { progress: Progress; persist: (p: Progress) => void; navigate: (sec: Section, lv?: LibView) => void; dueCount: number }) {
@@ -13,6 +13,7 @@ export function ProgressDash({ progress, persist, navigate, dueCount }: { progre
   const vocab = scoring.computeMetrics(progress.familiarity);
   const level = computeLevel(pack, progress);
   const streak = currentStreak(progress);
+  const weekDays = lastWeek(progress).filter((d) => d.on).length; // every day practised, gaps or not
   const stat = (l: string, v: ReactNode, accent?: boolean) => (
     <div className="stat" key={l}><div className={`v ${accent ? "accent" : ""}`}>{v}</div><div className="l">{l}</div></div>
   );
@@ -25,6 +26,7 @@ export function ProgressDash({ progress, persist, navigate, dueCount }: { progre
         {stat("Learning", vocab.learningCount)}
         {stat("New this week", vocab.movedToKnownThisWeek)}
         {stat("To review", dueCount, dueCount > 0)}
+        {stat("Days this week", weekDays)}
         {stat("Day streak", streak)}
         {stat("Level", level.cefrBand)}
       </div>

@@ -29,6 +29,54 @@ const pad2 = (n: number) => String(n).padStart(2, "0");
 /** Local calendar day as YYYY-MM-DD (not UTC) — so streaks/repetition follow the learner's own days. */
 export const localDay = (d = new Date()): string => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 
+// ---- the habit: days practised, and the streak ----
+/** How many practice days are remembered (the week view needs 7; a few months costs nothing). */
+export const ACTIVE_DAYS_KEPT = 120;
+const dayBefore = (day: string, n = 1): string => { const [y, m, d] = day.split("-").map(Number); return localDay(new Date(y!, m! - 1, d! - n, 12)); };
+
+/** Count today toward the habit: it's a practice day, and the streak grows if yesterday was one too.
+ *  Idempotent per local day. */
+export const bumpStreak = (p: Progress, now = new Date()): Progress => {
+  const today = localDay(now);
+  const days = p.activeDays ?? [];
+  const activeDays = days.includes(today) ? days : [...days, today].slice(-ACTIVE_DAYS_KEPT);
+  const s = p.streak ?? { count: 0, lastDay: "" };
+  if (s.lastDay === today) return activeDays === days ? p : { ...p, activeDays };
+  const count = s.lastDay === dayBefore(today) ? s.count + 1 : 1;
+  return { ...p, activeDays, streak: { count, lastDay: today } };
+};
+
+/** The streak as it stands today: the stored count only resets on the next activity, so a streak whose last
+ *  day is older than yesterday has already lapsed and counts as 0. */
+export const currentStreak = (p: Progress, now = new Date()): number => {
+  const s = p.streak;
+  if (!s?.count) return 0;
+  const today = localDay(now);
+  return s.lastDay === today || s.lastDay === dayBefore(today) ? s.count : 0;
+};
+
+/** Every day with practice that the progress can show: the recorded days, plus (for practice from before they
+ *  were recorded, 2026-11-06) each finished lesson in the course log and the current streak's run. Jake: "I did
+ *  it multiple times this past week and it only shows me having done one" — the week was drawn from the
+ *  streak alone, so any gap hid every day before it. */
+export function practiceDays(p: Progress): Set<string> {
+  const out = new Set(p.activeDays ?? []);
+  for (const e of p.courseLog ?? []) for (const at of [e.startedAt, e.at]) if (at) out.add(localDay(new Date(at)));
+  const s = p.streak;
+  if (s?.lastDay) for (let i = 0; i < s.count; i++) out.add(dayBefore(s.lastDay, i));
+  return out;
+}
+
+/** The last seven days, oldest first: its weekday letter, whether you practised, whether it's today. */
+export function lastWeek(p: Progress, now = new Date()): { day: string; on: boolean; today: boolean }[] {
+  const done = practiceDays(p);
+  const today = localDay(now);
+  return Array.from({ length: 7 }, (_, k) => {
+    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - (6 - k), 12);
+    return { day: d.toLocaleDateString("en", { weekday: "narrow" }), on: done.has(localDay(d)), today: localDay(d) === today };
+  });
+}
+
 /** Record that today's daily-flow reading of a story happened (idempotent per local day). A unit
  *  repeats across UNIT_MIN_DAYS days before storyDone() lets Today advance to the next one. */
 export const markStorySeen = (p: Progress, storyId: string, today = localDay()): Progress => {

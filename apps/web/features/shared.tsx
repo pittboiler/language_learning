@@ -9,7 +9,7 @@ import { makeRecorder } from "../lib/recorder";
 import * as api from "../lib/api";
 import { getPack, DEFAULT_PACK_ID } from "../lib/packs";
 import { type Progress } from "../lib/store";
-import { localDay, storyDone } from "../lib/daily";
+import { storyDone } from "../lib/daily";
 import { properNounLike } from "../lib/capture";
 
 export type Section = "today" | "library" | "progress" | "partnered";
@@ -67,22 +67,8 @@ export const wordStatus = (p: Progress, lexKey: string): string => {
   return !e ? "new" : e.status === "known" ? "known" : e.status === "ignored" ? "ignored" : "learning";
 };
 // ---- daily-flow helpers ----
-/** Bump the day-streak the first time an activity completes on a new local day (idempotent per day). */
-export const bumpStreak = (p: Progress): Progress => {
-  const today = localDay();
-  const s = p.streak ?? { count: 0, lastDay: "" };
-  if (s.lastDay === today) return p;
-  const yesterday = localDay(new Date(Date.now() - 86400000));
-  const count = s.lastDay === yesterday ? s.count + 1 : 1;
-  return { ...p, streak: { count, lastDay: today } };
-};
-/** The streak as it stands today: the stored count only resets on the next activity, so a streak whose last
- *  day is older than yesterday has already lapsed and counts as 0. */
-export const currentStreak = (p: Progress): number => {
-  const s = p.streak;
-  if (!s?.count) return 0;
-  return s.lastDay === localDay() || s.lastDay === localDay(new Date(Date.now() - 86400000)) ? s.count : 0;
-};
+// The habit (practice days + streak) lives in lib/daily.ts, where it's tested.
+export { bumpStreak, currentStreak, lastWeek } from "../lib/daily";
 // Mark a grammar concept's rule as introduced (so later it's surfaced just-in-time, not re-taught).
 export const markSeen = (p: Progress, conceptId: string): Progress => ({ ...p, seenGrammar: { ...p.seenGrammar, [conceptId]: true } });
 // Capture a batch of pre-taught words into familiarity (the "new words" step before the story). These

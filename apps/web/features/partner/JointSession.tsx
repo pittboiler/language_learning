@@ -16,7 +16,7 @@ import { FocusText } from "../conversation/ScenarioView";
 import { StoryTogether } from "./StoryTogether";
 import { TogetherSession } from "./TogetherSession";
 import { ActivityHead, colStack } from "./shared";
-import { HintButton, Icon, MixedText, SpeakButton, Stitches, gradeItem, usePack, usePlay } from "../shared";
+import { HintButton, Icon, MixedText, SpeakButton, Stitches, bumpStreak, gradeItem, usePack, usePlay } from "../shared";
 
 // Off the course (no blueprint): pick a story for the partnered session by SHARED readiness — the scenario
 // whose vocabulary both have actually studied — so it lands at the pair's level. Falls back to the
@@ -358,6 +358,8 @@ export function JointSessionRecap({ row, store, partnershipId, myId, progress, p
   const [drill, setDrill] = useState<together.TogetherSession | null>(null);
   const [gram, setGram] = useState<gtog.GrammarTogetherSession | null>(null);
   const [story, setStory] = useState<storyTog.StorySession | null>(null);
+  // Reaching the recap is a session done together: it counts as a practice day, like a lesson does.
+  useEffect(() => { const p = bumpStreak(progress); if (p !== progress) persist(p); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
   useEffect(() => {
     void (async () => {
       try {

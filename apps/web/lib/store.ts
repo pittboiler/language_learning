@@ -28,6 +28,9 @@ export interface Progress {
   courseLog?: CourseLogEntry[];
   /** Daily-flow habit: consecutive days with ≥1 completed activity. lastDay is a local YYYY-MM-DD. */
   streak?: { count: number; lastDay: string };
+  /** Every local day (YYYY-MM-DD) with practice, the last ACTIVE_DAYS_KEPT of them: the week view shows these,
+   *  so days apart still show (the streak alone only knows the latest run). See daily.ts. */
+  activeDays?: string[];
   /** Verb lemmas already drilled in the warm-up conjugation match game — so each day picks a new one. */
   seenConjugations?: string[];
   /** "<lemma>:<person>" pairs the learner has correctly BUILT in the sentence exercise — steers toward

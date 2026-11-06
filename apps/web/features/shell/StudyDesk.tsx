@@ -6,9 +6,8 @@
 // keep the header, the tabs and the bottom bar.
 import type { ReactNode } from "react";
 import { type Progress } from "../../lib/store";
-import { localDay } from "../../lib/daily";
 import * as cp from "../../lib/course-player";
-import { Icon, SpeakButton, currentStreak, usePack, usePlay, type Section } from "../shared";
+import { Icon, SpeakButton, currentStreak, lastWeek, usePack, usePlay, type Section } from "../shared";
 
 export const SECTIONS: [Section, string, "today" | "library" | "progress" | "partner"][] = [
   ["today", "Today", "today"],
@@ -60,18 +59,6 @@ export function Sidebar({ progress, section, onSection, meta, footer }: {
   );
 }
 
-/** The last seven days, oldest first, each on if it's inside the current streak. */
-function week(progress: Progress): { day: string; on: boolean; today: boolean }[] {
-  const s = progress.streak ?? { count: 0, lastDay: "" };
-  const last = s.lastDay ? new Date(`${s.lastDay}T12:00:00`) : null;
-  const today = new Date();
-  return Array.from({ length: 7 }, (_, k) => {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6 - k), 12);
-    const ago = last ? Math.round((last.getTime() - d.getTime()) / 86400000) : -1;
-    return { day: d.toLocaleDateString("en", { weekday: "narrow" }), on: ago >= 0 && ago < s.count, today: localDay(d) === localDay() };
-  });
-}
-
 export function Rail({ progress, section }: { progress: Progress; section: Section | null }) {
   const pack = usePack();
   const play = usePlay();
@@ -79,6 +66,9 @@ export function Rail({ progress, section }: { progress: Progress; section: Secti
   const session = section === "today" && pos?.kind === "session" ? pos.session : undefined;
   const point = session?.pointId ? pack.course?.points.find((p) => p.id === session.pointId) : undefined;
   const streak = currentStreak(progress);
+  // Every day you practised in the last seven, not just the current run (a gap no longer hides the days before it).
+  const week = lastWeek(progress);
+  const days = week.filter((d) => d.on).length;
   return (
     <aside className="rail" aria-label="Alongside">
       {session && session.words.length > 0 && (
@@ -102,9 +92,9 @@ export function Rail({ progress, section }: { progress: Progress; section: Secti
         </section>
       )}
       <section className="rail-card">
-        <div className="rail-head"><span className="rail-title">This week</span><span className="muted small">{streak > 0 ? `${streak} ${streak === 1 ? "day" : "days"} in a row` : "Start a streak today"}</span></div>
-        <div className="week" role="img" aria-label={`${week(progress).filter((d) => d.on).length} of the last 7 days`}>
-          {week(progress).map((d, i) => <span key={i}><i className={`${d.on ? "on" : ""}${d.today ? " today" : ""}`} />{d.day}</span>)}
+        <div className="rail-head"><span className="rail-title">This week</span><span className="muted small">{days ? `${days} ${days === 1 ? "day" : "days"}${streak > 1 ? ` · ${streak} in a row` : ""}` : "Start a streak today"}</span></div>
+        <div className="week" role="img" aria-label={`Practised ${days} of the last 7 days`}>
+          {week.map((d, i) => <span key={i}><i className={`${d.on ? "on" : ""}${d.today ? " today" : ""}`} />{d.day}</span>)}
         </div>
       </section>
     </aside>

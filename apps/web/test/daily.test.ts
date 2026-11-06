@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import type { MiniStory } from "@ll/pack-schema";
 import type { Progress } from "../lib/store.js";
-import { NEW_WORDS_PER_SESSION, UNIT_MIN_DAYS, REVIEW_DAY_EVERY, isReviewDay, localDay, markStorySeen, planNewWords, storyDone } from "../lib/daily.js";
+import { NEW_WORDS_PER_SESSION, UNIT_MIN_DAYS, REVIEW_DAY_EVERY, bumpStreak, currentStreak, isReviewDay, lastWeek, localDay, markStorySeen, planNewWords, practiceDays, storyDone } from "../lib/daily.js";
 
 // Minimal builders — storyDone/markStorySeen only touch the fields below.
 const prog = (over: Partial<Progress> = {}): Progress => ({ familiarity: {}, seenStories: {}, storyReads: {}, ...over } as Progress);
@@ -83,5 +83,33 @@ assert.deepEqual(planNewWords({ required: [], storyWords: [], coreWords: [], day
 
 // 5. localDay is zero-padded YYYY-MM-DD.
 assert.match(localDay(new Date(2026, 0, 5)), /^2026-01-05$/, "localDay zero-pads month/day");
+
+// The habit (Jake, 2026-11-06: "I did it multiple times this past week and it only shows me having done one").
+{
+  const at = (y: number, m: number, d: number) => new Date(y, m - 1, d, 18);
+  // Practice Mon 2, Wed 4, Thu 5, Sat 7 Nov: the streak restarts after each gap, but every day is kept.
+  let p = prog();
+  for (const d of [2, 4, 5, 7]) p = bumpStreak(p, at(2026, 11, d));
+  p = bumpStreak(p, at(2026, 11, 7)); // a second activity the same day changes nothing
+  assert.deepEqual(p.activeDays, ["2026-11-02", "2026-11-04", "2026-11-05", "2026-11-07"]);
+  assert.deepEqual(p.streak, { count: 1, lastDay: "2026-11-07" }, "Saturday follows a gap: a run of one");
+  const week = lastWeek(p, at(2026, 11, 8));
+  assert.equal(week.filter((d) => d.on).length, 4, "the week shows all four days, not just the latest run");
+  assert.deepEqual(week.map((d) => d.on), [true, false, true, true, false, true, false]);
+  assert.ok(week[6]!.today && !week[5]!.today);
+  assert.equal(currentStreak(p, at(2026, 11, 8)), 1, "yesterday counts");
+  assert.equal(currentStreak(p, at(2026, 11, 9)), 0, "two days later it has lapsed");
+  // Back-to-back days grow the streak, across a month end.
+  let q = prog();
+  for (const [m, d] of [[10, 30], [10, 31], [11, 1]] as const) q = bumpStreak(q, at(2026, m, d));
+  assert.deepEqual(q.streak, { count: 3, lastDay: "2026-11-01" });
+  // Practice from before days were recorded still shows: each lesson in the course log, and the streak's run.
+  const old = prog({ streak: { count: 2, lastDay: "2026-11-06" }, courseLog: [
+    { chapterId: "c", n: 1, startedAt: at(2026, 11, 2).toISOString(), at: at(2026, 11, 2).toISOString() },
+    { chapterId: "c", n: 2, startedAt: at(2026, 11, 4).toISOString(), at: at(2026, 11, 4).toISOString() },
+  ] });
+  assert.deepEqual([...practiceDays(old)].sort(), ["2026-11-02", "2026-11-04", "2026-11-05", "2026-11-06"]);
+  assert.equal(lastWeek(old, at(2026, 11, 7)).filter((d) => d.on).length, 4);
+}
 
 console.log("daily.test.ts: all assertions passed ✓");
