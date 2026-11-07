@@ -9,7 +9,7 @@ import { captureWord, properNounLike } from "../../lib/capture";
 import { subscribeArtifacts, joinPresence, sharedArtifactId, type PartnerStore } from "../../lib/partner-store";
 import { translitOr } from "../../lib/romanize";
 import * as storyTog from "@ll/core/story-together";
-import { ActivityHead, colStack } from "./shared";
+import { ActivityHead, RolePart, colStack } from "./shared";
 import { TappableText, WordPanel } from "../reading/Reading";
 import { HintButton, Icon, MixedText, SlowContext, SpeakButton, Stitches, usePack, usePlay } from "../shared";
 
@@ -175,14 +175,19 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
       ) : null}
       {isQa ? (iRead ? (
         <div className="framed write-card">
-          <div className="overline">Your partner asks you about the story: answer out loud, in {pack.name} if you can</div>
+          {/* Jake (2026-11-06): "What does it ask?" read as a second instruction. The question is shown as
+              their question, and its English is a plainly named peek. */}
+          <div className="overline">Questions · you answer</div>
+          <RolePart>Your partner asks you this question about the story. Answer it out loud, in {pack.name} if you can.</RolePart>
+          <div className="activity-sub" style={{ marginTop: 4 }}>Their question</div>
           <div className="model-line"><SpeakButton label="Play the question" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 22, margin: 0 }}>{turn.text}</span></div>
-          <HintButton hint={turn.gloss} label="What does it ask?" />
+          <HintButton key={`q${turn.index}`} hint={turn.gloss} label="Show the question in English" />
           <div className="muted small" style={{ marginTop: 10 }}>{partnerOnline ? "Your partner is checking your answer…" : "Waiting for your partner…"}</div>
         </div>
       ) : (
         <div className="framed write-card">
-          <div className="overline">Ask your partner this question, out loud</div>
+          <div className="overline">Questions · you ask and check</div>
+          <RolePart>Read this question aloud to your partner. They answer out loud; check them against the answer below. Their own words are fine if they mean the same.</RolePart>
           <div className="model-line"><SpeakButton label="Play the question" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 22, margin: 0 }}>{turn.text}</span></div>
           <div className="say-gloss">{turn.gloss}</div>
           <p style={{ margin: "12px 0 0" }}>Answer: <b lang={pack.id} className="rmk">{turn.answer}</b>{turn.answerGloss ? <span className="muted"> · {turn.answerGloss}</span> : null}</p>
@@ -193,7 +198,8 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
         </div>
       )) : iRead ? (
         <div className="framed write-card">
-          <div className="overline">Your line: read it aloud, then tell your partner roughly what it means{progress ? " (tap a word if you're stuck)" : ""}</div>
+          <div className="overline">Read the story · you read</div>
+          <RolePart>Read your line aloud in {pack.name}, then tell your partner in English roughly what it means. Any new words are translated below{progress ? "; tap any other word you're stuck on" : ""}.</RolePart>
           <div className="model-line"><SpeakButton label="Play your line" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 24, margin: 0 }}>{progress ? <TappableText text={turn.text} progress={progress} onTapWord={(sf) => onTap(sf, turn.text, turn.gloss)} /> : turn.text}</span></div>
           <div className="say-gloss">{translitOr(turn.text, turn.translit)}</div>
           {progress && <NewWordsOnLine text={turn.text} storyId={story.id} progress={progress} />}
@@ -202,10 +208,10 @@ export function StoryTogether({ store, partnershipId, packId, myId, partnerId, s
         </div>
       ) : (
         <div className="framed write-card">
-          <div className="overline">Your partner reads this line and says roughly what it means</div>
+          <div className="overline">Read the story · you check</div>
+          <RolePart>Your partner reads this line aloud, then says in English what it means. Check them against the meaning below: the gist is enough, it doesn&apos;t have to be word for word.</RolePart>
           <div className="model-line"><SpeakButton label="Play their line" onClick={() => play(turn.text, 0.9)} /><span className="say-line" lang={pack.id} style={{ fontSize: 22, margin: 0 }}>{turn.text}</span></div>
           <p style={{ margin: "10px 0 0" }}>It means: <MixedText text={turn.gloss} /></p>
-          <div className="muted small" style={{ marginTop: 6 }}>Did they get the gist? It doesn&apos;t have to be word for word.</div>
           <div className="grade-row">
             <button className="ghost" onClick={() => check(false)}><Icon name="restart" size={16} />Not quite</button>
             <button className="btn" onClick={() => check(true)}><Icon name="check" size={16} />Got the gist</button>

@@ -13,6 +13,11 @@ export const VIS_TOGGLES: [keyof VisibilitySettings, string][] = [
   ["allowTeachBack", "Teach-back"],
 ];
 export const colStack: CSSProperties = { display: "flex", flexDirection: "column", gap: 10 };
+/** What this screen's partner does on this turn, in a line or two, so the two roles never blur (the grammar
+ *  step and the story read-through, each turn titled "<activity> · you <role>"). */
+export function RolePart({ label = "Your part", children }: { label?: string; children: ReactNode }) {
+  return <div className="gram-plain role-part"><span className="lab">{label}</span><p>{children}</p></div>;
+}
 // Async voice role-swap (Phase 1, flagship): split a 2-role scenario across the dyad; each records
 // their lines (reusing makeRecorder + the dual-ASR feedback pipeline), the app stitches them into a
 // replayable conversation. The session — incl. recorded audio as data-URLs for the MVP — is one

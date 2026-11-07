@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { LanguagePack, Scenario } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import * as api from "../../lib/api";
@@ -15,7 +15,7 @@ import * as gtog from "@ll/core/partner/grammar-together";
 import { FocusText } from "../conversation/ScenarioView";
 import { StoryTogether } from "./StoryTogether";
 import { TogetherSession } from "./TogetherSession";
-import { ActivityHead, colStack } from "./shared";
+import { ActivityHead, RolePart, colStack } from "./shared";
 import { HintButton, Icon, MixedText, SpeakButton, Stitches, bumpStreak, gradeItem, usePack, usePlay } from "../shared";
 
 // Off the course (no blueprint): pick a story for the partnered session by SHARED readiness — the scenario
@@ -140,10 +140,6 @@ export function JointSessionView({ store, partnershipId, packId, myId, partnerId
       )}
     </div>
   );
-}
-/** What this screen's partner does on this turn, in one line, so the two roles never blur. */
-function RolePart({ label, children }: { label: string; children: ReactNode }) {
-  return <div className="gram-plain role-part"><span className="lab">{label}</span><p>{children}</p></div>;
 }
 // The partnered grammar step (@ll/core/partner/grammar-together), synced like the story read-through: person
 // ping-pong (the asker judges), and now and then "spot the slip" — one of you reads a line that may have a
