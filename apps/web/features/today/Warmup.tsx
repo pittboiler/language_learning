@@ -5,24 +5,40 @@ import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
 import { type Progress } from "../../lib/store";
 import { buildLineGlosses } from "../../lib/capture";
-import { shuffle } from "../../lib/today-plan";
+import { sendBack, shuffle } from "../../lib/today-plan";
 import { ClozeCard, GrammarCard, PhraseCard } from "../flashcards/Cards";
 import { MixedText, PRONOUNS, Stitches, usePack, usePlay } from "../shared";
 import { Tag } from "./TodayHeader";
 
+/** The line under the counter after "Again", so the press visibly did something: the card is coming back. */
+export function SentBackNote({ wait }: { wait: number }) {
+  return <p className="muted small" style={{ margin: "0 0 8px" }}>Again: that card comes back {wait === 1 ? "right after this one" : "after this one and the next"}.</p>;
+}
+/** " · once more" in the step label, on a card that's back after an "Again". */
+export function OnceMore() {
+  return <span style={{ color: "var(--accent)" }}> · once more</span>;
+}
 export function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: () => void }) {
-  const [queue, setQueue] = useState<ReviewItem[]>(() => items);
+  const [queue, setQueue] = useState<{ item: ReviewItem; again?: boolean }[]>(() => items.map((item) => ({ item })));
   const [n, setN] = useState(0);
+  const [wait, setWait] = useState(0); // after an "Again": the cards before it comes back (0: none, or it's next)
   const current = queue[0];
   useEffect(() => { if (!current) onDone(); }, [current, onDone]);
   if (!current) return null;
-  const grade = (ok: boolean) => { setQueue((q) => (ok ? q.slice(1) : [...q.slice(1), q[0]!])); setN((x) => x + 1); };
+  const grade = (ok: boolean) => {
+    const rest = queue.slice(1);
+    if (ok) { setQueue(rest); setWait(0); }
+    else { const back = sendBack(rest, { item: current.item, again: true }); setQueue(back.rest); setWait(back.wait); }
+    setN((x) => x + 1);
+  };
+  const it = current.item;
   return (
     <div>
-      <Tag>Review misses · {queue.length} to clear</Tag>
-      {current.kind === "grammar"
-        ? <GrammarCard key={`${current.id}-${n}`} item={current} onGrade={grade} />
-        : <PhraseCard key={`${current.id}-${n}`} item={current} onGrade={grade} />}
+      <Tag>Review misses · {queue.length} to clear{current.again && <OnceMore />}</Tag>
+      {wait > 0 && <SentBackNote wait={wait} />}
+      {it.kind === "grammar"
+        ? <GrammarCard key={`${it.id}-${n}`} item={it} onGrade={grade} />
+        : <PhraseCard key={`${it.id}-${n}`} item={it} onGrade={grade} />}
     </div>
   );
 }
@@ -34,7 +50,9 @@ export function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: (
 //  • the usual grammar multiple-choice for grammar drills.
 // Every item is graded exactly once; results are handed back in a single batch so the caller reschedules
 // SRS + advances in one step. Recognition-before-recall keeps a shaky word from being a cold wall.
-export type WarmResult = { item: ReviewItem; ok: boolean };
+/** `retry`: the second (or later) go at a card after "Again". It still reschedules the card, but a score
+ *  (checkpoint, stage review) counts first tries only, or each "Again" would add a free point. */
+export type WarmResult = { item: ReviewItem; ok: boolean; retry?: boolean };
 // A quick tap-to-match game: tap a word (hear it), then tap its meaning. Pairs matched on the first try
 // grade "good"; a wrong attempt first marks that word "again". Lighter + more fun than recalling each cold.
 // `glossFirst`: the English column comes first (left) and you start there, then find the form, rather
@@ -88,7 +106,7 @@ export function MatchGame({ pairs, onDone, lead, glossFirst = false }: { pairs: 
   );
 }
 export type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
-export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard } | { kind: "conjugation"; verb: ConjugationSet; personFirst: boolean };
+export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard; again?: boolean } | { kind: "conjugation"; verb: ConjugationSet; personFirst: boolean };
 export function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss }: {
   items: ReviewItem[];
   conjVerb?: ConjugationSet;
@@ -137,8 +155,10 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
   }, []);
 
   const [stepIdx, setStepIdx] = useState(0);
-  const [extra, setExtra] = useState<WarmStep[]>([]); // cards re-queued after "Again", to try again this session
-  const allSteps = [...plan, ...extra];
+  // The steps to play: the plan, plus each card marked "Again" slotted back in a couple of cards on (sendBack).
+  const [allSteps, setAllSteps] = useState<WarmStep[]>(plan);
+  // After an "Again": the step showing the note that it's coming back, and how many cards until it does.
+  const [sentBack, setSentBack] = useState<{ at: number; wait: number } | null>(null);
   const results = useRef<WarmResult[]>([]);
   const doneRef = useRef(false);
   const record = (rs: WarmResult[]) => { for (const r of rs) { results.current.push(r); if (!r.ok) onMiss(r.item); } };
@@ -154,9 +174,10 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
   return (
     <div>
       <div className="row" style={{ gap: 10, marginBottom: 8 }}>
-        <span className="overline">Warm up · {stepIdx + 1} of {allSteps.length}</span>
+        <span className="overline">Warm up · {stepIdx + 1} of {allSteps.length}{step.kind === "card" && step.again && <OnceMore />}</span>
         <Stitches total={allSteps.length} done={stepIdx} now={stepIdx} size={10} label={`Warm-up step ${stepIdx + 1} of ${allSteps.length}`} />
       </div>
+      {sentBack?.at === stepIdx && sentBack.wait > 0 && <SentBackNote wait={sentBack.wait} />}
       {step.kind === "conjugation" ? (
         <MatchGame
           key={stepIdx}
@@ -171,9 +192,18 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
         <MatchGame key={stepIdx} pairs={step.pairs} onDone={(rs) => { record(rs); advance(); }} />
       ) : (() => {
         const c = step.card;
-        // "Again" (ok=false) re-queues the card to the end so you see it again this session instead of
-        // just skipping ahead; "Good" advances.
-        const grade = (ok: boolean) => { record([{ item: c.item, ok }]); if (!ok) setExtra((e) => [...e, { kind: "card", card: c }]); advance(); };
+        // "Again" (ok=false) slots the card back in a couple of cards on, with a note saying so, so you see it
+        // again this session while it's fresh; "Good" moves on.
+        const grade = (ok: boolean) => {
+          record([{ item: c.item, ok, ...(step.again ? { retry: true } : {}) }]);
+          if (ok) setSentBack(null);
+          else {
+            const back = sendBack(allSteps.slice(stepIdx + 1), { kind: "card", card: c, again: true });
+            setAllSteps([...allSteps.slice(0, stepIdx + 1), ...back.rest]);
+            setSentBack({ at: stepIdx + 1, wait: back.wait });
+          }
+          advance();
+        };
         if (c.format === "grammar") return <GrammarCard key={stepIdx} item={c.item} onGrade={grade} />;
         if (c.format === "cloze" && c.entry) return <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={c.contextGloss} onGrade={grade} />;
         return <PhraseCard key={stepIdx} item={c.item} onGrade={grade} />;

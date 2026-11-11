@@ -6,6 +6,7 @@ import * as chapterSpine from "@ll/core/chapters";
 import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
+import { firstTries } from "../../lib/today-plan";
 import { ScenarioView } from "../conversation/ScenarioView";
 import { UseIt } from "../reading/StoryReader";
 import { Icon, gradeItem, usePack } from "../shared";
@@ -14,8 +15,8 @@ import { Tag } from "./TodayHeader";
 import { WarmResult, WarmupSession } from "./Warmup";
 
 // End-of-lesson recap: re-drill exactly the items missed this session. "Good" clears a card; "Again"
-// sends it to the back — so the ones you're still shaky on loop until cleared (the same requeue idea
-// as the alphabet quiz). Pure re-exposure: it doesn't touch SRS (the original misses already did).
+// brings it back a couple of cards on — so the ones you're still shaky on loop until cleared (the same
+// requeue idea as the alphabet quiz). Pure re-exposure: it doesn't touch SRS (the original misses already did).
 // ---------- The chapter checkpoint: a consolidation gate between chapters ----------
 // When a chapter's content is finished, the next session opens with this instead of the usual warm-up:
 // recall its words + its grammar, then run its conversation again. Passing (PASS_MARK of the recall
@@ -65,7 +66,7 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
   }, [phase]);
 
   const finishDrill = useCallback((results: WarmResult[]) => {
-    setScore({ got: results.filter((r) => r.ok).length, total: results.length });
+    setScore(firstTries(results));
     setPhase(switches.length ? "persons" : sayLines.length ? "say" : scenario ? "speak" : "result");
   }, [scenario, switches.length, sayLines.length]);
 
@@ -168,7 +169,7 @@ export function StageReview({ afterChapterId, items, scenario, progress, persist
           let p = progress;
           for (const r of rs) p = gradeItem(p, r.item, r.ok);
           setGraded(p);
-          setScore({ got: rs.filter((r) => r.ok).length, total: rs.length });
+          setScore(firstTries(rs));
           setPhase(scenario ? "speak" : "result");
         }} />
       </div>

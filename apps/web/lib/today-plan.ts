@@ -25,6 +25,21 @@ export const shuffle = <T,>(arr: T[]): T[] => {
   return a;
 };
 
+// "Again" on a card: it goes back into the cards still to come, AGAIN_GAP places on (or last, when fewer are
+// left), so it returns while it's fresh but not straight away. Sent to the very end of a long warm-up it
+// looked exactly like "Good" (Jake, 2026-11-11). `wait` = how many cards come before it.
+export const AGAIN_GAP = 2;
+export const sendBack = <T,>(rest: T[], card: T, gap = AGAIN_GAP): { rest: T[]; wait: number } => {
+  const wait = Math.max(0, Math.min(gap, rest.length));
+  return { rest: [...rest.slice(0, wait), card, ...rest.slice(wait)], wait };
+};
+/** A score from first tries: one per card, however many times "Again" brought it back. A retry (`retry`) still
+ *  reschedules the card, but counting it too would add a free point to a checkpoint for every "Again". */
+export const firstTries = (rs: { ok: boolean; retry?: boolean }[]): { got: number; total: number } => {
+  const first = rs.filter((r) => !r.retry);
+  return { got: first.filter((r) => r.ok).length, total: first.length };
+};
+
 // Rotate an array left by n (n=0 → unchanged). Used to vary which questions/drills lead each day.
 export const rotate = <T,>(arr: T[], n: number): T[] => (arr.length ? arr.map((_, i) => arr[(i + n) % arr.length]!) : arr);
 
