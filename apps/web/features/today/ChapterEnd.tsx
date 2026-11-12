@@ -132,7 +132,7 @@ export function ChapterEnd({ chapter, checkpoint, practice, progress, persist, c
       </div>
 
       <div className="framed write-card recap-card">
-        <div className="overline">Not tonight? Practise instead · about {prMin} min</div>
+        <div className="overline">Not today? Practise instead · about {prMin} min</div>
         <p className="small" style={{ margin: "4px 0 0", lineHeight: 1.5 }}>
           A short round in the same format as the checkpoint, scored the same way, so you can see whether you&apos;re ready: {plural(practice.chapter.items.filter((i) => i.kind !== "grammar").length, "word")}, a couple of grammar cards, a person swap, a line to say, then the conversation if you like.{parts.last?.missed.length ? " What you missed last time comes first." : ""}
         </p>
