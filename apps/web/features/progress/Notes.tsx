@@ -43,8 +43,9 @@ export function LessonNotes({ at, progress, persist, navigate, onBack, backLabel
     </div>
   );
 }
-// One chapter on a page: each point's rule with two examples, then every word, so a quick read brings the
-// chapter back. Points not taught yet are only named (no preview of the rule).
+// The chapter summary: one chapter on a page: each point's rule with two examples, every word, then your lines
+// from its conversation, so a quick read brings the chapter back (Progress → The course, and at the chapter's
+// end before the checkpoint). Points not taught yet are only named (no preview of the rule).
 export function ChapterGlance({ chapterId, progress, navigate, onBack, backLabel }: {
   chapterId: string;
   progress: Progress;
@@ -60,10 +61,13 @@ export function ChapterGlance({ chapterId, progress, navigate, onBack, backLabel
   if (!cc) return null;
   const pts = cc.pointIds.map((id) => course.points.find((x) => x.id === id)).filter((x): x is GrammarPoint => !!x);
   const learned = (k: string) => { const e = progress.familiarity[k]; return !!e && familiarity.isStudied(e) && e.status !== "ignored"; };
+  // The conversation the checkpoint asks for: the learner's side of it, the lines to have ready.
+  const scen = cc.checkpoint.scenarioId ? pack.scenarios.find((x) => x.id === cc.checkpoint.scenarioId) : undefined;
+  const yours = (scen?.script ?? []).filter((t) => t.speaker === "learner");
   return (
     <div>
       <button className="ghost small" onClick={onBack} style={{ marginBottom: 8 }}>← {backLabel}</button>
-      <div className="overline">Chapter {ch?.order} at a glance</div>
+      <div className="overline">Chapter {ch?.order} summary</div>
       <h2 className="lesson-title">{ch?.shortTitle}</h2>
       <div className="step-meta">{ch?.title}</div>
       {pts.map((p) => progress.seenGrammar?.[p.id] ? (
@@ -93,6 +97,21 @@ export function ChapterGlance({ chapterId, progress, navigate, onBack, backLabel
                 <SpeakButton label={`Play ${w.display}`} onClick={() => play(w.display)} />
                 <span><b lang={pack.id} className="rmk" style={{ fontSize: 16 }}>{w.display}</b> <span className="muted small">{w.gloss}{learned(w.lexKey) ? " · learned" : ""}</span></span>
               </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {scen && yours.length > 0 && (
+        <div className="framed write-card recap-card">
+          <div className="overline">The conversation · {scen.title}</div>
+          {scen.brief && <p className="recap-text">{scen.brief}</p>}
+          <div className="recap-sub">Your lines</div>
+          <div className="gram-ex-list">
+            {yours.map((t, i) => (
+              <div className="gram-ex" key={i}>
+                <SpeakButton label={`Play ${t.text}`} onClick={() => play(t.text)} />
+                <span className="ex-text"><span className="mk" lang={pack.id}>{t.text}</span>{t.gloss && <span className="en">{t.gloss}</span>}</span>
+              </div>
             ))}
           </div>
         </div>

@@ -37,9 +37,16 @@ for (const ch of course.chapters) {
     const where = `ch${ch.order} s${s.n} (${s.role})`;
     progress = { ...progress, course: { chapterId: ch.chapterId, session: s.n, v: course.version } };
     const steps = courseSteps(pack, progress);
-    assert.ok(steps.length > 1 && steps[0]!.kind === "agenda", `${where}: opens with its agenda`);
-    const agenda = (steps[0] as Extract<TodayStep, { kind: "agenda" }>).agenda;
-    const played = steps.slice(1);
+    if (s.role === "checkpoint" && !s.letters) {
+      // A chapter's end opens on its own choice screen, no menu: the checkpoint, or a practice round.
+      const end = steps.find((x): x is Extract<TodayStep, { kind: "chapterEnd" }> => x.kind === "chapterEnd");
+      assert.ok(end && steps.every((x) => x.kind === "chapterEnd" || x.kind === "newwords"), `${where}: the chapter's end, and nothing else but catch-up words`);
+      assert.ok(end.checkpoint.items.length > 0 && end.practice.chapter.items.length > 0 && end.practice.all.items.length > 0, `${where}: a checkpoint and two practice rounds`);
+    }
+    const hasAgenda = steps[0]?.kind === "agenda";
+    assert.ok(hasAgenda || (s.role === "checkpoint" && !s.letters), `${where}: opens with its agenda`);
+    const agenda = hasAgenda ? (steps[0] as Extract<TodayStep, { kind: "agenda" }>).agenda : { title: "", items: [] as string[] };
+    const played = hasAgenda ? steps.slice(1) : [];
 
     // Every bullet that promises a step points at one, in the order they're played…
     let last = -1;
@@ -96,13 +103,14 @@ assert.equal(sessions, course.chapters.reduce((n, c) => n + c.sessions.length, 0
   const fam: Progress["familiarity"] = {};
   for (const w of ch1.words) fam[w.lexKey] = familiarity.capture({ lexKey: w.lexKey, kind: "word", display: w.display, gloss: w.gloss }, past);
   const at = { familiarity: fam, scenarios: {}, settings: { courseV2: true }, letters, seenGrammar: { "pt-sum": true, "pt-ne": true }, course: { chapterId: "s0-repair", session: 8, v: course.version } } as unknown as Progress;
-  const cpStep = courseSteps(pack, at).find((x): x is Extract<TodayStep, { kind: "checkpoint" }> => x.kind === "checkpoint")!;
+  const cpStep = courseSteps(pack, at).find((x): x is Extract<TodayStep, { kind: "chapterEnd" }> => x.kind === "chapterEnd")!.checkpoint;
   const cards = ch1.pointIds.flatMap((id) => cp.blankCardItems(course.points.find((p) => p.id === id)!));
+  assert.equal(cpStep.earlier, 0, "chapter 1 has no earlier chapter to draw on");
   assert.equal(cpStep.items.filter((i) => i.kind !== "grammar").length, ch1.words.length, "every word of the chapter");
   assert.equal(cpStep.items.filter((i) => i.kind === "grammar").length, cards.length, "every grammar card of the chapter");
-  const sw = cpStep.persons!.switches;
+  const sw = cpStep.switches;
   assert.ok(sw.length >= 3 && new Set(sw.map((x) => x.person)).size === sw.length, "switches cover different persons");
-  assert.ok(cpStep.persons!.say.length >= 1, "lines to say for the other persons");
+  assert.ok(cpStep.say.length >= 1, "lines to say for the other persons");
 }
 
 // Catch-up: a learner who finished chapter 1 before вие / тие joined its session 6 is taught them at the start
@@ -117,8 +125,7 @@ assert.equal(sessions, course.chapters.reduce((n, c) => n + c.sessions.length, 0
   const steps = courseSteps(pack, before);
   const nw = steps.find((x): x is Extract<TodayStep, { kind: "newwords" }> => x.kind === "newwords");
   assert.deepEqual(nw?.words.map((w) => w.lexKey), ["вие", "тие"], "the checkpoint opens by teaching the two words");
-  assert.ok(steps.findIndex((x) => x.kind === "newwords") < steps.findIndex((x) => x.kind === "checkpoint"));
-  assert.ok((steps[0] as Extract<TodayStep, { kind: "agenda" }>).agenda.items.some((b) => b.startsWith("Catch-up: 2 words") && b.includes("вие") && b.includes("тие")));
+  assert.ok(steps.findIndex((x) => x.kind === "newwords") < steps.findIndex((x) => x.kind === "chapterEnd"));
   for (const k of ["вие", "тие"]) fam[k] = familiarity.capture({ lexKey: k, kind: "word", display: k, gloss: k }, past);
   assert.ok(!courseSteps(pack, { ...before, familiarity: fam }).some((x) => x.kind === "newwords"), "once met, nothing to catch up");
 }

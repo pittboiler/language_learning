@@ -130,7 +130,7 @@ export function CourseMap({ progress, persist, navigate }: { progress: Progress;
                     </details>
                   )}
                   {ch.order > 0 && ch.state !== "upcoming" && (
-                    <button className="ghost small" style={{ marginTop: 8 }} onClick={() => setView({ kind: "glance", chapterId: ch.chapterId })}>Chapter at a glance</button>
+                    <button className="ghost small" style={{ marginTop: 8 }} onClick={() => setView({ kind: "glance", chapterId: ch.chapterId })}>Chapter summary</button>
                   )}
                 </div>
               )}

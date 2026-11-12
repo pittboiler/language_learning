@@ -765,7 +765,7 @@ export function sessionHeadline(course: Course, chapter: CourseChapter, s: Cours
     case "practice": return withWords(`Practice: ${title(practisedPoint(chapter, s)) ?? "this chapter's grammar"}`);
     case "review": return s.speak ? "Review day · the conversation" : "Review day";
     case "use": return withWords(s.writing ? "Put it together · write it in Macedonian" : "Put it together");
-    default: return "Checkpoint: the whole chapter — every word and card, every person, the conversation";
+    default: return "Checkpoint, when you're ready: every word and card, a few from earlier chapters, every person, the conversation. Practise first if you like";
   }
 }
 

@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import type { ReviewItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
@@ -40,11 +40,15 @@ function TypedResult({ ok, typed }: { ok: boolean; typed: string }) {
     ? <div className="result-ok" style={{ marginBottom: 4 }}><Icon name="check" size={16} />Correct</div>
     : <div className="result-miss" style={{ marginBottom: 4 }}>You wrote “{typed}”</div>;
 }
+/** What the self-grade buttons say. A checkpoint doesn't send a card round again, so there it's "Missed it" /
+ *  "Got it" rather than "Again" / "Good" (see WarmupSession's `requeue`). */
+export const GradeWords = createContext<{ miss: string; ok: string }>({ miss: "Again", ok: "Good" });
 function GradeRow({ onGrade }: { onGrade: (ok: boolean) => void }) {
+  const words = useContext(GradeWords);
   return (
     <div className="grade-row">
-      <button className="ghost" onClick={() => onGrade(false)}>Again</button>
-      <button className="btn" onClick={() => onGrade(true)}>Good</button>
+      <button className="ghost" onClick={() => onGrade(false)}>{words.miss}</button>
+      <button className="btn" onClick={() => onGrade(true)}>{words.ok}</button>
     </div>
   );
 }

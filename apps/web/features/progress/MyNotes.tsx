@@ -29,7 +29,7 @@ export function MyNotes({ progress, persist, navigate }: { progress: Progress; p
     <section className="view">
       <h2>My notes</h2>
       <p className="lead">What you&apos;ve learned so far: each chapter on one page, and your notes from every lesson you&apos;ve finished.</p>
-      <h3>Chapters at a glance</h3>
+      <h3>Chapter summaries</h3>
       {reached.length ? (
         <div className="lib-list">
           {reached.map((c) => (

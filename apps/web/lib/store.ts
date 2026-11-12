@@ -40,6 +40,10 @@ export interface Progress {
   sessions?: number;
   /** End-of-chapter checkpoints passed (chapter id → when) — the consolidation gate, see core/chapters. */
   chapters?: Record<string, { passedAt: string; score?: number }>;
+  /** A chapter checkpoint still to pass (chapter id → its parts): when each part was passed, kept so the next go
+   *  only asks for what's left, and the last go at the cards (what you missed leads the next practice). Cleared
+   *  once the chapter is checked off. See lib/checkpoint.ts. */
+  checkpoints?: Record<string, CheckpointParts>;
   /** Local day (YYYY-MM-DD) the daily session was last finished. When it equals today, Today opens on the
    *  "done for today" screen instead of replaying step 1 after a reload/reopen. */
   lastSessionDay?: string;
@@ -68,6 +72,13 @@ export interface ExamAttempt {
   at: string;
   results: Record<string, "met" | "partly" | "not-yet">;
   tasks: Record<string, { response: string; grade?: import("@ll/core/exam/results").ExamGrade; selfCheck?: boolean; skipped?: boolean }>;
+}
+
+/** One chapter checkpoint's parts (ISO dates of a pass) and the last go at its cards (missed: ReviewItem ids). */
+export interface CheckpointParts {
+  cards?: string;
+  conversation?: string;
+  last?: { at: string; got: number; total: number; missed: string[] };
 }
 
 export interface CourseLogEntry {

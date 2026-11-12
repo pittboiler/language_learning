@@ -12,7 +12,7 @@ import { LibView, MixedText, Section, SpeakButton, pending, usePack, usePlay } f
 // from today's story; the verbs whose every form you matched), today's grammar cards — each savable to the ★
 // deck — what you slipped on, and what's next. (2026-10-22, Jake: a practice day's recap said he'd "learned"
 // ли / дали, taught days before, and left out the conjugation he'd practised.)
-export function CourseRecap({ pos, since, until, progress, persist, missed, drilled, onReviewMissed, onNext, nextLabel, navigate, notes }: {
+export function CourseRecap({ pos, since, until, progress, persist, missed, drilled, onReviewMissed, onNext, nextLabel, nextText, navigate, notes }: {
   pos: cp.CoursePosition;
   since: Date;
   /** Saved lesson notes: the session's end, so words tapped later don't creep in. */
@@ -25,6 +25,8 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, dril
   onReviewMissed?: () => void;
   onNext?: () => void;
   nextLabel?: string;
+  /** Overrides the blueprint's "Next: …" line (a chapter's end that didn't move the course on). */
+  nextText?: string;
   navigate: (sec: Section, lv?: LibView) => void;
   /** Reopened later as lesson notes (Progress / Library → My notes): a heading and date, no "next" buttons. */
   notes?: { title: string; when?: string };
@@ -163,7 +165,7 @@ export function CourseRecap({ pos, since, until, progress, persist, missed, dril
         </div>
       )}
 
-      {!notes && rc.next && <p className="recap-next"><MixedText text={rc.next} /></p>}
+      {!notes && (nextText ?? rc.next) && <p className="recap-next"><MixedText text={nextText ?? rc.next} /></p>}
       {!notes && (
         <div className="row" style={{ marginTop: 14 }}>
           {onNext && <button className="btn" onClick={onNext}>{nextLabel ?? "Start the next session now"}</button>}

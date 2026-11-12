@@ -19,6 +19,7 @@ import { TodayStoryStep } from "../reading/StoryReader";
 import { LibView, NoteAt, Section, Stitches, bumpStreak, captureWords, currentStory, focusLetters, gradeItem, isDue, markSeen, partnerScenario, pending, scenarioVocab, seedStoryVocab, usePack, writingUnlocked } from "../shared";
 import { AgendaCard } from "./AgendaCard";
 import { ChapterCheckpoint, StageReview } from "./Checkpoint";
+import { ChapterEnd } from "./ChapterEnd";
 import { CourseRecap } from "./CourseRecap";
 import { LetterLesson, PointLesson, SayIt } from "./Lessons";
 import { NewWordsCard } from "./NewWordsCard";
@@ -219,6 +220,10 @@ export function Today({ progress, persist, config, navigate, replay }: {
   // on the "done for today" screen. Guarded by the date check so this persists at most once per day.
   // A checkpoint passed during THIS session (the course only moves past a checkpoint on a pass).
   const checkpointPassed = useRef(false);
+  // The plan whose session has been logged as done (day stamped, streak counted, lesson notes), and the plan
+  // whose session moved the course on. They differ at a chapter's end: a practice round finishes the day's
+  // lesson without moving the course, and the checkpoint can still be taken (and move it) afterwards.
+  const finishedFor = useRef(-1);
   const advancedFor = useRef(-1);
   // Finish the session: advance the blueprint exactly once (the learner may start the next one straight away,
   // so this can't key on the calendar day), log it for lesson notes, mark the day done — in ONE save, on top
@@ -226,13 +231,18 @@ export function Today({ progress, persist, config, navigate, replay }: {
   // own end screen appears (a checkpoint's result, the writing summary), so the lesson counts as done there.
   // The verbs whose every form today's warm-up matched (the recap says so).
   const drilled = steps.flatMap((s) => (s.kind === "warmup" && s.conjVerb ? [s.conjVerb.lemma] : []));
-  const completeSession = (base: Progress = progress) => {
-    if (replay || !v2 || advancedFor.current === planVersion) return; // a replay never moves the course on
-    advancedFor.current = planVersion;
-    const course = cp.advance(pack.course!, base.course, { checkpointPassed: checkpointPassed.current });
+  const completeSession = (base: Progress = progress, moveOn = true) => {
+    if (replay || !v2) return; // a replay never moves the course on
+    const log = finishedFor.current !== planVersion;
+    const advance = moveOn && advancedFor.current !== planVersion;
+    if (!log && !advance) { persist(base); return; }
+    finishedFor.current = planVersion;
+    if (advance) advancedFor.current = planVersion;
+    const course = advance ? cp.advance(pack.course!, base.course, { checkpointPassed: checkpointPassed.current }) : base.course;
     // Keep a small record of the session so its recap can be reopened later as lesson notes.
-    const entry = playedPos ? cp.logEntry(playedPos, startedAt, new Date(), missed.map((m) => ({ answer: m.answer, gloss: m.gloss })), drilled) : undefined;
-    persist(bumpStreak({ ...base, lastSessionDay: localDay(), sessions: (base.sessions ?? 0) + 1, course, ...(entry ? { courseLog: [...(base.courseLog ?? []), entry] } : {}) }));
+    const entry = log && playedPos ? cp.logEntry(playedPos, startedAt, new Date(), missed.map((m) => ({ answer: m.answer, gloss: m.gloss })), drilled) : undefined;
+    const counted = log ? { lastSessionDay: localDay(), sessions: (base.sessions ?? 0) + 1 } : {};
+    persist(bumpStreak({ ...base, ...counted, course, ...(entry ? { courseLog: [...(base.courseLog ?? []), entry] } : {}) }));
   };
   useEffect(() => {
     if (steps.length === 0 || idx < steps.length) return;
@@ -248,6 +258,9 @@ export function Today({ progress, persist, config, navigate, replay }: {
   useEffect(() => { if (firstV2.current !== v2) { firstV2.current = v2; setIdx(0); } }, [v2]);
   // About three minutes a step; a checkpoint is a whole chapter's worth (words, cards, persons, conversation).
   const est = Math.max(5, steps.length * 3 + (steps.some((x) => x.kind === "checkpoint") ? 12 : 0));
+  // A chapter's end that didn't move the course on (practised, or the checkpoint not passed yet): its name, for the recap.
+  const chapterEnd = steps.find((x): x is Extract<TodayStep, { kind: "chapterEnd" }> => x.kind === "chapterEnd");
+  const waiting = chapterEnd && !checkpointPassed.current ? chapterEnd.chapter.shortTitle : undefined;
   // Advance to the next step, persisting a single merged Progress and counting the day toward the streak.
   const done = (mutated: Progress = progress) => {
     persist(bumpStreak(mutated));
@@ -266,7 +279,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
   // Already finished today's session (and this is a fresh mount, so idx is back at 0): show the wrap-up
   // screen rather than replaying step 1. "Practice more anyway" drops back into the full flow on demand.
   // (Only at step 0: a lesson now completes on its last step's own end screen, which must stay up.)
-  if (completedToday && !practiceMore && idx === 0 && advancedFor.current !== planVersion)
+  if (completedToday && !practiceMore && idx === 0 && finishedFor.current !== planVersion)
     return (
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
@@ -302,7 +315,8 @@ export function Today({ progress, persist, config, navigate, replay }: {
           drilled={drilled}
           onReviewMissed={() => setRecap("review")}
           onNext={replay ? replay.onExit : () => { setPlanVersion((v) => v + 1); checkpointPassed.current = false; setMissed([]); setRecap("offer"); setIdx(0); setPracticeMore(true); }}
-          nextLabel={replay ? "Back to where you were" : undefined}
+          nextLabel={replay ? "Back to where you were" : waiting ? "Practise or take the checkpoint" : undefined}
+          nextText={waiting ? `Next: the ${waiting} checkpoint is waiting whenever you're ready. Until you take it, each session lets you practise first.` : undefined}
           navigate={navigate}
         />
       </section>
@@ -365,7 +379,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
       <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
       <div className="step-meta">
         <Stitches total={steps.length} done={idx} now={idx} size={10} label={`Step ${idx + 1} of ${steps.length}`} />
-        <span>Step {idx + 1} of {steps.length} · about {est} min</span>
+        <span>Step {idx + 1} of {steps.length}{step.kind === "chapterEnd" ? "" : ` · about ${est} min`}</span>
         {reviewDay && <span>· <b>review day</b>: nothing new, just what you&apos;ve already met</span>}
       </div>
 
@@ -402,6 +416,28 @@ export function Today({ progress, persist, config, navigate, replay }: {
             // The result screen is the end of the lesson: record the pass (or not) and complete the session there.
             onFinished={(p, passed) => { checkpointPassed.current = passed; if (idx === steps.length - 1 && v2 && !replay) completeSession(p); else persist(p); }}
             doneLabel={idx === steps.length - 1 ? "Go to summary" : undefined}
+            onDone={() => done()}
+          />
+        )}
+
+        {step.kind === "chapterEnd" && (
+          <ChapterEnd
+            key={idx}
+            chapter={step.chapter}
+            checkpoint={step.checkpoint}
+            practice={step.practice}
+            progress={progress}
+            persist={persist}
+            config={config}
+            navigate={navigate}
+            onMiss={flag}
+            onMissTurn={flagTurn}
+            nextLabel={pack.course ? cp.afterCheckpoint(pack, pack.course, planned) : undefined}
+            doneLabel={idx === steps.length - 1 ? "Go to summary" : undefined}
+            // Practice: today's lesson is done, the course stays at the checkpoint.
+            onPractised={(p) => { if (idx === steps.length - 1) completeSession(p, false); else persist(p); }}
+            // The checkpoint's result screen ends the lesson: record the pass (or not) there.
+            onFinished={(p, passed) => { checkpointPassed.current = passed; if (idx === steps.length - 1) completeSession(p); else persist(p); }}
             onDone={() => done()}
           />
         )}
@@ -557,7 +593,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
 
       {/* The exam has its own skips (per task, and "take it later") — a generic skip would drop it unsaved.
           The menu's own button already moves on, so it needs no second one. */}
-      {step.kind !== "exam" && step.kind !== "agenda" && (
+      {step.kind !== "exam" && step.kind !== "agenda" && step.kind !== "chapterEnd" && (
         <div className="row" style={{ marginTop: 18 }}>
           <button className="quiet" onClick={() => done()}>Skip this step</button>
         </div>

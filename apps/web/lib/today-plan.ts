@@ -2,11 +2,12 @@
 // the lesson, Say it, the story, Build, the conversation…) and its agenda, from the blueprint and the
 // learner's progress. page.tsx renders the steps; test/today-plan.test.ts walks the whole course checking
 // that every agenda names exactly the steps its session plays.
-import type { Chapter, ConjugationSet, CourseExam, CourseSession, CourseWriting, GrammarConcept, GrammarPoint, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
+import type { Chapter, ConjugationSet, CourseChapter, CourseExam, CourseSession, CourseWriting, GrammarConcept, GrammarPoint, LanguagePack, MiniStory, ReviewItem, Scenario } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import * as sentenceScope from "@ll/core/sentences";
 import * as cp from "./course-player";
 import { properNounLike } from "./capture";
+import { CHECKPOINT_EARLIER, PRACTICE, PRACTICE_PER_CHAPTER, partsOf } from "./checkpoint";
 import type { Progress } from "./store";
 
 // The SRS review pool for a pack: vocab phrases + grammar drills (tagged with their concept name).
@@ -54,10 +55,22 @@ export interface StoryLens {
   focus: Record<number, string[]>;
 }
 
+/** A checkpoint, or a practice round in its shape: words and grammar cards, "switch the person", lines to say
+ *  and the conversation. `earlier`: how many of the words come from earlier chapters. */
+export interface CheckpointRound {
+  items: ReviewItem[];
+  switches: Extract<cp.UseItItem, { kind: "switch" }>[];
+  say: { text: string; gloss: string; focus?: string[] }[];
+  scenario?: Scenario;
+  earlier: number;
+}
+
 // One step of Today's session, as page.tsx renders it.
 export type TodayStep =
   | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet; own?: number }
   | { kind: "checkpoint"; chapter: Chapter; items: ReviewItem[]; scenario?: Scenario; persons?: ReturnType<typeof cp.checkpointPersons> }
+  /** The course's chapter checkpoint session: practise this chapter, practise everything so far, or take the checkpoint. */
+  | { kind: "chapterEnd"; chapter: Chapter; checkpoint: CheckpointRound; practice: { chapter: CheckpointRound; all: CheckpointRound } }
   | { kind: "newwords"; words: { lexKey: string; gloss?: string }[] }
   | { kind: "grammar"; concept: GrammarConcept }
   | { kind: "grammarPractice"; concept: GrammarConcept; dayIndex: number }
@@ -129,10 +142,11 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
   const steps = courseBody(pack, progress);
   const pos = cp.position(pack.course!, progress.course);
   const agenda = cp.sessionAgenda(pack, pack.course!, pos);
-  if (!steps.length || !agenda) return steps;
-  // The warm-up comes first, so the agenda says so (a checkpoint retry's review is already in its bullets).
+  // A chapter's end opens on its own choice screen (practise, or take the checkpoint), which says what's on
+  // offer and how long each takes: a menu in front of it would just be a second screen to click through.
+  if (!steps.length || !agenda || steps.some((x) => x.kind === "chapterEnd")) return steps;
+  // The warm-up comes first, so the agenda says so.
   const warm = steps.find((x): x is Extract<TodayStep, { kind: "warmup" }> => x.kind === "warmup");
-  const retry = pos.kind === "session" && pos.retry;
   const own = warm?.own ?? 0;
   const n = (warm?.items.length ?? 0) - own;
   // Words added to a session the learner had already passed come first (cp.catchUpWords), and the agenda says why.
@@ -144,12 +158,10 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
     : "Warm-up: a quick verb drill";
   // Build-a-sentence only runs when something is buildable right now (and Say it when there's a line to
   // say); don't promise either otherwise.
-  const check = steps.find((x): x is Extract<TodayStep, { kind: "checkpoint" }> => x.kind === "checkpoint");
   const items = agenda.items
     .filter((b) => steps.some((x) => x.kind === "build") || !b.startsWith("Build a sentence"))
-    .filter((b) => steps.some((x) => x.kind === "sayit") || !b.startsWith("Say it:"))
-    .filter((b) => !check || ((check.persons?.switches.length ?? 0) > 0 || !b.startsWith("Switch the person:")) && ((check.persons?.say.length ?? 0) > 0 || !b.startsWith("Out loud:")));
-  const head = [...(warm && !retry ? [warmLine] : []), ...(catchLine ? [catchLine] : [])];
+    .filter((b) => steps.some((x) => x.kind === "sayit") || !b.startsWith("Say it:"));
+  const head = [...(warm ? [warmLine] : []), ...(catchLine ? [catchLine] : [])];
   return [{ kind: "agenda", agenda: { ...agenda, items: [...head, ...items] } }, ...steps];
 }
 
@@ -208,19 +220,8 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
   const catchUp = cp.catchUpWords(course, progress, s.words.length ? 2 : cp.CATCH_UP_MAX).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }));
   if (s.role === "checkpoint") {
     if (catchUp.length) out.push({ kind: "newwords", words: catchUp });
-    const words = cc.words.filter((w) => studied(w.lexKey)).map((w) => vocabByKey.get(w.lexKey)).filter((v): v is ReviewItem => !!v);
-    // A retry is preceded by a targeted review of the chapter's weakest words.
-    if (pos.retry) {
-      const weakest = [...words].sort((a, b) => (progress.familiarity[familiarity.deriveKeyForItem(a).lexKey]?.strength ?? 0) - (progress.familiarity[familiarity.deriveKeyForItem(b).lexKey]?.strength ?? 0)).slice(0, 8);
-      if (weakest.length) out.push({ kind: "warmup", items: weakest });
-    }
-    // The chapter's last session takes in the whole chapter (Jake, 2026-10-15: it "felt very light"): every word
-    // and every grammar card, then "Switch the person" on its stories and a line to say for every other
-    // person, then the conversation.
-    const cards = cc.pointIds.map((id) => points.get(id)).filter((p): p is GrammarPoint => !!p).flatMap((p) => cp.blankCardItems(p));
-    const items = [...shuffle(words), ...cards];
-    const persons = cp.checkpointPersons(pack, cc, switchableVerbs(pack, progress), (w) => properNounLike(w, pack));
-    if (items.length) out.push({ kind: "checkpoint", chapter, items, scenario: pack.scenarios.find((x) => x.id === cc.checkpoint.scenarioId), persons });
+    const end = chapterEndStep(pack, progress, cc, chapter);
+    if (end.checkpoint.items.length) out.push(end);
     return out;
   }
 
@@ -270,4 +271,75 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
   // prompt. Never the conversation's goal: that's a brief for the content generator, not for the learner.
   if (s.writing) out.push({ kind: "writing", prompt: "Write a few lines using this chapter\u2019s words.", set: cp.writingFor(course, cc.chapterId) });
   return out;
+}
+
+// ---------- The end of a chapter: practise, or take the checkpoint (lib/checkpoint.ts) ----------
+/** Everything a chapter's last session can offer, built once when the session is planned:
+ *  - the checkpoint: every word and grammar card of the chapter (Jake, 2026-10-15: it "felt very light"), plus
+ *    your CHECKPOINT_EARLIER weakest words from earlier chapters, so it covers the course so far (2026-11-12);
+ *    then "Switch the person" on its stories, a line to say for every other person, and its conversation.
+ *  - "Practise this chapter": the same shape, smaller (PRACTICE), from this chapter.
+ *  - "Practise everything so far": the same, drawn from every chapter up to this one.
+ *  Practice puts what you missed at your last go first, then your weakest; ties fall in a random order, so
+ *  practising again isn't the same round. */
+export function chapterEndStep(pack: LanguagePack, progress: Progress, cc: CourseChapter, chapter: Chapter): Extract<TodayStep, { kind: "chapterEnd" }> {
+  const course = pack.course!;
+  const vocabByKey = new Map(pack.vocab.map((v) => [familiarity.deriveKeyForItem(v).lexKey, v]));
+  const points = cp.pointsById(course);
+  const keyOf = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
+  const entry = (it: ReviewItem) => progress.familiarity[keyOf(it)];
+  const studied = (lexKey: string) => { const e = progress.familiarity[lexKey]; return !!e && familiarity.isStudied(e); };
+  const missed = new Set(partsOf(progress, cc.chapterId).last?.missed ?? []);
+  const weakestFirst = (xs: ReviewItem[]) => shuffle(xs).sort((a, b) =>
+    Number(missed.has(b.id)) - Number(missed.has(a.id)) || (entry(a)?.strength ?? 0) - (entry(b)?.strength ?? 0));
+  const wordsOf = (c: CourseChapter) => c.words.filter((w) => studied(w.lexKey)).map((w) => vocabByKey.get(w.lexKey)).filter((v): v is ReviewItem => !!v);
+  const cardsOf = (c: CourseChapter, taughtOnly = false) => c.pointIds.map((id) => points.get(id))
+    .filter((p): p is GrammarPoint => !!p && (!taughtOnly || !!progress.seenGrammar?.[p.id])).flatMap((p) => cp.blankCardItems(p));
+  const verbs = switchableVerbs(pack, progress);
+  const personsOf = (c: CourseChapter) => cp.checkpointPersons(pack, c, verbs, (w) => properNounLike(w, pack));
+  const scenarioOf = (c: CourseChapter) => pack.scenarios.find((x) => x.id === c.checkpoint.scenarioId);
+  const upTo = course.chapters.filter((c) => c.order >= 1 && c.order <= cc.order);
+  const before = upTo.filter((c) => c.order < cc.order);
+
+  // The checkpoint. Earlier chapters' words: due ones first, then the weakest.
+  const own = wordsOf(cc);
+  const now = new Date();
+  const due = (it: ReviewItem) => { const e = entry(it); return !!e?.srs && new Date(e.srs.due) <= now; };
+  const earlier = shuffle(before.flatMap((c) => wordsOf(c)))
+    .sort((a, b) => Number(due(b)) - Number(due(a)) || (entry(a)?.strength ?? 0) - (entry(b)?.strength ?? 0))
+    .slice(0, CHECKPOINT_EARLIER);
+  const persons = personsOf(cc);
+  const checkpoint: CheckpointRound = { items: [...shuffle([...own, ...earlier]), ...cardsOf(cc)], switches: persons.switches, say: persons.say, scenario: scenarioOf(cc), earlier: earlier.length };
+
+  // Practise this chapter.
+  const thisChapter: CheckpointRound = {
+    items: [...weakestFirst(own).slice(0, PRACTICE.words), ...weakestFirst(cardsOf(cc)).slice(0, PRACTICE.cards)],
+    switches: shuffle(persons.switches).slice(0, PRACTICE.switches),
+    say: shuffle(persons.say).slice(0, PRACTICE.say),
+    scenario: scenarioOf(cc),
+    earlier: 0,
+  };
+
+  // Practise everything so far: the weakest words across the chapters, a few from each at most; cards from
+  // points you've been taught; the person round and the conversation from one chapter, picked at random.
+  const chapterOf = new Map(upTo.flatMap((c) => c.words.map((w) => [w.lexKey, c.chapterId] as const)));
+  const perChapter = new Map<string, number>();
+  const words: ReviewItem[] = [];
+  for (const it of weakestFirst(upTo.flatMap(wordsOf))) {
+    if (words.length >= PRACTICE.words) break;
+    const c = chapterOf.get(keyOf(it)) ?? "";
+    if ((perChapter.get(c) ?? 0) >= PRACTICE_PER_CHAPTER) continue;
+    perChapter.set(c, (perChapter.get(c) ?? 0) + 1);
+    words.push(it);
+  }
+  const mixed = shuffle(upTo);
+  const people = mixed.map(personsOf).find((x) => x.switches.length > 0) ?? persons;
+  const all: CheckpointRound = {
+    items: [...shuffle(words), ...weakestFirst(upTo.flatMap((c) => cardsOf(c, true))).slice(0, PRACTICE.cards)],
+    switches: shuffle(people.switches).slice(0, PRACTICE.switches),
+    say: shuffle(people.say).slice(0, PRACTICE.say),
+    scenario: mixed.map(scenarioOf).find((x) => !!x),
+    earlier: words.filter((w) => chapterOf.get(keyOf(w)) !== cc.chapterId).length,
+  };
+  return { kind: "chapterEnd", chapter, checkpoint, practice: { chapter: thisChapter, all } };
 }

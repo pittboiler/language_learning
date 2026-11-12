@@ -5,8 +5,8 @@ import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
 import { type Progress } from "../../lib/store";
 import { buildLineGlosses } from "../../lib/capture";
-import { sendBack, shuffle } from "../../lib/today-plan";
-import { ClozeCard, GrammarCard, PhraseCard } from "../flashcards/Cards";
+import { firstTries, sendBack, shuffle } from "../../lib/today-plan";
+import { ClozeCard, GradeWords, GrammarCard, PhraseCard } from "../flashcards/Cards";
 import { MixedText, PRONOUNS, Stitches, usePack, usePlay } from "../shared";
 import { Tag } from "./TodayHeader";
 
@@ -107,13 +107,19 @@ export function MatchGame({ pairs, onDone, lead, glossFirst = false }: { pairs: 
 }
 export type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
 export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard; again?: boolean } | { kind: "conjugation"; verb: ConjugationSet; personFirst: boolean };
-export function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss }: {
+export function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss, label = "Warm up", requeue = true, tally = false }: {
   items: ReviewItem[];
   conjVerb?: ConjugationSet;
   progress: Progress;
   persist: (p: Progress) => void;
   onComplete: (results: WarmResult[]) => void;
   onMiss: (item: ReviewItem) => void;
+  /** The counter's name: "Warm up · 3 of 9" (a checkpoint says "Checkpoint", a practice round "Practice"). */
+  label?: string;
+  /** "Again" brings a card back later (the default). A checkpoint is a test: a miss is a miss and it moves on. */
+  requeue?: boolean;
+  /** Show "4 of 6 right so far" (first tries) beside the counter. */
+  tally?: boolean;
 }) {
   const pack = usePack();
   // For back-translating a stored sentence when its English wasn't saved (parity with the Library flashcards).
@@ -174,8 +180,9 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
   return (
     <div>
       <div className="row" style={{ gap: 10, marginBottom: 8 }}>
-        <span className="overline">Warm up · {stepIdx + 1} of {allSteps.length}{step.kind === "card" && step.again && <OnceMore />}</span>
-        <Stitches total={allSteps.length} done={stepIdx} now={stepIdx} size={10} label={`Warm-up step ${stepIdx + 1} of ${allSteps.length}`} />
+        <span className="overline">{label} · {stepIdx + 1} of {allSteps.length}{step.kind === "card" && step.again && <OnceMore />}</span>
+        <Stitches total={allSteps.length} done={stepIdx} now={stepIdx} size={10} label={`${label} step ${stepIdx + 1} of ${allSteps.length}`} />
+        {tally && results.current.length > 0 && (() => { const t = firstTries(results.current); return <span className="muted small">{t.got} of {t.total} right so far</span>; })()}
       </div>
       {sentBack?.at === stepIdx && sentBack.wait > 0 && <SentBackNote wait={sentBack.wait} />}
       {step.kind === "conjugation" ? (
@@ -196,7 +203,7 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
         // again this session while it's fresh; "Good" moves on.
         const grade = (ok: boolean) => {
           record([{ item: c.item, ok, ...(step.again ? { retry: true } : {}) }]);
-          if (ok) setSentBack(null);
+          if (ok || !requeue) setSentBack(null);
           else {
             const back = sendBack(allSteps.slice(stepIdx + 1), { kind: "card", card: c, again: true });
             setAllSteps([...allSteps.slice(0, stepIdx + 1), ...back.rest]);
@@ -204,9 +211,10 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
           }
           advance();
         };
-        if (c.format === "grammar") return <GrammarCard key={stepIdx} item={c.item} onGrade={grade} />;
-        if (c.format === "cloze" && c.entry) return <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={c.contextGloss} onGrade={grade} />;
-        return <PhraseCard key={stepIdx} item={c.item} onGrade={grade} />;
+        const card = c.format === "grammar" ? <GrammarCard key={stepIdx} item={c.item} onGrade={grade} />
+          : c.format === "cloze" && c.entry ? <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={c.contextGloss} onGrade={grade} />
+          : <PhraseCard key={stepIdx} item={c.item} onGrade={grade} />;
+        return requeue ? card : <GradeWords.Provider value={{ miss: "Missed it", ok: "Got it" }}>{card}</GradeWords.Provider>;
       })()}
     </div>
   );
