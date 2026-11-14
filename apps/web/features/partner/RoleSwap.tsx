@@ -153,9 +153,26 @@ export function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessio
     }
   };
 
+  // The whole conversation, line after line, on one audio element (a phone lets the first play() through
+  // because of the tap, and keeps letting the same element play). A line that won't play is skipped and named.
+  const [playing, setPlaying] = useState<number | null>(null);
+  const [unplayed, setUnplayed] = useState<number[]>([]);
   const playAll = async () => {
-    if (!session) return;
-    for (const t of session.turns) if (t.audio) await playDataUrl(t.audio);
+    if (!session || playing !== null) return;
+    const el = new Audio();
+    const missed: number[] = [];
+    for (const t of session.turns) {
+      if (!t.audio) continue;
+      setPlaying(t.index);
+      el.src = t.audio;
+      try {
+        await new Promise<void>((res, rej) => { el.onended = () => res(); el.onerror = () => rej(new Error("audio")); el.play().catch(rej); });
+      } catch {
+        missed.push(t.index);
+      }
+    }
+    setPlaying(null);
+    setUnplayed(missed);
   };
 
   if (sid === "new" && !session) {
@@ -214,7 +231,58 @@ export function RoleSwap({ store, partnershipId, packId, myId, partnerId, sessio
         );
       })}
       </div>
-      {roleswap.isStitchable(session) && <button className="btn" onClick={playAll}><Icon name="speaker" size={16} />Play the whole conversation</button>}
+      {roleswap.isStitchable(session) && <RoleSwapWrap session={session} myId={myId} playing={playing} unplayed={unplayed} onPlay={() => void playAll()} />}
+    </div>
+  );
+}
+
+// The end of a role-swap (2026-11-14: "the stitch / final learnings never appeared"): once every line is in,
+// both of you see the conversation stitched together and what the feedback said about each line, with the
+// lines worth another go picked out.
+const WORK_ON = 70;
+function RoleSwapWrap({ session, myId, playing, unplayed, onPlay }: { session: RoleSwapSession; myId: string; playing: number | null; unplayed: number[]; onPlay: () => void }) {
+  const pack = usePack();
+  const title = pack.scenarios.find((x) => x.id === session.scenarioId)?.title ?? "The conversation";
+  const scored = session.turns.filter((t) => t.feedback);
+  const avg = scored.length ? Math.round(scored.reduce((n, t) => n + t.feedback!.score, 0) / scored.length) : undefined;
+  const again = session.turns.filter((t) => t.feedback && t.feedback.score < WORK_ON);
+  const who = (t: RoleSwapTurn) => (t.recordedBy === myId ? "You" : "Your partner");
+  return (
+    <div className="framed write-card recap-card">
+      <div className="overline">The conversation, together</div>
+      <h3 className="lesson-title" style={{ fontSize: 22, marginTop: 2 }}>{title}</h3>
+      <p className="lesson-rule">Every line is recorded. Play it through from start to finish, then see what the feedback said about each line.{avg !== undefined ? ` Average score: ${avg}/100.` : ""}</p>
+      <div className="write-actions" style={{ marginTop: 0 }}>
+        <button className="btn" disabled={playing !== null} onClick={onPlay}><Icon name="speaker" size={16} />{playing !== null ? `Playing line ${session.turns.findIndex((t) => t.index === playing) + 1} of ${session.turns.length}` : "Play the whole conversation"}</button>
+      </div>
+      {unplayed.length > 0 && <p className="muted small">Line{unplayed.length > 1 ? "s" : ""} {unplayed.map((i) => i + 1).join(", ")} wouldn&apos;t play, so {unplayed.length > 1 ? "they were" : "it was"} skipped.</p>}
+      <div className="recap-sub" style={{ marginTop: 14 }}>Line by line</div>
+      <ul className="recap-list">
+        {session.turns.map((t) => {
+          const fb = t.feedback;
+          const slips = (fb?.words ?? []).filter((w) => w.status !== "correct" && w.note).slice(0, 3);
+          return (
+            <li key={t.index} className="word-row" style={{ display: "block" }}>
+              <div className="row" style={{ justifyContent: "space-between", gap: 8 }}>
+                <span><span className="muted small">{who(t)}:</span> <b lang={pack.id}>{t.text}</b></span>
+                {fb && <span className={fb.score >= WORK_ON ? "result-ok small" : "muted small"}>{fb.score}/100</span>}
+              </div>
+              <div className="muted small">{t.gloss}</div>
+              {fb ? (
+                <>
+                  {fb.tip && <div className="small" style={{ marginTop: 4 }}>{fb.tip}</div>}
+                  {slips.length > 0 && <ul className="small" style={{ margin: "4px 0 0", paddingLeft: 18 }}>{slips.map((w, i) => <li key={i}><b lang={pack.id}>{w.target}</b>: {w.note}</li>)}</ul>}
+                </>
+              ) : <div className="muted small" style={{ marginTop: 4 }}>No feedback for this line.</div>}
+            </li>
+          );
+        })}
+      </ul>
+      {again.length > 0 && (
+        <p className="small" style={{ margin: "12px 0 0" }}>
+          <b>Worth another go:</b> {again.map((t) => `line ${session.turns.indexOf(t) + 1} (${t.recordedBy === myId ? "yours" : "your partner's"})`).join(", ")}. {again.some((t) => t.recordedBy === myId) ? "Record yours again above; the conversation updates for you both." : "Your partner can record theirs again."}
+        </p>
+      )}
     </div>
   );
 }

@@ -19,13 +19,13 @@ import * as jsession from "@ll/core/partner/session";
 import * as gtog from "@ll/core/partner/grammar-together";
 import { FamiliarityCollab } from "./FamiliarityCollab";
 import { InfoGap, InfoGapSection } from "./InfoGap";
-import { JointSessionView, SECTION_LABEL, SESSION_AGENDA, SessionRow, jointPlanFor, sharedReadySession } from "./JointSession";
+import { JointSessionView, NO_HISTORY, PARTNER_FAR_APART, SECTION_LABEL, SESSION_AGENDA, SessionRow, jointPlanFor, loadJointHistory, sharedReadySession, type JointHistory } from "./JointSession";
 import { LiveConvo, LiveConvoSection } from "./LiveConvo";
 import { RoleSwap, RoleSwapSection } from "./RoleSwap";
 import { Phrasebook, SharedStory } from "./SharedStory";
 import { togetherCandidates, withCourseWords } from "./TogetherSession";
 import { NUDGES, Presence, VIS_TOGGLES, colStack } from "./shared";
-import { Icon, usePack } from "../shared";
+import { Icon, MixedText, usePack } from "../shared";
 
 // Publish where I am — activity, the familiarity projection and my place in the course, each gated by my
 // visibility settings at write time — to one partnership, then ping it. The ping is what makes it live: the
@@ -82,6 +82,7 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
   const [joinCode, setJoinCode] = useState("");
   const [view, setView] = useState<"home" | "session" | OtherWay>("home");
   const [sessRow, setSessRow] = useState<SessionRow | null>(null); // today's shared session row, if any
+  const [history, setHistory] = useState<JointHistory>(NO_HISTORY); // your last few sessions together
   const [rs, setRs] = useState<string | "new" | null>(null); // open role-swap session id, "new", or none
   const [ig, setIg] = useState<string | "new" | null>(null); // open info-gap session id, "new", or none
   const [lc, setLc] = useState<string | "new" | null>(null); // open live-conversation session id, "new", or none
@@ -130,6 +131,7 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
         setShared(next);
         setNudges((await store.listArtifacts(active.id, "nudge")).slice(-6).reverse());
         setSessRow(await readSession(active.id));
+        setHistory(await loadJointHistory(store, active.id).catch(() => NO_HISTORY));
       } else {
         setPartnerState(null);
         setDiff(null);
@@ -213,7 +215,9 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
     setBusy(true); setError(null);
     try {
       const day = localDay();
-      const plan = jointPlanFor(pack, progress, partnerState?.course);
+      // Your last few sessions together, read fresh: today avoids their point, story and lines.
+      const hist = await loadJointHistory(store, pid).catch(() => NO_HISTORY);
+      const plan = jointPlanFor(pack, progress, partnerState?.course, hist);
       const onCourse = !!pack.course && cp.courseV2On(pack, progress);
       const members = [myId, partnerId].sort() as [string, string];
       // Warm-up: the both-taught drill.
@@ -230,7 +234,7 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
       if (plan?.focusPointId && pack.course && myPos) {
         // The lines come from the same lessons back as the point (stories you'd both read by then).
         const back = (s: joint.CoursePositionShare) => cp.slotBefore(pack.course!, cp.slotOfShare(s), plan.lag);
-        const items = cp.grammarTogetherItems(pack, pack.course, plan.focusPointId, back(myPos), back(partnerState?.course ?? myPos), (w) => properNounLike(w, pack));
+        const items = cp.grammarTogetherItems(pack, pack.course, plan.focusPointId, back(myPos), back(partnerState?.course ?? myPos), (w) => properNounLike(w, pack), { seed: hist.count, avoid: hist.lines });
         if (items.length > 1) {
           grammarRowId = await sharedArtifactId("grammar-together", pid, day);
           await store.putArtifact(pid, packId, "grammar-together", { ...gtog.startGrammarTogether(grammarRowId, packId, plan.focusPointId, myId, partnerId, items), day, startedBy: myId }, grammarRowId);
@@ -243,7 +247,10 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
       if (story) {
         storyRowId = await sharedArtifactId("story-together", pid, story.id);
         const lines = story.body.map((b) => ({ text: b.text, translit: b.translit, gloss: b.gloss }));
-        const questions = story.qa.slice(0, 2).map((q) => ({ question: q.question, questionGloss: q.questionGloss, answer: q.answer, answerGloss: q.answerGloss, answerTranslit: q.answerTranslit }));
+        // Two of its questions, a different pair each session.
+        const k = story.qa.length ? (hist.count * 2) % story.qa.length : 0;
+        const picked = [...new Set([k, k + 1].map((i) => i % Math.max(1, story.qa.length)))].map((i) => story.qa[i]!).filter(Boolean);
+        const questions = picked.map((q) => ({ question: q.question, questionGloss: q.questionGloss, answer: q.answer, answerGloss: q.answerGloss, answerTranslit: q.answerTranslit }));
         await store.putArtifact(pid, packId, "story-together", { ...storyTog.startStoryTogether(storyRowId, packId, story.id, myId, partnerId, lines, questions), day, startedBy: myId }, storyRowId);
       }
       const id = await sharedArtifactId("joint-session", pid, day);
@@ -260,6 +267,7 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
       });
       await store.putArtifact(pid, packId, "joint-session", row, id);
       setSessRow(row);
+      setHistory(await loadJointHistory(store, pid).catch(() => hist));
       setView("session");
     } catch (e) {
       setError((e as { message?: string }).message ?? "Couldn't start the session. Try again.");
@@ -353,6 +361,13 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
     const pPos = partnerState?.course;
     const where = (p: joint.CoursePositionShare) => { const c = (pack.chapters ?? []).find((x) => x.order === p.chapterOrder); return `chapter ${p.chapterOrder}${c ? ` (${c.shortTitle})` : ""}, session ${p.session}`; };
     const pDay = partnerState?.activity?.lastActiveDay;
+    // What a session started now would hold (the same plan startSession makes), so the menu names today's
+    // point and story rather than the same fixed text every week.
+    const preview = jointPlanFor(pack, progress, pPos, history);
+    const titleOf = { point: (id: string) => pack.course?.points.find((x) => x.id === id)?.title ?? id, story: (id: string) => pack.stories?.find((x) => x.id === id)?.title ?? id };
+    const detail = (t: string, d: string) => t === "Grammar" && preview?.focusPointId ? `${titleOf.point(preview.focusPointId)}: say lines about other people, and spot the slips`
+      : t === "Story" && preview?.storyId ? `re-read “${titleOf.story(preview.storyId)}” line by line, then two quick questions`
+      : d;
     return (
       <div style={colStack}>
         <div className="partner-status">
@@ -378,12 +393,18 @@ export function PartnerPanel({ progress, persist, config, navigateToStory }: { p
                   <li key={t}>
                     <span className="menu-n" aria-hidden="true">{o === "done" ? <Icon name="check" size={14} /> : i + 1}</span>
                     <span className="menu-label">{t}{o === "done" ? <span className="muted small"> · done</span> : o === "skipped" ? <span className="muted small"> · skipped</span> : null}</span>
-                    <span className="menu-detail">{d}</span>
+                    <span className="menu-detail"><MixedText text={js === "none" || js === "done" ? detail(t, d) : d} /></span>
                   </li>
                 );
               })}
             </ol>
           </div>
+          {preview?.framing && (js === "none" || js === "done") && (
+            <p className="small" style={{ margin: "0 0 6px", lineHeight: 1.5 }}>
+              {preview.framing}
+              {preview.apart >= PARTNER_FAR_APART ? ` You're ${preview.apart} lessons apart, so today uses the latest lessons you've both done, rather than holding back two more.` : ""}
+            </p>
+          )}
           <p className="muted small" style={{ margin: "0 0 12px" }}>About 15 minutes. You both need to be here, side by side or on a call; any section can be skipped.</p>
           {js === "join" && <button className="btn menu-cta" disabled={busy} onClick={() => setView("session")}>Join your partner&apos;s session</button>}
           {js === "resume" && <button className="btn menu-cta" disabled={busy} onClick={() => setView("session")}>Back to your session</button>}

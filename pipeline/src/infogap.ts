@@ -29,6 +29,7 @@ const ROLE_SCHEMA = {
   type: "object",
   additionalProperties: false,
   properties: {
+    name: { type: "string", description: "Who this partner plays, as \"the …\" (e.g. \"the shopkeeper\"), shown as \"You're …\"." },
     brief: { type: "string", description: "English: what THIS partner is trying to accomplish." },
     secretInfo: { type: "array", items: { type: "string" }, description: "Facts (in English) ONLY this partner holds — never shown to the other." },
     targetPhrases: {
@@ -40,12 +41,13 @@ const ROLE_SCHEMA = {
           text: { type: "string", description: "Scaffolding line in the target language." },
           gloss: { type: "string", description: "English gloss." },
           translit: { type: "string", description: "Romanization." },
+          when: { type: "string", description: "English, under ~8 words: the moment it fits, e.g. \"If your partner asks where\" or \"To start: greet them\"." },
         },
-        required: ["text", "gloss", "translit"],
+        required: ["text", "gloss", "translit", "when"],
       },
     },
   },
-  required: ["brief", "secretInfo", "targetPhrases"],
+  required: ["name", "brief", "secretInfo", "targetPhrases"],
 };
 
 const INFOGAP_SCHEMA: Record<string, unknown> = {
@@ -66,9 +68,10 @@ const INFOGAP_SCHEMA: Record<string, unknown> = {
 };
 
 interface RoleData {
+  name: string;
   brief: string;
   secretInfo: string[];
-  targetPhrases: { text: string; gloss: string; translit: string }[];
+  targetPhrases: { text: string; gloss: string; translit: string; when: string }[];
 }
 interface InfoGapData {
   title: string;
@@ -85,7 +88,9 @@ function system(ctx: InfoGapGenContext, splitRule: string): string {
 ${ctx.referenceStyle ? `Match the style, level, and format of this hand-authored reference:\n${ctx.referenceStyle}\n` : ""}
 Requirements:
 - Split rule: "${splitRule}" — ${splitRule === "secret-info" ? "each role holds secret facts the other needs." : "each role owns half of the task and must coordinate."}
-- roleA and roleB each get: a short English brief, 2-3 secretInfo facts (English, held privately), and 2-4 targetPhrases (scaffolding) in natural ${ctx.languageName} with romanization + gloss.
+- roleA and roleB each get: a role name ("the waiter"), a short English brief, 2-3 secretInfo facts (English, held privately), and 2-4 targetPhrases in natural ${ctx.languageName} with romanization + gloss.
+- targetPhrases are a fallback for when a learner is stuck (the app folds them away and asks them to improvise first), so each carries "when": the moment in the conversation it fits, from this role's side ("If your partner asks the price", "To start: greet them").
+- The goal names an OUTCOME both can check they reached ("agree a time and a place", "agree the total").
 - The two roles' secretInfo MUST differ and MUST be complementary (A needs what B holds and vice-versa).
 - 3-4 successCriteria (short id + English description), satisfied only when the gap is bridged.
 - Use ONLY beginner-appropriate, correct, natural ${ctx.languageName} (correct gender agreement, articles, stress).${ctx.targetLexis?.length ? ` Lean on these taught chunks where natural: ${ctx.targetLexis.join("; ")}.` : ""}`;
@@ -107,9 +112,10 @@ export async function generateInfoGapPair(req: InfoGapGenRequest, ctx: InfoGapGe
 
   const role = (r: RoleData, which: "A" | "B"): InfoGapRole => ({
     role: which,
+    ...(r.name ? { name: r.name } : {}),
     brief: r.brief,
     secretInfo: r.secretInfo,
-    targetPhrases: r.targetPhrases.map((p) => ({ text: p.text, gloss: p.gloss, ...(p.translit ? { translit: p.translit } : {}) })),
+    targetPhrases: r.targetPhrases.map((p) => ({ text: p.text, gloss: p.gloss, ...(p.translit ? { translit: p.translit } : {}), ...(p.when ? { when: p.when } : {}) })),
   });
   const successCriteria: Criterion[] = data.successCriteria.map((c) => ({ id: c.id, description: c.description }));
 

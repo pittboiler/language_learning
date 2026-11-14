@@ -5,7 +5,7 @@
 // The blueprint fixes WHAT is taught WHEN. Only review content is decided here at runtime: which due
 // cards make the warm-up (with a guaranteed share from earlier chapters), what a failed checkpoint
 // re-drills, and what a stage review samples.
-import type { Course, CourseChapter, CourseSession, CourseWord, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem, SentenceItem } from "@ll/pack-schema";
+import type { Course, CourseChapter, CourseSession, CourseWord, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem, Scenario, SentenceItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { GrammarItem } from "@ll/core/partner/grammar-together";
@@ -232,6 +232,13 @@ export function slotBefore(course: Course, at: CourseSlot, lag: number): CourseS
   return lag <= 0 ? at : all[Math.max(0, j)]!;
 }
 
+/** How many lessons apart two places in the course are (sessions in course order, either way round). */
+export function sessionsApart(course: Course, a: CourseSlot, b: CourseSlot): number {
+  const all = course.chapters.flatMap((c) => c.sessions.map((s) => ({ order: c.order, n: s.n })));
+  const at = (x: CourseSlot) => { const i = all.findIndex((s) => cmpSlot(s, x) >= 0); return i < 0 ? all.length : i; };
+  return Math.abs(at(a) - at(b));
+}
+
 /** A partner's place moved `lag` lessons back: the slot, and only the points taught before it. */
 export function lagShare(course: Course, s: CoursePositionShare, lag: number): CoursePositionShare {
   const at = slotBefore(course, slotOfShare(s), lag);
@@ -279,12 +286,32 @@ export function verbsKnownBefore(pack: LanguagePack, course: Course, at: CourseS
  *  ping-pong — lines from stories you've BOTH read, said about someone else, every person in turn — with a
  *  couple of fill-ins on the point of the day between them. No reading the rule aloud, no rule quiz: the rule
  *  sits on both screens. Verbs only once both of you have been taught them. */
-export function grammarTogetherItems(pack: LanguagePack, course: Course, pointId: string, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean = () => false): GrammarItem[] {
+/** A conversation turn as single sentences ("Добар ден! Добро сум, фала." → two), each with its own English,
+ *  so a sentence in it can be switched to another person. Only when both sides split into the same number of
+ *  sentences: otherwise the English can't be matched up, and the turn is kept whole. */
+const SENTENCE_END = /(?<=[.!?])\s+/u; // not "…": a hesitation („Вие… сте… Ана…“) isn't a sentence end
+/** Words for me / us / you besides the subject ("што ве носи", "ваше кафе") would have to change with the
+ *  person too, and "that / this" („Тоа е побрзо“) is a thing, not a person: a conversation sentence holding one
+ *  isn't switched. */
+const SPEAKER_WORDS = new Set(["тоа", "ова", "ме", "ми", "мене", "те", "тебе", "ве", "ви", "вас", "нас", "ни", "мој", "моја", "мое", "мои", "твој", "твоја", "твое", "твои", "наш", "наша", "наше", "наши", "ваш", "ваша", "ваше", "ваши"]);
+function sentencesOf(t: { text: string; gloss: string }): { text: string; gloss: string }[] {
+  const mk = t.text.split(SENTENCE_END).filter(Boolean);
+  const en = t.gloss.split(SENTENCE_END).filter(Boolean);
+  return mk.length > 1 && mk.length === en.length ? mk.map((text, i) => ({ text, gloss: en[i]! })) : [{ text: t.text, gloss: t.gloss }];
+}
+/** A grammar-together line's identity, for "used in a recent session" (the spoken line, normalised). */
+export const grammarLineKey = (text: string): string => familiarity.normalize(spoken(text) ?? text);
+/** `seed` (e.g. how many sessions you've had together) rotates which fill-in cards and story lines come up;
+ *  `avoid` (grammarLineKey of lines from your last few sessions) wait their turn unless nothing else fits
+ *  (2026-11-14: the same lines came round session after session). */
+export function grammarTogetherItems(pack: LanguagePack, course: Course, pointId: string, a: CourseSlot, b: CourseSlot, names: (word: string) => boolean = () => false, opts: { seed?: number; avoid?: Set<string> } = {}): GrammarItem[] {
   const point = course.points.find((p) => p.id === pointId);
   if (!point) return [];
-  const blanks: GrammarItem[] = point.cards.flatMap((c, i): GrammarItem[] => c.kind !== "blank" ? [] : [{
+  const seed = Math.max(0, opts.seed ?? 0);
+  const allBlanks: GrammarItem[] = point.cards.flatMap((c, i): GrammarItem[] => c.kind !== "blank" ? [] : [{
     kind: "blank", line: c.line.text, gloss: c.line.gloss, answer: c.blank, options: c.options, why: c.why, source: c.line.source, cardId: `pt:${point.id}:${i}`,
-  }]).slice(0, 2);
+  }]);
+  const blanks = allBlanks.length ? allBlanks.map((_, i) => allBlanks[(i + seed * 2) % allBlanks.length]!).slice(0, Math.min(2, allBlanks.length)) : [];
   const slots = storySlots(course);
   const bothRead = (pack.stories ?? []).filter((st) => taughtBefore(slots.get(st.id), a) && taughtBefore(slots.get(st.id), b));
   const verbsA = verbsKnownBefore(pack, course, a);
@@ -297,16 +324,27 @@ export function grammarTogetherItems(pack: LanguagePack, course: Course, pointId
   const switches: GrammarItem[] = [];
   const persons = new Set<string>();
   const lines = new Set<string>();
-  const pool = [...bothRead].reverse();
-  for (const use of dayVerbs.size ? [dayVerbs, verbs] : [verbs]) {
-    for (let seed = 0; seed < 12 && switches.length < 6; seed++) {
-      for (const st of pool) {
-        if (switches.length >= 6) break;
-        const it = switchPersonItem(pack, st, use, names, seed);
-        const text = it && familiarity.normalize(spoken(it.line.text) ?? it.line.text);
-        if (!it || lines.has(text!) || (persons.has(it.person) && persons.size < 6)) continue;
-        persons.add(it.person); lines.add(text!);
-        switches.push({ kind: "switch", line: it.line.text, gloss: it.line.gloss, pronoun: PRONOUN[it.person].mk, personEn: PRONOUN[it.person].en, answer: it.filled, why: it.why });
+  // The conversations you've both had in the course join the stories as places to find lines (2026-11-14:
+  // until chapter 4 сум is the only verb you share, and the stories alone held just six lines to switch, so
+  // every session asked the same six).
+  const talked = [...new Set(course.chapters.flatMap((c) => c.sessions.filter((x) => !!x.speak && taughtBefore({ order: c.order, n: x.n }, a) && taughtBefore({ order: c.order, n: x.n }, b)).map((x) => x.speak!)))]
+    .map((id) => pack.scenarios.find((x) => x.id === id)).filter((x): x is Scenario => !!x)
+    .map((sc) => ({ id: `scenario:${sc.id}`, title: sc.title, i1Level: 0, level: "A1", audioSource: "tts", qa: [], registersVocab: [], body: sc.script.flatMap(sentencesOf).filter((x) => wordTokens(x.text).length >= 2 && !wordTokens(x.text).some((w) => SPEAKER_WORDS.has(w))) }) as unknown as MiniStory);
+  // Newest first, but which one leads turns with the seed.
+  const newest = [...[...bothRead].reverse(), ...[...talked].reverse()];
+  const pool = newest.map((_, i) => newest[(i + seed) % newest.length]!);
+  const avoid = opts.avoid ?? new Set<string>();
+  for (const strict of [true, false]) {
+    for (const use of dayVerbs.size ? [dayVerbs, verbs] : [verbs]) {
+      for (let k = 0; k < 12 && switches.length < 6; k++) {
+        for (const st of pool) {
+          if (switches.length >= 6) break;
+          const it = switchPersonItem(pack, st, use, names, seed + k);
+          const text = it && grammarLineKey(it.line.text);
+          if (!it || lines.has(text!) || (strict && avoid.has(text!)) || (persons.has(it.person) && persons.size < 6)) continue;
+          persons.add(it.person); lines.add(text!);
+          switches.push({ kind: "switch", line: it.line.text, gloss: it.line.gloss, pronoun: PRONOUN[it.person].mk, personEn: PRONOUN[it.person].en, answer: it.filled, why: it.why });
+        }
       }
     }
   }

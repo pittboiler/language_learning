@@ -52,19 +52,47 @@ export const SESSION_AGENDA: [string, string][] = [
   ["Story", "re-read one you've both read, line by line, then two quick questions"],
   ["Recap", "what you practised together, and what's next"],
 ];
+/** What your last few sessions together practised (most recent first), so today's can avoid it, and how many
+ *  you've had (it seeds which cards and lines come up). Read from the shared rows, one per day. */
+export interface JointHistory { count: number; points: string[]; stories: string[]; lines: Set<string> }
+export const RECENT_SESSIONS = 3;
+export const NO_HISTORY: JointHistory = { count: 0, points: [], stories: [], lines: new Set() };
+export async function loadJointHistory(store: PartnerStore, partnershipId: string): Promise<JointHistory> {
+  const rows = (await store.listArtifacts(partnershipId, "joint-session")).map((a) => a.payload as SessionRow).filter((r) => !!r?.day)
+    .sort((a, b) => b.day.localeCompare(a.day));
+  const recent = rows.slice(0, RECENT_SESSIONS);
+  const grammar = new Map((await store.listArtifacts(partnershipId, "grammar-together")).map((a) => [a.id, a.payload as gtog.GrammarTogetherSession]));
+  const lines = new Set<string>();
+  for (const r of recent) for (const t of (r.refs.grammarRowId ? grammar.get(r.refs.grammarRowId)?.turns : undefined) ?? []) {
+    if (t.kind === "switch" || t.kind === "blank") lines.add(cp.grammarLineKey(t.line));
+  }
+  return {
+    count: rows.length,
+    points: recent.flatMap((r) => (r.refs.pointId ? [r.refs.pointId] : [])),
+    stories: recent.flatMap((r) => (r.refs.storyId ? [r.refs.storyId] : [])),
+    lines,
+  };
+}
+/** Partners this many lessons apart drop the lag (Jake, 2026-11-14: "close that gap when partners are far
+ *  apart"): the slower one's place already holds the session back, and two more lessons on top left the
+ *  faster partner practising material from well over a week ago. */
+export const PARTNER_FAR_APART = 4;
 /** The joint plan over both partners' places in the course (focus point, story, framing, what's next). Its
- *  material comes from PARTNER_LAG lessons back (one, then none, when that leaves no point to share);
- *  `lag` says how far back, for the grammar lines to match. */
-export function jointPlanFor(pack: LanguagePack, progress: Progress, partnerCourse: joint.CoursePositionShare | undefined): (joint.JointPlan & { lag: number }) | undefined {
+ *  material comes from PARTNER_LAG lessons back (one, then none, when that leaves no point to share; none
+ *  straight away when you're PARTNER_FAR_APART lessons apart); `lag` says how far back, for the grammar lines
+ *  to match. `history` keeps it from repeating your last few sessions. */
+export function jointPlanFor(pack: LanguagePack, progress: Progress, partnerCourse: joint.CoursePositionShare | undefined, history: JointHistory = NO_HISTORY): (joint.JointPlan & { lag: number; apart: number }) | undefined {
   const me = cp.positionShare(pack, progress);
   const course = pack.course;
   if (!me || !course) return undefined;
+  const apart = partnerCourse ? cp.sessionsApart(course, cp.slotOfShare(me), cp.slotOfShare(partnerCourse)) : 0;
   const pt = (id: string) => course.points.find((x) => x.id === id)?.title ?? id;
   const planAt = (lag: number) => joint.planJointSession({
     course,
     me,
     partner: partnerCourse,
     content: { me: cp.lagShare(course, me, lag), partner: partnerCourse && cp.lagShare(course, partnerCourse, lag) },
+    recent: { points: history.points, stories: history.stories },
     drillCount: 0,
     titles: {
       point: pt,
@@ -73,8 +101,8 @@ export function jointPlanFor(pack: LanguagePack, progress: Progress, partnerCour
       chapter: (o) => { const c = (pack.chapters ?? []).find((x) => x.order === o); return c ? `chapter ${o} (${c.shortTitle})` : `chapter ${o}`; },
     },
   });
-  for (let lag = cp.PARTNER_LAG; lag > 0; lag--) { const plan = planAt(lag); if (plan.focusPointId) return { ...plan, lag }; }
-  return { ...planAt(0), lag: 0 };
+  for (let lag = apart >= PARTNER_FAR_APART ? 0 : cp.PARTNER_LAG; lag > 0; lag--) { const plan = planAt(lag); if (plan.focusPointId) return { ...plan, lag, apart }; }
+  return { ...planAt(0), lag: 0, apart };
 }
 export function JointSessionView({ store, partnershipId, packId, myId, partnerId, sessionRowId, progress, persist, config, partnerState, onExit }: {
   store: PartnerStore; partnershipId: string; packId: string; myId: string; partnerId: string; sessionRowId: string;

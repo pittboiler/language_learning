@@ -67,6 +67,10 @@ export interface JointInputs {
   /** Where to draw today's material from, when it isn't where you each are: a couple of lessons back, so
    *  nothing in the session is brand new. The framing (who's where, who's ahead) still uses `me`/`partner`. */
   content?: { me: CoursePositionShare; partner?: CoursePositionShare };
+  /** The points and stories of your last few sessions together, most recent first. Today avoids them, so the
+   *  session doesn't repeat while you're both in the same stretch of the course (Jake, 2026-11-14: "very
+   *  similar (the same?) as last week despite us making progress"). */
+  recent?: { points: string[]; stories: string[] };
 }
 
 const order = (course: Course, id: string) => course.points.find((p) => p.id === id)?.order ?? 0;
@@ -101,7 +105,12 @@ export function planJointSession(inp: JointInputs): JointPlan {
   const cMine = new Set(cMe.points);
   const cTheirs = cPartner ? new Set(cPartner.points) : cMine;
   const shared = course.points.filter((p) => cMine.has(p.id) && cTheirs.has(p.id)).map((p) => p.id);
-  const focusPointId = shared.sort((a, b) => order(course, b) - order(course, a))[0];
+  // The newest point you share that your last few sessions didn't practise; if they covered them all, the
+  // one practised longest ago. (Before 2026-11-14 it was always the newest, so a run of five or six lessons,
+  // the back of one chapter and the front of the next, all got the same session.)
+  const recentPoints = inp.recent?.points ?? [];
+  const since = (id: string) => { const i = recentPoints.indexOf(id); return i < 0 ? Infinity : i; };
+  const focusPointId = shared.sort((a, b) => since(b) - since(a) || order(course, b) - order(course, a))[0];
   const sharedChapterOrder = cPartner ? Math.min(cMe.chapterOrder, cPartner.chapterOrder) : cMe.chapterOrder;
 
   // Who's ahead, by points taught (sessions break ties within a chapter).
@@ -132,8 +141,11 @@ export function planJointSession(inp: JointInputs): JointPlan {
     if (s.story && !s.story.reuse && !storySlot.has(s.story.id)) storySlot.set(s.story.id, { order: c.order, n: s.n });
   }
   const readBy = (slot: { order: number; n: number }, p: CoursePositionShare) => slot.order < p.chapterOrder || (slot.order === p.chapterOrder && slot.n < p.session);
-  const reread = [...storySlot.entries()]
-    .filter(([, slot]) => readBy(slot, cMe) && (!cPartner || readBy(slot, cPartner)))
+  // Stories from your last few sessions wait their turn, unless they're the only ones you've both read.
+  const recentStories = new Set(inp.recent?.stories ?? []);
+  const readByBoth = [...storySlot.entries()].filter(([, slot]) => readBy(slot, cMe) && (!cPartner || readBy(slot, cPartner)));
+  const fresh = readByBoth.filter(([id]) => !recentStories.has(id));
+  const reread = (fresh.length ? fresh : readByBoth)
     .sort((a, b) => (focusLines.get(b[0])?.length ?? 0) - (focusLines.get(a[0])?.length ?? 0) || b[1].order - a[1].order || b[1].n - a[1].n)[0];
   if (reread) {
     storyId = reread[0];
