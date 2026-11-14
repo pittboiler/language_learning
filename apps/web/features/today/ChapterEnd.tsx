@@ -113,7 +113,7 @@ export function ChapterEnd({ chapter, checkpoint, practice, progress, persist, c
             <div><b>{scen ? "Part 1: the cards" : "The cards"}</b></div>
             <div className="small" style={{ marginTop: 2 }}>
               {plural(own, "word")} from this chapter{checkpoint.earlier ? `, ${checkpoint.earlier} of your weakest from earlier chapters` : ""}{gram ? `, ${plural(gram, "grammar card")}` : ""}{checkpoint.switches.length ? `, ${plural(checkpoint.switches.length, "person swap")}` : ""}{checkpoint.say.length ? `, then ${plural(checkpoint.say.length, "line")} to say` : ""}.
-              {" "}To pass: 7 in 10 right on the first try.
+              {" "}To pass: {needed(checkpoint.items.length + checkpoint.switches.length)} of {checkpoint.items.length + checkpoint.switches.length} right on the first try (7 in 10).
             </div>
             <div style={{ marginTop: 4 }}>{status(parts.cards, last)}</div>
           </li>

@@ -57,7 +57,8 @@ export function nextOpenTurn(session: RoleSwapSession, userId: string): RoleSwap
 const allRecorded = (turns: RoleSwapTurn[]): boolean => turns.length > 0 && turns.every((t) => !!t.recordedBy);
 
 /** Attach a partner's recording (data-URL) + transcripts to a turn. Guards that you only record your
- *  own role's lines. Flips the session to 'complete' once every line is in. */
+ *  own role's lines. Flips the session to 'complete' once every line is in. Recording a line again replaces
+ *  the take and drops its old feedback (that was about the old take). */
 export function recordTurn(
   session: RoleSwapSession,
   index: number,
@@ -68,7 +69,7 @@ export function recordTurn(
   const turn = session.turns[index];
   if (!turn) throw new Error(`no turn ${index}`);
   if (session.assignment[userId] !== turn.speaker) throw new Error("can only record your own role's lines");
-  const turns = session.turns.map((t) => (t.index === index ? { ...t, recordedBy: userId, audio, transcripts } : t));
+  const turns = session.turns.map((t) => (t.index === index ? { ...t, recordedBy: userId, audio, transcripts, feedback: undefined } : t));
   return { ...session, turns, status: allRecorded(turns) ? "complete" : "recording" };
 }
 

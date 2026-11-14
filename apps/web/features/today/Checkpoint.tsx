@@ -102,6 +102,8 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
   };
   const stop = onStop && <div className="row" style={{ marginTop: 14 }}><button className="quiet" onClick={onStop}>Stop for now: the checkpoint will wait, nothing counts against you</button></div>;
   const parts = scenario ? 2 : 1;
+  // The cards part's pass mark: its cards and the person swaps after them, 7 in 10 right first time.
+  const passTotal = items.length + switches.length;
 
   if (phase === "drill")
     return (
@@ -109,9 +111,9 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
         <Tag>Checkpoint · chapter {chapter.order}{parts > 1 ? " · part 1 of 2: the cards" : ""}</Tag>
         <p className="lead" style={{ marginTop: 0 }}>
           {words - earlier} words from <b>{chapter.shortTitle}</b>{earlier ? `, ${earlier} from earlier chapters` : ""}{gram ? `, ${gram} grammar card${gram > 1 ? "s" : ""}` : ""}{switches.length ? `, then ${switches.length} person swap${switches.length > 1 ? "s" : ""}` : ""}{sayLines.length ? ` and ${sayLines.length} line${sayLines.length > 1 ? "s" : ""} to say` : ""}.
-          {" "}To pass: 7 in 10 right on the first try. A miss just counts as a miss: no second goes in the checkpoint.
+          {" "}To pass: <b>{needed(passTotal)} of {passTotal} right on the first try</b> (7 in 10){switches.length ? `, counting the ${items.length} cards here and the ${switches.length} person swap${switches.length > 1 ? "s" : ""} after` : ""}. A miss just counts as a miss: no second goes in the checkpoint.
         </p>
-        <WarmupSession items={items} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Checkpoint" requeue={false} tally />
+        <WarmupSession items={items} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Checkpoint" requeue={false} tally passTotal={passTotal} />
         {stop}
       </div>
     );
@@ -120,6 +122,7 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
     return (
       <div>
         <Tag>Checkpoint · switch the person</Tag>
+        <p className="muted small" style={{ marginTop: 0 }}>So far {score.current.got} of {score.current.total} right; the pass mark is {needed(passTotal)} of {passTotal}.</p>
         <UseIt
           items={switches}
           config={config}
@@ -167,7 +170,7 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
   const p = outcome.parts;
   const when = (iso?: string) => (iso && new Date(iso).toDateString() !== new Date().toDateString() ? ` on ${new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" })}` : "");
   const cardsLine = p.cards
-    ? <>Cards: passed{cards ? `, ${cards.got} of ${cards.total} right first time` : when(p.cards)}.</>
+    ? <>Cards: passed{cards ? `, ${cards.got} of ${cards.total} right first time (you needed ${needed(cards.total)})` : when(p.cards)}.</>
     : cards ? <>Cards: {cards.got} of {cards.total} right first time; a pass needs {needed(cards.total)}.</> : <>Cards: still to do.</>;
   const convoLine = !scenario ? null : p.conversation ? <>Conversation: passed{spoke ? "" : when(p.conversation)}.</> : <>Conversation: still to do.</>;
   const left = [!p.cards ? "the cards" : "", scenario && !p.conversation ? "the conversation" : ""].filter(Boolean).join(" and ");

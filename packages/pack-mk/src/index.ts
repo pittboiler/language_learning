@@ -22,6 +22,7 @@ import { varietyStories } from "./stories-variety.js";
 import { storyFixes } from "./story-fixes.js";
 import { scenarioBriefs, varietyConversations } from "./conversations-variety.js";
 import { infoGapTasks } from "./infogap.js";
+import { infoGapRoleNames } from "./infogap-roles.js";
 import { orderADrink } from "./scenarios/order-a-drink.js";
 import { smallTalk } from "./scenarios/small-talk.js";
 import { generatedScenarios, generatedVocab } from "./generated.js";
@@ -103,7 +104,10 @@ export const macedonian: LanguagePack = {
   }),
   srsSeed: withCardExtras(vocab.slice(0, 6)),
   writingTasks: [...writingTasks, ...stage1.promotedWritingTasks, ...stage2.promotedWritingTasks],
-  infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks],
+  infoGapTasks: [...infoGapTasks, ...stage0.promotedInfoGapTasks, ...stage1.promotedInfoGapTasks, ...stage2.promotedInfoGapTasks].map((t) => {
+    const names = infoGapRoleNames[t.id];
+    return names ? { ...t, roleA: { ...t.roleA, name: names[0] }, roleB: { ...t.roleB, name: names[1] } } : t;
+  }),
   conjugations,
   sentences,
   chapters,

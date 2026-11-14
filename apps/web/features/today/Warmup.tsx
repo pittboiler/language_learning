@@ -6,6 +6,7 @@ import type { FamiliarityEntry } from "@ll/core/familiarity";
 import { type Progress } from "../../lib/store";
 import { buildLineGlosses } from "../../lib/capture";
 import { firstTries, sendBack, shuffle } from "../../lib/today-plan";
+import { needed } from "../../lib/checkpoint";
 import { ClozeCard, GradeWords, GrammarCard, PhraseCard } from "../flashcards/Cards";
 import { MixedText, PRONOUNS, Stitches, usePack, usePlay } from "../shared";
 import { Tag } from "./TodayHeader";
@@ -107,7 +108,7 @@ export function MatchGame({ pairs, onDone, lead, glossFirst = false }: { pairs: 
 }
 export type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
 export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard; again?: boolean } | { kind: "conjugation"; verb: ConjugationSet; personFirst: boolean };
-export function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss, label = "Warm up", requeue = true, tally = false }: {
+export function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss, label = "Warm up", requeue = true, tally = false, passTotal }: {
   items: ReviewItem[];
   conjVerb?: ConjugationSet;
   progress: Progress;
@@ -118,8 +119,12 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
   label?: string;
   /** "Again" brings a card back later (the default). A checkpoint is a test: a miss is a miss and it moves on. */
   requeue?: boolean;
-  /** Show "4 of 6 right so far" (first tries) beside the counter. */
+  /** Count cards rather than steps (a match grid of six is six cards) and show how many were right first
+   *  time. A checkpoint and a practice round do; the daily warm-up keeps its step count. */
   tally?: boolean;
+  /** A checkpoint's pass mark is out of this many (its cards plus the person swaps after them): the tally
+   *  says how many more you can miss and still pass. */
+  passTotal?: number;
 }) {
   const pack = usePack();
   // For back-translating a stored sentence when its English wasn't saved (parity with the Library flashcards).
@@ -177,12 +182,25 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
   const step = allSteps[stepIdx];
   if (!step) return null;
   const advance = () => setStepIdx((s) => s + 1);
+  // Counting cards (Jake, 2026-11-14: "19 of 24" beside "23 of 23 right" read as two different tests).
+  const cardsIn = (x: WarmStep) => (x.kind === "match" ? x.pairs.length : x.kind === "card" ? 1 : 0);
+  const before = allSteps.slice(0, stepIdx).reduce((n, x) => n + cardsIn(x), 0);
+  const total = allSteps.reduce((n, x) => n + cardsIn(x), 0);
+  const here = cardsIn(step);
+  const where = !tally ? `${stepIdx + 1} of ${allSteps.length}` : here > 1 ? `cards ${before + 1} to ${before + here} of ${total}` : `card ${before + 1} of ${total}`;
+  const t = firstTries(results.current);
+  const left = passTotal !== undefined ? passTotal - needed(passTotal) - (t.total - t.got) : undefined;
+  const tallyText = !tally || t.total === 0 ? null
+    : left === undefined ? `${t.got} of ${t.total} right first time`
+    : left > 0 ? `${t.got} right · you can miss ${left} more and still pass`
+    : left === 0 ? `${t.got} right · no more misses if you want to pass`
+    : `${t.got} right · too many misses to pass this time; finish for the practice, or stop: it won't count against you`;
   return (
     <div>
       <div className="row" style={{ gap: 10, marginBottom: 8 }}>
-        <span className="overline">{label} · {stepIdx + 1} of {allSteps.length}{step.kind === "card" && step.again && <OnceMore />}</span>
-        <Stitches total={allSteps.length} done={stepIdx} now={stepIdx} size={10} label={`${label} step ${stepIdx + 1} of ${allSteps.length}`} />
-        {tally && results.current.length > 0 && (() => { const t = firstTries(results.current); return <span className="muted small">{t.got} of {t.total} right so far</span>; })()}
+        <span className="overline">{label} · {where}{step.kind === "card" && step.again && <OnceMore />}</span>
+        <Stitches total={allSteps.length} done={stepIdx} now={stepIdx} size={10} label={`${label}: ${where}`} />
+        {tallyText && <span className="muted small">{tallyText}</span>}
       </div>
       {sentBack?.at === stepIdx && sentBack.wait > 0 && <SentBackNote wait={sentBack.wait} />}
       {step.kind === "conjugation" ? (

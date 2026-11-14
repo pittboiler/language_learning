@@ -121,23 +121,35 @@ export function InfoGap({ store, partnershipId, packId, myId, partnerId, session
   const brief = infogap.briefFor(task, role);
   const done = infogap.isComplete(session, task);
 
+  // The goal comes first and in plain sight; the phrases are a fallback, folded away, so the talk is yours
+  // (Jake, 2026-11-14: improvising is the point).
   return (
     <div style={colStack}>
-      <ActivityHead title="Info-gap challenge" status={<>You are <b>{role === "A" ? "the customer" : "the waiter"}</b></>} onRefresh={refresh} />
-      <p className="lesson-rule" style={{ margin: 0 }}><MixedText text={task.goal} /></p>
+      <ActivityHead title="Info-gap challenge" status={<>You&apos;re <b>{brief.name ?? (role === "A" ? "partner A" : "partner B")}</b></>} onRefresh={refresh} />
+      <div className="framed write-card recap-card">
+        <div className="overline">Your goal, together</div>
+        <p className="lesson-rule" style={{ margin: "4px 0 0" }}><MixedText text={task.goal} /></p>
+        <p className="muted small" style={{ margin: "6px 0 0" }}>You&apos;re done when you&apos;ve ticked off all {task.successCriteria.length} at the bottom. Talk it through in Macedonian, in your own words.</p>
+      </div>
       <div className="framed write-card">
         <div className="card-prompt" style={{ fontSize: 20, marginTop: 0 }}><MixedText text={brief.brief} /></div>
         <div className="overline" style={{ marginTop: 14 }}>Only you know</div>
         <ul style={{ margin: "6px 0 0", paddingLeft: 18, lineHeight: 1.6 }}>{brief.secretInfo.map((s, i) => <li key={i}><MixedText text={s} /></li>)}</ul>
-        <div className="overline" style={{ marginTop: 14 }}>You can say</div>
-        <div className="gram-ex-list">
-          {brief.targetPhrases.map((p, i) => (
-            <div className="gram-ex" key={i}>
-              <SpeakButton label={`Play ${p.text}`} onClick={() => play(p.text, 0.9)} />
-              <span className="ex-text"><span className="mk" lang={pack.id}>{p.text}</span><span className="en">{translitOr(p.text, p.translit)} · {p.gloss}</span></span>
-            </div>
-          ))}
-        </div>
+        <details style={{ marginTop: 14 }}>
+          <summary className="linklike small" style={{ cursor: "pointer" }}>Stuck? Ideas for what to say</summary>
+          <p className="muted small" style={{ margin: "6px 0 4px" }}>Improvise first: say it your own way, however simply. These are only for when you get stuck.</p>
+          <div className="gram-ex-list">
+            {brief.targetPhrases.map((p, i) => (
+              <div className="gram-ex" key={i}>
+                <SpeakButton label={`Play ${p.text}`} onClick={() => play(p.text, 0.9)} />
+                <span className="ex-text">
+                  {p.when && <span className="muted small">{p.when}:</span>}
+                  <span className="mk" lang={pack.id}>{p.text}</span><span className="en">{translitOr(p.text, p.translit)} · {p.gloss}</span>
+                </span>
+              </div>
+            ))}
+          </div>
+        </details>
       </div>
       <div className="overline">Together, tick off as you go</div>
       <div className="theme-chips" style={{ margin: 0 }}>

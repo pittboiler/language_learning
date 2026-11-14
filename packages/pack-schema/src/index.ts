@@ -208,10 +208,14 @@ export interface AsrConfig {
  *  `secretInfo` differ — that gap is what forces real target-language exchange (see core/infogap). */
 export interface InfoGapRole {
   role: "A" | "B";
+  /** Who this partner plays ("the shopkeeper"), for the screen's "You're …". */
+  name?: string;
   brief: string; // English: what this partner is trying to accomplish
   briefGloss?: string;
   secretInfo: string[]; // facts only THIS partner holds (never shown to the other)
-  targetPhrases: { text: string; gloss: string; translit?: string }[]; // scaffolding for this role
+  /** Scaffolding for this role, only for when the learner is stuck. `when`: the moment it fits ("If your
+   *  partner asks where"). */
+  targetPhrases: { text: string; gloss: string; translit?: string; when?: string }[];
 }
 
 /** Asymmetric paired task: each role holds different info; neither can finish alone (forced
