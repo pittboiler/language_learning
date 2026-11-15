@@ -389,6 +389,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
             key={idx}
             items={step.items}
             conjVerb={step.conjVerb}
+            verbs={step.verbs}
             progress={progress}
             persist={persist}
             onMiss={flag}

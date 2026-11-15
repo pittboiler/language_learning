@@ -7,7 +7,8 @@ import * as familiarity from "@ll/core/familiarity";
 import * as sentenceScope from "@ll/core/sentences";
 import * as cp from "./course-player";
 import { properNounLike } from "./capture";
-import { CHECKPOINT_EARLIER, PRACTICE, PRACTICE_PER_CHAPTER, partsOf } from "./checkpoint";
+import { CHECKPOINT_EARLIER, CHECKPOINT_VERBS, PRACTICE, PRACTICE_PER_CHAPTER, partsOf } from "./checkpoint";
+import * as vd from "./verb-drills";
 import type { Progress } from "./store";
 
 // The SRS review pool for a pack: vocab phrases + grammar drills (tagged with their concept name).
@@ -59,6 +60,8 @@ export interface StoryLens {
  *  and the conversation. `earlier`: how many of the words come from earlier chapters. */
 export interface CheckpointRound {
   items: ReviewItem[];
+  /** Verb pattern questions (lib/verb-drills.ts): counted with the cards. */
+  verbs: vd.VerbQuestion[];
   switches: Extract<cp.UseItItem, { kind: "switch" }>[];
   say: { text: string; gloss: string; focus?: string[] }[];
   scenario?: Scenario;
@@ -67,7 +70,7 @@ export interface CheckpointRound {
 
 // One step of Today's session, as page.tsx renders it.
 export type TodayStep =
-  | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet; own?: number }
+  | { kind: "warmup"; items: ReviewItem[]; conjVerb?: ConjugationSet; verbs?: vd.VerbQuestion[]; own?: number }
   | { kind: "checkpoint"; chapter: Chapter; items: ReviewItem[]; scenario?: Scenario; persons?: ReturnType<typeof cp.checkpointPersons> }
   /** The course's chapter checkpoint session: practise this chapter, practise everything so far, or take the checkpoint. */
   | { kind: "chapterEnd"; chapter: Chapter; checkpoint: CheckpointRound; practice: { chapter: CheckpointRound; all: CheckpointRound } }
@@ -129,6 +132,8 @@ export const pickConjVerb = (pack: LanguagePack, progress: Progress, groups?: Se
  *  comes every third lesson. Once there are several verbs the daily rotation spaces them anyway. A verb not
  *  drilled yet always goes first. */
 export const CONJ_GAP = 2;
+/** Verb pattern questions in each lesson's warm-up, once a pattern is taught. */
+export const VERB_DRILL = 3;
 export function courseConjVerb(pack: LanguagePack, progress: Progress, verbs: Set<string>): ConjugationSet | undefined {
   const recent = new Set((progress.courseLog ?? []).slice(-CONJ_GAP).flatMap((e) => e.drilled ?? []));
   const rested = new Set([...verbs].filter((v) => !recent.has(v)));
@@ -153,9 +158,13 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
   const taughtNow = new Set(steps.flatMap((x) => (x.kind === "newwords" ? x.words.map((w) => w.lexKey) : [])));
   const catchUp = cp.catchUpWords(pack.course!, progress).filter((w) => taughtNow.has(w.lexKey));
   const catchLine = catchUp.length ? `Catch-up: ${catchUp.length} word${catchUp.length > 1 ? "s" : ""} added to a session you'd already done: ${catchUp.map((w) => w.display.replace(/\.+$/, "")).join(", ")}` : undefined;
-  const warmLine = n || own
-    ? `Warm-up: ${n ? `${n} card${n > 1 ? "s" : ""} from earlier sessions` : ""}${n && own ? " + " : ""}${own ? `${own} of your own picked words (★ / ＋ Learn)` : ""}`
-    : "Warm-up: a quick verb drill";
+  const vq = warm?.verbs?.length ?? 0;
+  const parts = [
+    ...(vq ? [`${vq} verb pattern question${vq > 1 ? "s" : ""}`] : []),
+    ...(n ? [`${n} card${n > 1 ? "s" : ""} from earlier sessions`] : []),
+    ...(own ? [`${own} of your own picked words (★ / ＋ Learn)`] : []),
+  ];
+  const warmLine = parts.length ? `Warm-up: ${parts.join(" + ")}` : "Warm-up: a quick verb drill";
   // Build-a-sentence only runs when something is buildable right now (and Say it when there's a line to
   // say); don't promise either otherwise.
   const items = agenda.items
@@ -231,11 +240,14 @@ export function courseBody(pack: LanguagePack, progress: Progress): TodayStep[] 
   // from chapter 1 (before 2026-10-14 it waited for chapter 4, so сме / сте / се went undrilled for three
   // chapters), -а verbs from chapter 4, -е/-и from 5 (drillableVerbs), and not one drilled in the last two
   // lessons (courseConjVerb).
-  const conjVerb = courseConjVerb(pack, progress, drillableVerbs(pack, progress));
+  // From chapter 4, once a verb pattern is taught, the one-verb match gives way to pattern questions: the
+  // weakest pattern × persons across many verbs (Jake, 2026-11-14), the newest tense always among them.
+  const verbs = vd.buildVerbDrill(pack, progress, { size: VERB_DRILL, seed: progress.courseLog?.length ?? 0 });
+  const conjVerb = verbs.length ? undefined : courseConjVerb(pack, progress, drillableVerbs(pack, progress));
   // Review days also bring back the words you picked yourself (★ saved, ＋ Learn); other days stay on the course.
   const keyOf = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
   const own = review ? cp.ownWordsDue(pack, progress, now, 4).filter((o) => !warm.some((w) => keyOf(w) === keyOf(o))) : [];
-  if (warm.length || own.length || conjVerb) out.push({ kind: "warmup", items: [...warm, ...own], conjVerb, own: own.length });
+  if (warm.length || own.length || conjVerb || verbs.length) out.push({ kind: "warmup", items: [...warm, ...own], conjVerb, ...(verbs.length ? { verbs } : {}), own: own.length });
 
   const words = [...catchUp, ...s.words.filter((w) => cp.needsTeaching(progress, w.lexKey) && !catchUp.some((c) => c.lexKey === w.lexKey)).map((w) => ({ lexKey: w.lexKey, gloss: w.gloss }))];
   if (words.length) out.push({ kind: "newwords", words });
@@ -309,11 +321,20 @@ export function chapterEndStep(pack: LanguagePack, progress: Progress, cc: Cours
     .sort((a, b) => Number(due(b)) - Number(due(a)) || (entry(a)?.strength ?? 0) - (entry(b)?.strength ?? 0))
     .slice(0, CHECKPOINT_EARLIER);
   const persons = personsOf(cc);
-  const checkpoint: CheckpointRound = { items: [...shuffle([...own, ...earlier]), ...cardsOf(cc)], switches: persons.switches, say: persons.say, scenario: scenarioOf(cc), earlier: earlier.length };
+  // Verb patterns: half on the chapter's own (its point taught a tense), the rest the weakest of the others.
+  const seed = progress.courseLog?.length ?? 0;
+  const mine = vd.unlockedVariants(pack, progress).filter((v) => cc.pointIds.includes(v.pointId!)).map((v) => v.variant.id);
+  const verbRound = (size: number, s: number) => {
+    const a = mine.length ? vd.buildVerbDrill(pack, progress, { size: Math.ceil(size / 2), only: mine, seed: s }) : [];
+    const b = vd.buildVerbDrill(pack, progress, { size, seed: s + 1 }).filter((q) => !a.some((x) => x.variant === q.variant && x.person === q.person));
+    return [...a, ...b].slice(0, size);
+  };
+  const checkpoint: CheckpointRound = { items: [...shuffle([...own, ...earlier]), ...cardsOf(cc)], verbs: verbRound(CHECKPOINT_VERBS, seed), switches: persons.switches, say: persons.say, scenario: scenarioOf(cc), earlier: earlier.length };
 
   // Practise this chapter.
   const thisChapter: CheckpointRound = {
     items: [...weakestFirst(own).slice(0, PRACTICE.words), ...weakestFirst(cardsOf(cc)).slice(0, PRACTICE.cards)],
+    verbs: verbRound(PRACTICE.verbs, seed + 2),
     switches: shuffle(persons.switches).slice(0, PRACTICE.switches),
     say: shuffle(persons.say).slice(0, PRACTICE.say),
     scenario: scenarioOf(cc),
@@ -336,6 +357,7 @@ export function chapterEndStep(pack: LanguagePack, progress: Progress, cc: Cours
   const people = mixed.map(personsOf).find((x) => x.switches.length > 0) ?? persons;
   const all: CheckpointRound = {
     items: [...shuffle(words), ...weakestFirst(upTo.flatMap((c) => cardsOf(c, true))).slice(0, PRACTICE.cards)],
+    verbs: vd.buildVerbDrill(pack, progress, { size: PRACTICE.verbs, seed: seed + 3 }),
     switches: shuffle(people.switches).slice(0, PRACTICE.switches),
     say: shuffle(people.say).slice(0, PRACTICE.say),
     scenario: mixed.map(scenarioOf).find((x) => !!x),

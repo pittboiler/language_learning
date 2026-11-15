@@ -227,15 +227,17 @@ export const grammar: GrammarConcept[] = [
   {
     id: "past-tense",
     name: "Talking about the past",
-    technicalName: "Past tense (aorist)",
-    plain: "For a finished past action, swap the endings: гледам (I watch) → гледав (I watched). Heads-up: the “you” and “he/she” past forms look identical — context tells them apart.",
+    technicalName: "Past tense (imperfect and aorist)",
+    // 2026-11-14 (batch 3): "ти / тој гледа" for "you / he watched" was the dialectal imperfective aorist; the
+    // standard past of an ongoing verb like гледа is гледаше. The done past belongs to done verbs (прочита).
+    plain: "Swap the endings: гледам (I watch) → гледав (I watched, I was watching). Heads-up: “you” and “he/she” share one past form, гледаше, so context tells them apart.",
     explanation:
-      "The simple past (aorist) endings: -в (I), bare stem (you / he-she), -вме (we), -вте (you all), -а (they). So гледа (watch) → гледав, гледа, гледавме, гледавте, гледаа. Use it for completed actions: гледав филм = “I watched a film.”",
+      "Macedonian has two pasts. An ongoing verb like гледа takes -в (I), -ше (you / he-she), -вме (we), -вте (you all), -а (they): гледав, гледаше, гледавме, гледавте, гледаа. That's the past for something that went on or a habit: гледав филм = “I watched a film / I was watching a film”. A done verb, the finished half of a pair, takes -в, the bare stem, -вме, -вте, -а: прочитав, прочита (I read it through, he read it through). Library → Verb patterns has both, with every verb.",
     pattern: {
       headers: ["person", "past of гледа", "ending"],
       rows: [
         ["јас (I)", "гледав", "-в"],
-        ["ти / тој (you / he)", "гледа", "(bare)"],
+        ["ти / тој (you / he)", "гледаше", "-ше"],
         ["ние (we)", "гледавме", "-вме"],
         ["вие (you all)", "гледавте", "-вте"],
         ["тие (they)", "гледаа", "-а"],

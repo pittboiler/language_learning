@@ -49,8 +49,8 @@ export function ChapterEnd({ chapter, checkpoint, practice, progress, persist, c
   const gram = checkpoint.items.length - words;
   const own = words - checkpoint.earlier;
   const left = { cards: !parts.cards, conversation: !!scen && !parts.conversation };
-  const cpMin = roundMinutes({ cards: left.cards ? checkpoint.items.length : 0, switches: left.cards ? checkpoint.switches.length : 0, say: left.cards ? checkpoint.say.length : 0, conversation: left.conversation });
-  const prMin = roundMinutes({ cards: practice.chapter.items.length, switches: practice.chapter.switches.length, say: practice.chapter.say.length, conversation: !!practice.chapter.scenario });
+  const cpMin = roundMinutes({ cards: left.cards ? checkpoint.items.length + checkpoint.verbs.length : 0, switches: left.cards ? checkpoint.switches.length : 0, say: left.cards ? checkpoint.say.length : 0, conversation: left.conversation });
+  const prMin = roundMinutes({ cards: practice.chapter.items.length + practice.chapter.verbs.length, switches: practice.chapter.switches.length, say: practice.chapter.say.length, conversation: !!practice.chapter.scenario });
   // Chapter 1 has nothing before it (chapter 0 is the letters), so "everything so far" would be this chapter.
   const firstChapter = chapter.order <= 1;
 
@@ -62,6 +62,7 @@ export function ChapterEnd({ chapter, checkpoint, practice, progress, persist, c
         key={goes}
         chapter={chapter}
         items={checkpoint.items}
+        verbs={checkpoint.verbs}
         persons={{ switches: checkpoint.switches, say: checkpoint.say }}
         scenario={scen}
         earlier={checkpoint.earlier}
@@ -112,8 +113,8 @@ export function ChapterEnd({ chapter, checkpoint, practice, progress, persist, c
           <li className="word-row" style={{ display: "block" }}>
             <div><b>{scen ? "Part 1: the cards" : "The cards"}</b></div>
             <div className="small" style={{ marginTop: 2 }}>
-              {plural(own, "word")} from this chapter{checkpoint.earlier ? `, ${checkpoint.earlier} of your weakest from earlier chapters` : ""}{gram ? `, ${plural(gram, "grammar card")}` : ""}{checkpoint.switches.length ? `, ${plural(checkpoint.switches.length, "person swap")}` : ""}{checkpoint.say.length ? `, then ${plural(checkpoint.say.length, "line")} to say` : ""}.
-              {" "}To pass: {needed(checkpoint.items.length + checkpoint.switches.length)} of {checkpoint.items.length + checkpoint.switches.length} right on the first try (7 in 10).
+              {plural(own, "word")} from this chapter{checkpoint.earlier ? `, ${checkpoint.earlier} of your weakest from earlier chapters` : ""}{gram ? `, ${plural(gram, "grammar card")}` : ""}{checkpoint.verbs.length ? `, ${plural(checkpoint.verbs.length, "verb pattern question")}` : ""}{checkpoint.switches.length ? `, ${plural(checkpoint.switches.length, "person swap")}` : ""}{checkpoint.say.length ? `, then ${plural(checkpoint.say.length, "line")} to say` : ""}.
+              {" "}To pass: {needed(checkpoint.items.length + checkpoint.verbs.length + checkpoint.switches.length)} of {checkpoint.items.length + checkpoint.verbs.length + checkpoint.switches.length} right on the first try (7 in 10).
             </div>
             <div style={{ marginTop: 4 }}>{status(parts.cards, last)}</div>
           </li>
@@ -134,7 +135,7 @@ export function ChapterEnd({ chapter, checkpoint, practice, progress, persist, c
       <div className="framed write-card recap-card">
         <div className="overline">Not today? Practise instead · about {prMin} min</div>
         <p className="small" style={{ margin: "4px 0 0", lineHeight: 1.5 }}>
-          A short round in the same format as the checkpoint, scored the same way, so you can see whether you&apos;re ready: {plural(practice.chapter.items.filter((i) => i.kind !== "grammar").length, "word")}, a couple of grammar cards, a person swap, a line to say, then the conversation if you like.{parts.last?.missed.length ? " What you missed last time comes first." : ""}
+          A short round in the same format as the checkpoint, scored the same way, so you can see whether you&apos;re ready: {plural(practice.chapter.items.filter((i) => i.kind !== "grammar").length, "word")}, a couple of grammar cards{practice.chapter.verbs.length ? ` and ${practice.chapter.verbs.length} verb pattern questions` : ""}, a person swap, a line to say, then the conversation if you like.{parts.last?.missed.length ? " What you missed last time comes first." : ""}
         </p>
         <div className="write-actions">
           <button className="ghost" onClick={() => start("chapter")}>Practise this chapter</button>
@@ -165,7 +166,7 @@ function PracticeRound({ round, title, progress, persist, config, onMiss, onMiss
   onDone: () => void;
   doneLabel?: string;
 }) {
-  const [phase, setPhase] = useState<"drill" | "persons" | "say" | "offer" | "speak" | "result">(round.items.length ? "drill" : round.switches.length ? "persons" : "say");
+  const [phase, setPhase] = useState<"drill" | "persons" | "say" | "offer" | "speak" | "result">(round.items.length || round.verbs.length ? "drill" : round.switches.length ? "persons" : "say");
   const latest = useRef(progress);
   latest.current = progress;
   const score = useRef({ got: 0, total: 0 });
@@ -195,7 +196,7 @@ function PracticeRound({ round, title, progress, persist, config, onMiss, onMiss
       <div>
         {tag}
         <p className="lead" style={{ marginTop: 0 }}>Same format as the checkpoint, smaller, and scored the same way: 7 in 10 right on the first try. Here <b>Again</b> brings a card back, so you can fix it.</p>
-        <WarmupSession items={round.items} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Practice" tally />
+        <WarmupSession items={round.items} verbs={round.verbs} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Practice" tally />
       </div>
     );
   if (phase === "persons")

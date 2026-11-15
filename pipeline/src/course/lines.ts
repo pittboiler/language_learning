@@ -87,6 +87,10 @@ export function wordCorpus(pack: LanguagePack): Set<string> {
     for (const d of g.drills) { add(d.answer); (d.options ?? []).forEach(add); }
   }
   for (const c of pack.conjugations ?? []) { add(c.lemma); Object.values(c.forms).forEach(add); }
+  // The verb bank (pack.verbs: every form made by the pack's verb rules, checked against Wiktionary) and the
+  // patterns' own prose: a point may quote any form of a verb the course uses (дојди, купив).
+  for (const v of pack.verbs ?? []) { add(v.lemma); for (const t of Object.values(v.forms)) Object.values(t ?? {}).forEach(add); if (v.lform) Object.values(v.lform).forEach(add); }
+  for (const p of pack.verbPatterns ?? []) { add(p.how); add(p.when); (p.notes ?? []).forEach(add); p.variants.forEach((x) => add(x.spot)); }
   for (const s of pack.sentences ?? []) for (const v of s.variants) add(v.mk);
   for (const a of pack.alphabet) for (const e of a.examples) add(e.text);
   return words;

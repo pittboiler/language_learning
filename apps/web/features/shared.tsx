@@ -13,7 +13,7 @@ import { storyDone } from "../lib/daily";
 import { properNounLike } from "../lib/capture";
 
 export type Section = "today" | "library" | "progress" | "partnered";
-export type LibView = "browse" | "flashcards" | "words" | "practice" | "converse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write" | "build" | "notes";
+export type LibView = "browse" | "flashcards" | "words" | "practice" | "converse" | "reference" | "letters" | "scenario" | "grammar" | "reading" | "story" | "write" | "build" | "notes" | "verbs";
 // The active pack flows through context so every view reads the same selected language.
 export const PackContext = createContext<LanguagePack>(getPack(DEFAULT_PACK_ID));
 export const usePack = () => useContext(PackContext);
@@ -53,7 +53,11 @@ export const isDue = (p: Progress, item: ReviewItem, now: Date): boolean => {
   return !!e && familiarity.isStudied(e) && !!e.srs && new Date(e.srs.due) <= now;
 };
 // Grade a review item → next Progress with its familiarity entry rescheduled via the same FSRS engine.
+/** A verb pattern question passed through the warm-up (VERB_ITEM_TAG): kept per pattern in Progress.verbPractice,
+ *  never as a flashcard. */
+export const VERB_ITEM_TAG = "verb-pattern";
 export const gradeItem = (p: Progress, item: ReviewItem, ok: boolean): Progress => {
+  if (item.tags.includes(VERB_ITEM_TAG)) return p;
   const spec = familiarity.deriveKeyForItem(item);
   const entry = p.familiarity[spec.lexKey] ?? familiarity.capture(spec);
   return { ...p, familiarity: { ...p.familiarity, [spec.lexKey]: familiarity.grade(entry, ok ? "good" : "again") } };
@@ -236,7 +240,7 @@ export type NoteAt = { chapterId: string; n: number; stage?: boolean; exam?: boo
 // "Do this lesson again": replay a finished session in Today without moving your place in the course.
 export const ReplayContext = createContext<((at: NoteAt) => void) | null>(null);
 // One-shot hand-offs between views (set just before navigating, read once on mount).
-export const pending: { guidedDeck: string | null; pointFocus: string | null; readerId: string | null; notesFocus: NoteAt | null } = { guidedDeck: null, pointFocus: null, readerId: null, notesFocus: null };
+export const pending: { guidedDeck: string | null; pointFocus: string | null; readerId: string | null; notesFocus: NoteAt | null; verbPattern: string | null } = { guidedDeck: null, pointFocus: null, readerId: null, notesFocus: null, verbPattern: null };
 
 // ---------- Café building blocks ----------
 /** Progress as filled segments (2026-10-26: the old cross-stitch X marks read as "wrong"): done ones filled,

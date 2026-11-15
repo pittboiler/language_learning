@@ -294,6 +294,70 @@ export interface ConjugationSet {
   confidence?: "authored" | "validated" | "unreviewed";
 }
 
+// ---- Verbs by pattern (Jake, 2026-11-14: "learn how different forms of verbs are conjugated … across a
+// variety of different verbs", not verb by verb) ----
+// A pack states its verb patterns once (how each tense is made, when it's used) and lists its verbs with
+// every form already worked out. The app stays generic: it shows the patterns, files each verb under the
+// pattern it follows, and drills a pattern across many verbs. How the forms get made (a rule engine for
+// Macedonian) is the pack's business.
+
+/** The six persons, as in ConjugationSet.forms. */
+export type VerbPerson = "1sg" | "2sg" | "3sg" | "1pl" | "2pl" | "3pl";
+/** The tenses a pack's verb patterns cover. `command` uses 2sg / 2pl only. */
+export type VerbTense = "present" | "future" | "command" | "pastOngoing" | "pastDone" | "haveDone";
+
+/** One way of making a tense (Macedonian present: the а-, и- and е-verbs). Drills and progress are kept
+ *  per variant × person. */
+export interface VerbPatternVariant {
+  id: string; // "present-a"
+  label: string; // "а-verbs"
+  /** How to tell a verb follows it, in plain words ("the he/she form ends in -а: гледа, сака"). */
+  spot: string;
+  /** The endings, by person, as shown in the table ("-ам"); a person left out has no form. */
+  endings: Partial<Record<VerbPerson, string>>;
+  /** The course point that teaches this variant, when it isn't the pattern's own (the -е / -и verbs come a
+   *  chapter after the -а verbs). */
+  pointId?: string;
+}
+
+export interface VerbPattern {
+  id: string; // "present"
+  tense: VerbTense;
+  title: string; // "Now: the present"
+  /** The rule in a sentence or two. */
+  how: string;
+  /** When you use it. */
+  when: string;
+  variants: VerbPatternVariant[];
+  /** Exceptions and things worth knowing. */
+  notes?: string[];
+  /** The course point that teaches it: the pattern is drilled once that point is taught. */
+  pointId?: string;
+}
+
+/** A verb with its forms in every tense its patterns cover. */
+export interface VerbEntry {
+  /** The dictionary form (Macedonian: the he/she present, гледа; сум for "to be"). */
+  lemma: string;
+  gloss: string; // "watch, look at"
+  /** English forms for drill prompts: "I was {ing}", "I {past}". */
+  en?: { ing: string; past: string };
+  /** Ongoing (imperfective: habits, things in progress) or done (perfective: one finished action). */
+  aspect: "ongoing" | "done" | "both";
+  /** The other half of its aspect pair (купува ↔ купи). */
+  partner?: string;
+  /** Used only in one form (ми треба, чини): never drilled across persons. */
+  impersonal?: boolean;
+  /** Which variant it follows in each tense; "irregular" = learnt on its own. */
+  patterns: Partial<Record<VerbTense, string>>;
+  forms: Partial<Record<VerbTense, Partial<Record<VerbPerson, string>>>>;
+  /** The -л form (have done, would): masculine, feminine, neuter, plural. */
+  lform?: { m: string; f: string; n: string; pl: string };
+  /** A short note shown with the verb (знае → знам, "only after да or ќе"). */
+  note?: string;
+  confidence?: "authored" | "validated" | "unreviewed";
+}
+
 // ---- Course blueprint (the grammar spine + session-by-session plan) ----
 // See DESIGN-course-spine.md. A pack's course fixes WHAT is taught WHEN: an ordered list of small grammar
 // points, each owned by one chapter, and a planned sequence of sessions per chapter. The daily flow plays
@@ -567,6 +631,9 @@ export interface LanguagePack {
   infoGapTasks?: InfoGapTask[];
   /** Present-tense verb paradigms for the Build-a-sentence conjugation tabs. Optional/additive. */
   conjugations?: ConjugationSet[];
+  /** How the language's verbs are made, tense by tense, and the verbs that follow each way. Optional/additive. */
+  verbPatterns?: VerbPattern[];
+  verbs?: VerbEntry[];
   /** Tap-the-tiles "Build a sentence" items. Optional/additive. */
   sentences?: SentenceItem[];
   /** The course spine: named, ordered chapters over the content above. Optional/additive — a pack

@@ -10,6 +10,8 @@ import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
 import { flashcardSplits } from "./flashcard-splits.js";
 import { conjugations } from "./conjugations.js";
+import { withPointFixes } from "./point-fixes.js";
+import { verbPatterns, verbs } from "./verbs/index.js";
 import { sentences } from "./sentences.js";
 import { coreWords } from "./words.js";
 import { level1Additions } from "./additions.js";
@@ -111,13 +113,15 @@ export const macedonian: LanguagePack = {
     return { ...t, roleA: role(t.roleA, names?.[0]), roleB: role(t.roleB, names?.[1]) };
   }),
   conjugations,
+  verbPatterns,
+  verbs,
   sentences,
   chapters,
   hints,
   // The midterm + final and each chapter's writing lines sit beside the generated blueprint (they're
   // hand-authored, outside its structure).
   course: {
-    ...course, exams, writing: courseWriting, guided: guidedConversations,
+    ...course, points: withPointFixes(course.points), exams, writing: courseWriting, guided: guidedConversations,
     chunkNotes: [...course.chunkNotes.filter((n) => !handNotes.some((h) => h.source === n.source)), ...handNotes],
   },
 };

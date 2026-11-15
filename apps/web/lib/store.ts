@@ -33,6 +33,11 @@ export interface Progress {
   activeDays?: string[];
   /** Verb lemmas already drilled in the warm-up conjugation match game — so each day picks a new one. */
   seenConjugations?: string[];
+  /** Verb patterns practised (lib/verb-drills.ts), kept per pattern and person ("present-a|3pl"), not per verb:
+   *  first-try rights and misses, and when last asked. The drills go to the weakest. */
+  verbPractice?: Record<string, { right: number; wrong: number; at: string }>;
+  /** The verbs each pattern has been drilled with, latest last, so "same pattern, new verb" keeps moving on. */
+  verbsDrilled?: Record<string, string[]>;
   /** "<lemma>:<person>" pairs the learner has correctly BUILT in the sentence exercise — steers toward
    *  not-yet-produced persons so every conjugation gets practised. */
   builtConjugations?: string[];

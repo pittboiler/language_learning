@@ -1,0 +1,2748 @@
+{
+ "_source": "English Wiktionary conjugation tables (rendered), fetched 2026-11-14; CC BY-SA 4.0. Used only to test the verb engine.",
+ "сум": {
+  "present": {
+   "1sg": "сум",
+   "2sg": "си",
+   "3sg": "е",
+   "1pl": "сме",
+   "2pl": "сте",
+   "3pl": "се"
+  },
+  "imperfect": {
+   "1sg": "бев",
+   "2sg": "беше",
+   "3sg": "беше",
+   "1pl": "бевме",
+   "2pl": "бевте",
+   "3pl": "беа"
+  },
+  "aorist": {},
+  "imperative": {
+   "2sg": "биди",
+   "2pl": "бидете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "бидел",
+    "feminine": "бидела",
+    "neuter": "бидело",
+    "plural": "биделе"
+   },
+   "aorist": {
+    "masculine": "бил",
+    "feminine": "била",
+    "neuter": "било",
+    "plural": "биле"
+   }
+  },
+  "aspect": "biaspectual",
+  "partner": null,
+  "dependent": {
+   "1sg": "бидам",
+   "2sg": "бидеш",
+   "3sg": "биде",
+   "1pl": "бидеме",
+   "2pl": "бидете",
+   "3pl": "бидат"
+  }
+ },
+ "гледа": {
+  "present": {
+   "1sg": "гледам",
+   "2sg": "гледаш",
+   "3sg": "гледа",
+   "1pl": "гледаме",
+   "2pl": "гледате",
+   "3pl": "гледаат"
+  },
+  "imperfect": {
+   "1sg": "гледав",
+   "2sg": "гледаше",
+   "3sg": "гледаше",
+   "1pl": "гледавме",
+   "2pl": "гледавте",
+   "3pl": "гледаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "гледај",
+   "2pl": "гледајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "гледал",
+    "feminine": "гледала",
+    "neuter": "гледало",
+    "plural": "гледале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "погледа",
+   "види"
+  ]
+ },
+ "носи": {
+  "present": {
+   "1sg": "носам",
+   "2sg": "носиш",
+   "3sg": "носи",
+   "1pl": "носиме",
+   "2pl": "носите",
+   "3pl": "носат"
+  },
+  "imperfect": {
+   "1sg": "носев",
+   "2sg": "носеше",
+   "3sg": "носеше",
+   "1pl": "носевме",
+   "2pl": "носевте",
+   "3pl": "носеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "носи",
+   "2pl": "носете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "носел",
+    "feminine": "носела",
+    "neuter": "носело",
+    "plural": "носеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "донесе",
+   "однесе"
+  ]
+ },
+ "јаде": {
+  "present": {
+   "1sg": "јадам",
+   "2sg": "јадеш",
+   "3sg": "јаде",
+   "1pl": "јадеме",
+   "2pl": "јадете",
+   "3pl": "јадат"
+  },
+  "imperfect": {
+   "1sg": "јадев",
+   "2sg": "јадеше",
+   "3sg": "јадеше",
+   "1pl": "јадевме",
+   "2pl": "јадевте",
+   "3pl": "јадеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "јади",
+   "2pl": "јадете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "јадел",
+    "feminine": "јадела",
+    "neuter": "јадело",
+    "plural": "јаделе"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "изеде"
+ },
+ "пие": {
+  "present": {
+   "1sg": "пијам",
+   "2sg": "пиеш",
+   "3sg": "пие",
+   "1pl": "пиеме",
+   "2pl": "пиете",
+   "3pl": "пијат"
+  },
+  "imperfect": {
+   "1sg": "пиев",
+   "2sg": "пиеше",
+   "3sg": "пиеше",
+   "1pl": "пиевме",
+   "2pl": "пиевте",
+   "3pl": "пиеја"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "пиј",
+   "2pl": "пијте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "пиел",
+    "feminine": "пиела",
+    "neuter": "пиело",
+    "plural": "пиеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "испие"
+ },
+ "живее": {
+  "present": {
+   "1sg": "живеам",
+   "2sg": "живееш",
+   "3sg": "живее",
+   "1pl": "живееме",
+   "2pl": "живеете",
+   "3pl": "живеат"
+  },
+  "imperfect": {
+   "1sg": "живеев",
+   "2sg": "живееше",
+   "3sg": "живееше",
+   "1pl": "живеевме",
+   "2pl": "живеевте",
+   "3pl": "живееја"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "живеј",
+   "2pl": "живејте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "живеел",
+    "feminine": "живеела",
+    "neuter": "живеело",
+    "plural": "живееле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "изживее"
+ },
+ "знае": {
+  "present": {
+   "1sg": "знам",
+   "2sg": "знаеш",
+   "3sg": "знае",
+   "1pl": "знаеме",
+   "2pl": "знаете",
+   "3pl": "знаат"
+  },
+  "imperfect": {
+   "1sg": "знаев",
+   "2sg": "знаеше",
+   "3sg": "знаеше",
+   "1pl": "знаевме",
+   "2pl": "знаевте",
+   "3pl": "знаеја"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "знај",
+   "2pl": "знајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "знаел",
+    "feminine": "знаела",
+    "neuter": "знаело",
+    "plural": "знаеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "дознае"
+ },
+ "може": {
+  "present": {
+   "1sg": "можам",
+   "2sg": "можеш",
+   "3sg": "може",
+   "1pl": "можеме",
+   "2pl": "можете",
+   "3pl": "можат"
+  },
+  "imperfect": {
+   "1sg": "можев",
+   "2sg": "можеше",
+   "3sg": "можеше",
+   "1pl": "можевме",
+   "2pl": "можевте",
+   "3pl": "можеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "можи",
+   "2pl": "можете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "можел",
+    "feminine": "можела",
+    "neuter": "можело",
+    "plural": "можеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "смогне"
+ },
+ "стои": {
+  "present": {
+   "1sg": "стојам",
+   "2sg": "стоиш",
+   "3sg": "стои",
+   "1pl": "стоиме",
+   "2pl": "стоите",
+   "3pl": "стојат"
+  },
+  "imperfect": {
+   "1sg": "стоев",
+   "2sg": "стоеше",
+   "3sg": "стоеше",
+   "1pl": "стоевме",
+   "2pl": "стоевте",
+   "3pl": "стоеја"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "стој",
+   "2pl": "стојте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "стоел",
+    "feminine": "стоела",
+    "neuter": "стоело",
+    "plural": "стоеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "застане"
+ },
+ "чуе": {
+  "present": {
+   "1sg": "чујам",
+   "2sg": "чуеш",
+   "3sg": "чуе",
+   "1pl": "чуеме",
+   "2pl": "чуете",
+   "3pl": "чујат"
+  },
+  "imperfect": {
+   "1sg": "чуев",
+   "2sg": "чуеше",
+   "3sg": "чуеше",
+   "1pl": "чуевме",
+   "2pl": "чуевте",
+   "3pl": "чуеја"
+  },
+  "aorist": {
+   "1sg": "чув",
+   "2sg": "чу",
+   "3sg": "чу",
+   "1pl": "чувме",
+   "2pl": "чувте",
+   "3pl": "чуја"
+  },
+  "imperative": {
+   "2sg": "чуј",
+   "2pl": "чујте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "чуел",
+    "feminine": "чуела",
+    "neuter": "чуело",
+    "plural": "чуеле"
+   },
+   "aorist": {
+    "masculine": "чул",
+    "feminine": "чула",
+    "neuter": "чуло",
+    "plural": "чуле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "слуша"
+ },
+ "оди": {
+  "present": {
+   "1sg": "одам",
+   "2sg": "одиш",
+   "3sg": "оди",
+   "1pl": "одиме",
+   "2pl": "одите",
+   "3pl": "одат"
+  },
+  "imperfect": {
+   "1sg": "одев",
+   "2sg": "одеше",
+   "3sg": "одеше",
+   "1pl": "одевме",
+   "2pl": "одевте",
+   "3pl": "одеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "оди",
+   "2pl": "одете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "одел",
+    "feminine": "одела",
+    "neuter": "одело",
+    "plural": "оделе"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "о́тиде"
+ },
+ "отиде": {
+  "present": {
+   "1sg": "отидам",
+   "2sg": "отидеш",
+   "3sg": "отиде",
+   "1pl": "отидеме",
+   "2pl": "отидете",
+   "3pl": "отидат"
+  },
+  "imperfect": {
+   "1sg": "отидев",
+   "2sg": "отидеше",
+   "3sg": "отидеше",
+   "1pl": "отидевме",
+   "2pl": "отидевте",
+   "3pl": "отидеа"
+  },
+  "aorist": {
+   "1sg": "отидов",
+   "2sg": "отиде",
+   "3sg": "отиде",
+   "1pl": "отидовме",
+   "2pl": "отидовте",
+   "3pl": "отидоа"
+  },
+  "imperative": {
+   "2sg": "отиди",
+   "2pl": "отидете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "отидел",
+    "feminine": "отидела",
+    "neuter": "отидело",
+    "plural": "отиделе"
+   },
+   "aorist": {
+    "masculine": "отишол",
+    "feminine": "отишла",
+    "neuter": "отишло",
+    "plural": "отишле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "оди"
+ },
+ "доаѓа": {
+  "present": {
+   "1sg": "доаѓам",
+   "2sg": "доаѓаш",
+   "3sg": "доаѓа",
+   "1pl": "доаѓаме",
+   "2pl": "доаѓате",
+   "3pl": "доаѓаат"
+  },
+  "imperfect": {
+   "1sg": "доаѓав",
+   "2sg": "доаѓаше",
+   "3sg": "доаѓаше",
+   "1pl": "доаѓавме",
+   "2pl": "доаѓавте",
+   "3pl": "доаѓаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "доаѓај",
+   "2pl": "доаѓајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "доаѓал",
+    "feminine": "доаѓала",
+    "neuter": "доаѓало",
+    "plural": "доаѓале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "дојде"
+ },
+ "дојде": {
+  "present": {
+   "1sg": "дојдам",
+   "2sg": "дојдеш",
+   "3sg": "дојде",
+   "1pl": "дојдеме",
+   "2pl": "дојдете",
+   "3pl": "дојдат"
+  },
+  "imperfect": {
+   "1sg": "дојдев",
+   "2sg": "дојдеше",
+   "3sg": "дојдеше",
+   "1pl": "дојдевме",
+   "2pl": "дојдевте",
+   "3pl": "дојдеа"
+  },
+  "aorist": {
+   "1sg": "дојдов",
+   "2sg": "дојде",
+   "3sg": "дојде",
+   "1pl": "дојдовме",
+   "2pl": "дојдовте",
+   "3pl": "дојдоа"
+  },
+  "imperative": {
+   "2sg": "дојди",
+   "2pl": "дојдете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "дојдел",
+    "feminine": "дојдела",
+    "neuter": "дојдело",
+    "plural": "дојделе"
+   },
+   "aorist": {
+    "masculine": "дошол",
+    "feminine": "дошла",
+    "neuter": "дошло",
+    "plural": "дошле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "доаѓа"
+ },
+ "зема": {
+  "present": {
+   "1sg": "земам",
+   "2sg": "земаш",
+   "3sg": "зема",
+   "1pl": "земаме",
+   "2pl": "земате",
+   "3pl": "земаат"
+  },
+  "imperfect": {
+   "1sg": "земав",
+   "2sg": "земаше",
+   "3sg": "земаше",
+   "1pl": "земавме",
+   "2pl": "земавте",
+   "3pl": "земаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "земај",
+   "2pl": "земајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "земал",
+    "feminine": "земала",
+    "neuter": "земало",
+    "plural": "земале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "земе"
+ },
+ "земе": {
+  "present": {
+   "1sg": "земам",
+   "2sg": "земеш",
+   "3sg": "земе",
+   "1pl": "земеме",
+   "2pl": "земете",
+   "3pl": "земат"
+  },
+  "imperfect": {
+   "1sg": "земев",
+   "2sg": "земеше",
+   "3sg": "земеше",
+   "1pl": "земевме",
+   "2pl": "земевте",
+   "3pl": "земеа"
+  },
+  "aorist": {
+   "1sg": "зедов",
+   "2sg": "зеде",
+   "3sg": "зеде",
+   "1pl": "зедовме",
+   "2pl": "зедовте",
+   "3pl": "зедоа"
+  },
+  "imperative": {
+   "2sg": "земи",
+   "2pl": "земете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "земел",
+    "feminine": "земела",
+    "neuter": "земело",
+    "plural": "земеле"
+   },
+   "aorist": {
+    "masculine": "зел",
+    "feminine": "зела",
+    "neuter": "зело",
+    "plural": "зеле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "зема"
+ },
+ "дава": {
+  "present": {
+   "1sg": "давам",
+   "2sg": "даваш",
+   "3sg": "дава",
+   "1pl": "даваме",
+   "2pl": "давате",
+   "3pl": "даваат"
+  },
+  "imperfect": {
+   "1sg": "давав",
+   "2sg": "даваше",
+   "3sg": "даваше",
+   "1pl": "дававме",
+   "2pl": "дававте",
+   "3pl": "даваа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "давај",
+   "2pl": "давајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "давал",
+    "feminine": "давала",
+    "neuter": "давало",
+    "plural": "давале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "даде"
+ },
+ "даде": {
+  "present": {
+   "1sg": "дадам",
+   "2sg": "дадеш",
+   "3sg": "даде",
+   "1pl": "дадеме",
+   "2pl": "дадете",
+   "3pl": "дадат"
+  },
+  "imperfect": {
+   "1sg": "дадев",
+   "2sg": "дадеше",
+   "3sg": "дадеше",
+   "1pl": "дадевме",
+   "2pl": "дадевте",
+   "3pl": "дадеа"
+  },
+  "aorist": {
+   "1sg": "дадов",
+   "2sg": "даде",
+   "3sg": "даде",
+   "1pl": "дадовме",
+   "2pl": "дадовте",
+   "3pl": "дадоа"
+  },
+  "imperative": {
+   "2sg": "дај",
+   "2pl": "дајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "дадел",
+    "feminine": "дадела",
+    "neuter": "дадело",
+    "plural": "даделе"
+   },
+   "aorist": {
+    "masculine": "дал",
+    "feminine": "дала",
+    "neuter": "дало",
+    "plural": "дале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "дава"
+ },
+ "рече": {
+  "present": {
+   "1sg": "речам",
+   "2sg": "речеш",
+   "3sg": "рече",
+   "1pl": "речеме",
+   "2pl": "речете",
+   "3pl": "речат"
+  },
+  "imperfect": {
+   "1sg": "речев",
+   "2sg": "речеше",
+   "3sg": "речеше",
+   "1pl": "речевме",
+   "2pl": "речевте",
+   "3pl": "речеа"
+  },
+  "aorist": {
+   "1sg": "реков",
+   "2sg": "рече",
+   "3sg": "рече",
+   "1pl": "рековме",
+   "2pl": "рековте",
+   "3pl": "рекоа"
+  },
+  "imperative": {
+   "2sg": "речи",
+   "2pl": "речете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "речел",
+    "feminine": "речела",
+    "neuter": "речело",
+    "plural": "речеле"
+   },
+   "aorist": {
+    "masculine": "рекол",
+    "feminine": "рекла",
+    "neuter": "рекло",
+    "plural": "рекле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "вели"
+ },
+ "вели": {
+  "present": {
+   "1sg": "велам",
+   "2sg": "велиш",
+   "3sg": "вели",
+   "1pl": "велиме",
+   "2pl": "велите",
+   "3pl": "велат"
+  },
+  "imperfect": {
+   "1sg": "велев",
+   "2sg": "велеше",
+   "3sg": "велеше",
+   "1pl": "велевме",
+   "2pl": "велевте",
+   "3pl": "велеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "вели",
+   "2pl": "велете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "велел",
+    "feminine": "велела",
+    "neuter": "велело",
+    "plural": "велеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "рече"
+ },
+ "види": {
+  "present": {
+   "1sg": "видам",
+   "2sg": "видиш",
+   "3sg": "види",
+   "1pl": "видиме",
+   "2pl": "видите",
+   "3pl": "видат"
+  },
+  "imperfect": {
+   "1sg": "видев",
+   "2sg": "видеше",
+   "3sg": "видеше",
+   "1pl": "видевме",
+   "2pl": "видевте",
+   "3pl": "видеа"
+  },
+  "aorist": {
+   "1sg": "видов",
+   "2sg": "виде",
+   "3sg": "виде",
+   "1pl": "видовме",
+   "2pl": "видовте",
+   "3pl": "видоа"
+  },
+  "imperative": {
+   "2sg": "види",
+   "2pl": "видете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "видел",
+    "feminine": "видела",
+    "neuter": "видело",
+    "plural": "виделе"
+   },
+   "aorist": {
+    "masculine": "видел",
+    "feminine": "видела",
+    "neuter": "видело",
+    "plural": "виделе"
+   }
+  },
+  "aspect": "biaspectual",
+  "partner": null
+ },
+ "купи": {
+  "present": {
+   "1sg": "купам",
+   "2sg": "купиш",
+   "3sg": "купи",
+   "1pl": "купиме",
+   "2pl": "купите",
+   "3pl": "купат"
+  },
+  "imperfect": {
+   "1sg": "купев",
+   "2sg": "купеше",
+   "3sg": "купеше",
+   "1pl": "купевме",
+   "2pl": "купевте",
+   "3pl": "купеа"
+  },
+  "aorist": {
+   "1sg": "купив",
+   "2sg": "купи",
+   "3sg": "купи",
+   "1pl": "купивме",
+   "2pl": "купивте",
+   "3pl": "купија"
+  },
+  "imperative": {
+   "2sg": "купи",
+   "2pl": "купете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "купел",
+    "feminine": "купела",
+    "neuter": "купело",
+    "plural": "купеле"
+   },
+   "aorist": {
+    "masculine": "купил",
+    "feminine": "купила",
+    "neuter": "купило",
+    "plural": "купиле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "купува"
+ },
+ "купува": {
+  "missing": "no conjugation table in Macedonian section"
+ },
+ "прочита": {
+  "present": {
+   "1sg": "прочитам",
+   "2sg": "прочиташ",
+   "3sg": "прочита",
+   "1pl": "прочитаме",
+   "2pl": "прочитате",
+   "3pl": "прочитаат"
+  },
+  "imperfect": {
+   "1sg": "прочитав",
+   "2sg": "прочиташе",
+   "3sg": "прочиташе",
+   "1pl": "прочитавме",
+   "2pl": "прочитавте",
+   "3pl": "прочитаа"
+  },
+  "aorist": {
+   "1sg": "прочитав",
+   "2sg": "прочита",
+   "3sg": "прочита",
+   "1pl": "прочитавме",
+   "2pl": "прочитавте",
+   "3pl": "прочитаа"
+  },
+  "imperative": {
+   "2sg": "прочитај",
+   "2pl": "прочитајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "прочитал",
+    "feminine": "прочитала",
+    "neuter": "прочитало",
+    "plural": "прочитале"
+   },
+   "aorist": {
+    "masculine": "прочитал",
+    "feminine": "прочитала",
+    "neuter": "прочитало",
+    "plural": "прочитале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "чита"
+ },
+ "чита": {
+  "present": {
+   "1sg": "читам",
+   "2sg": "читаш",
+   "3sg": "чита",
+   "1pl": "читаме",
+   "2pl": "читате",
+   "3pl": "читаат"
+  },
+  "imperfect": {
+   "1sg": "читав",
+   "2sg": "читаше",
+   "3sg": "читаше",
+   "1pl": "читавме",
+   "2pl": "читавте",
+   "3pl": "читаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "читај",
+   "2pl": "читајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "читал",
+    "feminine": "читала",
+    "neuter": "читало",
+    "plural": "читале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "прочита",
+   "исчита"
+  ]
+ },
+ "испие": {
+  "present": {
+   "1sg": "испијам",
+   "2sg": "испиеш",
+   "3sg": "испие",
+   "1pl": "испиеме",
+   "2pl": "испиете",
+   "3pl": "испијат"
+  },
+  "imperfect": {
+   "1sg": "испиев",
+   "2sg": "испиеше",
+   "3sg": "испиеше",
+   "1pl": "испиевме",
+   "2pl": "испиевте",
+   "3pl": "испиеја"
+  },
+  "aorist": {
+   "1sg": "испив",
+   "2sg": "испи",
+   "3sg": "испи",
+   "1pl": "испивме",
+   "2pl": "испивте",
+   "3pl": "испија"
+  },
+  "imperative": {
+   "2sg": "испиј",
+   "2pl": "испијте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "испиел",
+    "feminine": "испиела",
+    "neuter": "испиело",
+    "plural": "испиеле"
+   },
+   "aorist": {
+    "masculine": "испил",
+    "feminine": "испила",
+    "neuter": "испило",
+    "plural": "испиле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "пие"
+ },
+ "изеде": {
+  "present": {
+   "1sg": "изедам",
+   "2sg": "изедеш",
+   "3sg": "изеде",
+   "1pl": "изедеме",
+   "2pl": "изедете",
+   "3pl": "изедат"
+  },
+  "imperfect": {
+   "1sg": "изедев",
+   "2sg": "изедеше",
+   "3sg": "изедеше",
+   "1pl": "изедевме",
+   "2pl": "изедевте",
+   "3pl": "изедеа"
+  },
+  "aorist": {
+   "1sg": "изедов",
+   "2sg": "изеде",
+   "3sg": "изеде",
+   "1pl": "изедовме",
+   "2pl": "изедовте",
+   "3pl": "изедоа"
+  },
+  "imperative": {
+   "2sg": "изеди",
+   "2pl": "изедете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "изедел",
+    "feminine": "изедела",
+    "neuter": "изедело",
+    "plural": "изеделе"
+   },
+   "aorist": {
+    "masculine": "изел",
+    "feminine": "изела",
+    "neuter": "изело",
+    "plural": "изеле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "јаде"
+ },
+ "разбира": {
+  "present": {
+   "1sg": "разбирам",
+   "2sg": "разбираш",
+   "3sg": "разбира",
+   "1pl": "разбираме",
+   "2pl": "разбирате",
+   "3pl": "разбираат"
+  },
+  "imperfect": {
+   "1sg": "разбирав",
+   "2sg": "разбираше",
+   "3sg": "разбираше",
+   "1pl": "разбиравме",
+   "2pl": "разбиравте",
+   "3pl": "разбираа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "разбирај",
+   "2pl": "разбирајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "разбирал",
+    "feminine": "разбирала",
+    "neuter": "разбирало",
+    "plural": "разбирале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "разбере"
+ },
+ "разбере": {
+  "present": {
+   "1sg": "разберам",
+   "2sg": "разбереш",
+   "3sg": "разбере",
+   "1pl": "разбереме",
+   "2pl": "разберете",
+   "3pl": "разберат"
+  },
+  "imperfect": {
+   "1sg": "разберев",
+   "2sg": "разбереше",
+   "3sg": "разбереше",
+   "1pl": "разберевме",
+   "2pl": "разберевте",
+   "3pl": "разбереа"
+  },
+  "aorist": {
+   "1sg": "разбрав",
+   "2sg": "разбра",
+   "3sg": "разбра",
+   "1pl": "разбравме",
+   "2pl": "разбравте",
+   "3pl": "разбраа"
+  },
+  "imperative": {
+   "2sg": "разбери",
+   "2pl": "разберете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "разберел",
+    "feminine": "разберела",
+    "neuter": "разберело",
+    "plural": "разбереле"
+   },
+   "aorist": {
+    "masculine": "разбрал",
+    "feminine": "разбрала",
+    "neuter": "разбрало",
+    "plural": "разбрале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "разбира"
+ },
+ "седне": {
+  "present": {
+   "1sg": "седнам",
+   "2sg": "седнеш",
+   "3sg": "седне",
+   "1pl": "седнеме",
+   "2pl": "седнете",
+   "3pl": "седнат"
+  },
+  "imperfect": {
+   "1sg": "седнев",
+   "2sg": "седнеше",
+   "3sg": "седнеше",
+   "1pl": "седневме",
+   "2pl": "седневте",
+   "3pl": "седнеа"
+  },
+  "aorist": {
+   "1sg": "седнав",
+   "2sg": "седна",
+   "3sg": "седна",
+   "1pl": "седнавме",
+   "2pl": "седнавте",
+   "3pl": "седнаа"
+  },
+  "imperative": {
+   "2sg": "седни",
+   "2pl": "седнете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "седнел",
+    "feminine": "седнела",
+    "neuter": "седнело",
+    "plural": "седнеле"
+   },
+   "aorist": {
+    "masculine": "седнал",
+    "feminine": "седнала",
+    "neuter": "седнало",
+    "plural": "седнале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": [
+   "седи",
+   "седнува"
+  ]
+ },
+ "помогне": {
+  "present": {
+   "1sg": "помогнам",
+   "2sg": "помогнеш",
+   "3sg": "помогне",
+   "1pl": "помогнеме",
+   "2pl": "помогнете",
+   "3pl": "помогнат"
+  },
+  "imperfect": {
+   "1sg": "помогнев",
+   "2sg": "помогнеше",
+   "3sg": "помогнеше",
+   "1pl": "помогневме",
+   "2pl": "помогневте",
+   "3pl": "помогнеа"
+  },
+  "aorist": {
+   "1sg": "помогнав",
+   "2sg": "помогна",
+   "3sg": "помогна",
+   "1pl": "помогнавме",
+   "2pl": "помогнавте",
+   "3pl": "помогнаа"
+  },
+  "imperative": {
+   "2sg": "помогни",
+   "2pl": "помогнете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "помогнел",
+    "feminine": "помогнела",
+    "neuter": "помогнело",
+    "plural": "помогнеле"
+   },
+   "aorist": {
+    "masculine": "помогнал",
+    "feminine": "помогнала",
+    "neuter": "помогнало",
+    "plural": "помогнале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "помага"
+ },
+ "напише": {
+  "present": {
+   "1sg": "напишам",
+   "2sg": "напишеш",
+   "3sg": "напише",
+   "1pl": "напишеме",
+   "2pl": "напишете",
+   "3pl": "напишат"
+  },
+  "imperfect": {
+   "1sg": "напишев",
+   "2sg": "напишеше",
+   "3sg": "напишеше",
+   "1pl": "напишевме",
+   "2pl": "напишевте",
+   "3pl": "напишеа"
+  },
+  "aorist": {
+   "1sg": "напишав",
+   "2sg": "напиша",
+   "3sg": "напиша",
+   "1pl": "напишавме",
+   "2pl": "напишавте",
+   "3pl": "напишаа"
+  },
+  "imperative": {
+   "2sg": "напиши",
+   "2pl": "напишете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "напишел",
+    "feminine": "напишела",
+    "neuter": "напишело",
+    "plural": "напишеле"
+   },
+   "aorist": {
+    "masculine": "напишал",
+    "feminine": "напишала",
+    "neuter": "напишало",
+    "plural": "напишале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "пишува"
+ },
+ "пишува": {
+  "present": {
+   "1sg": "пишувам",
+   "2sg": "пишуваш",
+   "3sg": "пишува",
+   "1pl": "пишуваме",
+   "2pl": "пишувате",
+   "3pl": "пишуваат"
+  },
+  "imperfect": {
+   "1sg": "пишував",
+   "2sg": "пишуваше",
+   "3sg": "пишуваше",
+   "1pl": "пишувавме",
+   "2pl": "пишувавте",
+   "3pl": "пишуваа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "пишувај",
+   "2pl": "пишувајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "пишувал",
+    "feminine": "пишувала",
+    "neuter": "пишувало",
+    "plural": "пишувале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "напише"
+ },
+ "каже": {
+  "present": {
+   "1sg": "кажам",
+   "2sg": "кажеш",
+   "3sg": "каже",
+   "1pl": "кажеме",
+   "2pl": "кажете",
+   "3pl": "кажат"
+  },
+  "imperfect": {
+   "1sg": "кажев",
+   "2sg": "кажеше",
+   "3sg": "кажеше",
+   "1pl": "кажевме",
+   "2pl": "кажевте",
+   "3pl": "кажеа"
+  },
+  "aorist": {
+   "1sg": "кажав",
+   "2sg": "кажа",
+   "3sg": "кажа",
+   "1pl": "кажавме",
+   "2pl": "кажавте",
+   "3pl": "кажаа"
+  },
+  "imperative": {
+   "2sg": "кажи",
+   "2pl": "кажете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "кажел",
+    "feminine": "кажела",
+    "neuter": "кажело",
+    "plural": "кажеле"
+   },
+   "aorist": {
+    "masculine": "кажал",
+    "feminine": "кажала",
+    "neuter": "кажало",
+    "plural": "кажале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "кажува"
+ },
+ "направи": {
+  "present": {
+   "1sg": "направам",
+   "2sg": "направиш",
+   "3sg": "направи",
+   "1pl": "направиме",
+   "2pl": "направите",
+   "3pl": "направат"
+  },
+  "imperfect": {
+   "1sg": "направев",
+   "2sg": "направеше",
+   "3sg": "направеше",
+   "1pl": "направевме",
+   "2pl": "направевте",
+   "3pl": "направеа"
+  },
+  "aorist": {
+   "1sg": "направив",
+   "2sg": "направи",
+   "3sg": "направи",
+   "1pl": "направивме",
+   "2pl": "направивте",
+   "3pl": "направија"
+  },
+  "imperative": {
+   "2sg": "направи",
+   "2pl": "направете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "направел",
+    "feminine": "направела",
+    "neuter": "направело",
+    "plural": "направеле"
+   },
+   "aorist": {
+    "masculine": "направил",
+    "feminine": "направила",
+    "neuter": "направило",
+    "plural": "направиле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "прави"
+ },
+ "прави": {
+  "present": {
+   "1sg": "правам",
+   "2sg": "правиш",
+   "3sg": "прави",
+   "1pl": "правиме",
+   "2pl": "правите",
+   "3pl": "прават"
+  },
+  "imperfect": {
+   "1sg": "правев",
+   "2sg": "правеше",
+   "3sg": "правеше",
+   "1pl": "правевме",
+   "2pl": "правевте",
+   "3pl": "правеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "прави",
+   "2pl": "правете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "правел",
+    "feminine": "правела",
+    "neuter": "правело",
+    "plural": "правеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "направи"
+ },
+ "плати": {
+  "present": {
+   "1sg": "платам",
+   "2sg": "платиш",
+   "3sg": "плати",
+   "1pl": "платиме",
+   "2pl": "платите",
+   "3pl": "платат"
+  },
+  "imperfect": {
+   "1sg": "платев",
+   "2sg": "платеше",
+   "3sg": "платеше",
+   "1pl": "платевме",
+   "2pl": "платевте",
+   "3pl": "платеа"
+  },
+  "aorist": {
+   "1sg": "платив",
+   "2sg": "плати",
+   "3sg": "плати",
+   "1pl": "плативме",
+   "2pl": "плативте",
+   "3pl": "платија"
+  },
+  "imperative": {
+   "2sg": "плати",
+   "2pl": "платете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "плател",
+    "feminine": "платела",
+    "neuter": "платело",
+    "plural": "плателе"
+   },
+   "aorist": {
+    "masculine": "платил",
+    "feminine": "платила",
+    "neuter": "платило",
+    "plural": "платиле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "плаќа"
+ },
+ "праша": {
+  "present": {
+   "1sg": "прашам",
+   "2sg": "прашаш",
+   "3sg": "праша",
+   "1pl": "прашаме",
+   "2pl": "прашате",
+   "3pl": "прашаат"
+  },
+  "imperfect": {
+   "1sg": "прашав",
+   "2sg": "прашаше",
+   "3sg": "прашаше",
+   "1pl": "прашавме",
+   "2pl": "прашавте",
+   "3pl": "прашаа"
+  },
+  "aorist": {
+   "1sg": "прашав",
+   "2sg": "праша",
+   "3sg": "праша",
+   "1pl": "прашавме",
+   "2pl": "прашавте",
+   "3pl": "прашаа"
+  },
+  "imperative": {
+   "2sg": "прашај",
+   "2pl": "прашајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "прашал",
+    "feminine": "прашала",
+    "neuter": "прашало",
+    "plural": "прашале"
+   },
+   "aorist": {
+    "masculine": "прашал",
+    "feminine": "прашала",
+    "neuter": "прашало",
+    "plural": "прашале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "прашува"
+ },
+ "врати": {
+  "present": {
+   "1sg": "вратам",
+   "2sg": "вратиш",
+   "3sg": "врати",
+   "1pl": "вратиме",
+   "2pl": "вратите",
+   "3pl": "вратат"
+  },
+  "imperfect": {
+   "1sg": "вратев",
+   "2sg": "вратеше",
+   "3sg": "вратеше",
+   "1pl": "вратевме",
+   "2pl": "вратевте",
+   "3pl": "вратеа"
+  },
+  "aorist": {
+   "1sg": "вратив",
+   "2sg": "врати",
+   "3sg": "врати",
+   "1pl": "вративме",
+   "2pl": "вративте",
+   "3pl": "вратија"
+  },
+  "imperative": {
+   "2sg": "врати",
+   "2pl": "вратете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "врател",
+    "feminine": "вратела",
+    "neuter": "вратело",
+    "plural": "врателе"
+   },
+   "aorist": {
+    "masculine": "вратил",
+    "feminine": "вратила",
+    "neuter": "вратило",
+    "plural": "вратиле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "враќа"
+ },
+ "остави": {
+  "present": {
+   "1sg": "оставам",
+   "2sg": "оставиш",
+   "3sg": "остави",
+   "1pl": "оставиме",
+   "2pl": "оставите",
+   "3pl": "остават"
+  },
+  "imperfect": {
+   "1sg": "оставев",
+   "2sg": "оставеше",
+   "3sg": "оставеше",
+   "1pl": "оставевме",
+   "2pl": "оставевте",
+   "3pl": "оставеа"
+  },
+  "aorist": {
+   "1sg": "оставив",
+   "2sg": "остави",
+   "3sg": "остави",
+   "1pl": "оставивме",
+   "2pl": "оставивте",
+   "3pl": "оставија"
+  },
+  "imperative": {
+   "2sg": "остави",
+   "2pl": "оставете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "оставел",
+    "feminine": "оставела",
+    "neuter": "оставело",
+    "plural": "оставеле"
+   },
+   "aorist": {
+    "masculine": "оставил",
+    "feminine": "оставила",
+    "neuter": "оставило",
+    "plural": "оставиле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "остава"
+ },
+ "сврти": {
+  "present": {
+   "1sg": "свртам",
+   "2sg": "свртиш",
+   "3sg": "сврти",
+   "1pl": "свртиме",
+   "2pl": "свртите",
+   "3pl": "свртат"
+  },
+  "imperfect": {
+   "1sg": "свртев",
+   "2sg": "свртеше",
+   "3sg": "свртеше",
+   "1pl": "свртевме",
+   "2pl": "свртевте",
+   "3pl": "свртеа"
+  },
+  "aorist": {
+   "1sg": "свртев",
+   "2sg": "сврте",
+   "3sg": "сврте",
+   "1pl": "свртевме",
+   "2pl": "свртевте",
+   "3pl": "свртеа"
+  },
+  "imperative": {
+   "2sg": "сврти",
+   "2pl": "свртете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "свртел",
+    "feminine": "свртела",
+    "neuter": "свртело",
+    "plural": "свртеле"
+   },
+   "aorist": {
+    "masculine": "свртел",
+    "feminine": "свртела",
+    "neuter": "свртело",
+    "plural": "свртеле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "врти"
+ },
+ "повтори": {
+  "present": {
+   "1sg": "повторам",
+   "2sg": "повториш",
+   "3sg": "повтори",
+   "1pl": "повториме",
+   "2pl": "повторите",
+   "3pl": "повторат"
+  },
+  "imperfect": {
+   "1sg": "повторев",
+   "2sg": "повтореше",
+   "3sg": "повтореше",
+   "1pl": "повторевме",
+   "2pl": "повторевте",
+   "3pl": "повтореа"
+  },
+  "aorist": {
+   "1sg": "повторив",
+   "2sg": "повтори",
+   "3sg": "повтори",
+   "1pl": "повторивме",
+   "2pl": "повторивте",
+   "3pl": "повторија"
+  },
+  "imperative": {
+   "2sg": "повтори",
+   "2pl": "повторете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "повторел",
+    "feminine": "повторела",
+    "neuter": "повторело",
+    "plural": "повтореле"
+   },
+   "aorist": {
+    "masculine": "повторил",
+    "feminine": "повторила",
+    "neuter": "повторило",
+    "plural": "повториле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "повторува"
+ },
+ "научи": {
+  "present": {
+   "1sg": "научам",
+   "2sg": "научиш",
+   "3sg": "научи",
+   "1pl": "научиме",
+   "2pl": "научите",
+   "3pl": "научат"
+  },
+  "imperfect": {
+   "1sg": "научев",
+   "2sg": "научеше",
+   "3sg": "научеше",
+   "1pl": "научевме",
+   "2pl": "научевте",
+   "3pl": "научеа"
+  },
+  "aorist": {
+   "1sg": "научив",
+   "2sg": "научи",
+   "3sg": "научи",
+   "1pl": "научивме",
+   "2pl": "научивте",
+   "3pl": "научија"
+  },
+  "imperative": {
+   "2sg": "научи",
+   "2pl": "научете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "научел",
+    "feminine": "научела",
+    "neuter": "научело",
+    "plural": "научеле"
+   },
+   "aorist": {
+    "masculine": "научил",
+    "feminine": "научила",
+    "neuter": "научило",
+    "plural": "научиле"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "учи"
+ },
+ "учи": {
+  "present": {
+   "1sg": "учам",
+   "2sg": "учиш",
+   "3sg": "учи",
+   "1pl": "учиме",
+   "2pl": "учите",
+   "3pl": "учат"
+  },
+  "imperfect": {
+   "1sg": "учев",
+   "2sg": "учеше",
+   "3sg": "учеше",
+   "1pl": "учевме",
+   "2pl": "учевте",
+   "3pl": "учеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "учи",
+   "2pl": "учете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "учел",
+    "feminine": "учела",
+    "neuter": "учело",
+    "plural": "учеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "научи"
+ },
+ "мисли": {
+  "present": {
+   "1sg": "мислам",
+   "2sg": "мислиш",
+   "3sg": "мисли",
+   "1pl": "мислиме",
+   "2pl": "мислите",
+   "3pl": "мислат"
+  },
+  "imperfect": {
+   "1sg": "мислев",
+   "2sg": "мислеше",
+   "3sg": "мислеше",
+   "1pl": "мислевме",
+   "2pl": "мислевте",
+   "3pl": "мислеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "мисли",
+   "2pl": "мислете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "мислел",
+    "feminine": "мислела",
+    "neuter": "мислело",
+    "plural": "мислеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "помисли",
+   "размисли"
+  ]
+ },
+ "повика": {
+  "present": {
+   "1sg": "повикам",
+   "2sg": "повикаш",
+   "3sg": "повика",
+   "1pl": "повикаме",
+   "2pl": "повикате",
+   "3pl": "повикаат"
+  },
+  "imperfect": {
+   "1sg": "повикав",
+   "2sg": "повикаше",
+   "3sg": "повикаше",
+   "1pl": "повикавме",
+   "2pl": "повикавте",
+   "3pl": "повикаа"
+  },
+  "aorist": {
+   "1sg": "повикав",
+   "2sg": "повика",
+   "3sg": "повика",
+   "1pl": "повикавме",
+   "2pl": "повикавте",
+   "3pl": "повикаа"
+  },
+  "imperative": {
+   "2sg": "повикај",
+   "2pl": "повикајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "повикал",
+    "feminine": "повикала",
+    "neuter": "повикало",
+    "plural": "повикале"
+   },
+   "aorist": {
+    "masculine": "повикал",
+    "feminine": "повикала",
+    "neuter": "повикало",
+    "plural": "повикале"
+   }
+  },
+  "aspect": "perfective",
+  "partner": "вика"
+ },
+ "вика": {
+  "present": {
+   "1sg": "викам",
+   "2sg": "викаш",
+   "3sg": "вика",
+   "1pl": "викаме",
+   "2pl": "викате",
+   "3pl": "викаат"
+  },
+  "imperfect": {
+   "1sg": "викав",
+   "2sg": "викаше",
+   "3sg": "викаше",
+   "1pl": "викавме",
+   "2pl": "викавте",
+   "3pl": "викаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "викај",
+   "2pl": "викајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "викал",
+    "feminine": "викала",
+    "neuter": "викало",
+    "plural": "викале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "ви́кне",
+   "и́звика"
+  ]
+ },
+ "има": {
+  "present": {
+   "1sg": "имам",
+   "2sg": "имаш",
+   "3sg": "има",
+   "1pl": "имаме",
+   "2pl": "имате",
+   "3pl": "имаат"
+  },
+  "imperfect": {
+   "1sg": "имав",
+   "2sg": "имаше",
+   "3sg": "имаше",
+   "1pl": "имавме",
+   "2pl": "имавте",
+   "3pl": "имаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "имај",
+   "2pl": "имајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "имал",
+    "feminine": "имала",
+    "neuter": "имало",
+    "plural": "имале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": null
+ },
+ "работи": {
+  "present": {
+   "1sg": "работам",
+   "2sg": "работиш",
+   "3sg": "работи",
+   "1pl": "работиме",
+   "2pl": "работите",
+   "3pl": "работат"
+  },
+  "imperfect": {
+   "1sg": "работев",
+   "2sg": "работеше",
+   "3sg": "работеше",
+   "1pl": "работевме",
+   "2pl": "работевте",
+   "3pl": "работеа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "работи",
+   "2pl": "работете"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "работел",
+    "feminine": "работела",
+    "neuter": "работело",
+    "plural": "работеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "одработи",
+   "сработи"
+  ]
+ },
+ "зборува": {
+  "present": {
+   "1sg": "зборувам",
+   "2sg": "зборуваш",
+   "3sg": "зборува",
+   "1pl": "зборуваме",
+   "2pl": "зборувате",
+   "3pl": "зборуваат"
+  },
+  "imperfect": {
+   "1sg": "зборував",
+   "2sg": "зборуваше",
+   "3sg": "зборуваше",
+   "1pl": "зборувавме",
+   "2pl": "зборувавте",
+   "3pl": "зборуваа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "зборувај",
+   "2pl": "зборувајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "зборувал",
+    "feminine": "зборувала",
+    "neuter": "зборувало",
+    "plural": "зборувале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "зборне"
+ },
+ "спие": {
+  "present": {
+   "1sg": "спијам",
+   "2sg": "спиеш",
+   "3sg": "спие",
+   "1pl": "спиеме",
+   "2pl": "спиете",
+   "3pl": "спијат"
+  },
+  "imperfect": {
+   "1sg": "спиев",
+   "2sg": "спиеше",
+   "3sg": "спиеше",
+   "1pl": "спиевме",
+   "2pl": "спиевте",
+   "3pl": "спиеја"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "спиј",
+   "2pl": "спијте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "спиел",
+    "feminine": "спиела",
+    "neuter": "спиело",
+    "plural": "спиеле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "отспие"
+ },
+ "слуша": {
+  "present": {
+   "1sg": "слушам",
+   "2sg": "слушаш",
+   "3sg": "слуша",
+   "1pl": "слушаме",
+   "2pl": "слушате",
+   "3pl": "слушаат"
+  },
+  "imperfect": {
+   "1sg": "слушав",
+   "2sg": "слушаше",
+   "3sg": "слушаше",
+   "1pl": "слушавме",
+   "2pl": "слушавте",
+   "3pl": "слушаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "слушај",
+   "2pl": "слушајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "слушал",
+    "feminine": "слушала",
+    "neuter": "слушало",
+    "plural": "слушале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "слушне",
+   "сослуша"
+  ]
+ },
+ "помага": {
+  "present": {
+   "1sg": "помагам",
+   "2sg": "помагаш",
+   "3sg": "помага",
+   "1pl": "помагаме",
+   "2pl": "помагате",
+   "3pl": "помагаат"
+  },
+  "imperfect": {
+   "1sg": "помагав",
+   "2sg": "помагаше",
+   "3sg": "помагаше",
+   "1pl": "помагавме",
+   "2pl": "помагавте",
+   "3pl": "помагаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "помагај",
+   "2pl": "помагајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "помагал",
+    "feminine": "помагала",
+    "neuter": "помагало",
+    "plural": "помагале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "помогне"
+ },
+ "враќа": {
+  "present": {
+   "1sg": "враќам",
+   "2sg": "враќаш",
+   "3sg": "враќа",
+   "1pl": "враќаме",
+   "2pl": "враќате",
+   "3pl": "враќаат"
+  },
+  "imperfect": {
+   "1sg": "враќав",
+   "2sg": "враќаше",
+   "3sg": "враќаше",
+   "1pl": "враќавме",
+   "2pl": "враќавте",
+   "3pl": "враќаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "враќај",
+   "2pl": "враќајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "враќал",
+    "feminine": "враќала",
+    "neuter": "враќало",
+    "plural": "враќале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "врати"
+ },
+ "остава": {
+  "present": {
+   "1sg": "оставам",
+   "2sg": "оставаш",
+   "3sg": "остава",
+   "1pl": "оставаме",
+   "2pl": "оставате",
+   "3pl": "оставаат"
+  },
+  "imperfect": {
+   "1sg": "оставав",
+   "2sg": "оставаше",
+   "3sg": "оставаше",
+   "1pl": "остававме",
+   "2pl": "остававте",
+   "3pl": "оставаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "оставај",
+   "2pl": "оставајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "оставал",
+    "feminine": "оставала",
+    "neuter": "оставало",
+    "plural": "оставале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "остави"
+ },
+ "свртува": {
+  "present": {
+   "1sg": "свртувам",
+   "2sg": "свртуваш",
+   "3sg": "свртува",
+   "1pl": "свртуваме",
+   "2pl": "свртувате",
+   "3pl": "свртуваат"
+  },
+  "imperfect": {
+   "1sg": "свртував",
+   "2sg": "свртуваше",
+   "3sg": "свртуваше",
+   "1pl": "свртувавме",
+   "2pl": "свртувавте",
+   "3pl": "свртуваа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "свртувај",
+   "2pl": "свртувајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "свртувал",
+    "feminine": "свртувала",
+    "neuter": "свртувало",
+    "plural": "свртувале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "сврти"
+ },
+ "плаќа": {
+  "present": {
+   "1sg": "плаќам",
+   "2sg": "плаќаш",
+   "3sg": "плаќа",
+   "1pl": "плаќаме",
+   "2pl": "плаќате",
+   "3pl": "плаќаат"
+  },
+  "imperfect": {
+   "1sg": "плаќав",
+   "2sg": "плаќаше",
+   "3sg": "плаќаше",
+   "1pl": "плаќавме",
+   "2pl": "плаќавте",
+   "3pl": "плаќаа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "плаќај",
+   "2pl": "плаќајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "плаќал",
+    "feminine": "плаќала",
+    "neuter": "плаќало",
+    "plural": "плаќале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "плати"
+ },
+ "прашува": {
+  "present": {
+   "1sg": "прашувам",
+   "2sg": "прашуваш",
+   "3sg": "прашува",
+   "1pl": "прашуваме",
+   "2pl": "прашувате",
+   "3pl": "прашуваат"
+  },
+  "imperfect": {
+   "1sg": "прашував",
+   "2sg": "прашуваше",
+   "3sg": "прашуваше",
+   "1pl": "прашувавме",
+   "2pl": "прашувавте",
+   "3pl": "прашуваа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "прашувај",
+   "2pl": "прашувајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "прашувал",
+    "feminine": "прашувала",
+    "neuter": "прашувало",
+    "plural": "прашувале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "праша"
+ },
+ "бара": {
+  "present": {
+   "1sg": "барам",
+   "2sg": "бараш",
+   "3sg": "бара",
+   "1pl": "бараме",
+   "2pl": "барате",
+   "3pl": "бараат"
+  },
+  "imperfect": {
+   "1sg": "барав",
+   "2sg": "бараше",
+   "3sg": "бараше",
+   "1pl": "баравме",
+   "2pl": "баравте",
+   "3pl": "бараа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "барај",
+   "2pl": "барајте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "барал",
+    "feminine": "барала",
+    "neuter": "барало",
+    "plural": "барале"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": "побара"
+ },
+ "игра": {
+  "present": {
+   "1sg": "играм",
+   "2sg": "играш",
+   "3sg": "игра",
+   "1pl": "играме",
+   "2pl": "играте",
+   "3pl": "играат"
+  },
+  "imperfect": {
+   "1sg": "играв",
+   "2sg": "играше",
+   "3sg": "играше",
+   "1pl": "игравме",
+   "2pl": "игравте",
+   "3pl": "играа"
+  },
+  "aorist": {
+   "1sg": null,
+   "2sg": null,
+   "3sg": null,
+   "1pl": null,
+   "2pl": null,
+   "3pl": null
+  },
+  "imperative": {
+   "2sg": "играј",
+   "2pl": "играјте"
+  },
+  "lform": {
+   "imperfect": {
+    "masculine": "играл",
+    "feminine": "играла",
+    "neuter": "играло",
+    "plural": "играле"
+   },
+   "aorist": {
+    "masculine": null,
+    "feminine": null,
+    "neuter": null,
+    "plural": null
+   }
+  },
+  "aspect": "imperfective",
+  "partner": [
+   "изигра",
+   "одигра"
+  ]
+ }
+}

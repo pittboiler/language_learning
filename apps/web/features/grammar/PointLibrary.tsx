@@ -15,7 +15,7 @@ import { Icon, MixedText, NoteAt, SpeakButton, gradeItem, pending, usePack, useP
 // taught are marked; upcoming ones are greyed but readable. Each page holds the full rule, the "why is it
 // like this" notes, common mistakes, the examples (plus every line from stories you've read that uses it),
 // the set phrases it explains, and its flashcards to save or try.
-export function PointLibrary({ progress, persist, openNotes }: { progress: Progress; persist: (p: Progress) => void; openNotes?: (at: NoteAt) => void }) {
+export function PointLibrary({ progress, persist, openNotes, openVerbs }: { progress: Progress; persist: (p: Progress) => void; openNotes?: (at: NoteAt) => void; openVerbs?: (patternId: string) => void }) {
   const pack = usePack();
   const play = usePlay();
   const course = pack.course!;
@@ -69,6 +69,11 @@ export function PointLibrary({ progress, persist, openNotes }: { progress: Progr
                         </p>
                       )}
                       <p style={{ marginTop: 0, lineHeight: 1.55 }}><MixedText text={p.library.rule} /></p>
+                      {openVerbs && (() => {
+                        // A verb point: its pattern, with every verb that follows it (Library → Verb patterns).
+                        const vp = pack.verbPatterns?.find((x) => x.pointId === p.id || x.variants.some((v) => v.pointId === p.id));
+                        return vp ? <p className="small" style={{ marginTop: 0 }}><button className="linklike small" onClick={() => openVerbs(vp.id)}>See the pattern, with every verb that follows it</button></p> : null;
+                      })()}
                       <div className="gram-kicker" style={{ marginTop: 10 }}>Why it&apos;s like this</div>
                       <ul style={{ margin: "4px 0", paddingLeft: 18 }}>{p.library.why.map((w, i) => <li key={i} style={{ margin: "4px 0" }}><MixedText text={w} /></li>)}</ul>
                       <div className="gram-kicker" style={{ marginTop: 10 }}>Common mistakes</div>

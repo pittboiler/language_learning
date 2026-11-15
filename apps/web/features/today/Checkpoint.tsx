@@ -7,6 +7,7 @@ import * as api from "../../lib/api";
 import { type CheckpointParts, type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { firstTries } from "../../lib/today-plan";
+import type * as vd from "../../lib/verb-drills";
 import { CHECKPOINT_PASS, cardsPass, checkpointPassed, clearParts, needed, partsOf, recordCards, recordConversation } from "../../lib/checkpoint";
 import { ScenarioView } from "../conversation/ScenarioView";
 import { UseIt } from "../reading/StoryReader";
@@ -25,7 +26,7 @@ import { WarmResult, WarmupSession } from "./Warmup";
 // Progress.chapters and the course moves on; otherwise what's left waits, and nothing counts against you.
 // Stopping part-way (onStop) records nothing; putting the conversation off keeps the cards.
 export { CHECKPOINT_PASS };
-export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenario, progress, persist, config, onMiss, onDone, onFinished, doneLabel, nextLabel, earlier = 0, onStop }: {
+export function ChapterCheckpoint({ chapter, items, verbs = [], persons, onMissTurn, scenario, progress, persist, config, onMiss, onDone, onFinished, doneLabel, nextLabel, earlier = 0, onStop }: {
   /** New course: what a pass leads to (the next chapter, a stage review, or the end). */
   nextLabel?: string;
   /** Called once, when the result screen appears: the progress with the pass recorded (if passed). */
@@ -34,6 +35,8 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
   doneLabel?: string;
   chapter: Chapter;
   items: ReviewItem[];
+  /** Verb pattern questions, asked with the cards and counted in the pass mark. */
+  verbs?: vd.VerbQuestion[];
   /** The person round (cp.checkpointPersons): "Switch the person" on the chapter's stories, then lines to say. */
   persons?: { switches: cp.UseItItem[]; say: { text: string; gloss: string; focus?: string[] }[] };
   onMissTurn?: (t: DialogueTurn) => void;
@@ -102,18 +105,19 @@ export function ChapterCheckpoint({ chapter, items, persons, onMissTurn, scenari
   };
   const stop = onStop && <div className="row" style={{ marginTop: 14 }}><button className="quiet" onClick={onStop}>Stop for now: the checkpoint will wait, nothing counts against you</button></div>;
   const parts = scenario ? 2 : 1;
-  // The cards part's pass mark: its cards and the person swaps after them, 7 in 10 right first time.
-  const passTotal = items.length + switches.length;
+  // The cards part's pass mark: its cards, its verb questions and the person swaps after them, 7 in 10 right
+  // first time.
+  const passTotal = items.length + verbs.length + switches.length;
 
   if (phase === "drill")
     return (
       <div>
         <Tag>Checkpoint · chapter {chapter.order}{parts > 1 ? " · part 1 of 2: the cards" : ""}</Tag>
         <p className="lead" style={{ marginTop: 0 }}>
-          {words - earlier} words from <b>{chapter.shortTitle}</b>{earlier ? `, ${earlier} from earlier chapters` : ""}{gram ? `, ${gram} grammar card${gram > 1 ? "s" : ""}` : ""}{switches.length ? `, then ${switches.length} person swap${switches.length > 1 ? "s" : ""}` : ""}{sayLines.length ? ` and ${sayLines.length} line${sayLines.length > 1 ? "s" : ""} to say` : ""}.
-          {" "}To pass: <b>{needed(passTotal)} of {passTotal} right on the first try</b> (7 in 10){switches.length ? `, counting the ${items.length} cards here and the ${switches.length} person swap${switches.length > 1 ? "s" : ""} after` : ""}. A miss just counts as a miss: no second goes in the checkpoint.
+          {words - earlier} words from <b>{chapter.shortTitle}</b>{earlier ? `, ${earlier} from earlier chapters` : ""}{gram ? `, ${gram} grammar card${gram > 1 ? "s" : ""}` : ""}{verbs.length ? `, ${verbs.length} verb pattern question${verbs.length > 1 ? "s" : ""}` : ""}{switches.length ? `, then ${switches.length} person swap${switches.length > 1 ? "s" : ""}` : ""}{sayLines.length ? ` and ${sayLines.length} line${sayLines.length > 1 ? "s" : ""} to say` : ""}.
+          {" "}To pass: <b>{needed(passTotal)} of {passTotal} right on the first try</b> (7 in 10){switches.length ? `, counting the ${items.length + verbs.length} cards here and the ${switches.length} person swap${switches.length > 1 ? "s" : ""} after` : ""}. A miss just counts as a miss: no second goes in the checkpoint.
         </p>
-        <WarmupSession items={items} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Checkpoint" requeue={false} tally passTotal={passTotal} />
+        <WarmupSession items={items} verbs={verbs} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Checkpoint" requeue={false} tally passTotal={passTotal} />
         {stop}
       </div>
     );

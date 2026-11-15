@@ -624,3 +624,18 @@ button:lang(mk), button:lang(bg), select:lang(mk), select:lang(bg) { font-family
 .week i { width: 26px; height: 26px; border-radius: 13px; background: var(--surface-sunk); box-shadow: inset 0 0 0 1px var(--line); }
 .week i.on { background: var(--accent-fill); }
 .week i.today { box-shadow: inset 0 0 0 2px var(--accent-fill); }
+
+/* Verbs by pattern (features/verbs): the Library's pattern cards, a verb's tense tables, the drill's model box. */
+.verb-pattern { margin: 16px 0; }
+.verb-table-scroll { overflow-x: auto; margin: 0 -2px; }
+.verb-endings { min-width: 420px; margin-bottom: 6px; }
+.verb-endings th:lang(mk), .verb-endings th:lang(bg) { font-size: 15px; color: var(--text); }
+.verb-endings td:last-child { color: var(--text); font-size: 15px; }
+.verb-notes { margin: 10px 0 0; padding-left: 18px; color: var(--text-muted); }
+.verb-notes li { margin: 3px 0; }
+.verb-tenses { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 12px; margin-top: 12px; }
+.verb-tense { padding: 12px 14px; }
+.verb-tense .gram-table { margin: 4px 0 0; }
+.verb-tense .gram-table td:last-child { color: var(--text); font-size: 16px; }
+.verb-model { margin: 10px 0 2px; padding: 10px 12px; border-radius: var(--radius); background: var(--surface-sunk); display: grid; gap: 2px; }
+@media (max-width: 480px) { .verb-endings { min-width: 0; } .verb-endings th:nth-child(5), .verb-endings td:nth-child(5) { display: none; } }

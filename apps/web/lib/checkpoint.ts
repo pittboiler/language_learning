@@ -14,7 +14,9 @@ export const CHECKPOINT_PASS = 0.7;
 /** Your weakest words from earlier chapters that join a chapter's checkpoint, so it covers the course so far. */
 export const CHECKPOINT_EARLIER = 5;
 /** A practice round: the checkpoint's shape, smaller. */
-export const PRACTICE = { words: 8, cards: 2, switches: 1, say: 1 };
+export const PRACTICE = { words: 8, cards: 2, switches: 1, say: 1, verbs: 2 };
+/** Verb pattern questions in a checkpoint (half on the chapter's own patterns, when it teaches one). */
+export const CHECKPOINT_VERBS = 4;
 /** "Everything so far" takes at most this many words from any one chapter, so it really spans them. */
 export const PRACTICE_PER_CHAPTER = 3;
 

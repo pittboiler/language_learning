@@ -7,8 +7,10 @@ import { type Progress } from "../../lib/store";
 import { buildLineGlosses } from "../../lib/capture";
 import { firstTries, sendBack, shuffle } from "../../lib/today-plan";
 import { needed } from "../../lib/checkpoint";
+import * as vd from "../../lib/verb-drills";
 import { ClozeCard, GradeWords, GrammarCard, PhraseCard } from "../flashcards/Cards";
-import { MixedText, PRONOUNS, Stitches, usePack, usePlay } from "../shared";
+import { MixedText, PRONOUNS, Stitches, VERB_ITEM_TAG, usePack, usePlay } from "../shared";
+import { VerbDrill } from "../verbs/VerbDrill";
 import { Tag } from "./TodayHeader";
 
 /** The line under the counter after "Again", so the press visibly did something: the card is coming back. */
@@ -107,10 +109,18 @@ export function MatchGame({ pairs, onDone, lead, glossFirst = false }: { pairs: 
   );
 }
 export type WarmCard = { item: ReviewItem; format: "cloze" | "recall" | "grammar"; entry?: FamiliarityEntry; context?: string; contextGloss?: string };
-export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard; again?: boolean } | { kind: "conjugation"; verb: ConjugationSet; personFirst: boolean };
-export function WarmupSession({ items, conjVerb, progress, persist, onComplete, onMiss, label = "Warm up", requeue = true, tally = false, passTotal }: {
+export type WarmStep = { kind: "match"; pairs: { item: ReviewItem; target: string; gloss: string }[] } | { kind: "card"; card: WarmCard; again?: boolean } | { kind: "conjugation"; verb: ConjugationSet; personFirst: boolean } | { kind: "verbs"; questions: vd.VerbQuestion[] };
+/** A verb pattern answer as a warm-up result: it counts in the tally and the checkpoint's pass mark, but it's
+ *  graded per pattern (verbPractice), never as a card (gradeItem skips VERB_ITEM_TAG). */
+export const verbResult = (r: vd.VerbResult): WarmResult => ({
+  item: { id: `verb:${vd.keyOf(r.q.variant, r.q.person)}:${r.q.lemma}`, kind: "grammar", prompt: r.q.ask, answer: r.q.answer, gloss: r.q.why, i1Level: 0, tags: [VERB_ITEM_TAG] },
+  ok: r.ok,
+});
+export function WarmupSession({ items, conjVerb, verbs, progress, persist, onComplete, onMiss, label = "Warm up", requeue = true, tally = false, passTotal }: {
   items: ReviewItem[];
   conjVerb?: ConjugationSet;
+  /** Verb pattern questions (lib/verb-drills.ts), asked first. */
+  verbs?: vd.VerbQuestion[];
   progress: Progress;
   persist: (p: Progress) => void;
   onComplete: (results: WarmResult[]) => void;
@@ -154,6 +164,7 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
     // The columns swap from one drill to the next (Jake, 2026-10-31): person → form one day, form → person
     // the next, so you both produce the endings and recognise them. Fixed at mount, so finishing can't flip it.
     if (conjVerb) steps.push({ kind: "conjugation", verb: conjVerb, personFirst: (progress.seenConjugations?.length ?? 0) % 2 === 0 });
+    if (verbs?.length) steps.push({ kind: "verbs", questions: verbs });
     // A big set (a checkpoint's whole chapter) is matched six at a time: one grid of eighteen is a wall.
     if (matchPairs.length >= 2) {
       const groups = Math.ceil(matchPairs.length / 6);
@@ -183,7 +194,7 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
   if (!step) return null;
   const advance = () => setStepIdx((s) => s + 1);
   // Counting cards (Jake, 2026-11-14: "19 of 24" beside "23 of 23 right" read as two different tests).
-  const cardsIn = (x: WarmStep) => (x.kind === "match" ? x.pairs.length : x.kind === "card" ? 1 : 0);
+  const cardsIn = (x: WarmStep) => (x.kind === "match" ? x.pairs.length : x.kind === "card" ? 1 : x.kind === "verbs" ? x.questions.length : 0);
   const before = allSteps.slice(0, stepIdx).reduce((n, x) => n + cardsIn(x), 0);
   const total = allSteps.reduce((n, x) => n + cardsIn(x), 0);
   const here = cardsIn(step);
@@ -203,7 +214,15 @@ export function WarmupSession({ items, conjVerb, progress, persist, onComplete, 
         {tallyText && <span className="muted small">{tallyText}</span>}
       </div>
       {sentBack?.at === stepIdx && sentBack.wait > 0 && <SentBackNote wait={sentBack.wait} />}
-      {step.kind === "conjugation" ? (
+      {step.kind === "verbs" ? (
+        <VerbDrill
+          key={stepIdx}
+          questions={step.questions}
+          counter={!tally}
+          lead="Verb patterns: one pattern, many verbs."
+          onDone={(rs) => { persist(vd.recordVerbResults(progress, rs)); for (const r of rs) results.current.push(verbResult(r)); advance(); }}
+        />
+      ) : step.kind === "conjugation" ? (
         <MatchGame
           key={stepIdx}
           glossFirst={step.personFirst}

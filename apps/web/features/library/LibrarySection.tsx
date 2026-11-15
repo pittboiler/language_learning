@@ -18,6 +18,7 @@ import { Reading } from "../reading/Reading";
 import { StoryView } from "../reading/StoryReader";
 import { LibView, Section, coverageOf, difficultyChip, pending, usePack } from "../shared";
 import { Writing } from "../writing/Writing";
+import { VerbPatterns } from "../verbs/VerbPatterns";
 
 export function LibrarySection({ progress, persist, config, lettersDone, mode, setMode }: {
   progress: Progress;
@@ -74,7 +75,7 @@ export function LibrarySection({ progress, persist, config, lettersDone, mode, s
 
   // An opened content item or reference tool → show it with a back link to where it came from.
   if (mode !== "browse" && mode !== "reference" && mode !== "flashcards" && mode !== "words" && mode !== "practice") {
-    const isTool = mode === "grammar" || mode === "write" || mode === "build" || mode === "notes";
+    const isTool = mode === "grammar" || mode === "write" || mode === "build" || mode === "notes" || mode === "verbs";
     if (mode === "converse") return (
       <>
         <div className="row" style={{ marginBottom: 10 }}><button className="ghost small" onClick={() => setMode("practice")}>← Practice with AI</button></div>
@@ -87,9 +88,10 @@ export function LibrarySection({ progress, persist, config, lettersDone, mode, s
       mode === "scenario" ? <ScenarioView progress={progress} persist={persist} config={config} lettersDone={lettersDone} /> :
       mode === "story" ? <StoryView progress={progress} persist={persist} config={config} /> :
       mode === "reading" ? <Reading progress={progress} persist={persist} config={config} /> :
-      mode === "grammar" ? (cp.courseV2On(pack, progress) ? <PointLibrary progress={progress} persist={persist} openNotes={(at) => { pending.notesFocus = at; setMode("notes"); }} /> : <Grammar progress={progress} persist={persist} />) :
+      mode === "grammar" ? (cp.courseV2On(pack, progress) ? <PointLibrary progress={progress} persist={persist} openNotes={(at) => { pending.notesFocus = at; setMode("notes"); }} openVerbs={(id) => { pending.verbPattern = id; setMode("verbs"); }} /> : <Grammar progress={progress} persist={persist} />) :
       mode === "notes" ? <MyNotes progress={progress} persist={persist} navigate={libNavigate} /> :
       mode === "build" ? <SentenceBuilder progress={progress} persist={persist} /> :
+      mode === "verbs" ? <VerbPatterns progress={progress} persist={persist} /> :
       <Writing config={config} />;
     return (
       <>
@@ -136,6 +138,7 @@ export function LibrarySection({ progress, persist, config, lettersDone, mode, s
             {cp.courseV2On(pack, progress) && tool("notes", "My notes", "What I’ve learned", "Each chapter on one page, and your notes from every lesson", () => setMode("notes"))}
             {tool("letters", "Alphabet", "The alphabet", `All ${pack.alphabet.length} Cyrillic letters: browse, hear and quiz`, () => setMode("letters"), lettersDone ? "done" : undefined)}
             {tool("grammar", "Grammar", "Grammar reference", "Search or browse every point", () => setMode("grammar"))}
+            {!!pack.verbPatterns?.length && tool("verbs", "Verbs", "Verb patterns", "How each tense is made, the verbs that follow each pattern, and every verb\u2019s forms", () => setMode("verbs"))}
             {tool("write", "Writing", "Writing practice", "Short prompts; type in Latin and get corrected", () => setMode("write"))}
             {tool("build", "Build", "Build a sentence", "Put tiles in order to make full sentences, one person (I / you / you all / we / they) per card", () => setMode("build"))}
           </div>
