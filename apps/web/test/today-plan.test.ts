@@ -160,3 +160,43 @@ console.log(`today-plan.test.ts: ${sessions} sessions — every agenda matches i
   assert.ok(later.slice(0, 8).every((x) => x && x !== "-"), `with several verbs, one every lesson: ${later.slice(0, 8).join(" ")}`);
 }
 console.log("today-plan.test.ts (verb drill spacing): all assertions passed ✓");
+
+// Words already studied aren't taught again as new (2026-11-16, Jake at chapter 4: "it shows things I've already
+// learned as new words… Едно пиво, ве молам"). A learner who did every new-words step through chapter 3 starts
+// chapter 4: the drinks were taught in chapter 3, „Едно пиво, ве молам“ is no longer a chapter-4 word, and a word
+// studied early (tapped in a story) is left out of its session and out of the agenda's "new words" line.
+{
+  const ch = (o: number) => course.chapters.find((c) => c.order === o)!;
+  const studiedAll = (upTo: number) => Object.fromEntries(course.chapters.filter((c) => c.order <= upTo).flatMap((c) => c.sessions.flatMap((s) => s.words))
+    .map((w) => [w.lexKey, familiarity.capture({ lexKey: w.lexKey, kind: w.lexKey.includes(" ") ? "chunk" : "word", display: w.display }, past)]));
+  const at = (o: number, n: number, fam: Progress["familiarity"]): Progress =>
+    ({ familiarity: fam, scenarios: {}, settings: { courseV2: true }, letters, seenGrammar: {}, course: { chapterId: ch(o).chapterId, session: n, v: course.version } }) as unknown as Progress;
+  const newWords = (p: Progress) => courseSteps(pack, p).filter((x): x is Extract<TodayStep, { kind: "newwords" }> => x.kind === "newwords").flatMap((x) => x.words.map((w) => w.lexKey));
+  const agendaOf = (p: Progress) => { const a = courseSteps(pack, p)[0]; return a?.kind === "agenda" ? a.agenda.items : []; };
+
+  const ch3words = ch(3).sessions.flatMap((s) => s.words.map((w) => w.lexKey));
+  assert.ok(ch3words.includes("чај / сок / вода / кафе / пиво"), "the drinks are taught in chapter 3");
+  const ch4words = ch(4).sessions.flatMap((s) => s.words.map((w) => w.lexKey));
+  for (const k of ["кафе", "пиво", "вода", "чај", "сок", "едно пиво, ве молам"]) assert.ok(!ch4words.includes(k), `chapter 4 doesn't teach ${k} as new`);
+
+  const fam = studiedAll(3);
+  assert.deepEqual(newWords(at(4, 1, fam)), ["имам", "давам"], "chapter 4, day 1 teaches only what's new");
+  const line = agendaOf(at(4, 1, fam)).find((b) => /new words?:/.test(b));
+  assert.equal(line, "2 new words: имам · давам", "the agenda names the words the lesson teaches");
+
+  // Studied early (tapped in a story): left out of its lesson, and the agenda says why when nothing's left.
+  const early = { ...fam, ...studiedAll(4) };
+  const day3 = ch(4).sessions.find((s) => s.n === 3)!;
+  assert.deepEqual(newWords(at(4, 3, early)), [], "nothing studied is taught again");
+  const none = agendaOf(at(4, 3, early)).find((b) => b.startsWith("No new words"));
+  assert.ok(none && day3.words.every((w) => none.includes(w.display.replace(/\.+$/, ""))), `the agenda says they're studied: ${none}`);
+
+  // Someone who'd passed chapter 3 before the drinks moved there gets them as a catch-up (not as chapter 4 words)…
+  const before = Object.fromEntries(Object.entries(fam).filter(([k]) => k !== "чај / сок / вода / кафе / пиво"));
+  assert.deepEqual(newWords(at(4, 1, before)), ["чај / сок / вода / кафе / пиво", "имам", "давам"], "the drinks come back as a catch-up");
+  assert.ok(agendaOf(at(4, 1, before)).some((b) => b.startsWith("Catch-up: 1 word") && b.includes("чај / сок / вода / кафе / пиво")), "and the agenda says so");
+  // …unless they'd studied every drink on its own.
+  const each = Object.fromEntries(["чај", "сок", "вода", "кафе", "пиво"].map((k) => [k, familiarity.capture({ lexKey: k, kind: "word", display: k }, past)]));
+  assert.deepEqual(newWords(at(4, 1, { ...before, ...each })), ["имам", "давам"], "drinks studied one by one aren't caught up");
+}
+console.log("today-plan.test.ts (studied words aren't new): all assertions passed ✓");

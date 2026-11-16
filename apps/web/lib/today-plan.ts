@@ -157,7 +157,16 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
   // Words added to a session the learner had already passed come first (cp.catchUpWords), and the agenda says why.
   const taughtNow = new Set(steps.flatMap((x) => (x.kind === "newwords" ? x.words.map((w) => w.lexKey) : [])));
   const catchUp = cp.catchUpWords(pack.course!, progress).filter((w) => taughtNow.has(w.lexKey));
-  const catchLine = catchUp.length ? `Catch-up: ${catchUp.length} word${catchUp.length > 1 ? "s" : ""} added to a session you'd already done: ${catchUp.map((w) => w.display.replace(/\.+$/, "")).join(", ")}` : undefined;
+  // Words are joined with " · ", since a phrase can hold its own comma ("Сметката, ве молам").
+  const list = (ws: { display: string }[]) => ws.map((w) => w.display.replace(/\.+$/, "")).join(" · ");
+  const catchLine = catchUp.length ? `Catch-up: ${catchUp.length} word${catchUp.length > 1 ? "s" : ""} added to a session you'd already done: ${list(catchUp)}` : undefined;
+  // The blueprint's "3 new words: …" bullet lists the session's words whatever the learner knows; say what the
+  // new-words step will actually teach (2026-11-16: it named words studied days before as new).
+  const todays = pos.kind === "session" ? pos.session.words : [];
+  const fresh = todays.filter((w) => taughtNow.has(w.lexKey) && !catchUp.some((c) => c.lexKey === w.lexKey));
+  const studied = todays.filter((w) => !taughtNow.has(w.lexKey));
+  const wordsLine = fresh.length ? `${fresh.length} new word${fresh.length > 1 ? "s" : ""}: ${list(fresh)}`
+    : studied.length ? `No new words today: you've already studied ${list(studied)}` : undefined;
   const vq = warm?.verbs?.length ?? 0;
   const parts = [
     ...(vq ? [`${vq} verb pattern question${vq > 1 ? "s" : ""}`] : []),
@@ -169,7 +178,8 @@ export function courseSteps(pack: LanguagePack, progress: Progress): TodayStep[]
   // say); don't promise either otherwise.
   const items = agenda.items
     .filter((b) => steps.some((x) => x.kind === "build") || !b.startsWith("Build a sentence"))
-    .filter((b) => steps.some((x) => x.kind === "sayit") || !b.startsWith("Say it:"));
+    .filter((b) => steps.some((x) => x.kind === "sayit") || !b.startsWith("Say it:"))
+    .flatMap((b) => (/^\d+ new words?:/.test(b) ? (wordsLine ? [wordsLine] : []) : [b]));
   const head = [...(warm ? [warmLine] : []), ...(catchLine ? [catchLine] : [])];
   return [{ kind: "agenda", agenda: { ...agenda, items: [...head, ...items] } }, ...steps];
 }

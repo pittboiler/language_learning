@@ -6,7 +6,7 @@
 // `meta.wordNote` is shown on the new-word card; breakdown + takeaway on the flashcard.
 import type { ReviewItem } from "@ll/pack-schema";
 
-type Add = Omit<ReviewItem, "prompt" | "i1Level" | "confidence"> & { i1Level?: number };
+type Add = Omit<ReviewItem, "prompt" | "i1Level" | "confidence"> & { i1Level?: number; confidence?: ReviewItem["confidence"] };
 const item = (a: Add): ReviewItem => ({ prompt: a.gloss, i1Level: 1, confidence: "validated", ...a });
 const parts = (forms: string, glosses: string) => {
   const f = forms.split(", "), g = glosses.split(", ");
@@ -253,6 +253,30 @@ export const level1Additions: ReviewItem[] = [
     breakdown: parts("многу, малку", "a lot or very, a little"),
     takeaway: "многу is “very” before a word like добро (Многу добро!) and “a lot” on its own; малку is “a little”.",
     meta: { wordNote: "многу: very, a lot (Многу добро! · Многу фала!). малку: a little, a bit." },
+  }),
+  // Chapter 3 (2026-11-16, Jake: chapter 4 taught drinks he'd been using for a week): the drinks as one card,
+  // grouped by gender, beside “one” for every gender. Chapter 3's gender lesson and stories already use them
+  // (еден сок, една вода, едно пиво; „Две пива, ве молам“), so they're taught there, not in chapter 4.
+  // `authored`: hand-written, awaiting Jake's Macedonian reviewer.
+  item({
+    id: "add-drinks", kind: "vocab", tags: ["s0-survive", "drinks"], confidence: "authored",
+    answer: "чај / сок / вода / кафе / пиво", translit: "chay / sok / voda / kafe / pivo",
+    gloss: "tea / juice / water / coffee / beer",
+    breakdown: parts("чај, сок, вода, кафе, пиво", "tea, juice, water, coffee, beer"),
+    takeaway: "Each takes the “one” of its gender: еден чај, еден сок · една вода · едно кафе, едно пиво.",
+    meta: { wordNote: "Each drink takes the “one” of its gender: еден чај, еден сок (masculine) · една вода (feminine) · едно кафе, едно пиво (neuter). Two of them: две пива, две кафиња." },
+  }),
+  // Chapter 4: the café and the waiter, which its stories use (Марко во кафулето, „Петар е келнер“) and no
+  // lesson taught. On the “the” day, since the stories say кафулето and келнерот.
+  item({
+    id: "add-kafule", kind: "vocab", tags: ["s1-cafe-order"], confidence: "authored",
+    answer: "кафуле", translit: "kafule", gloss: "café",
+    meta: { gender: "neuter", wordNote: "Neuter, so “the café” is кафулето: Марко во кафулето (Marko in the café)." },
+  }),
+  item({
+    id: "add-kelner", kind: "vocab", tags: ["s1-cafe-order"], confidence: "authored",
+    answer: "келнер", translit: "kelner", gloss: "waiter",
+    meta: { gender: "masculine", wordNote: "Masculine, so “the waiter” is келнерот: прашува келнерот (asks the waiter)." },
   }),
   // Chapter 6: the everyday adjective pairs, with “adjectives match their noun”.
   item({

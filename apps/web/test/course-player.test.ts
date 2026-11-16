@@ -193,7 +193,20 @@ assert.equal(familiarity.deriveKeyForItem(fromEarlier[0]!).lexKey, familiarity.d
   assert.equal(at(1).length, 0, "nothing from later sessions or off-course at ch1 s1");
   const later = at(neSession.n + 1).map((it) => familiarity.deriveKeyForItem(it).lexKey);
   assert.ok(later.length > 0 && later.every((k) => slotOf.has(k)), "once taught, не's cards and words come back; the tapped word never does");
-  assert.equal(cp.needsTeaching(prog({ familiarity: famEarly }), neWords[0] ? familiarity.deriveKeyForItem(neWords[0]).lexKey : ""), true, "a word met out of order is still taught in its session");
+  // A word already STUDIED out of order isn't taught again as new (2026-11-16); one only seen in a story is.
+  const neKey = familiarity.deriveKeyForItem(neWords[0]!).lexKey;
+  assert.equal(cp.needsTeaching(prog({ familiarity: famEarly }), neKey), false, "a word studied out of order isn't taught again as new");
+  const exposed = { [neKey]: { ...famEarly[neKey]!, tags: [familiarity.EXPOSED_TAG] } };
+  assert.equal(cp.needsTeaching(prog({ familiarity: exposed }), neKey), true, "a word only seen in a story is still taught");
+  assert.equal(cp.needsTeaching(prog({ familiarity: {} }), neKey), true, "a word never met is taught");
+}
+
+// 7c. A family card is taught unless every one of its parts has been studied; the agenda names only what the
+//     new-words step teaches.
+{
+  const fam = (keys: string[]) => Object.fromEntries(keys.map((k) => [k, familiarity.capture({ lexKey: k, kind: "word", display: k })]));
+  assert.equal(cp.needsTeaching(prog({ familiarity: fam(["кој", "кога"]) }), "кој / кога / зошто"), true, "a family with a part never studied is taught");
+  assert.equal(cp.needsTeaching(prog({ familiarity: fam(["кој", "кога", "зошто"]) }), "кој / кога / зошто"), false, "a family whose parts are all studied isn't");
 }
 
 // 8. Stage review samples studied words from each chapter of the stage, plus one card per point.

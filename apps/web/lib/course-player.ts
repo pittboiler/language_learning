@@ -485,25 +485,32 @@ export function stageReviewContent(pack: LanguagePack, course: Course, afterChap
   return { items: [...words, ...cards], scenarioId };
 }
 
-/** Does this session still teach the word? Yes unless the learner knows it (or set it aside): a word met
- *  earlier (in passing, or before a course reorder) is still taught in its own session, as the agenda says. */
+/** Does this session still teach the word? Only if the learner has never studied it. A word they've studied
+ *  already (in an earlier new-words step, tapped in a story, ＋ Learn, with a partner) isn't taught again as
+ *  new: it's on its flashcard schedule, and the warm-up brings it back once its session has gone by. A word
+ *  only seen in a story (exposed) is still taught, and so is a family card ("чај / сок / вода") unless every
+ *  one of its parts has been studied. Before 2026-11-16 anything short of "known" (about three weeks of
+ *  reviews) was taught again, so words studied days earlier came back as "new" (Jake: "Едно пиво, ве молам"). */
 export const needsTeaching = (progress: Progress, lexKey: string): boolean => {
-  const status = progress.familiarity[lexKey]?.status;
-  return status !== "known" && status !== "ignored";
+  const met = (k: string) => { const e = progress.familiarity[k]; return !!e && (e.status === "known" || e.status === "ignored" || familiarity.isStudied(e)); };
+  if (met(lexKey)) return false;
+  const parts = lexKey.split(" / ").map((x) => familiarity.normalize(x.replace(/…/g, ""))).filter(Boolean);
+  return !(parts.length > 1 && parts.every(met));
 };
 
 /** Most catch-up words a session takes on top of its own (see catchUpWords). */
 export const CATCH_UP_MAX = 3;
 
-/** Words from sessions already behind the learner that they've never met: words added to the course after
- *  they'd gone by (a content update, e.g. вие / тие joining chapter 1), or a new-words step they skipped.
- *  Taught at the start of the next session, a few at a time, so changing the course never leaves a gap. */
+/** Words from sessions already behind the learner that they've never studied: words added to the course after
+ *  they'd gone by (a content update, e.g. вие / тие joining chapter 1, or the drinks moving to chapter 3), or
+ *  a new-words step they skipped. Taught at the start of the next session, a few at a time, so changing the
+ *  course never leaves a gap. (Same test as a session's own words: needsTeaching.) */
 export function catchUpWords(course: Course, p: Progress, max = CATCH_UP_MAX): CourseWord[] {
   const at = currentSlot(course, p);
   const out: CourseWord[] = [];
   for (const c of course.chapters) for (const s of c.sessions) {
     if (cmpSlot({ order: c.order, n: s.n }, at) >= 0) continue;
-    for (const w of s.words) if (!p.familiarity[w.lexKey] && !out.some((x) => x.lexKey === w.lexKey)) out.push(w);
+    for (const w of s.words) if (needsTeaching(p, w.lexKey) && !out.some((x) => x.lexKey === w.lexKey)) out.push(w);
   }
   return out.slice(0, max);
 }

@@ -26,6 +26,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { Course, GrammarCard, GrammarPoint, LineRef } from "@ll/pack-schema";
 import { macedonian } from "@ll/pack-mk";
+import { course as generatedCourse } from "../../packages/pack-mk/src/course.js";
 import { structuredCall, MODELS } from "@ll/core/llm";
 import { SPINE, spinePoints } from "./course/spine.js";
 import { lineCatalog, proseWords, tokens, wordCorpus, type CatalogLine } from "./course/lines.js";
@@ -52,7 +53,9 @@ let cost = 0;
 
 // ---- existing blueprint (so re-runs only fill gaps) ----
 let course: Course = { points: [], chapters: [], stageReviews: [], lineTags: {}, chunkNotes: [] };
-if (pack.course) course = structuredClone(pack.course);
+// The points as generated, not with the hand fixes pack-mk lays over them (point-fixes.ts): those stay in their
+// own file, so a re-run mustn't write them into course.ts.
+if (pack.course) course = structuredClone({ ...pack.course, points: generatedCourse.points });
 
 // Notes read as one voice: no "Set phrase for now:" prefix, curly quotes, "chapter 2" not "ch2", capitalized.
 const tidyNote = (n: string): string => {

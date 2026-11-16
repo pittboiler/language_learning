@@ -4645,14 +4645,14 @@ export const course: Course = {
           "gloss": "this (m) / this (f) / these"
         },
         {
+          "lexKey": "чај / сок / вода / кафе / пиво",
+          "display": "чај / сок / вода / кафе / пиво",
+          "gloss": "tea / juice / water / coffee / beer"
+        },
+        {
           "lexKey": "два, три, четири, пет",
           "display": "два, три, четири, пет",
           "gloss": "two, three, four, five"
-        },
-        {
-          "lexKey": "шест, седум, осум, девет, десет",
-          "display": "шест, седум, осум, девет, десет",
-          "gloss": "six, seven, eight, nine, ten"
         },
         {
           "lexKey": "сакам",
@@ -4678,6 +4678,11 @@ export const course: Course = {
           "lexKey": "имате ли",
           "display": "Имате ли …?",
           "gloss": "Do you have …? (formal)"
+        },
+        {
+          "lexKey": "шест, седум, осум, девет, десет",
+          "display": "шест, седум, осум, девет, десет",
+          "gloss": "six, seven, eight, nine, ten"
         },
         {
           "lexKey": "денар / денари",
@@ -4713,14 +4718,14 @@ export const course: Course = {
           "lexKey": "многу / малку",
           "display": "многу / малку",
           "gloss": "a lot, very / a little"
-        },
+        }
+      ],
+      "extraWords": [
         {
           "lexKey": "добро",
           "display": "добро",
           "gloss": "good, well"
-        }
-      ],
-      "extraWords": [
+        },
         {
           "lexKey": "сто",
           "display": "сто",
@@ -4881,14 +4886,14 @@ export const course: Course = {
           "pointId": "pt-numbers",
           "words": [
             {
+              "lexKey": "чај / сок / вода / кафе / пиво",
+              "display": "чај / сок / вода / кафе / пиво",
+              "gloss": "tea / juice / water / coffee / beer"
+            },
+            {
               "lexKey": "два, три, четири, пет",
               "display": "два, три, четири, пет",
               "gloss": "two, three, four, five"
-            },
-            {
-              "lexKey": "шест, седум, осум, девет, десет",
-              "display": "шест, седум, осум, девет, десет",
-              "gloss": "six, seven, eight, nine, ten"
             },
             {
               "lexKey": "сакам",
@@ -4910,14 +4915,14 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8",
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-repair-v5"
           ],
           "agenda": [
-            "3 new words: два, три, четири, пет, шест, седум, осум, девет, десет, Сакам …",
+            "3 new words: чај / сок / вода / кафе / пиво, два, три, четири, пет, Сакам …",
             "Count things and ask the price",
             "Say it: today's words and examples, out loud",
             "Read “Две пива, ве молам”: spot today's pattern, then a few quick exercises",
@@ -4968,9 +4973,9 @@ export const course: Course = {
             "phrase-v-kolku-chini",
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8",
             "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
             "3 new words: Може ли …?, Каде е …?, Колку чини?",
@@ -4996,14 +5001,14 @@ export const course: Course = {
               "gloss": "Do you have …? (formal)"
             },
             {
+              "lexKey": "шест, седум, осум, девет, десет",
+              "display": "шест, седум, осум, девет, десет",
+              "gloss": "six, seven, eight, nine, ten"
+            },
+            {
               "lexKey": "денар / денари",
               "display": "денар / денари",
               "gloss": "denar(s) (currency)"
-            },
-            {
-              "lexKey": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
-              "display": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
-              "gloss": "eleven, twelve, thirteen, fourteen, fifteen"
             }
           ],
           "story": {
@@ -5021,15 +5026,15 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-teens-a",
+            "phrase-gen-s0-survive-v8",
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8",
             "phrase-v-kolku-chini",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9"
           ],
           "agenda": [
-            "3 new words: Имате ли …?, денар / денари, единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+            "3 new words: Имате ли …?, шест, седум, осум, девет, десет, денар / денари",
             "Practice: Counting things",
             "Say it: today's words and examples, out loud",
             "Read “Пет, петнаесет, педесет”: spot everything from this chapter, then a few quick exercises",
@@ -5059,10 +5064,10 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8",
             "phrase-v-kolku-chini",
-            "phrase-add-teens-a",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s0-survive-v8",
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9"
           ],
           "speak": "gen-s0-survive",
           "agenda": [
@@ -5083,6 +5088,11 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
+              "lexKey": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+              "display": "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
+              "gloss": "eleven, twelve, thirteen, fourteen, fifteen"
+            },
+            {
               "lexKey": "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
               "display": "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
               "gloss": "sixteen, seventeen, eighteen, nineteen"
@@ -5091,11 +5101,6 @@ export const course: Course = {
               "lexKey": "дваесет, триесет, четириесет, педесет, шеесет",
               "display": "дваесет, триесет, четириесет, педесет, шеесет",
               "gloss": "twenty, thirty, forty, fifty, sixty"
-            },
-            {
-              "lexKey": "седумдесет, осумдесет, деведесет",
-              "display": "седумдесет, осумдесет, деведесет",
-              "gloss": "seventy, eighty, ninety"
             }
           ],
           "story": {
@@ -5112,17 +5117,17 @@ export const course: Course = {
             ]
           },
           "build": [
+            "phrase-add-teens-a",
             "phrase-add-teens-b",
-            "phrase-add-tens-a",
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8",
-            "phrase-v-kolku-chini"
+            "phrase-v-kolku-chini",
+            "phrase-gen-s0-survive-v8"
           ],
           "speak": "gen-s0-survive-convo-b",
           "agenda": [
             "Put it together: use this chapter in a real exchange",
-            "3 new words: шеснаесет, седумнаесет, осумнаесет, деветнаесет, дваесет, триесет, четириесет, педесет, шеесет, седумдесет, осумдесет, деведесет",
+            "3 new words: единаесет, дванаесет, тринаесет, четиринаесет, петнаесет, шеснаесет, седумнаесет, осумнаесет, деветнаесет, дваесет, триесет, четириесет, педесет, шеесет",
             "Read “Две пива, ве молам”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: At Petar's kiosk"
@@ -5139,6 +5144,11 @@ export const course: Course = {
           "role": "use",
           "words": [
             {
+              "lexKey": "седумдесет, осумдесет, деведесет",
+              "display": "седумдесет, осумдесет, деведесет",
+              "gloss": "seventy, eighty, ninety"
+            },
+            {
               "lexKey": "дваесет и пет",
               "display": "дваесет и пет",
               "gloss": "twenty-five"
@@ -5147,11 +5157,6 @@ export const course: Course = {
               "lexKey": "многу / малку",
               "display": "многу / малку",
               "gloss": "a lot, very / a little"
-            },
-            {
-              "lexKey": "добро",
-              "display": "добро",
-              "gloss": "good, well"
             }
           ],
           "story": {
@@ -5167,18 +5172,18 @@ export const course: Course = {
             ]
           },
           "build": [
+            "phrase-add-tens-b",
             "phrase-add-25",
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-survive-v7",
-            "phrase-gen-s0-survive-v8",
             "phrase-v-kolku-chini",
-            "phrase-add-teens-a"
+            "phrase-gen-s0-survive-v8"
           ],
           "speak": "gen-s0-survive",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
-            "3 new words: дваесет и пет, многу / малку, добро",
+            "3 new words: седумдесет, осумдесет, деведесет, дваесет и пет, многу / малку",
             "Read “Ана во продавница”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: A first small purchase",
@@ -5210,21 +5215,21 @@ export const course: Course = {
           "еден / една / едно",
           "ова / тоа",
           "овој / оваа / овие",
+          "чај / сок / вода / кафе / пиво",
           "два, три, четири, пет",
-          "шест, седум, осум, девет, десет",
           "сакам",
           "може ли",
           "каде е",
           "колку чини",
           "имате ли",
+          "шест, седум, осум, девет, десет",
           "денар / денари",
           "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
           "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
           "дваесет, триесет, четириесет, педесет, шеесет",
           "седумдесет, осумдесет, деведесет",
           "дваесет и пет",
-          "многу / малку",
-          "добро"
+          "многу / малку"
         ],
         "pointIds": [
           "pt-gender",
@@ -5253,34 +5258,14 @@ export const course: Course = {
           "gloss": "give"
         },
         {
-          "lexKey": "едно пиво, ве молам",
-          "display": "Едно пиво, ве молам.",
-          "gloss": "One beer, please. (to the waiter)"
+          "lexKey": "кафуле",
+          "display": "кафуле",
+          "gloss": "café"
         },
         {
-          "lexKey": "кафе",
-          "display": "кафе",
-          "gloss": "coffee"
-        },
-        {
-          "lexKey": "пиво",
-          "display": "пиво",
-          "gloss": "beer"
-        },
-        {
-          "lexKey": "вода",
-          "display": "вода",
-          "gloss": "water"
-        },
-        {
-          "lexKey": "чај",
-          "display": "чај",
-          "gloss": "tea"
-        },
-        {
-          "lexKey": "сок",
-          "display": "сок",
-          "gloss": "juice"
+          "lexKey": "келнер",
+          "display": "келнер",
+          "gloss": "waiter"
         },
         {
           "lexKey": "сто, двесте, триста, четиристотини, петстотини",
@@ -5314,8 +5299,8 @@ export const course: Course = {
         },
         {
           "lexKey": "сметката, ве молам",
-          "display": "Сметката, ве молам.",
-          "gloss": "The bill, please. (to the waiter)"
+          "display": "Сметката, ве молам",
+          "gloss": "The bill, please (to the waiter)"
         },
         {
           "lexKey": "наздравје",
@@ -5380,68 +5365,6 @@ export const course: Course = {
               "lexKey": "давам",
               "display": "давам",
               "gloss": "give"
-            },
-            {
-              "lexKey": "едно пиво, ве молам",
-              "display": "Едно пиво, ве молам.",
-              "gloss": "One beer, please. (to the waiter)"
-            }
-          ],
-          "story": {
-            "id": "gen-s1-cafe-order-story-b",
-            "lens": [
-              "pt-verbs-a"
-            ],
-            "highlight": [
-              0,
-              1,
-              2,
-              3,
-              4,
-              5,
-              8
-            ]
-          },
-          "build": [
-            "phrase-v-edno-pivo",
-            "phrase-gen-s0-repair-v5",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-repair-v4"
-          ],
-          "agenda": [
-            "3 new words: имам, давам, Едно пиво, ве молам",
-            "Change the verb ending to say who wants, has, or pays.",
-            "Say it: today's words and examples, out loud",
-            "Read “Пак кај Петар”: spot today's pattern, then a few quick exercises",
-            "Build a sentence: put the words in order"
-          ],
-          "next": "Next: Practice: Verb endings: the -а verbs",
-          "notes": [
-            "story:gen-s1-cafe-order-story-b#3",
-            "qa:gen-s1-cafe-order-story-b#q2:a"
-          ]
-        },
-        {
-          "n": 2,
-          "role": "practice",
-          "pointId": "pt-verbs-a",
-          "words": [
-            {
-              "lexKey": "кафе",
-              "display": "кафе",
-              "gloss": "coffee"
-            },
-            {
-              "lexKey": "пиво",
-              "display": "пиво",
-              "gloss": "beer"
-            },
-            {
-              "lexKey": "вода",
-              "display": "вода",
-              "gloss": "water"
             }
           ],
           "story": {
@@ -5462,13 +5385,53 @@ export const course: Course = {
           "build": [
             "sent-сака",
             "phrase-gen-s0-repair-v5",
-            "phrase-v-edno-pivo",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-repair-v4"
           ],
           "agenda": [
-            "3 new words: кафе, пиво, вода",
+            "2 new words: имам, давам",
+            "Change the verb ending to say who wants, has, or pays.",
+            "Say it: today's words and examples, out loud",
+            "Read “Пак кај Петар”: spot today's pattern, then a few quick exercises",
+            "Build a sentence: put the words in order"
+          ],
+          "next": "Next: Practice: Verb endings: the -а verbs",
+          "notes": [
+            "story:gen-s1-cafe-order-story-b#3",
+            "qa:gen-s1-cafe-order-story-b#q2:a"
+          ]
+        },
+        {
+          "n": 2,
+          "role": "practice",
+          "pointId": "pt-verbs-a",
+          "words": [],
+          "story": {
+            "id": "gen-s1-cafe-order-story-b",
+            "lens": [
+              "pt-verbs-a"
+            ],
+            "highlight": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              8
+            ]
+          },
+          "build": [
+            "sent-сака",
+            "phrase-gen-s0-repair-v5",
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-repair-v4"
+          ],
+          "agenda": [
             "Practice: Verb endings: the -а verbs",
             "Say it: today's words and examples, out loud",
             "Read “Пак кај Петар”: spot today's pattern, then a few quick exercises",
@@ -5482,14 +5445,14 @@ export const course: Course = {
           "pointId": "pt-the",
           "words": [
             {
-              "lexKey": "чај",
-              "display": "чај",
-              "gloss": "tea"
+              "lexKey": "кафуле",
+              "display": "кафуле",
+              "gloss": "café"
             },
             {
-              "lexKey": "сок",
-              "display": "сок",
-              "gloss": "juice"
+              "lexKey": "келнер",
+              "display": "келнер",
+              "gloss": "waiter"
             },
             {
               "lexKey": "сто, двесте, триста, четиристотини, петстотини",
@@ -5513,12 +5476,12 @@ export const course: Course = {
             "phrase-add-hundreds-a",
             "phrase-gen-s0-repair-v5",
             "sent-сака",
-            "phrase-v-edno-pivo",
             "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
-            "3 new words: чај, сок, сто, двесте, триста, четиристотини, петстотини",
+            "3 new words: кафуле, келнер, сто, двесте, триста, четиристотини, петстотини",
             "Say “the”: add -от, -та or -то to the end of the noun",
             "Say it: today's words and examples, out loud",
             "Read “Марко во кафулето”: spot today's pattern, then a few quick exercises",
@@ -5553,10 +5516,10 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v5",
             "sent-сака",
-            "phrase-v-edno-pivo",
             "phrase-add-hundreds-a",
             "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
@@ -5608,8 +5571,8 @@ export const course: Course = {
             "phrase-add-250",
             "phrase-gen-s0-repair-v5",
             "sent-сака",
-            "phrase-v-edno-pivo",
-            "phrase-add-hundreds-a"
+            "phrase-add-hundreds-a",
+            "phrase-gen-s0-repair-v1"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
@@ -5641,8 +5604,8 @@ export const course: Course = {
             },
             {
               "lexKey": "сметката, ве молам",
-              "display": "Сметката, ве молам.",
-              "gloss": "The bill, please. (to the waiter)"
+              "display": "Сметката, ве молам",
+              "gloss": "The bill, please (to the waiter)"
             }
           ],
           "story": {
@@ -5668,8 +5631,8 @@ export const course: Course = {
             "phrase-v-smetka",
             "phrase-gen-s0-repair-v5",
             "sent-сака",
-            "phrase-v-edno-pivo",
-            "phrase-add-hundreds-a"
+            "phrase-add-hundreds-a",
+            "phrase-add-hundreds-b"
           ],
           "speak": "gen-s1-cafe-order-convo-b",
           "agenda": [
@@ -5702,42 +5665,45 @@ export const course: Course = {
             }
           ],
           "story": {
-            "id": "gen-s1-cafe-order-story-a",
+            "id": "ana-coffee",
             "lens": [
               "pt-verbs-a",
               "pt-the",
               "pt-da"
             ],
             "highlight": [
+              0,
               1,
-              2,
               3,
               4,
               5,
-              6,
-              7,
-              8
+              7
             ]
           },
           "build": [
             "phrase-gen-s0-repair-v5",
             "sent-сака",
-            "phrase-v-edno-pivo",
             "phrase-add-hundreds-a",
             "phrase-add-hundreds-b",
-            "phrase-add-250"
+            "phrase-add-250",
+            "phrase-gen-s1-cafe-order-v7"
           ],
           "speak": "gen-s1-cafe-order",
           "writing": true,
           "agenda": [
             "Put it together: use this chapter in a real exchange, then in writing",
             "2 new words: Наздравје!, педесет / сто / сто и педесет",
-            "Read “Сметката, ве молам”: spot everything from this chapter, then a few quick exercises",
+            "Read “Ана и кафето”: spot everything from this chapter, then a few quick exercises",
             "Build a sentence: put the words in order",
             "Conversation: Ordering at the café",
             "Write it: short lines from English into Macedonian, one at a time"
           ],
-          "next": "Next: Checkpoint: every word and grammar card from this chapter"
+          "next": "Next: Checkpoint: every word and grammar card from this chapter",
+          "notes": [
+            "story:ana-coffee#1",
+            "story:ana-coffee#2",
+            "story:ana-coffee#3"
+          ]
         },
         {
           "n": 8,
@@ -5757,12 +5723,8 @@ export const course: Course = {
         "wordKeys": [
           "имам",
           "давам",
-          "едно пиво, ве молам",
-          "кафе",
-          "пиво",
-          "вода",
-          "чај",
-          "сок",
+          "кафуле",
+          "келнер",
           "сто, двесте, триста, четиристотини, петстотини",
           "шестотини, седумстотини, осумстотини, деветстотини, илјада",
           "двесте и педесет денари",
@@ -5832,7 +5794,7 @@ export const course: Course = {
         {
           "lexKey": "од каде си",
           "display": "Од каде си?",
-          "gloss": "Where are you from? (casual)"
+          "gloss": "Where are you from?"
         },
         {
           "lexKey": "од … сум",
@@ -5937,7 +5899,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v8",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -5995,7 +5957,7 @@ export const course: Course = {
             "phrase-gen-introductions-v6",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
           ],
@@ -6026,7 +5988,7 @@ export const course: Course = {
             {
               "lexKey": "од каде си",
               "display": "Од каде си?",
-              "gloss": "Where are you from? (casual)"
+              "gloss": "Where are you from?"
             }
           ],
           "story": {
@@ -6043,7 +6005,7 @@ export const course: Course = {
             "phrase-gen-introductions-v2",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-introductions-v6"
           ],
           "agenda": [
@@ -6099,7 +6061,7 @@ export const course: Course = {
             "phrase-gen-s1-greet-intro-v6",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-introductions-v6",
             "phrase-gen-introductions-v1"
           ],
@@ -6139,7 +6101,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v8",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-introductions-v6",
             "phrase-gen-introductions-v1",
             "phrase-gen-introductions-v2"
@@ -6198,7 +6160,7 @@ export const course: Course = {
             "phrase-gen-s1-greet-intro-v8",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-introductions-v6"
           ],
           "speak": "gen-s1-greet-intro-convo-b",
@@ -6253,7 +6215,7 @@ export const course: Course = {
             "phrase-gen-introductions-v4",
             "phrase-gen-s0-repair-v8",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-introductions-v6",
             "phrase-gen-introductions-v1"
           ],
@@ -6470,7 +6432,7 @@ export const course: Course = {
             "phrase-gen-s1-market-v3",
             "phrase-gen-s0-repair-v10",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
@@ -6521,7 +6483,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v10",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-s1-market-v2",
             "phrase-gen-s1-market-v3",
             "phrase-gen-s0-repair-v1"
@@ -6573,7 +6535,7 @@ export const course: Course = {
             "phrase-gen-s1-market-v4",
             "phrase-gen-s0-repair-v10",
             "sent-пие",
-            "sent-сака",
+            "sent-работи",
             "phrase-gen-s1-market-v2",
             "phrase-gen-s1-market-v3"
           ],
@@ -7100,7 +7062,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
@@ -7156,7 +7118,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
@@ -7198,7 +7160,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
@@ -7259,7 +7221,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
@@ -7316,7 +7278,7 @@ export const course: Course = {
             "phrase-gen-s1-directions-v10",
             "phrase-gen-s0-greet-v4",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s1-directions-v11",
             "phrase-gen-s0-repair-v1"
           ],
@@ -7545,7 +7507,7 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s0-greet-v5",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
@@ -7596,7 +7558,7 @@ export const course: Course = {
             "phrase-gen-s2-smalltalk-v5",
             "phrase-gen-s0-greet-v5",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2"
           ],
@@ -7649,7 +7611,7 @@ export const course: Course = {
             "phrase-add-vi-se-dopagja",
             "phrase-gen-s0-greet-v5",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s2-smalltalk-v1"
           ],
           "agenda": [
@@ -7700,7 +7662,7 @@ export const course: Course = {
             "phrase-add-im-se-dopagja",
             "phrase-gen-s0-greet-v5",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2"
           ],
@@ -7731,7 +7693,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v5",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s2-smalltalk-v5"
@@ -7784,7 +7746,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v5",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s2-smalltalk-v5"
@@ -7821,7 +7783,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v5",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
             "phrase-gen-s2-smalltalk-v5"
@@ -8024,7 +7986,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v2",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -8081,7 +8043,7 @@ export const course: Course = {
             "phrase-add-days-b",
             "phrase-gen-s0-greet-v2",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
@@ -8125,7 +8087,7 @@ export const course: Course = {
             "phrase-add-vo-sabota",
             "phrase-gen-s0-greet-v2",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-add-days-a",
             "phrase-add-days-b"
           ],
@@ -8158,7 +8120,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v2",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-add-days-a",
             "phrase-add-days-b",
             "phrase-add-vo-sabota"
@@ -8213,7 +8175,7 @@ export const course: Course = {
             "phrase-gen-s2-pasttime-v8",
             "phrase-gen-s0-greet-v2",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-add-days-a",
             "phrase-add-days-b"
           ],
@@ -8251,7 +8213,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v2",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-add-days-a",
             "phrase-add-days-b",
             "phrase-add-vo-sabota"
@@ -8485,7 +8447,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v6",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -8532,7 +8494,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v6",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -8584,7 +8546,7 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v6",
             "sent-јаде",
-            "sent-оди-t2",
+            "sent-оди",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -8633,8 +8595,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
+            "sent-живее",
             "sent-јаде",
-            "sent-оди-t2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -8664,8 +8626,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
+            "sent-живее",
             "sent-јаде",
-            "sent-оди-t2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3"
@@ -8715,8 +8677,8 @@ export const course: Course = {
             "phrase-gen-s2-home-family-v7",
             "phrase-gen-s2-home-family-v8",
             "phrase-gen-s0-greet-v6",
+            "sent-живее",
             "sent-јаде",
-            "sent-оди-t2",
             "phrase-gen-s0-repair-v1"
           ],
           "speak": "gen-s2-home-family-convo-b",
@@ -8753,8 +8715,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-home-family-v7",
             "phrase-gen-s2-home-family-v8",
             "phrase-gen-s0-repair-v1"
@@ -8913,8 +8875,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-arrange-v4",
             "phrase-gen-s0-greet-v8",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9"
           ],
@@ -8961,8 +8923,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-arrange-v5",
             "phrase-gen-s0-greet-v8",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-arrange-v4",
             "phrase-gen-s0-repair-v1"
           ],
@@ -8993,8 +8955,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v8",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-arrange-v4",
             "phrase-gen-s2-arrange-v5",
             "phrase-gen-s0-repair-v1"
@@ -9046,8 +9008,8 @@ export const course: Course = {
             "phrase-gen-s2-arrange-v8",
             "phrase-gen-phone-v4",
             "phrase-gen-s0-greet-v8",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-arrange-v4"
           ],
           "speak": "gen-s2-arrange-convo-b",
@@ -9086,8 +9048,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-phone-v5",
             "phrase-gen-s0-greet-v8",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-arrange-v4",
             "phrase-gen-s2-arrange-v5"
           ],
@@ -9265,8 +9227,8 @@ export const course: Course = {
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2",
             "phrase-gen-s0-survive-v7",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s0-repair-v1"
           ],
           "agenda": [
@@ -9310,8 +9272,8 @@ export const course: Course = {
             "phrase-gen-s2-problems-v4",
             "phrase-gen-s2-problems-v6",
             "phrase-gen-s0-survive-v7",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-problems-v1"
           ],
           "agenda": [
@@ -9340,8 +9302,8 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-survive-v7",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2",
             "phrase-gen-s2-problems-v4"
@@ -9390,8 +9352,8 @@ export const course: Course = {
             "phrase-add-mi-treba",
             "phrase-add-me-boli",
             "phrase-gen-s0-survive-v7",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-problems-v1"
           ],
           "speak": "gen-s2-problems-convo-b",
@@ -9429,8 +9391,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-problems-v8",
             "phrase-gen-s0-survive-v7",
-            "sent-јаде",
-            "sent-оди-t2",
+            "sent-е-t3",
+            "sent-живее",
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2"
           ],
@@ -9531,21 +9493,21 @@ export const course: Course = {
         "еден / една / едно",
         "ова / тоа",
         "овој / оваа / овие",
+        "чај / сок / вода / кафе / пиво",
         "два, три, четири, пет",
-        "шест, седум, осум, девет, десет",
         "сакам",
         "може ли",
         "каде е",
         "колку чини",
         "имате ли",
+        "шест, седум, осум, девет, десет",
         "денар / денари",
         "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет",
         "шеснаесет, седумнаесет, осумнаесет, деветнаесет",
         "дваесет, триесет, четириесет, педесет, шеесет",
         "седумдесет, осумдесет, деведесет",
         "дваесет и пет",
-        "многу / малку",
-        "добро"
+        "многу / малку"
       ],
       "pointIds": [
         "pt-sum",
@@ -9572,12 +9534,8 @@ export const course: Course = {
       "wordKeys": [
         "имам",
         "давам",
-        "едно пиво, ве молам",
-        "кафе",
-        "пиво",
-        "вода",
-        "чај",
-        "сок",
+        "кафуле",
+        "келнер",
         "сто, двесте, триста, четиристотини, петстотини",
         "шестотини, седумстотини, осумстотини, деветстотини, илјада",
         "двесте и педесет денари",

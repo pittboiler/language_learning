@@ -104,7 +104,10 @@ export const SPINE: SpineChapter[] = [
     chapterId: "s0-survive",
     dropWords: ["десет", "таму", "еден", "два", "три", "пет"],
     // The gender words together on day 1: one, this / that, and "this" for every gender.
-    pinWords: { "еден / една / едно": 1, "ова / тоа": 1, "овој / оваа / овие": 1 },
+    // The drinks as one card on day 2 (2026-11-16, Jake: chapter 4 taught as new the drinks chapter 3 had used
+    // all week): the gender lesson's examples (еден сок, една вода, едно пиво) and day 2's story („Две пива,
+    // ве молам“) use them. добро (well), known since „Добро сум“, makes room and stays in the Library.
+    pinWords: { "еден / една / едно": 1, "ова / тоа": 1, "овој / оваа / овие": 1, "чај / сок / вода / кафе / пиво": 2 },
     points: [
       { id: "pt-gender", title: "Three genders: еден, една, едно", grammarIds: ["gender"], depth: "produce",
         scope: "Noun gender (masculine/feminine/neuter, usually visible from the ending) and words that agree with it: еден/една/едно, овој/оваа/ова.",
@@ -116,6 +119,14 @@ export const SPINE: SpineChapter[] = [
   },
   {
     chapterId: "s1-cafe-order",
+    // 2026-11-16: the drinks are taught in chapter 3 now, so „Едно пиво, ве молам“ is made of words you know
+    // (едно, пиво, ве молам) and stays in the Library. The café and the waiter, which the stories use, come
+    // on the “the” day, beside кафулето and келнерот. The rest stay where they were (pinned, or the planner would
+    // pull them forward into the drinks' old places): day 2 is practice with nothing new.
+    dropWords: ["Едно пиво, ве молам."],
+    pinWords: { "кафуле": 3, "келнер": 3, "сто, двесте, триста, четиристотини, петстотини": 3,
+      "шестотини, седумстотини, осумстотини, деветстотини, илјада": 5, "двесте и педесет денари": 5, "Би сакал / Би сакала …": 5,
+      "Што ќе сакате?": 6, "Повелете": 6, "Сметката, ве молам.": 6, "Наздравје!": 7, "педесет / сто / сто и педесет": 7 },
     points: [
       { id: "pt-verbs-a", title: "Verb endings: the -а verbs", grammarIds: ["verb-conjugation"], depth: "produce", heavy: true,
         scope: "Present-tense person endings of а-verbs: сакам, сакаш, сака, сакаме, сакате, сакаат (also имам, плаќам, зборувам). The -м ending means “I”.",

@@ -15,7 +15,7 @@ function splitLine(item: string): { label: string; detail?: string } {
 export function AgendaCard({ agenda, onStart, pointId, onOpenPoint, onSkipChapter }: { agenda: cp.Agenda; onStart: () => void; pointId?: string; onOpenPoint?: (id: string) => void; onSkipChapter?: () => void }) {
   const [confirmSkip, setConfirmSkip] = useState(false);
   // The grammar line follows the warm-up and new-words lines (the agenda runs in the lesson's order).
-  const pointLine = agenda.items.findIndex((b) => !/^(Warm-up:|Catch-up:|\d+ new words?:)/.test(b));
+  const pointLine = agenda.items.findIndex((b) => !/^(Warm-up:|Catch-up:|\d+ new words?:|No new words)/.test(b));
   return (
     <div>
       <div className="framed menu">

@@ -199,6 +199,9 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
       const pointsSoFar = [...pointsBefore, ...chapterPointIds.slice(0, chapterPointIds.indexOf(lastPointUpTo(slots, i) ?? "") + 1)];
       const chapterSoFar = chapterPointIds.filter((id) => pointsSoFar.includes(id));
       const taughtUpTo = new Set([...taughtBefore.keys(), ...sessionWords.slice(0, i + 1).flat().map((w) => w.lexKey)]);
+      // A family card teaches each of its words: "чај / сок / вода / кафе / пиво" teaches кафе (a sentence's
+      // support words are checked one by one).
+      for (const k of [...taughtUpTo]) if (isFamily(k)) partsOf(k).forEach((p) => taughtUpTo.add(p));
 
       // ---- the story (DESIGN-story-variety §2a): the chapter's own stories take turns, each read at most
       // MAX_STORY_READS times while there's anything else to read; an extra story waits until it's readable.
