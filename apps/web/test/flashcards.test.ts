@@ -15,7 +15,25 @@ for (const v of vocab) for (const pt of v.parts ?? []) {
   assert.ok(pt.prompt.trim() && !/ \/ /.test(pt.prompt), `${v.id}: one prompt per part`);
 }
 const numbers = vocab.find((v) => v.answer.startsWith("два, три"));
-assert.deepEqual(numbers?.parts?.map((p) => p.answer), ["два", "три", "четири", "пет"], "a comma list of single words splits on its own");
+assert.deepEqual(numbers?.parts?.map((p) => p.answer), ["два", "три", "четири"], "a comma list of single words splits on its own");
+// 2b. No card bundles more than three words (Jake, 2026-11-16: "no more than 2-3 max"): not in the pack, not in a
+// lesson. A split card is retired (card-splits.ts) and every card that replaces it exists.
+const big = vocab.filter((v) => (v.parts?.length ?? 0) > 3).map((v) => `${v.id}: ${v.answer}`);
+assert.deepEqual(big, [], "cards with more than three parts");
+const course = macedonian.course!;
+// A lesson card's pieces: "x / y / z", or a comma list of single words ("два, три, четири"); a sentence with a
+// comma ("Добро сум, фала.") is one piece.
+const pieces = (d: string) => (d.includes(" / ") ? d.split(" / ") : d.split(/\s*,\s*/).every((w) => w && !/\s/.test(w)) && !/[.!?…]/.test(d) ? d.split(/\s*,\s*/) : [d]);
+assert.equal(pieces("Добро сум, фала.").length, 1);
+assert.equal(pieces("осум, девет, десет").length, 3);
+const bigInLessons = course.chapters.flatMap((c) => c.sessions.flatMap((s) => s.words.filter((w) => pieces(w.display).length > 3).map((w) => `${c.chapterId} s${s.n}: ${w.display}`)));
+assert.deepEqual(bigInLessons, [], "lesson words bundling more than three");
+for (const [old, news] of Object.entries(macedonian.retiredCards ?? {})) {
+  assert.ok(!vocab.some((v) => v.answer.trim() === old), `retired “${old}” is still in the pack`);
+  for (const n of news) assert.ok(vocab.some((v) => v.answer.trim() === n), `“${n}” (replacing “${old}”) isn't in the pack`);
+  const oldParts = old.split(/ \/ |, /).sort(), newParts = [...new Set(news.flatMap((n) => n.split(/ \/ |, /)))];
+  assert.ok(oldParts.every((p) => newParts.includes(p)), `every word of “${old}” is on a card that replaces it`);
+}
 assert.equal(vocab.find((v) => v.answer.startsWith("Едно пиво"))?.parts, undefined, "a sentence with a comma is not a list");
 // 3. The deck as drilled: a card per key (bundles replaced by their parts), and no English prompt with two answers.
 const deck = new Map<string, { gloss: string; id: string }>();

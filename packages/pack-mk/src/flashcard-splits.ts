@@ -5,12 +5,14 @@
 // (the pack check fails otherwise), since its English doesn't always split cleanly ("one (m / f / n)").
 // Each prompt says which form it wants, so a part never has two right answers.
 export const flashcardSplits: Record<string, { prompt: string; answer: string }[]> = {
-  "чај / сок / вода / кафе / пиво": [
-    { prompt: "tea", answer: "чај" },
+  "сок / вода / пиво": [
     { prompt: "juice", answer: "сок" },
     { prompt: "water", answer: "вода" },
-    { prompt: "coffee", answer: "кафе" },
     { prompt: "beer", answer: "пиво" },
+  ],
+  "кафе / чај": [
+    { prompt: "coffee", answer: "кафе" },
+    { prompt: "tea", answer: "чај" },
   ],
   "Би сакал / Би сакала …": [
     { prompt: "I'd like … (said by a man)", answer: "Би сакал …" },

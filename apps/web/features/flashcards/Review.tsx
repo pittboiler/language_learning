@@ -48,8 +48,13 @@ export function Review({ progress, persist }: { progress: Progress; persist: (p:
         return [{ type: "pool", key: pk, item: part, strength: progress.familiarity[pk]?.strength ?? 0, parentKey: k }];
       });
     });
+    // No bundle ever shows as one card (Jake, 2026-11-16: the Flashcards "should not have ANY like these"):
+    // a saved entry for a card the pack no longer has ("два, три, четири, пет") is left out; its words are
+    // drilled through the cards that replaced it.
+    const retired = new Set(Object.keys(pack.retiredCards ?? {}).map(familiarity.normalize));
+    const looksBundled = (e: FamiliarityEntry) => e.display.includes(" / ") || retired.has(e.lexKey);
     const capturedUnits: ReviewUnit[] = Object.values(progress.familiarity)
-      .filter((e) => familiarity.isStudied(e) && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !bundleKeys.has(e.lexKey) && !nameCard(e.display, pack))
+      .filter((e) => familiarity.isStudied(e) && (e.kind === "word" || e.kind === "chunk") && !poolKeys.has(e.lexKey) && !bundleKeys.has(e.lexKey) && !looksBundled(e) && !nameCard(e.display, pack))
       .map((e) => ({ type: "captured", key: e.lexKey, entry: e, strength: e.strength }));
     const isWord = (u: ReviewUnit) => u.type === "pool" ? (u.item.kind === "vocab" || (u.item.kind === "phrase" && !/\s/.test(u.item.answer.trim()))) : u.entry.kind === "word" && !progress.contexts?.[u.key];
     const dueMs = (u: ReviewUnit): number | null => {

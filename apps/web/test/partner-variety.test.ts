@@ -24,8 +24,8 @@ const session = (order: number, n: number, recent: { points: string[]; stories: 
   return { point: plan.focusPointId, story: plan.storyId, lines: lines.flatMap((x) => (x.kind === "switch" || x.kind === "blank" ? [cp.grammarLineKey(x.line)] : [])) };
 };
 
-// Before: last week at 3.6, this week at 4.3, with no memory: the very same session.
-const lastWeek = session(3, 6, { points: [], stories: [] }, 0, new Set());
+// Before: last week at 3.7, this week at 4.3, with no memory: the very same session.
+const lastWeek = session(3, 7, { points: [], stories: [] }, 0, new Set());
 const sameAgain = session(4, 3, { points: [], stories: [] }, 0, new Set());
 assert.deepEqual(sameAgain, lastWeek, "without history the two weeks plan identically (the bug)");
 
@@ -45,5 +45,5 @@ assert.equal(new Set([a.point, b.point, c.point]).size, 3, `rotates: ${a.point},
 // Far apart: the distance the panel uses to drop the lag.
 assert.equal(cp.sessionsApart(course, { order: 3, n: 6 }, { order: 3, n: 6 }), 0);
 assert.ok(cp.sessionsApart(course, { order: 5, n: 3 }, { order: 3, n: 6 }) >= 4, "chapter 5.3 and 3.6 count as far apart");
-assert.equal(cp.sessionsApart(course, { order: 4, n: 1 }, { order: 3, n: 8 }), 1, "the next chapter's first session is one lesson on");
+assert.equal(cp.sessionsApart(course, { order: 4, n: 1 }, { order: 3, n: course.chapters.find((c) => c.order === 3)!.sessions.length }), 1, "the next chapter's first session is one lesson on");
 console.log(`partner-variety.test.ts: all assertions passed ✓ (last week ${lastWeek.point} / ${lastWeek.story}; this week ${thisWeek.point} / ${thisWeek.story})`);

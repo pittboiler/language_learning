@@ -15,28 +15,67 @@ const parts = (forms: string, glosses: string) => {
 
 export const level1Additions: ReviewItem[] = [
   // ---- chapter 3 (numbers & prices): the teens, the tens, and how a two-part number joins ----
+  // 2026-11-16 (Jake: "this is a LOT for one card… no more than 2-3 max"): every number card holds three
+  // numbers at most. These replace the generated "два, три, четири, пет" and "шест, седум, осум, девет, десет"
+  // (dropped in index.ts) and the five-number teens / tens / hundreds; card-splits.ts maps old to new, so a
+  // learner's progress on an old card carries over and nothing comes back as new.
   item({
-    id: "add-teens-a", kind: "vocab", tags: ["s0-survive"],
-    answer: "единаесет, дванаесет, тринаесет, четиринаесет, петнаесет", translit: "edinaeset, dvanaeset, trinaeset, chetirinaeset, petnaeset",
-    gloss: "eleven, twelve, thirteen, fourteen, fifteen",
-    breakdown: parts("единаесет, дванаесет, тринаесет, четиринаесет, петнаесет", "eleven, twelve, thirteen, fourteen, fifteen"),
-    takeaway: "The teens are a small number + наесет (“on ten”): еди-наесет, два-наесет, пет-наесет.",
+    id: "add-nums-2", kind: "vocab", tags: ["s0-survive"],
+    answer: "два, три, четири", translit: "dva, tri, chetiri",
+    gloss: "two, three, four",
+    breakdown: parts("два, три, четири", "two, three, four"),
+    takeaway: "Counting on from еден: два, три, четири.",
+  }),
+  item({
+    id: "add-nums-5", kind: "vocab", tags: ["s0-survive"],
+    answer: "пет, шест, седум", translit: "pet, shest, sedum",
+    gloss: "five, six, seven",
+    breakdown: parts("пет, шест, седум", "five, six, seven"),
+    takeaway: "After четири: пет, шест, седум.",
+  }),
+  item({
+    id: "add-nums-8", kind: "vocab", tags: ["s0-survive"],
+    answer: "осум, девет, десет", translit: "osum, devet, deset",
+    gloss: "eight, nine, ten",
+    breakdown: parts("осум, девет, десет", "eight, nine, ten"),
+    takeaway: "Up to ten: осум, девет, десет.",
+  }),
+  item({
+    id: "add-teens-1", kind: "vocab", tags: ["s0-survive"],
+    answer: "единаесет, дванаесет, тринаесет", translit: "edinaeset, dvanaeset, trinaeset",
+    gloss: "eleven, twelve, thirteen",
+    breakdown: parts("единаесет, дванаесет, тринаесет", "eleven, twelve, thirteen"),
+    takeaway: "The teens are a small number + наесет (“on ten”): еди-наесет, два-наесет, три-наесет.",
     meta: { wordNote: "11 to 19 are a small number + наесет (“on ten”): единаесет, дванаесет … деветнаесет." },
   }),
   item({
-    id: "add-teens-b", kind: "vocab", tags: ["s0-survive"],
-    answer: "шеснаесет, седумнаесет, осумнаесет, деветнаесет", translit: "shesnaeset, sedumnaeset, osumnaeset, devetnaeset",
-    gloss: "sixteen, seventeen, eighteen, nineteen",
-    breakdown: parts("шеснаесет, седумнаесет, осумнаесет, деветнаесет", "sixteen, seventeen, eighteen, nineteen"),
+    id: "add-teens-2", kind: "vocab", tags: ["s0-survive"],
+    answer: "четиринаесет, петнаесет, шеснаесет", translit: "chetirinaeset, petnaeset, shesnaeset",
+    gloss: "fourteen, fifteen, sixteen",
+    breakdown: parts("четиринаесет, петнаесет, шеснаесет", "fourteen, fifteen, sixteen"),
     takeaway: "Same pattern: the number + наесет. Six drops a letter: шес-наесет.",
   }),
   item({
-    id: "add-tens-a", kind: "vocab", tags: ["s0-survive"],
-    answer: "дваесет, триесет, четириесет, педесет, шеесет", translit: "dvaeset, trieset, chetirieset, pedeset, sheeset",
-    gloss: "twenty, thirty, forty, fifty, sixty",
-    breakdown: parts("дваесет, триесет, четириесет, педесет, шеесет", "twenty, thirty, forty, fifty, sixty"),
-    takeaway: "The tens are a small number + есет / десет (“ten”): два-есет, три-есет, пе-десет.",
+    id: "add-teens-3", kind: "vocab", tags: ["s0-survive"],
+    answer: "седумнаесет, осумнаесет, деветнаесет", translit: "sedumnaeset, osumnaeset, devetnaeset",
+    gloss: "seventeen, eighteen, nineteen",
+    breakdown: parts("седумнаесет, осумнаесет, деветнаесет", "seventeen, eighteen, nineteen"),
+    takeaway: "Same pattern up to nineteen: седум-наесет, осум-наесет, девет-наесет.",
+  }),
+  item({
+    id: "add-tens-a1", kind: "vocab", tags: ["s0-survive"],
+    answer: "дваесет, триесет, четириесет", translit: "dvaeset, trieset, chetirieset",
+    gloss: "twenty, thirty, forty",
+    breakdown: parts("дваесет, триесет, четириесет", "twenty, thirty, forty"),
+    takeaway: "The tens are a small number + есет (“ten”): два-есет, три-есет, четири-есет.",
     meta: { wordNote: "The tens are a small number + есет or десет (“ten”): дваесет, триесет … деведесет." },
+  }),
+  item({
+    id: "add-tens-a2", kind: "vocab", tags: ["s0-survive"],
+    answer: "педесет, шеесет", translit: "pedeset, sheeset",
+    gloss: "fifty, sixty",
+    breakdown: parts("педесет, шеесет", "fifty, sixty"),
+    takeaway: "Fifty and sixty shorten the small number: пе-десет, ше-есет.",
   }),
   item({
     id: "add-tens-b", kind: "vocab", tags: ["s0-survive"],
@@ -56,18 +95,32 @@ export const level1Additions: ReviewItem[] = [
 
   // ---- chapter 4 (the café): the hundreds and a thousand, a bigger price, and the polite “I'd like” ----
   item({
-    id: "add-hundreds-a", kind: "vocab", tags: ["s1-cafe-order"],
-    answer: "сто, двесте, триста, четиристотини, петстотини", translit: "sto, dveste, trista, chetiristotini, petstotini",
-    gloss: "a hundred, two hundred, three hundred, four hundred, five hundred",
-    breakdown: parts("сто, двесте, триста, четиристотини, петстотини", "a hundred, two hundred, three hundred, four hundred, five hundred"),
-    takeaway: "200 двесте and 300 триста are their own words; from 400 on it's the number + стотини (“hundreds”).",
-    meta: { wordNote: "200 (двесте) and 300 (триста) are their own words. From 400 on it's the number + стотини, “hundreds”: четиристотини, петстотини." },
+    id: "add-hundreds-1", kind: "vocab", tags: ["s1-cafe-order"],
+    answer: "сто, двесте, триста", translit: "sto, dveste, trista",
+    gloss: "a hundred, two hundred, three hundred",
+    breakdown: parts("сто, двесте, триста", "a hundred, two hundred, three hundred"),
+    takeaway: "200 двесте and 300 триста are their own words.",
+    meta: { wordNote: "200 (двесте) and 300 (триста) are their own words. From 400 on it's the number + стотини, “hundreds”." },
   }),
   item({
-    id: "add-hundreds-b", kind: "vocab", tags: ["s1-cafe-order"],
-    answer: "шестотини, седумстотини, осумстотини, деветстотини, илјада", translit: "shestotini, sedumstotini, osumstotini, devetstotini, ilyada",
-    gloss: "six hundred, seven hundred, eight hundred, nine hundred, a thousand",
-    breakdown: parts("шестотини, седумстотини, осумстотини, деветстотини, илјада", "six hundred, seven hundred, eight hundred, nine hundred, a thousand"),
+    id: "add-hundreds-4", kind: "vocab", tags: ["s1-cafe-order"],
+    answer: "четиристотини, петстотини", translit: "chetiristotini, petstotini",
+    gloss: "four hundred, five hundred",
+    breakdown: parts("четиристотини, петстотини", "four hundred, five hundred"),
+    takeaway: "From 400 on it's the number + стотини (“hundreds”): четири-стотини, пет-стотини.",
+  }),
+  item({
+    id: "add-hundreds-6", kind: "vocab", tags: ["s1-cafe-order"],
+    answer: "шестотини, седумстотини, осумстотини", translit: "shestotini, sedumstotini, osumstotini",
+    gloss: "six hundred, seven hundred, eight hundred",
+    breakdown: parts("шестотини, седумстотини, осумстотини", "six hundred, seven hundred, eight hundred"),
+    takeaway: "The number + стотини, as from 400. Six drops a letter: ше-стотини.",
+  }),
+  item({
+    id: "add-hundreds-9", kind: "vocab", tags: ["s1-cafe-order"],
+    answer: "деветстотини, илјада", translit: "devetstotini, ilyada",
+    gloss: "nine hundred, a thousand",
+    breakdown: parts("деветстотини, илјада", "nine hundred, a thousand"),
     takeaway: "The number + стотини up to 900; a thousand is илјада.",
   }),
   item({
@@ -99,11 +152,18 @@ export const level1Additions: ReviewItem[] = [
 
   // ---- chapter 9 (what you did): the days of the week, and “on” a day ----
   item({
-    id: "add-days-a", kind: "vocab", tags: ["s2-pasttime"],
-    answer: "понеделник, вторник, среда, четврток", translit: "ponedelnik, vtornik, sreda, chetvrtok",
-    gloss: "Monday, Tuesday, Wednesday, Thursday",
-    breakdown: parts("понеделник, вторник, среда, четврток", "Monday, Tuesday, Wednesday, Thursday"),
-    takeaway: "Days aren't capitalized in Macedonian. вторник is “second” day, четврток “fourth”.",
+    id: "add-days-a1", kind: "vocab", tags: ["s2-pasttime"],
+    answer: "понеделник, вторник", translit: "ponedelnik, vtornik",
+    gloss: "Monday, Tuesday",
+    breakdown: parts("понеделник, вторник", "Monday, Tuesday"),
+    takeaway: "Days aren't capitalized in Macedonian. вторник is the “second” day.",
+  }),
+  item({
+    id: "add-days-a2", kind: "vocab", tags: ["s2-pasttime"],
+    answer: "среда, четврток", translit: "sreda, chetvrtok",
+    gloss: "Wednesday, Thursday",
+    breakdown: parts("среда, четврток", "Wednesday, Thursday"),
+    takeaway: "среда is the middle of the week; четврток is the “fourth” day.",
   }),
   item({
     id: "add-days-b", kind: "vocab", tags: ["s2-pasttime"],
@@ -254,17 +314,25 @@ export const level1Additions: ReviewItem[] = [
     takeaway: "многу is “very” before a word like добро (Многу добро!) and “a lot” on its own; малку is “a little”.",
     meta: { wordNote: "многу: very, a lot (Многу добро! · Многу фала!). малку: a little, a bit." },
   }),
-  // Chapter 3 (2026-11-16, Jake: chapter 4 taught drinks he'd been using for a week): the drinks as one card,
-  // grouped by gender, beside “one” for every gender. Chapter 3's gender lesson and stories already use them
-  // (еден сок, една вода, едно пиво; „Две пива, ве молам“), so they're taught there, not in chapter 4.
-  // `authored`: hand-written, awaiting Jake's Macedonian reviewer.
+  // The drinks (2026-11-16, Jake: chapter 4 taught drinks he'd been using for a week; then "this is a LOT for one
+  // card… no more than 2-3 max"). Chapter 3 gets the three its gender lesson and stories use, one of each gender
+  // (еден сок, една вода, едно пиво; „Две пива, ве молам“); chapter 4 gets coffee and tea, before the story
+  // that orders them. `authored`: hand-written, awaiting Jake's Macedonian reviewer.
   item({
-    id: "add-drinks", kind: "vocab", tags: ["s0-survive", "drinks"], confidence: "authored",
-    answer: "чај / сок / вода / кафе / пиво", translit: "chay / sok / voda / kafe / pivo",
-    gloss: "tea / juice / water / coffee / beer",
-    breakdown: parts("чај, сок, вода, кафе, пиво", "tea, juice, water, coffee, beer"),
-    takeaway: "Each takes the “one” of its gender: еден чај, еден сок · една вода · едно кафе, едно пиво.",
-    meta: { wordNote: "Each drink takes the “one” of its gender: еден чај, еден сок (masculine) · една вода (feminine) · едно кафе, едно пиво (neuter). Two of them: две пива, две кафиња." },
+    id: "add-drinks-a", kind: "vocab", tags: ["s0-survive", "drinks"], confidence: "authored",
+    answer: "сок / вода / пиво", translit: "sok / voda / pivo",
+    gloss: "juice / water / beer",
+    breakdown: parts("сок, вода, пиво", "juice, water, beer"),
+    takeaway: "One of each gender: еден сок · една вода · едно пиво.",
+    meta: { wordNote: "One of each gender, so each takes its own “one”: еден сок (masculine) · една вода (feminine) · едно пиво (neuter). Two beers: две пива." },
+  }),
+  item({
+    id: "add-drinks-b", kind: "vocab", tags: ["s1-cafe-order", "drinks"], confidence: "authored",
+    answer: "кафе / чај", translit: "kafe / chay",
+    gloss: "coffee / tea",
+    breakdown: parts("кафе, чај", "coffee, tea"),
+    takeaway: "кафе is neuter like пиво (едно кафе, кафето); чај is masculine (еден чај, чајот).",
+    meta: { wordNote: "кафе is neuter, like пиво: едно кафе, and “the coffee” is кафето. чај is masculine: еден чај, чајот. Two coffees: две кафиња." },
   }),
   // Chapter 4: the café and the waiter, which its stories use (Марко во кафулето, „Петар е келнер“) and no
   // lesson taught. On the “the” day, since the stories say кафулето and келнерот.

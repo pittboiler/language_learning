@@ -13,6 +13,7 @@ import * as scoring from "@ll/core/familiarity/scoring";
 import * as api from "../lib/api";
 import { getPack } from "../lib/packs";
 import { getStore, emptyProgress, type Progress } from "../lib/store";
+import { carryOverSplitCards } from "../lib/card-splits";
 import * as cp from "../lib/course-player";
 import { reviewPool } from "../lib/today-plan";
 import { getPartnerStore } from "../lib/partner-store";
@@ -48,6 +49,8 @@ export default function Home() {
         p.familiarity = familiarity.migrateReviews(p.reviews, reviewPool(loadedPack));
         delete p.reviews;
       }
+      // Cards the pack split into smaller ones: progress on the old card carries over to its replacements.
+      p.familiarity = carryOverSplitCards(p.familiarity, loadedPack);
       if (!p.pick) p.pick = loadedPack.scenarios[0]!.id;
       setProgress(p);
       setReady(true);

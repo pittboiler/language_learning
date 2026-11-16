@@ -175,9 +175,10 @@ console.log("today-plan.test.ts (verb drill spacing): all assertions passed ✓"
   const agendaOf = (p: Progress) => { const a = courseSteps(pack, p)[0]; return a?.kind === "agenda" ? a.agenda.items : []; };
 
   const ch3words = ch(3).sessions.flatMap((s) => s.words.map((w) => w.lexKey));
-  assert.ok(ch3words.includes("чај / сок / вода / кафе / пиво"), "the drinks are taught in chapter 3");
+  assert.ok(ch3words.includes("сок / вода / пиво"), "chapter 3 teaches the drinks its lessons use");
   const ch4words = ch(4).sessions.flatMap((s) => s.words.map((w) => w.lexKey));
-  for (const k of ["кафе", "пиво", "вода", "чај", "сок", "едно пиво, ве молам"]) assert.ok(!ch4words.includes(k), `chapter 4 doesn't teach ${k} as new`);
+  assert.ok(ch4words.includes("кафе / чај"), "chapter 4 teaches coffee and tea");
+  for (const k of ["кафе", "пиво", "вода", "чај", "сок", "сок / вода / пиво", "едно пиво, ве молам"]) assert.ok(!ch4words.includes(k), `chapter 4 doesn't teach ${k} as new`);
 
   const fam = studiedAll(3);
   assert.deepEqual(newWords(at(4, 1, fam)), ["имам", "давам"], "chapter 4, day 1 teaches only what's new");
@@ -192,11 +193,11 @@ console.log("today-plan.test.ts (verb drill spacing): all assertions passed ✓"
   assert.ok(none && day3.words.every((w) => none.includes(w.display.replace(/\.+$/, ""))), `the agenda says they're studied: ${none}`);
 
   // Someone who'd passed chapter 3 before the drinks moved there gets them as a catch-up (not as chapter 4 words)…
-  const before = Object.fromEntries(Object.entries(fam).filter(([k]) => k !== "чај / сок / вода / кафе / пиво"));
-  assert.deepEqual(newWords(at(4, 1, before)), ["чај / сок / вода / кафе / пиво", "имам", "давам"], "the drinks come back as a catch-up");
-  assert.ok(agendaOf(at(4, 1, before)).some((b) => b.startsWith("Catch-up: 1 word") && b.includes("чај / сок / вода / кафе / пиво")), "and the agenda says so");
+  const before = Object.fromEntries(Object.entries(fam).filter(([k]) => k !== "сок / вода / пиво"));
+  assert.deepEqual(newWords(at(4, 1, before)), ["сок / вода / пиво", "имам", "давам"], "the drinks come back as a catch-up");
+  assert.ok(agendaOf(at(4, 1, before)).some((b) => b.startsWith("Catch-up: 1 word") && b.includes("сок / вода / пиво")), "and the agenda says so");
   // …unless they'd studied every drink on its own.
-  const each = Object.fromEntries(["чај", "сок", "вода", "кафе", "пиво"].map((k) => [k, familiarity.capture({ lexKey: k, kind: "word", display: k }, past)]));
+  const each = Object.fromEntries(["сок", "вода", "пиво"].map((k) => [k, familiarity.capture({ lexKey: k, kind: "word", display: k }, past)]));
   assert.deepEqual(newWords(at(4, 1, { ...before, ...each })), ["имам", "давам"], "drinks studied one by one aren't caught up");
 }
 console.log("today-plan.test.ts (studied words aren't new): all assertions passed ✓");

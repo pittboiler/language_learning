@@ -9,6 +9,7 @@ import { handNotes } from "./hand-notes.js";
 import { hints } from "./hints.js";
 import { breakdowns } from "./breakdowns.js";
 import { flashcardSplits } from "./flashcard-splits.js";
+import { retiredCards } from "./card-splits.js";
 import { conjugations } from "./conjugations.js";
 import { withPointFixes } from "./point-fixes.js";
 import { verbPatterns, verbs } from "./verbs/index.js";
@@ -88,7 +89,10 @@ export const macedonian: LanguagePack = {
   alphabet,
   phonology,
   grammar: mergeGrammar(grammar, stage1.promotedGrammar),
-  vocab: withCardExtras([...vocab, ...coreWords, ...level1Additions, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]),
+  // A card split into smaller ones (card-splits.ts) leaves the pack; its replacements are in additions.ts.
+  vocab: withCardExtras([...vocab, ...coreWords, ...level1Additions, ...promotedVocab, ...stage0.promotedVocab, ...stage1.promotedVocab, ...stage2.promotedVocab]
+    .filter((v) => !retiredCards[v.answer.trim()])),
+  retiredCards,
   // Plain-English briefs on the chapters' main conversations (their goal is the generator's brief).
   scenarios: [orderADrink, smallTalk, ...promotedScenarios, ...stage0.promotedScenarios, ...stage1.promotedScenarios, ...stage2.promotedScenarios, ...varietyConversations]
     .map((s) => (scenarioBriefs[s.id] && !s.brief ? { ...s, brief: scenarioBriefs[s.id] } : s)),

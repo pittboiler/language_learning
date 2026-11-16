@@ -644,6 +644,9 @@ export interface LanguagePack {
    *  and to the producing partner in a dyad drill. Keyed rather than inlined on items so captured
    *  words and partner turns, which only carry a lexKey, resolve to the same hint. Optional/additive. */
   hints?: Record<string, string>;
+  /** Cards the pack no longer has, each split into smaller cards: old answer → the answers that replace it.
+   *  The app moves a learner's progress on an old card onto its replacements. Optional/additive. */
+  retiredCards?: Record<string, string[]>;
   /** The course blueprint: grammar spine + per-chapter session plan. Optional/additive — without it the
    *  daily flow keeps its runtime planner. */
   course?: Course;

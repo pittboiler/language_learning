@@ -103,18 +103,22 @@ export const SPINE: SpineChapter[] = [
   {
     chapterId: "s0-survive",
     dropWords: ["десет", "таму", "еден", "два", "три", "пет"],
+    // 2026-11-16, cards of three at most (Jake: "this is a LOT for one card"): the numbers now take nine cards
+    // instead of six, so the chapter gets a third practice day rather than pushing words out of its lessons
+    // (its guided conversation says „Многу добро“, a writing line „Осумдесет и пет денари“).
+    extraSessions: 3,
     // The gender words together on day 1: one, this / that, and "this" for every gender.
-    // The drinks as one card on day 2 (2026-11-16, Jake: chapter 4 taught as new the drinks chapter 3 had used
-    // all week): the gender lesson's examples (еден сок, една вода, едно пиво) and day 2's story („Две пива,
-    // ве молам“) use them. добро (well), known since „Добро сум“, makes room and stays in the Library.
-    pinWords: { "еден / една / едно": 1, "ова / тоа": 1, "овој / оваа / овие": 1, "чај / сок / вода / кафе / пиво": 2 },
+    // The drinks on day 2 (2026-11-16, Jake: chapter 4 taught as new the drinks chapter 3 had used all week):
+    // the gender lesson's examples (еден сок, една вода, едно пиво) and day 2's story („Две пива, ве молам“) use
+    // them. Coffee and tea come in chapter 4. добро (well), known since „Добро сум“, stays in the Library.
+    pinWords: { "еден / една / едно": 1, "ова / тоа": 1, "овој / оваа / овие": 1, "сок / вода / пиво": 2 },
     points: [
       { id: "pt-gender", title: "Three genders: еден, една, едно", grammarIds: ["gender"], depth: "produce",
         scope: "Noun gender (masculine/feminine/neuter, usually visible from the ending) and words that agree with it: еден/една/едно, овој/оваа/ова.",
         words: ["еден / една / едно", "ова / тоа", "овој / оваа / овие"] },
       { id: "pt-numbers", title: "Counting things", grammarIds: ["numbers"], depth: "produce",
         scope: "Numbers (еден…десет, сто), два vs две, nouns after a number going plural (пет денари), and asking prices (Колку чини?).",
-        words: ["два, три, четири, пет", "шест, седум, осум, девет, десет", "денар / денари"] },
+        words: ["два, три, четири", "пет, шест, седум", "осум, девет, десет", "денар / денари"] },
     ],
   },
   {
@@ -124,9 +128,11 @@ export const SPINE: SpineChapter[] = [
     // on the “the” day, beside кафулето and келнерот. The rest stay where they were (pinned, or the planner would
     // pull them forward into the drinks' old places): day 2 is practice with nothing new.
     dropWords: ["Едно пиво, ве молам."],
-    pinWords: { "кафуле": 3, "келнер": 3, "сто, двесте, триста, четиристотини, петстотини": 3,
-      "шестотини, седумстотини, осумстотини, деветстотини, илјада": 5, "двесте и педесет денари": 5, "Би сакал / Би сакала …": 5,
-      "Што ќе сакате?": 6, "Повелете": 6, "Сметката, ве молам.": 6, "Наздравје!": 7, "педесет / сто / сто и педесет": 7 },
+    // 2026-11-16, cards of three at most: coffee and tea on day 2, before the story that orders them, with the
+    // first hundreds (day 2's story says сто and двесте); the other hundreds follow.
+    pinWords: { "кафе / чај": 2, "сто, двесте, триста": 2, "кафуле": 3, "келнер": 3, "четиристотини, петстотини": 3,
+      "шестотини, седумстотини, осумстотини": 5, "двесте и педесет денари": 5, "Би сакал / Би сакала …": 5,
+      "Што ќе сакате?": 6, "Повелете": 6, "Сметката, ве молам.": 6, "Наздравје!": 7, "педесет / сто / сто и педесет": 7, "деветстотини, илјада": 7 },
     points: [
       { id: "pt-verbs-a", title: "Verb endings: the -а verbs", grammarIds: ["verb-conjugation"], depth: "produce", heavy: true,
         scope: "Present-tense person endings of а-verbs: сакам, сакаш, сака, сакаме, сакате, сакаат (also имам, плаќам, зборувам). The -м ending means “I”.",
