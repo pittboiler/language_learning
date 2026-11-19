@@ -5,8 +5,13 @@ import speech from "@google-cloud/speech";
 import { getPack } from "../../../lib/packs";
 import { requireCaller } from "../../../lib/server-auth";
 import { recordCost, spend } from "../../../lib/usage";
+import { withDeadline } from "../../../lib/deadline";
 
 export const runtime = "nodejs";
+// Every engine has ENGINE_MS; the whole request can't outlive this (2026-11-19: with no limit, a stalled
+// provider kept "Listening back…" up for minutes).
+export const maxDuration = 30;
+const ENGINE_MS = 15_000;
 
 const SCRIBE_MODEL = process.env.SCRIBE_MODEL || "scribe_v2";
 
@@ -25,17 +30,18 @@ const hasEleven = () => {
 
 type EngineResult = { text?: string; language?: string | null; ms: number; ok: boolean; error?: string };
 
-async function timed(fn: () => Promise<{ text: string; language?: string | null }>): Promise<EngineResult> {
+/** One engine, given ENGINE_MS: a late one counts as failed, and the other engine's answer still goes back. */
+async function timed(name: string, fn: (signal: AbortSignal) => Promise<{ text: string; language?: string | null }>): Promise<EngineResult> {
   const t = Date.now();
   try {
-    const r = await fn();
+    const r = await withDeadline(ENGINE_MS, `${name} took longer than ${ENGINE_MS / 1000} s`, fn);
     return { ...r, ms: Date.now() - t, ok: true };
   } catch (e) {
     return { error: String(e instanceof Error ? e.message : e), ms: Date.now() - t, ok: false };
   }
 }
 
-async function transcribeEleven(buf: Buffer, mime: string, scribeLang: string): Promise<{ text: string; language?: string | null }> {
+async function transcribeEleven(buf: Buffer, mime: string, scribeLang: string, signal: AbortSignal): Promise<{ text: string; language?: string | null }> {
   const key = process.env.ELEVENLABS_API_KEY as string;
   const attempts = [
     { model: SCRIBE_MODEL, lang: scribeLang as string | null },
@@ -52,6 +58,7 @@ async function transcribeEleven(buf: Buffer, mime: string, scribeLang: string): 
       method: "POST",
       headers: { "xi-api-key": key },
       body: form,
+      signal, // one time limit across the retries, not one each
     });
     if (res.ok) {
       const d = (await res.json()) as { text?: string; language_code?: string };
@@ -75,7 +82,7 @@ async function transcribeGoogle(buf: Buffer, mime: string, googleLang: string): 
   const [resp] = await googleClient().recognize({
     config: { ...googleEncoding(mime), languageCode: googleLang, enableAutomaticPunctuation: true },
     audio: { content: buf.toString("base64") },
-  });
+  }, { timeout: ENGINE_MS, maxRetries: 0 });
   const text = (resp.results || [])
     .map((r) => r.alternatives?.[0]?.transcript || "")
     .join(" ")
@@ -99,12 +106,18 @@ export async function POST(req: Request) {
   const googleLang = pack.asr.languageHints[1] || "mk-MK";
   // Both engines at once: the wait is the slower one, not the two added up. (`timed` never throws.)
   const [eleven, google] = await Promise.all([
-    hasEleven() ? timed(() => transcribeEleven(buf, mime, scribeLang)) : undefined,
-    hasGoogle() ? timed(() => transcribeGoogle(buf, mime, googleLang)) : undefined,
+    hasEleven() ? timed("Scribe", (signal) => transcribeEleven(buf, mime, scribeLang, signal)) : undefined,
+    hasGoogle() ? timed("Google", () => transcribeGoogle(buf, mime, googleLang)) : undefined,
   ]);
-  const out: { eleven?: EngineResult; google?: EngineResult } = {};
+  const out: { eleven?: EngineResult; google?: EngineResult; error?: string } = {};
   if (eleven) out.eleven = eleven;
   if (google) out.google = google;
+  // Neither engine came back: say so, rather than coaching an empty transcript.
+  const ran = [eleven, google].filter((e): e is EngineResult => !!e);
+  if (ran.length && ran.every((e) => !e.ok)) {
+    console.warn(`[asr] no engine answered: ${ran.map((e) => e.error).join(" · ")}`);
+    out.error = "We couldn't hear that back just now. Tap the mic and try again.";
+  }
   recordCost(caller, "asr");
   return Response.json(out);
 }

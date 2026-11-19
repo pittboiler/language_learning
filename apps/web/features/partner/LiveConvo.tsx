@@ -147,6 +147,7 @@ export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessi
     setRecording(false);
     setBusy(true);
     setTip("");
+    setErr("");
     try {
       const blob = await rec.current.stop();
       const asr = await api.asr(blob, packId);
@@ -169,6 +170,9 @@ export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessi
           /* coaching is best-effort — the turn already advanced */
         }
       })();
+    } catch (e) {
+      // A speech check that failed or took too long: say so, so the learner can record the line again.
+      setErr(e instanceof Error ? e.message : "That didn't come through. Record the line again.");
     } finally {
       setBusy(false);
     }
@@ -220,6 +224,7 @@ export function LiveConvo({ store, partnershipId, packId, myId, partnerId, sessi
         </div>
       )}
       {tip && <div className="feedback fix" style={{ marginTop: 0 }}><span>On your last line: <MixedText text={tip} /></span></div>}
+      {err && <div className="err">{err}</div>}
       {done ? (
         <div className="result-ok"><Icon name="check" size={16} />Conversation complete: nicely done, both of you!</div>
       ) : myTurn ? (

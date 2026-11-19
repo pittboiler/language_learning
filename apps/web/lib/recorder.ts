@@ -36,9 +36,12 @@ export function makeRecorder(): Recorder {
     stop() {
       return new Promise<Blob>((resolve) => {
         const r = mr, s = stream;
-        const done = () => { off(s); resolve(new Blob(chunks, { type: "audio/webm" })); };
+        let settled = false;
+        const done = () => { if (settled) return; settled = true; off(s); resolve(new Blob(chunks, { type: "audio/webm" })); };
         if (!r || r.state === "inactive") return done();
         r.onstop = done;
+        // If the browser never says it stopped, go on after 3 s with what was recorded, rather than wait for ever.
+        setTimeout(done, 3000);
         r.stop();
       });
     },

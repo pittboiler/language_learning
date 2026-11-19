@@ -1,5 +1,6 @@
 // Typed client for the server API routes (which hold the provider keys).
 import { supabase, uid } from "./supabase";
+import { withDeadline } from "./deadline";
 
 // Every /api route checks the caller's Supabase session (lib/server-auth.ts), so each request carries it as a
 // bearer token. The first try makes the anonymous session when there's none yet (a first visit, as the stores
@@ -159,11 +160,27 @@ export interface AsrResponse {
   error?: string;
 }
 
+// How long the learner waits before we give up and say so (2026-11-19: with no limit, a stalled speech provider
+// left "Listening back…" up for minutes). A bit over the server's own limits (api/asr: 15 s an engine; feedback:
+// 30 s), so the server's answer, even a failure, normally arrives first.
+export const ASR_DEADLINE_MS = 25_000;
+export const FEEDBACK_DEADLINE_MS = 35_000;
+
+/** A JSON reply, or a plain message when the platform answered with something else (a timeout page). */
+async function jsonOr<T>(res: Response, message: string): Promise<T> {
+  try {
+    return (await res.json()) as T;
+  } catch {
+    throw new Error(message);
+  }
+}
+
 export async function asr(blob: Blob, packId?: string): Promise<AsrResponse> {
   const fd = new FormData();
   fd.append("audio", blob, "rec.webm");
   if (packId) fd.append("packId", packId);
-  return (await call("/api/asr", { method: "POST", body: fd })).json();
+  const late = "That took too long to hear back. Tap the mic and try again.";
+  return withDeadline(ASR_DEADLINE_MS, late, async (signal) => jsonOr<AsrResponse>(await call("/api/asr", { method: "POST", body: fd, signal }), late));
 }
 
 export interface FeedbackResponse {
@@ -187,13 +204,13 @@ export async function feedback(
   transcripts: { scribe?: string; google?: string },
   packId?: string,
 ): Promise<FeedbackResponse> {
-  return (
-    await call("/api/feedback", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ target, transcripts, packId }),
-    })
-  ).json();
+  const late = "The feedback took too long to come back. Try the line again.";
+  return withDeadline(FEEDBACK_DEADLINE_MS, late, async (signal) => jsonOr<FeedbackResponse>(await call("/api/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ target, transcripts, packId }),
+    signal,
+  }), late));
 }
 
 export interface ChatResponse {
