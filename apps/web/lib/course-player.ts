@@ -691,12 +691,12 @@ export function useItItems(course: Course, story: MiniStory, focus: string[], se
   // Build and say take only what's said aloud („Ана: „…“" → the quote), never the speaker's name.
   const said = (t: string) => spoken(t) ?? bareLine(t);
   const b = take(pick((l) => !!spoken(l.text) && words(said(l.text)) >= 2 && words(said(l.text)) <= 7) ?? pick((l) => words(l.text) >= 2 && words(l.text) <= 7));
-  if (b) out.push({ kind: "build", line: { text: said(b.text), gloss: spokenGloss(b.gloss), source: b.source } });
+  if (b) out.push({ kind: "build", line: { ...sayLine(b.text, b.gloss), source: b.source } });
 
   // 4. Say it: the shortest focus line not used yet.
   const sayable = [...lines].sort((x, y) => words(x.text) - words(y.text));
   const sy = sayable.find((l) => !used.has(l.source)) ?? sayable[0];
-  if (sy) out.push({ kind: "say", line: { text: said(sy.text), gloss: spokenGloss(sy.gloss), source: sy.source, translit: spoken(sy.text) && spoken(sy.text) !== bareLine(sy.text) ? undefined : sy.translit } });
+  if (sy) out.push({ kind: "say", line: { ...sayLine(sy.text, sy.gloss), source: sy.source, translit: spoken(sy.text) && spoken(sy.text) !== bareLine(sy.text) ? undefined : sy.translit } });
   return out;
 }
 
@@ -1041,11 +1041,23 @@ export function spoken(raw: string): string | undefined {
   if (quoted) return quoted[1]!.trim();
   return /[„“":]/.test(t) ? undefined : t;
 }
-/** A story line's English without its narration: the quoted words when there are any, no (asides). */
+/** A story line's English without its narration: the quoted words when there are any, no (asides). Only for a
+ *  line whose Macedonian is itself just the quote — use sayLine, which keeps the two in step. */
 export const spokenGloss = (gloss: string): string => {
   const q = /["“]([^"”]+)["”]/.exec(gloss)?.[1];
   return bareGloss((q ?? gloss).replace(/\s*\([^)]*\)\s*/g, " ")).trim();
 };
+/** A story line to say or build, with its English to match. A line that's one quoted utterance („Ана: „Здраво!“")
+ *  gives the quote in both languages (Здраво! / Hi!); a line of narration, or narration around a quote
+ *  („Десет денари“, вели продавачот.), gives the whole line in both, without quote marks. Never the Macedonian
+ *  of the whole line with the English of only the quote (Jake, 2026-11-19: "Десет денари, вели продавачот" shown
+ *  as "Ten denars,"). */
+export function sayLine(text: string, gloss: string): { text: string; gloss: string } {
+  const said = spoken(text);
+  const noAsides = (g: string) => g.replace(/\s*\([^)]*\)\s*/g, " ").replace(/\s+([,.!?])/g, "$1").trim();
+  if (said !== undefined && /[„“"]/.test(text)) return { text: said, gloss: spokenGloss(gloss) };
+  return { text: said ?? bareLine(text), gloss: noAsides(gloss.replace(/[„“”"]/g, "")) };
+}
 
 /** "Say it" in two more persons (personPair): one of the session's build sentences (taking turns) in those
  *  persons when it has a verb taught by now, else a line from the chapter's stories that uses them. `verbs`:
@@ -1061,7 +1073,7 @@ export function personSayLines(pack: LanguagePack, chapter: CourseChapter, s: Co
   // No verb sentence yet (chapters 1–3, сум): a short line from the chapter's stories read so far.
   const markers = personMarkers(pack);
   const read = new Set(chapter.sessions.filter((x) => x.n <= s.n && x.story).map((x) => x.story!.id));
-  const lines = [...read].flatMap((id) => pack.stories?.find((st) => st.id === id)?.body ?? []).filter((b) => singleUtterance(b.text)).map((b) => ({ text: spoken(b.text)!, gloss: spokenGloss(b.gloss) }));
+  const lines = [...read].flatMap((id) => pack.stories?.find((st) => st.id === id)?.body ?? []).filter((b) => singleUtterance(b.text)).map((b) => sayLine(b.text, b.gloss));
   return pair.flatMap((p) => {
     const hit = lines.filter((l) => wordTokens(l.text).some((t) => markers.get(t) === p) && l.text.split(" ").length <= 8).sort((a, b) => a.text.length - b.text.length)[0];
     return hit ? [{ ...hit, focus: hit.text.split(/\s+/).map((w) => w.replace(/[.,!?…]+$/, "")).filter((w) => markers.get(familiarity.normalize(w)) === p) }] : [];
@@ -1114,7 +1126,7 @@ export function switchPersonItem(pack: LanguagePack, story: MiniStory, verbs: Se
     // Where a pronoun would go if one is needed: only when the verb (with its не / ќе / object pronouns) opens
     // its clause — „Добро, одиме…“ yes, „Добро сме“ no (Добро се reads fine).
     const clauseStart = k === -1 || commaAfter(k) ? k + 1 : -1;
-    return [{ i, text, gloss: spokenGloss(b.gloss), words, v, subj, chain: clauseStart, lemma, person }];
+    return [{ i, text, gloss: sayLine(b.text, b.gloss).gloss, words, v, subj, chain: clauseStart, lemma, person }];
   });
   if (!candidates.length) return undefined;
   const c = candidates[seed % candidates.length]!;
@@ -1183,7 +1195,7 @@ export function checkpointPersons(pack: LanguagePack, chapter: CourseChapter, ve
     }
   }
   const markers = personMarkers(pack);
-  const lines = stories.flatMap((st) => st.body).filter((b) => singleUtterance(b.text)).map((b) => ({ text: spoken(b.text)!, gloss: spokenGloss(b.gloss) }));
+  const lines = stories.flatMap((st) => st.body).filter((b) => singleUtterance(b.text)).map((b) => sayLine(b.text, b.gloss));
   const say = PERSON_TURNS.filter((p) => !switches.some((x) => x.person === p)).flatMap((p) => {
     const hit = lines.filter((l) => wordTokens(l.text).some((t) => markers.get(t) === p) && l.text.split(" ").length <= 8).sort((a, b) => a.text.length - b.text.length)[0];
     return hit ? [{ ...hit, focus: hit.text.split(/\s+/).map((w) => w.replace(/[.,!?…]+$/, "")).filter((w) => markers.get(familiarity.normalize(w)) === p) }] : [];

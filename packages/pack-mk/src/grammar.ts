@@ -43,7 +43,7 @@ export const grammar: GrammarConcept[] = [
       drill("a-masc", "definite-articles", "the bread  (леб + “the”)", ["лебот", "лебта", "отлеб"], "лебот", "леб is masculine, so “the” is -от on the end.", "the bread"),
       drill("a-fem", "definite-articles", "the book  (книга + “the”)", ["книгата", "книгаот", "такнига"], "книгата", "книга is feminine, so “the” is -та on the end.", "the book"),
       drill("a-neut", "definite-articles", "the beer  (пиво + “the”)", ["пивото", "пивата", "топиво"], "пивото", "пиво is neuter, so “the” is -то on the end.", "the beer"),
-      drill("a-near", "definite-articles", "this book  (near you)", ["книгава", "книгата", "книгана"], "книгава", "-ва points at something near: “this”.", "this book (near)"),
+      drill("a-near", "definite-articles", "this book  (near me)", ["книгава", "книгата", "книгана"], "книгава", "-ва points at something near: “this”.", "this book (near)"),
       drill("a-far", "definite-articles", "that book  (over there)", ["книгана", "книгата", "книгава"], "книгана", "-на points at something far: “that”.", "that book (far)"),
     ],
   },
@@ -404,7 +404,7 @@ export const grammar: GrammarConcept[] = [
     confidence: "authored",
     drills: [
       drill("mod-eat", "da-modals", "“I want to eat” →", ["Сакам да јадам", "Сакам јадам", "Сакам да јаде"], "Сакам да јадам", "да + a verb that agrees: сакам…јадам.", "I want to eat"),
-      drill("mod-pay", "da-modals", "“Can I pay?” →", ["Можам да платам", "Можам платам", "Можам да плати"], "Можам да платам", "можам да + verb (both “I”).", "can I pay?"),
+      drill("mod-pay", "da-modals", "“I can pay” →", ["Можам да платам", "Можам платам", "Можам да плати"], "Можам да платам", "можам да + verb (both “I”).", "I can pay"),
       drill("mod-you", "da-modals", "“you want to study” →", ["Сакаш да учиш", "Сакаш да учам", "Сакаш учиш"], "Сакаш да учиш", "Both verbs take the “you” ending: сакаш…учиш.", "you want to study"),
       drill("mod-need", "da-modals", "“___ да учам” (I need to study)", ["треба", "сакаш", "мора"], "треба", "треба да + verb = “need to.”", "need to"),
     ],

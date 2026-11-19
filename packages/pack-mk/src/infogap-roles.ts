@@ -65,7 +65,7 @@ export const infoGapWhen: Record<string, Record<string, string>> = {
     "Извинете, каде е автобуската станица?": "To start: ask the way",
     "Дали е близу или далеку?": "Once you have the directions, to ask how far",
     "Кој автобус оди до центарот?": "To find out which bus to take",
-    "Одете право, потоа лево.": "When the visitor asks where the bus stop is",
+    "Одете право, потоа лево.": "When the visitor asks where the bus station is",
     "Близу е, не е далеку.": "If the visitor asks whether it's far",
     "Автобус број пет оди до центарот.": "If the visitor asks which bus to take",
   },

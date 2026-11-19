@@ -2158,21 +2158,21 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
   },
   {
     "id": "gen-s1-directions-gap",
-    "title": "Where is the bus stop?",
-    "goal": "Find the bus stop and agree how to get there — each of you knows only half.",
+    "title": "Where is the bus station?",
+    "goal": "Find the bus station and agree how to get there — each of you knows only half.",
     "setting": "A street in the city",
     "roleA": {
       "role": "A",
-      "brief": "You're a visitor. Ask where the bus stop is, understand the directions, and ask which bus to take.",
+      "brief": "You're a visitor. Ask where the bus station is, understand the directions, and ask which bus to take.",
       "secretInfo": [
-        "You are looking for the bus stop.",
+        "You are looking for the bus station.",
         "You don't know the way or which bus goes to the centre.",
         "You want to get to the city centre."
       ],
       "targetPhrases": [
         {
           "text": "Извинете, каде е автобуската станица?",
-          "gloss": "Excuse me, where is the bus stop?",
+          "gloss": "Excuse me, where is the bus station?",
           "translit": "Izvinete, kade e avtobuskata stanica?"
         },
         {
@@ -2189,9 +2189,9 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
     },
     "roleB": {
       "role": "B",
-      "brief": "You're a local. Tell the visitor the way to the bus stop and which bus to take.",
+      "brief": "You're a local. Tell the visitor the way to the bus station and which bus to take.",
       "secretInfo": [
-        "The bus stop is near — go straight, then left.",
+        "The bus station is near — go straight, then left.",
         "It is close, not far.",
         "Bus number 5 goes to the centre."
       ],
@@ -2216,7 +2216,7 @@ export const promotedInfoGapTasks: InfoGapTask[] = [
     "successCriteria": [
       {
         "id": "ask",
-        "description": "The visitor asked where the bus stop is."
+        "description": "The visitor asked where the bus station is."
       },
       {
         "id": "directions",

@@ -2376,7 +2376,7 @@ export const sentences: SentenceItem[] = [
       },
       {
         "person": "3sg",
-        "en": "After the market he/she drinks warm tea with his/her grandmother.",
+        "en": "After the market he drinks warm tea with his grandmother.",
         "mk": "По пазарот пие топол чај со неговата баба."
       },
       {
@@ -3295,7 +3295,7 @@ export const sentences: SentenceItem[] = [
       },
       {
         "person": "3sg",
-        "en": "He/She needs water.",
+        "en": "He needs water.",
         "mk": "Му треба вода."
       },
       {
@@ -3387,7 +3387,7 @@ export const sentences: SentenceItem[] = [
       },
       {
         "person": "3sg",
-        "en": "He/she needs money for the ticket now.",
+        "en": "He needs money for the ticket now.",
         "mk": "Му требаат пари за билетот сега."
       },
       {

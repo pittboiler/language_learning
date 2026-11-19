@@ -564,3 +564,18 @@ console.log("course-player.test.ts (guided): all assertions passed ✓");
   assert.deepEqual(cp.logEntry(pos, new Date(), new Date(), [], ["е"])!.drilled, ["е"]);
 }
 console.log("course-player.test.ts (recap): all assertions passed ✓");
+
+// A line to say keeps its English in step (Jake, 2026-11-19: „Десет денари“, вели продавачот. was shown as "Ten denars,").
+{
+  assert.deepEqual(cp.sayLine("„Десет денари“, вели продавачот.", "\"Ten denars,\" says the shopkeeper."), { text: "Десет денари, вели продавачот.", gloss: "Ten denars, says the shopkeeper." }, "narration around a quote: the whole line in both");
+  assert.deepEqual(cp.sayLine("Ана: „Здраво!“", "Ana: \"Hi!\""), { text: "Здраво!", gloss: "Hi!" }, "one person's line: the quote in both");
+  assert.deepEqual(cp.sayLine("„Колку чини?“", "\"How much is it?\""), { text: "Колку чини?", gloss: "How much is it?" });
+  assert.deepEqual(cp.sayLine("Ана пие кафе.", "Ana drinks coffee (black)."), { text: "Ана пие кафе.", gloss: "Ana drinks coffee." }, "plain narration, asides dropped");
+  // Every story line and grammar example: when the Macedonian keeps its narration, so does the English.
+  const lines = [...(macedonian.stories ?? []).flatMap((st) => st.body), ...macedonian.course!.points.flatMap((p) => p.examples ?? [])].filter((l) => l.gloss);
+  const cut = lines.map((l) => ({ l, s: cp.sayLine(l.text, l.gloss) }))
+    .filter(({ l, s }) => cp.spoken(l.text) === undefined && s.gloss.split(/\s+/).length < cp.bareGloss(l.gloss).replace(/["“”]/g, "").split(/\s+/).length)
+    .map(({ l, s }) => `${l.text} → ${s.gloss}`);
+  assert.deepEqual(cut, [], "English shorter than its Macedonian line");
+}
+console.log("course-player.test.ts (say a line): all assertions passed ✓");
