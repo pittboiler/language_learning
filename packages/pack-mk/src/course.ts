@@ -3698,6 +3698,8 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-repair-story#2",
             "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
@@ -3754,9 +3756,10 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v4",
             "phrase-gen-s0-repair-v5",
+            "phrase-gen-s0-repair-v3",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s0-repair-story-a#1"
           ],
           "agenda": [
             "3 new words: Побавно, ве молам, Уште еднаш, ве молам, Како се вели … на македонски?",
@@ -3809,11 +3812,12 @@ export const course: Course = {
             ]
           },
           "build": [
+            "phrase-gen-s0-repair-v4",
+            "phrase-gen-s0-repair-v5",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-repair-v4",
-            "phrase-gen-s0-repair-v5"
+            "line:story:gen-s0-repair-story#2"
           ],
           "speak": "gen-s0-repair",
           "agenda": [
@@ -3852,11 +3856,12 @@ export const course: Course = {
             ]
           },
           "build": [
+            "phrase-gen-s0-repair-v5",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3",
             "phrase-gen-s0-repair-v4",
-            "phrase-gen-s0-repair-v5"
+            "line:story:gen-s0-repair-story-a#1"
           ],
           "speak": "gen-s0-repair",
           "agenda": [
@@ -3908,7 +3913,8 @@ export const course: Course = {
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3",
             "phrase-gen-s0-repair-v4",
-            "phrase-gen-s0-repair-v5"
+            "phrase-gen-s0-repair-v5",
+            "line:story:gen-s0-repair-story-a#1"
           ],
           "speak": "gen-s0-repair",
           "agenda": [
@@ -3959,10 +3965,10 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-repair-v8",
             "phrase-gen-s0-repair-v10",
+            "line:story:gen-s0-repair-story#2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-repair-v4"
+            "phrase-gen-s0-repair-v3"
           ],
           "speak": "gen-s0-repair-convo-b",
           "writing": true,
@@ -4192,12 +4198,12 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-repair-v3",
+            "line:story:gen-s0-repair-story#3",
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-repair-story#2",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v4",
-            "phrase-gen-s0-repair-v5",
-            "phrase-gen-s0-repair-v8"
+            "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
             "3 new words: што, каде, Здраво",
@@ -4248,10 +4254,10 @@ export const course: Course = {
           "build": [
             "phrase-gen-s0-greet-v4",
             "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-repair-v5",
             "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-repair-story#2"
           ],
           "agenda": [
             "3 new words: Како си?, Како сте?, Добар ден",
@@ -4298,12 +4304,12 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-repair-v8",
+            "phrase-gen-s0-repair-v10",
             "phrase-gen-s0-greet-v4",
             "phrase-gen-s0-greet-v5",
             "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "line:story:gen-s0-repair-story#2"
           ],
           "agenda": [
             "3 new words: кој / кога / зошто, како, колку",
@@ -4355,11 +4361,11 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-greet-v4",
-            "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s0-greet-story#3",
+            "phrase-gen-s0-repair-v4",
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
             "3 new words: Добро сум, фала, Да, Не",
@@ -4411,11 +4417,11 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s0-greet-v8",
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-greet-v4",
+            "line:story:gen-s0-greet-story-b#6",
+            "phrase-gen-s0-repair-v5",
+            "line:story:gen-s0-repair-story-a#1",
             "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6"
+            "phrase-gen-s0-greet-v2"
           ],
           "speak": "gen-s0-greet",
           "agenda": [
@@ -4450,12 +4456,12 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-repair-v3",
+            "phrase-gen-s0-repair-v8",
+            "line:story:gen-s0-repair-story#2",
             "phrase-gen-s0-greet-v4",
-            "phrase-gen-s0-greet-v5",
+            "phrase-gen-s0-repair-v10",
             "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-greet-v8"
+            "phrase-gen-s0-greet-v6"
           ],
           "speak": "gen-s0-greet-convo-b",
           "agenda": [
@@ -4506,12 +4512,12 @@ export const course: Course = {
             ]
           },
           "build": [
+            "line:story:gen-s0-greet-story#3",
+            "phrase-gen-s0-repair-v1",
+            "line:story:gen-s0-repair-story#3",
+            "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-greet-v4",
-            "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-greet-v8"
+            "phrase-gen-s0-greet-v6"
           ],
           "speak": "gen-s0-greet",
           "agenda": [
@@ -4553,12 +4559,12 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-greet-v4",
+            "line:story:gen-s0-greet-story-b#6",
+            "phrase-gen-s0-repair-v5",
+            "line:story:gen-s0-repair-story-a#1",
+            "phrase-gen-s0-greet-v8",
             "phrase-gen-s0-greet-v5",
-            "phrase-gen-s0-greet-v2",
-            "phrase-gen-s0-greet-v6",
-            "phrase-gen-s0-greet-v8"
+            "phrase-gen-s0-greet-v4"
           ],
           "speak": "gen-s0-greet",
           "writing": true,
@@ -4874,12 +4880,12 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-repair-v4",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-repair-v5",
-            "phrase-gen-s0-repair-v8"
+            "phrase-gen-s0-repair-v8",
+            "line:story:gen-s0-repair-story#2",
+            "phrase-gen-s0-repair-v10",
+            "phrase-gen-s0-greet-v2",
+            "line:story:gen-s0-repair-story#3",
+            "line:story:gen-s0-repair-story-a#1"
           ],
           "agenda": [
             "3 new words: еден / една / едно, ова / тоа, овој / оваа / овие",
@@ -4929,12 +4935,12 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-nums-2",
-            "phrase-gen-s0-repair-v4",
+            "phrase-gen-s0-greet-v6",
+            "line:story:gen-s0-greet-story#3",
             "phrase-gen-s0-repair-v1",
             "phrase-gen-s0-repair-v9",
             "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-repair-v5"
+            "line:story:gen-s0-repair-story#3"
           ],
           "agenda": [
             "3 new words: сок / вода / пиво, два, три, четири, Сакам …",
@@ -4985,11 +4991,12 @@ export const course: Course = {
           },
           "build": [
             "phrase-v-kolku-chini",
-            "phrase-gen-s0-repair-v4",
-            "phrase-add-nums-2",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s0-survive-story#6",
+            "phrase-gen-s0-greet-v4",
+            "line:story:gen-s0-greet-story-b#6",
+            "phrase-gen-s0-greet-v5",
+            "phrase-gen-s0-greet-v8",
+            "phrase-gen-s0-repair-v5"
           ],
           "agenda": [
             "3 new words: Може ли …?, Каде е …?, Колку чини?",
@@ -5039,12 +5046,12 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-nums-5",
-            "phrase-add-nums-8",
-            "phrase-gen-s0-repair-v4",
-            "phrase-add-nums-2",
-            "phrase-v-kolku-chini",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s0-survive-story-b#5",
+            "phrase-gen-s0-repair-v10",
+            "line:story:gen-s0-repair-story#2",
+            "line:story:gen-s0-repair-story-a#1",
+            "phrase-gen-s0-greet-v2",
+            "phrase-gen-s0-repair-v8"
           ],
           "agenda": [
             "3 new words: Имате ли …?, пет, шест, седум, осум, девет, десет",
@@ -5095,12 +5102,12 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-teens-1",
-            "phrase-add-teens-2",
-            "phrase-gen-s0-repair-v4",
-            "phrase-add-nums-2",
-            "phrase-v-kolku-chini",
-            "phrase-add-nums-5"
+            "line:story:gen-s0-survive-story-b#2",
+            "phrase-gen-s0-greet-v6",
+            "line:story:gen-s0-greet-story#3",
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "speak": "gen-s0-survive",
           "agenda": [
@@ -5134,12 +5141,13 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-repair-v4",
-            "phrase-add-nums-2",
-            "phrase-v-kolku-chini",
-            "phrase-add-nums-5",
-            "phrase-add-nums-8",
-            "phrase-add-teens-1"
+            "line:story:gen-s0-survive-story#6",
+            "line:story:gen-s0-survive-story-a#4",
+            "phrase-gen-s0-greet-v5",
+            "line:story:gen-s0-greet-story-b#6",
+            "phrase-gen-s0-greet-v8",
+            "phrase-gen-s0-repair-v5",
+            "phrase-gen-s0-greet-v4"
           ],
           "speak": "gen-s0-survive-convo-b",
           "agenda": [
@@ -5188,12 +5196,13 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-teens-3",
-            "phrase-add-tens-a1",
-            "phrase-gen-s0-repair-v4",
-            "phrase-add-nums-2",
-            "phrase-v-kolku-chini",
-            "phrase-add-nums-5"
+            "line:story:gen-s0-survive-story-a#5",
+            "line:story:gen-s0-survive-story-b#5",
+            "phrase-gen-s0-greet-v2",
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-repair-story#2",
+            "phrase-gen-s0-repair-v8",
+            "phrase-gen-s0-repair-v10"
           ],
           "speak": "gen-s0-survive",
           "agenda": [
@@ -5248,12 +5257,13 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-add-tens-b",
             "phrase-add-25",
-            "phrase-gen-s0-repair-v4",
-            "phrase-add-nums-2",
-            "phrase-v-kolku-chini",
-            "phrase-add-nums-5"
+            "line:story:gen-s0-survive-story-b#2",
+            "phrase-gen-s0-greet-v6",
+            "line:story:gen-s0-greet-story#3",
+            "phrase-gen-s0-repair-v1",
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "speak": "gen-s0-survive",
           "writing": true,
@@ -5478,11 +5488,13 @@ export const course: Course = {
           },
           "build": [
             "sent-сака",
+            "phrase-gen-s0-greet-v8",
+            "line:story:gen-s0-greet-story-b#6",
+            "line:story:gen-s0-survive-story#6",
+            "line:story:gen-s0-survive-story-a#4",
             "phrase-gen-s0-repair-v5",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3",
-            "phrase-gen-s0-repair-v4"
+            "phrase-gen-s0-greet-v4",
+            "phrase-gen-s0-greet-v5"
           ],
           "agenda": [
             "2 new words: имам, давам",
@@ -5530,11 +5542,13 @@ export const course: Course = {
           },
           "build": [
             "sent-сака",
-            "phrase-add-hundreds-1",
-            "phrase-gen-s0-repair-v5",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s1-cafe-order-story-b#7",
+            "line:story:gen-s1-cafe-order-story-a#3",
+            "phrase-gen-s0-repair-v8",
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-survive-story-a#5",
+            "line:story:gen-s0-survive-story-b#5",
+            "line:scenario:gen-s0-survive-convo-b#8"
           ],
           "agenda": [
             "2 new words: кафе / чај, сто, двесте, триста",
@@ -5584,12 +5598,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-hundreds-4",
-            "phrase-gen-s0-repair-v5",
-            "sent-сака",
-            "phrase-add-hundreds-1",
+            "line:story:gen-s1-cafe-order-story#7",
+            "phrase-add-25",
+            "line:story:gen-s0-greet-story#3",
+            "line:story:gen-s0-survive-story-b#2",
+            "line:story:gen-s0-repair-story#2",
             "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "phrase-gen-s0-repair-v9",
+            "phrase-gen-s0-repair-v3"
           ],
           "agenda": [
             "3 new words: кафуле, келнер, четиристотини, петстотини",
@@ -5625,12 +5641,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
+            "phrase-v-kolku-chini",
+            "line:story:gen-s0-greet-story-b#6",
+            "line:story:gen-s0-survive-story#6",
             "phrase-gen-s0-repair-v5",
-            "sent-сака",
-            "phrase-add-hundreds-1",
-            "phrase-add-hundreds-4",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "phrase-gen-s0-repair-v10",
+            "phrase-gen-s0-greet-v4",
+            "phrase-gen-s0-greet-v5",
+            "phrase-gen-s0-greet-v2"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
@@ -5678,12 +5696,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-add-hundreds-6",
             "phrase-add-250",
-            "phrase-gen-s0-repair-v5",
+            "line:scenario:gen-s1-cafe-order#4",
+            "line:story:gen-s1-cafe-order-story-b#7",
+            "phrase-gen-s0-repair-v8",
             "sent-сака",
-            "phrase-add-hundreds-1",
-            "phrase-add-hundreds-4"
+            "line:story:gen-s0-survive-story-a#5",
+            "line:story:gen-s0-survive-story-b#5",
+            "line:story:gen-s1-cafe-order-story-a#3"
           ],
           "speak": "gen-s1-cafe-order",
           "agenda": [
@@ -5738,10 +5758,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s1-cafe-order-v7",
             "phrase-v-smetka",
-            "phrase-gen-s0-repair-v5",
-            "sent-сака",
-            "phrase-add-hundreds-1",
-            "phrase-add-hundreds-4"
+            "line:story:gen-s1-cafe-order-story#7",
+            "line:story:ana-coffee#0",
+            "phrase-gen-s0-repair-v1",
+            "line:story:gen-s0-survive-story-b#2",
+            "line:story:gen-s0-repair-story#2",
+            "line:story:gen-s0-repair-story-a#1"
           ],
           "speak": "gen-s1-cafe-order-convo-b",
           "agenda": [
@@ -5797,12 +5819,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-hundreds-9",
+            "phrase-gen-s0-repair-v9",
+            "line:story:gen-s0-greet-story#3",
+            "line:story:gen-s0-greet-story-b#6",
+            "line:story:gen-s0-survive-story#6",
+            "line:story:gen-s0-survive-story-a#4",
+            "phrase-gen-s0-repair-v3",
             "phrase-gen-s0-repair-v5",
-            "sent-сака",
-            "phrase-add-hundreds-1",
-            "phrase-add-hundreds-4",
-            "phrase-add-hundreds-6"
+            "phrase-gen-s0-repair-v10"
           ],
           "speak": "gen-s1-cafe-order",
           "writing": true,
@@ -6011,12 +6035,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-repair-v8",
+            "line:story:gen-s1-greet-intro-story-b#1",
+            "line:story:gen-s1-greet-intro-story-b#4",
+            "phrase-add-25",
             "sent-пие",
             "sent-работи",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s0-repair-story#0",
+            "line:story:gen-s0-repair-story-a#2",
+            "line:scenario:gen-s1-cafe-order#4"
           ],
           "agenda": [
             "3 new words: јадам, пијам, Јас сум …",
@@ -6069,11 +6095,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-introductions-v6",
-            "phrase-gen-s0-repair-v8",
-            "sent-пие",
-            "sent-работи",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "line:story:gen-s1-greet-intro-story-b#5",
+            "phrase-add-250",
+            "sent-сака",
+            "line:story:gen-s0-repair-story#2",
+            "line:story:gen-s0-repair-story#3",
+            "line:story:ana-coffee#0",
+            "line:story:ana-coffee#6"
           ],
           "agenda": [
             "3 new words: знам, одам, Мило ми е",
@@ -6117,10 +6145,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-introductions-v1",
             "phrase-gen-introductions-v2",
-            "phrase-gen-s0-repair-v8",
-            "sent-пие",
-            "sent-работи",
-            "phrase-gen-introductions-v6"
+            "phrase-gen-s1-cafe-order-v7",
+            "line:story:gen-s0-repair-story#5",
+            "line:story:gen-s0-repair-story-a#1",
+            "phrase-v-od-kade",
+            "line:story:gen-s0-repair-story-a#3",
+            "line:story:gen-s0-repair-story-b#0"
           ],
           "agenda": [
             "3 new words: Како се викаш?, Јас се викам, Од каде си?",
@@ -6173,11 +6203,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s1-greet-intro-v6",
-            "phrase-gen-s0-repair-v8",
+            "line:story:gen-s1-greet-intro-story-a#4",
+            "line:story:gen-s1-greet-intro-story-a#6",
+            "phrase-v-smetka",
             "sent-пие",
             "sent-работи",
-            "phrase-gen-introductions-v6",
-            "phrase-gen-introductions-v1"
+            "line:story:gen-s0-repair-story-a#0",
+            "line:story:gen-s0-repair-story-a#2"
           ],
           "agenda": [
             "3 new words: Од … сум, Што работиш?, работам",
@@ -6213,12 +6245,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-repair-v8",
-            "sent-пие",
-            "sent-работи",
+            "line:story:gen-s1-greet-intro-story-b#1",
+            "line:story:gen-s1-greet-intro-story-b#4",
+            "phrase-gen-s0-repair-v1",
+            "sent-сака",
+            "line:story:gen-s0-repair-story-b#6",
+            "line:story:gen-s0-greet-story#3",
             "phrase-gen-introductions-v6",
-            "phrase-gen-introductions-v1",
-            "phrase-gen-introductions-v2"
+            "line:story:ana-coffee#6"
           ],
           "speak": "gen-s1-greet-intro",
           "agenda": [
@@ -6272,10 +6306,12 @@ export const course: Course = {
           "build": [
             "phrase-v-ucam",
             "phrase-gen-s1-greet-intro-v8",
-            "phrase-gen-s0-repair-v8",
-            "sent-пие",
-            "sent-работи",
-            "phrase-gen-introductions-v6"
+            "line:story:gen-s1-greet-intro-story-b#5",
+            "line:story:gen-s1-greet-intro-story-b#6",
+            "phrase-gen-s0-repair-v9",
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-repair-story-a#3",
+            "phrase-gen-introductions-v1"
           ],
           "speak": "gen-s1-greet-intro-convo-b",
           "agenda": [
@@ -6327,11 +6363,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-introductions-v4",
-            "phrase-gen-s0-repair-v8",
+            "line:story:gen-s1-greet-intro-story-a#4",
+            "line:story:gen-s1-greet-intro-story-a#6",
+            "phrase-gen-s0-repair-v3",
             "sent-пие",
             "sent-работи",
-            "phrase-gen-introductions-v6",
-            "phrase-gen-introductions-v1"
+            "line:story:gen-s0-repair-story-a#2",
+            "line:story:gen-s0-repair-story-b#0"
           ],
           "speak": "gen-s1-greet-intro",
           "writing": true,
@@ -6544,10 +6582,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s1-market-v2",
             "phrase-gen-s1-market-v3",
-            "phrase-gen-s0-repair-v10",
-            "sent-пие",
-            "sent-работи",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s1-market-story#5",
+            "phrase-v-kolku-chini",
+            "sent-сака",
+            "line:scenario:gen-s1-greet-intro-convo-b#2",
+            "line:scenario:gen-s1-greet-intro-convo-b#4",
+            "line:scenario:gen-s1-greet-intro-convo-b#10"
           ],
           "agenda": [
             "3 new words: јаболка, едно кило, половина кило",
@@ -6595,12 +6635,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-repair-v10",
-            "sent-пие",
-            "sent-работи",
-            "phrase-gen-s1-market-v2",
-            "phrase-gen-s1-market-v3",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s1-market-story-b#1",
+            "phrase-add-25",
+            "line:story:gen-s0-repair-story#0",
+            "line:story:gen-s0-repair-story#2",
+            "line:story:gen-s0-repair-story#3",
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-repair-story-a#3",
+            "line:story:gen-s0-repair-story-b#6"
           ],
           "agenda": [
             "3 new words: евтин, скап, голем / мал",
@@ -6647,11 +6689,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s1-market-v4",
-            "phrase-gen-s0-repair-v10",
+            "line:story:gen-s1-market-story-b#7",
+            "phrase-add-250",
             "sent-пие",
             "sent-работи",
-            "phrase-gen-s1-market-v2",
-            "phrase-gen-s1-market-v3"
+            "line:story:gen-s0-repair-story#5",
+            "line:story:gen-s0-repair-story-a#2",
+            "line:story:gen-s1-greet-intro-story-a#6"
           ],
           "agenda": [
             "3 new words: нов / стар, добар, Колку чини килото?",
@@ -6696,11 +6740,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-add-gi-zemam",
-            "phrase-gen-s0-repair-v10",
+            "line:story:gen-s1-market-story#5",
+            "phrase-gen-s1-cafe-order-v7",
             "sent-јаде",
-            "sent-пие",
-            "phrase-gen-s1-market-v2",
-            "phrase-gen-s1-market-v3"
+            "sent-сака",
+            "line:story:gen-s0-repair-story-b#0",
+            "line:story:gen-s0-greet-story#3",
+            "phrase-gen-s1-market-v2"
           ],
           "agenda": [
             "3 new words: леб, млеко, Ги земам јаболката",
@@ -6729,12 +6775,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-repair-v10",
-            "sent-јаде",
-            "sent-пие",
-            "phrase-gen-s1-market-v2",
+            "line:story:gen-s1-market-story-b#1",
+            "phrase-v-smetka",
+            "line:story:gen-s0-repair-story#2",
+            "line:story:gen-s0-repair-story#3",
             "phrase-gen-s1-market-v3",
-            "phrase-gen-s1-market-v4"
+            "line:scenario:gen-s1-greet-intro-convo-b#4",
+            "line:scenario:gen-s1-greet-intro-convo-b#10",
+            "line:story:gen-s0-repair-story#0"
           ],
           "speak": "gen-s1-market",
           "agenda": [
@@ -6786,11 +6834,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s1-market-v10",
-            "phrase-gen-s0-repair-v10",
-            "sent-јаде",
+            "line:scenario:gen-s1-market#5",
+            "line:scenario:gen-s1-market#6",
+            "phrase-gen-introductions-v6",
+            "sent-работи",
             "sent-пие",
-            "phrase-gen-s1-market-v2",
-            "phrase-gen-s1-market-v3"
+            "line:story:gen-s0-repair-story#5",
+            "line:story:gen-s0-repair-story-a#1"
           ],
           "speak": "gen-s1-market-convo-b",
           "agenda": [
@@ -6826,12 +6876,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-repair-v10",
+            "line:story:gen-s1-market-story#5",
+            "line:story:gen-s1-market-story-b#7",
+            "phrase-gen-introductions-v1",
+            "sent-сака",
             "sent-јаде",
-            "sent-пие",
-            "phrase-gen-s1-market-v2",
-            "phrase-gen-s1-market-v3",
-            "phrase-gen-s1-market-v4"
+            "line:story:gen-s0-repair-story-a#2",
+            "line:story:gen-s0-repair-story-a#3",
+            "phrase-add-gi-zemam"
           ],
           "speak": "gen-s1-market",
           "writing": true,
@@ -7073,12 +7125,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v4",
-            "sent-јаде",
+            "phrase-add-250",
             "sent-оди-t2",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:scenario:gen-s1-market#3",
+            "line:story:gen-s1-market-story-a#1",
+            "line:story:gen-s1-market-story-a#3",
+            "line:story:gen-s1-market-story-a#7",
+            "line:story:gen-s1-market-story-a#8",
+            "line:scenario:gen-s1-market-convo-b#4"
           ],
           "agenda": [
             "3 new words: во, на, со / за / кај",
@@ -7125,11 +7179,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s1-directions-v11",
-            "phrase-gen-s0-greet-v4",
-            "sent-јаде",
-            "sent-оди-t2",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "phrase-gen-s1-cafe-order-v7",
+            "sent-пие",
+            "sent-работи",
+            "line:scenario:gen-s1-market#5",
+            "line:scenario:gen-s1-market#6",
+            "line:story:gen-s0-repair-story#0",
+            "line:story:gen-s0-repair-story#2"
           ],
           "agenda": [
             "3 new words: Свртете лево, лево, десно",
@@ -7174,12 +7230,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v4",
+            "phrase-v-smetka",
+            "sent-сака",
             "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s1-directions-v11",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "line:story:gen-s0-repair-story#3",
+            "line:story:gen-s0-repair-story#5",
+            "line:story:gen-s0-repair-story-a#1",
+            "line:story:gen-s0-repair-story-a#2",
+            "line:story:gen-s0-repair-story-a#3"
           ],
           "agenda": [
             "3 new words: право, близу / далеку, тука / таму",
@@ -7230,12 +7288,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v4",
-            "sent-јаде",
+            "line:story:gen-s1-directions-story-a#5",
+            "line:story:gen-s1-directions-story-a#1",
+            "phrase-gen-introductions-v6",
             "sent-оди",
-            "phrase-gen-s1-directions-v11",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "sent-оди-t2",
+            "line:story:gen-s1-market-story-a#1",
+            "line:story:gen-s1-market-story-a#3",
+            "line:story:gen-s1-market-story-b#1"
           ],
           "speak": "gen-s1-directions",
           "agenda": [
@@ -7272,12 +7332,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v4",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s1-directions-v11",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "line:story:gen-s1-directions-story-a#3",
+            "line:story:gen-s1-directions-story-a#4",
+            "phrase-gen-introductions-v1",
+            "sent-пие",
+            "sent-работи",
+            "line:story:gen-s1-market-story-a#7",
+            "line:story:gen-s1-market-story-a#8",
+            "phrase-gen-s1-directions-v11"
           ],
           "speak": "gen-s1-directions",
           "agenda": [
@@ -7333,12 +7395,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v4",
+            "line:story:gen-s1-directions-story-a#7",
+            "line:story:gen-s1-directions-story-b#3",
+            "phrase-gen-introductions-v2",
+            "sent-сака",
             "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s1-directions-v11",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "line:scenario:gen-s1-market-convo-b#2",
+            "line:scenario:gen-s1-market-convo-b#4",
+            "line:story:gen-s1-market-story-b#7"
           ],
           "speak": "gen-s1-directions",
           "agenda": [
@@ -7390,11 +7454,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s1-directions-v10",
-            "phrase-gen-s0-greet-v4",
-            "sent-јаде",
+            "line:story:gen-s1-directions-story-a#5",
+            "line:story:gen-s1-directions-story-a#1",
+            "phrase-v-od-kade",
+            "sent-оди-t2",
             "sent-оди",
-            "phrase-gen-s1-directions-v11",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s0-repair-story#0",
+            "line:story:gen-s0-repair-story#2"
           ],
           "speak": "gen-s1-directions-convo-b",
           "writing": true,
@@ -7619,10 +7685,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-smalltalk-v1",
             "phrase-gen-s2-smalltalk-v2",
-            "phrase-gen-s0-greet-v5",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s2-smalltalk-story-a#2",
+            "line:story:gen-s2-smalltalk-story-a#3",
+            "phrase-gen-s1-greet-intro-v6",
+            "sent-пие",
+            "sent-работи",
+            "line:scenario:gen-s1-greet-intro-convo-b#5"
           ],
           "agenda": [
             "3 new words: Ми се допаѓа, Не ми се допаѓа, Сакам да …",
@@ -7670,11 +7738,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s2-smalltalk-v5",
-            "phrase-gen-s0-greet-v5",
+            "line:story:gen-s2-smalltalk-story-a#8",
+            "phrase-v-ucam",
+            "sent-сака",
             "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s2-smalltalk-v1",
-            "phrase-gen-s2-smalltalk-v2"
+            "line:scenario:gen-s1-greet-intro-convo-b#10",
+            "line:story:gen-s1-market-story#0",
+            "line:scenario:gen-s1-greet-intro-convo-b#2"
           ],
           "agenda": [
             "3 new words: Мислам дека …, Се согласувам, убаво / грозно",
@@ -7723,10 +7793,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-pasttime-v7",
             "phrase-add-vi-se-dopagja",
-            "phrase-gen-s0-greet-v5",
-            "sent-јаде",
+            "line:story:gen-s2-smalltalk-story-b#6",
+            "line:story:gen-s2-smalltalk-story-b#1",
+            "phrase-gen-s1-greet-intro-v8",
             "sent-оди",
-            "phrase-gen-s2-smalltalk-v1"
+            "sent-оди-t2",
+            "line:story:gen-s1-market-story#5"
           ],
           "agenda": [
             "3 new words: Ќе …, Ќе се видиме, Ви се допаѓа ли?",
@@ -7774,11 +7846,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-add-im-se-dopagja",
-            "phrase-gen-s0-greet-v5",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s2-smalltalk-v1",
-            "phrase-gen-s2-smalltalk-v2"
+            "line:story:gen-s2-smalltalk-story-b#4",
+            "line:story:gen-s2-smalltalk-story-a#2",
+            "phrase-gen-introductions-v4",
+            "sent-треба",
+            "sent-пие",
+            "line:story:gen-s1-market-story#6",
+            "line:story:gen-s1-market-story#7"
           ],
           "agenda": [
             "3 new words: вчера / денес / утре, Им се допаѓа, ама / но / затоа",
@@ -7805,12 +7879,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v5",
+            "line:story:gen-s2-smalltalk-story-a#3",
+            "line:story:gen-s2-smalltalk-story-a#7",
+            "phrase-gen-s1-market-v2",
             "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s2-smalltalk-v1",
-            "phrase-gen-s2-smalltalk-v2",
-            "phrase-gen-s2-smalltalk-v5"
+            "sent-работи",
+            "line:story:gen-s1-market-story-b#0",
+            "line:story:gen-s1-market-story-b#1",
+            "phrase-gen-s2-smalltalk-v2"
           ],
           "speak": "gen-s2-smalltalk",
           "agenda": [
@@ -7858,11 +7934,13 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v5",
-            "sent-јаде",
+            "line:story:gen-s2-smalltalk-story-a#6",
+            "line:story:gen-s2-smalltalk-story-a#8",
+            "phrase-gen-s1-market-v3",
             "sent-оди",
-            "phrase-gen-s2-smalltalk-v1",
-            "phrase-gen-s2-smalltalk-v2",
+            "sent-оди-t2",
+            "line:story:gen-s1-market-story-b#4",
+            "line:story:gen-s1-market-story-b#6",
             "phrase-gen-s2-smalltalk-v5"
           ],
           "speak": "gen-s2-smalltalk-convo-b",
@@ -7895,12 +7973,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v5",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s2-smalltalk-v1",
-            "phrase-gen-s2-smalltalk-v2",
-            "phrase-gen-s2-smalltalk-v5"
+            "line:story:gen-s2-smalltalk-story-b#0",
+            "line:story:gen-s2-smalltalk-story-b#1",
+            "phrase-gen-s1-market-v4",
+            "sent-пие",
+            "sent-работи-t2",
+            "line:story:gen-s1-market-story-b#7",
+            "line:scenario:gen-s1-market#3",
+            "phrase-gen-s2-pasttime-v7"
           ],
           "speak": "gen-s2-smalltalk",
           "writing": true,
@@ -8103,12 +8183,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v2",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s2-pasttime-story-a#3",
+            "line:story:gen-s2-pasttime-story-a#7",
+            "phrase-v-od-kade",
+            "sent-работи",
+            "sent-сака",
+            "line:story:gen-s1-market-story-b#1",
+            "line:scenario:gen-s1-market#6",
+            "line:story:gen-s1-market-story#5"
           ],
           "agenda": [
             "3 new words: бев, имав, отидов",
@@ -8158,12 +8240,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-add-days-a1",
-            "phrase-add-days-a2",
-            "phrase-gen-s0-greet-v2",
+            "line:story:gen-s2-pasttime-story-a#0",
+            "line:story:gen-s2-pasttime-story-a#1",
+            "phrase-gen-s1-greet-intro-v6",
+            "sent-треба",
             "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s1-market-story-b#4",
+            "line:story:gen-s1-market-story-b#6",
+            "line:story:gen-s1-market-story#6"
           ],
           "agenda": [
             "3 new words: јадев, понеделник, вторник, среда, четврток",
@@ -8203,12 +8287,14 @@ export const course: Course = {
             "highlight": []
           },
           "build": [
-            "phrase-add-days-b",
             "phrase-add-vo-sabota",
-            "phrase-gen-s0-greet-v2",
-            "sent-јаде",
+            "line:story:gen-s2-pasttime-story-a#6",
+            "line:story:gen-s2-pasttime-story-a#8",
+            "phrase-v-ucam",
+            "sent-работи-t2",
             "sent-оди",
-            "phrase-add-days-a1"
+            "line:story:gen-s1-market-story-b#7",
+            "line:scenario:gen-s1-market#3"
           ],
           "agenda": [
             "3 new words: петок, сабота, недела, во сабота, бевме / бевте / беа",
@@ -8234,12 +8320,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v2",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-add-days-a1",
-            "phrase-add-days-a2",
-            "phrase-add-days-b"
+            "line:story:gen-s2-pasttime-story-a#3",
+            "line:story:gen-s2-pasttime-story-a#7",
+            "phrase-gen-s1-greet-intro-v8",
+            "sent-сака",
+            "sent-оди-t2",
+            "line:scenario:gen-s1-market#5",
+            "line:scenario:gen-s1-market#6",
+            "line:story:gen-s1-market-story#7"
           ],
           "speak": "gen-s2-pasttime",
           "agenda": [
@@ -8288,12 +8376,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v2",
+            "line:story:gen-s2-pasttime-story-b#2",
+            "line:story:gen-s2-pasttime-story-b#3",
+            "phrase-gen-introductions-v4",
+            "sent-треба",
             "sent-јаде",
-            "sent-оди",
-            "phrase-add-days-a1",
-            "phrase-add-days-a2",
-            "phrase-add-days-b"
+            "line:story:gen-s1-market-story-a#1",
+            "line:story:gen-s1-market-story-a#2",
+            "line:scenario:gen-s1-greet-intro-convo-b#5"
           ],
           "speak": "gen-s2-pasttime",
           "agenda": [
@@ -8334,11 +8424,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s2-pasttime-v8",
-            "phrase-gen-s0-greet-v2",
-            "sent-јаде",
+            "line:story:gen-s2-pasttime-story-b#4",
+            "line:story:gen-s2-pasttime-story-b#6",
+            "phrase-gen-s1-market-v2",
             "sent-оди",
-            "phrase-add-days-a1",
-            "phrase-add-days-a2"
+            "sent-пие",
+            "line:story:gen-s1-market-story-a#3",
+            "line:story:gen-s1-market-story-a#6"
           ],
           "speak": "gen-s2-pasttime-convo-b",
           "writing": true,
@@ -8569,12 +8661,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s2-home-family-story#0",
+            "phrase-gen-s1-market-v3",
+            "sent-оди-t2",
+            "sent-работи",
+            "line:scenario:gen-s1-market#6",
+            "line:story:gen-s1-market-story-a#7",
+            "line:scenario:gen-s1-market#5",
+            "line:story:gen-s1-market-story-a#8"
           ],
           "agenda": [
             "3 new words: мојот / мојата, мој, мајка / татко",
@@ -8616,12 +8710,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s2-home-family-story#2",
+            "line:story:gen-s2-home-family-story#4",
+            "phrase-add-gi-zemam",
+            "sent-работи-t2",
+            "sent-сака",
+            "line:story:gen-s1-market-story-a#1",
+            "line:story:gen-s1-market-story-a#2",
+            "line:story:gen-s1-market-story-b#6"
           ],
           "agenda": [
             "3 new words: брат / сестра, жена / маж, дете / деца",
@@ -8668,12 +8764,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
-            "sent-јаде",
-            "sent-оди",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s2-home-family-story-b#4",
+            "line:story:gen-s2-home-family-story-b#5",
+            "phrase-gen-s1-market-v10",
+            "sent-пие",
+            "sent-треба",
+            "line:story:gen-s1-market-story-a#3",
+            "line:story:gen-s1-market-story-a#6",
+            "line:story:gen-s1-market-story-b#0"
           ],
           "agenda": [
             "3 new words: твој, негов / нејзин, наш / ваш / нивен",
@@ -8718,12 +8816,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
+            "line:story:gen-s2-home-family-story#6",
+            "line:story:gen-s2-home-family-story-a#0",
+            "phrase-gen-s1-market-v4",
+            "sent-работи",
             "sent-живее",
-            "sent-јаде",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s1-market-story-a#7",
+            "line:story:gen-s1-market-story-a#8",
+            "line:scenario:gen-s1-greet-intro-convo-b#5"
           ],
           "agenda": [
             "3 new words: Живеам во …, Работам како …, пријател / пријателка",
@@ -8751,12 +8851,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
-            "sent-живее",
-            "sent-јаде",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9",
-            "phrase-gen-s0-repair-v3"
+            "line:story:gen-s2-home-family-story-a#2",
+            "line:story:gen-s2-home-family-story-a#3",
+            "phrase-add-gi-zemam",
+            "sent-работи-t2",
+            "sent-сака",
+            "line:scenario:gen-s1-market-convo-b#4",
+            "line:story:gen-s1-directions-story#0",
+            "line:scenario:gen-s1-greet-intro-convo-b#10"
           ],
           "speak": "gen-s2-home-family",
           "agenda": [
@@ -8802,10 +8904,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-home-family-v7",
             "phrase-gen-s2-home-family-v8",
-            "phrase-gen-s0-greet-v6",
-            "sent-живее",
+            "line:story:gen-s2-home-family-story-b#6",
+            "line:story:gen-s2-home-family-story-b#7",
+            "phrase-gen-s1-market-v10",
+            "sent-треба",
             "sent-јаде",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s1-directions-story#4"
           ],
           "speak": "gen-s2-home-family-convo-b",
           "agenda": [
@@ -8840,12 +8944,14 @@ export const course: Course = {
             ]
           },
           "build": [
-            "phrase-gen-s0-greet-v6",
+            "line:story:gen-s2-home-family-story#1",
+            "line:story:gen-s2-home-family-story#4",
+            "phrase-gen-s1-directions-v11",
             "sent-е-t3",
             "sent-живее",
-            "phrase-gen-s2-home-family-v7",
-            "phrase-gen-s2-home-family-v8",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s1-market-story-a#8",
+            "line:scenario:gen-s1-market-convo-b#2",
+            "line:story:gen-s1-greet-intro-story-a#6"
           ],
           "speak": "gen-s2-home-family",
           "writing": true,
@@ -9000,11 +9106,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s2-arrange-v4",
-            "phrase-gen-s0-greet-v8",
-            "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s0-repair-v1",
-            "phrase-gen-s0-repair-v9"
+            "line:story:gen-s2-arrange-story-a#6",
+            "line:story:gen-s2-arrange-story-a#5",
+            "phrase-gen-s1-directions-v10",
+            "sent-оди",
+            "sent-оди-t2",
+            "line:story:gen-s1-market-story-a#7",
+            "line:scenario:gen-s1-market-convo-b#4"
           ],
           "agenda": [
             "3 new words: Ало?, Дома ли е …?, Во колку часот?",
@@ -9048,11 +9156,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s2-arrange-v5",
-            "phrase-gen-s0-greet-v8",
-            "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s2-arrange-v4",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s2-arrange-story#3",
+            "line:story:gen-s2-arrange-story#6",
+            "phrase-gen-s2-smalltalk-v1",
+            "sent-јаде",
+            "sent-пие",
+            "line:story:gen-s1-directions-story#0",
+            "line:story:gen-s1-directions-story#4"
           ],
           "agenda": [
             "3 new words: Каде да се видиме?, Ајде да …, Важи. / Договорено",
@@ -9079,12 +9189,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-gen-s0-greet-v8",
-            "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s2-arrange-v4",
-            "phrase-gen-s2-arrange-v5",
-            "phrase-gen-s0-repair-v1"
+            "phrase-gen-s2-smalltalk-v2",
+            "sent-работи",
+            "sent-работи-t2",
+            "line:scenario:gen-s1-market-convo-b#2",
+            "line:story:gen-s1-directions-story#5",
+            "line:story:gen-s1-market-story-a#3",
+            "line:story:gen-s1-market-story-a#6",
+            "line:story:gen-s1-market-story-a#8"
           ],
           "speak": "gen-s2-arrange",
           "agenda": [
@@ -9132,10 +9244,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-arrange-v8",
             "phrase-gen-phone-v4",
-            "phrase-gen-s0-greet-v8",
-            "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s2-arrange-v4"
+            "line:scenario:gen-s2-arrange#5",
+            "line:story:gen-s2-arrange-story-b#3",
+            "phrase-gen-s2-smalltalk-v5",
+            "sent-оди-t2",
+            "sent-сака",
+            "line:scenario:gen-s1-market-convo-b#4"
           ],
           "speak": "gen-s2-arrange-convo-b",
           "agenda": [
@@ -9172,11 +9286,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-phone-v5",
-            "phrase-gen-s0-greet-v8",
-            "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s2-arrange-v4",
-            "phrase-gen-s2-arrange-v5"
+            "line:story:gen-s2-arrange-story#6",
+            "line:story:gen-s2-arrange-story-b#4",
+            "phrase-gen-s2-pasttime-v7",
+            "sent-пие",
+            "sent-треба",
+            "line:story:gen-s1-directions-story#0",
+            "line:story:gen-s1-directions-story#4"
           ],
           "speak": "gen-s2-arrange",
           "writing": true,
@@ -9351,10 +9467,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-problems-v1",
             "phrase-gen-s2-problems-v2",
-            "phrase-add-nums-2",
-            "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s0-repair-v1"
+            "line:story:gen-s2-problems-story-a#1",
+            "line:story:gen-s2-problems-story-a#3",
+            "phrase-gen-s1-market-v10",
+            "sent-работи",
+            "sent-работи-t2",
+            "line:story:gen-s1-directions-story#5"
           ],
           "agenda": [
             "3 new words: Има проблем, Не работи, Ова не е …",
@@ -9396,10 +9514,12 @@ export const course: Course = {
           "build": [
             "phrase-gen-s2-problems-v4",
             "phrase-gen-s2-problems-v6",
-            "phrase-add-nums-2",
+            "line:story:gen-s2-problems-story#2",
+            "line:story:gen-s2-problems-story#4",
+            "phrase-gen-s1-directions-v11",
+            "sent-сака",
             "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s2-problems-v1"
+            "line:story:gen-s1-directions-story-b#0"
           ],
           "agenda": [
             "3 new words: Можете ли да помогнете?, погрешно, Сакам да вратам",
@@ -9425,12 +9545,14 @@ export const course: Course = {
             "reuse": true
           },
           "build": [
-            "phrase-add-nums-2",
-            "sent-е-t3",
+            "line:story:gen-s2-problems-story#6",
+            "line:story:gen-s2-problems-story-a#0",
+            "phrase-gen-s1-directions-v10",
+            "sent-треба",
             "sent-живее",
-            "phrase-gen-s2-problems-v1",
-            "phrase-gen-s2-problems-v2",
-            "phrase-gen-s2-problems-v4"
+            "line:story:gen-s1-directions-story-b#1",
+            "line:story:gen-s1-directions-story-b#3",
+            "line:story:gen-s1-market-story-a#3"
           ],
           "speak": "gen-s2-problems",
           "agenda": [
@@ -9475,10 +9597,12 @@ export const course: Course = {
           "build": [
             "phrase-add-mi-treba",
             "phrase-add-me-boli",
-            "phrase-add-nums-2",
-            "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s2-problems-v1"
+            "line:story:gen-s2-problems-story-a#3",
+            "line:story:gen-s2-problems-story#0",
+            "phrase-gen-s2-smalltalk-v1",
+            "sent-јаде",
+            "sent-оди",
+            "line:story:gen-s1-directions-story-b#7"
           ],
           "speak": "gen-s2-problems-convo-b",
           "agenda": [
@@ -9514,11 +9638,13 @@ export const course: Course = {
           },
           "build": [
             "phrase-gen-s2-problems-v8",
-            "phrase-add-nums-2",
+            "line:story:gen-s2-problems-story-b#0",
+            "line:story:gen-s2-problems-story-b#1",
+            "phrase-gen-s2-smalltalk-v2",
             "sent-е-t3",
-            "sent-живее",
-            "phrase-gen-s2-problems-v1",
-            "phrase-gen-s2-problems-v2"
+            "sent-оди-t2",
+            "line:story:gen-s1-directions-story-a#0",
+            "line:story:gen-s1-directions-story-a#1"
           ],
           "speak": "gen-s2-problems",
           "writing": true,

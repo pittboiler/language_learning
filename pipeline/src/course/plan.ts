@@ -10,13 +10,17 @@ import { requiredChapter, tierCapForChapter } from "@ll/core/sentences";
 import { SPINE, STAGE_REVIEW_AFTER, spinePoints, type SpinePoint } from "./spine.js";
 import { tokens } from "./lines.js";
 import { knownInSet, properNames } from "./known.js";
-import { knownForms, wordTokens } from "../../../apps/web/lib/course-player.js";
+import { knownForms, lineCard, singleUtterance, wordTokens } from "../../../apps/web/lib/course-player.js";
 
 /** Hard cap on new words per session — Jake's pacing (lib/daily.ts NEW_WORDS_PER_SESSION). */
 export const WORDS_PER_SESSION = 3;
 /** Most extra practice sessions a chapter gets automatically for word load (DESIGN §4: "a day or two"). */
 const MAX_AUTO_EXTRA = 2;
-const BUILD_CANDIDATES = 6;
+const BUILD_CANDIDATES = 8;
+/** Cards the builder shows in a session (features/build/SentenceBuilder.tsx SESSION_TIERS). */
+const BUILD_SHOWN = 6;
+/** A build item used in either of the last this-many sessions waits while there's anything else to build. */
+const BUILD_GAP = 2;
 /** Most set-phrase notes a session surfaces for the first time (DESIGN §3: spread them out). */
 export const NOTES_PER_SESSION = 3;
 /** Most times a chapter reads the same story while it has anything else to read (DESIGN-story-variety §2a). */
@@ -74,6 +78,14 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
   const reusedAt = new Map<string, number>(); // story id → chapter order it was last brought back in
   const lensAt = new Map<string, number>(); // point id → when it was last the lens of a refresher
   let refresherCount = 0;
+  // Build a sentence (Jake, 2026-11-19: "instead of putting together I don't know / I don't understand for the
+  // third day in a row, let's find other sentences"): the lines read so far are build material too, and what
+  // the last BUILD_GAP sessions built waits its turn.
+  const linesRead: { id: string; order: number }[] = [];
+  const addLines = (kind: "story" | "scenario", id: string, texts: string[], order: number) =>
+    texts.forEach((_, n) => { const lid = `line:${kind}:${id}#${n}`; if (!linesRead.some((l) => l.id === lid)) linesRead.push({ id: lid, order }); });
+  const recentBuilds: string[][] = [];
+  let buildDay = 0;
   const chapters: CourseChapter[] = [];
 
   for (const spineCh of SPINE) {
@@ -261,10 +273,15 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
         if (sayable || speakCount === 0) speakCount++;
       }
 
+      // Today's story is read before the build; a conversation counts from the session after it's spoken.
+      const storyRead = story ? pack.stories?.find((x) => x.id === story!.id) : undefined;
+      if (storyRead) addLines("story", storyRead.id, storyRead.body.map((b) => b.text), order);
       const build = slot.role === "checkpoint" ? [] : buildCandidates(pack, {
         order, taughtUpTo, pointsSoFar, current: slot.point?.id, conceptPoints, words: sessionWords[i]!,
         chapterWords: taught, earlierWords: [...taughtBefore.values()], known: knownNow, lineTags,
+        lines: linesRead, recent: new Set(recentBuilds.slice(-BUILD_GAP).flat()), day: buildDay++,
       });
+      if (slot.role !== "checkpoint") recentBuilds.push(build.map((id) => buildText(pack, id)));
 
       sessions.push({
         n: i + 1,
@@ -278,6 +295,8 @@ export function planCourse({ pack, points, lineTags, chunkNotes = [] }: PlanInpu
         agenda: [],
         next: "",
       });
+      const spoken = speak ? pack.scenarios.find((x) => x.id === speak) : undefined;
+      if (spoken) addLines("scenario", spoken.id, spoken.script.map((t) => t.text), order);
     });
 
     chapters.push({
@@ -452,10 +471,18 @@ function buildCandidates(pack: LanguagePack, o: {
   /** Is this word form taught by now? Every word of every person's version must be. */
   known: (token: string) => boolean;
   lineTags: Record<string, string[]>;
+  /** Story and conversation lines read by now (`line:` ids), oldest first. */
+  lines: { id: string; order: number }[];
+  /** What the last sessions built (buildText): used again only when there's nothing else. */
+  recent: Set<string>;
+  /** A running count of build sessions, to turn the lists so each day starts somewhere new. */
+  day: number;
 }): string[] {
   const vocabId = (w: CourseWord) => pack.vocab.find((v) => deriveKeyForItem(v).lexKey === w.lexKey)?.id;
-  // A word family ("тука / таму") is several words on one card, not a sentence to put back together.
-  const phrase = (w: CourseWord) => { const n = w.display.split(/\s+/).length; return n >= 2 && n <= 5 && !w.display.includes("…") && !isFamily(w.display) ? vocabId(w) : undefined; };
+  // A word family ("тука / таму") is several words on one card, not a sentence to put back together; nor is a
+  // list of numbers or days ("сто, двесте, триста").
+  const list = (t: string) => /,/.test(t) && !/[.!?…]/.test(t) && t.split(/\s*,\s*/).every((x) => !!x && !/\s/.test(x));
+  const phrase = (w: CourseWord) => { const n = w.display.split(/\s+/).length; return n >= 2 && n <= 5 && !w.display.includes("…") && !isFamily(w.display) && !list(w.display) ? vocabId(w) : undefined; };
   const today = o.words.map(phrase).filter((x): x is string => !!x).map((id) => `phrase-${id}`);
   const chapter = o.chapterWords.filter((w) => o.taughtUpTo.has(w.lexKey)).map(phrase).filter((x): x is string => !!x).map((id) => `phrase-${id}`);
   const earlier = o.earlierWords.map(phrase).filter((x): x is string => !!x).map((id) => `phrase-${id}`);
@@ -474,15 +501,51 @@ function buildCandidates(pack: LanguagePack, o: {
   const onPoint = sentences.filter((it) => o.current && it.conceptIds.some((c) => o.conceptPoints(c).includes(o.current!))).map((it) => it.id);
   const otherSentences = sentences.map((it) => it.id).filter((id) => !onPoint.includes(id));
 
+  // Lines read so far: one sentence, short enough for the chapter's rung, every word taught. This chapter's first.
+  const lineIds = o.lines.filter((l) => {
+    const card = lineCard(pack, l.id);
+    const raw = card?.variants[0]?.mk;
+    if (!card || !raw || (card.tier ?? 1) > cap || raw.split(/\s+/).length < 2) return false;
+    const src = l.id.slice("line:".length).split(":");
+    const line = src[0] === "story" ? pack.stories?.find((st) => st.id === src[1]!.split("#")[0])?.body[+src[1]!.split("#")[1]!]?.text
+      : pack.scenarios.find((sc) => sc.id === src[1]!.split("#")[0])?.script[+src[1]!.split("#")[1]!]?.text;
+    return !!line && singleUtterance(line) && wordTokens(raw).every(o.known);
+  });
+  const ownLines = lineIds.filter((l) => l.order === o.order).map((l) => l.id);
+  const olderLines = lineIds.filter((l) => l.order < o.order).map((l) => l.id);
+
+  // Each list turns by the day, and what the last sessions built goes to the back: something new to build daily.
+  const text = (id: string) => buildText(pack, id);
+  const fresh = (ids: string[]) => { const r = rotate(ids, o.day); return [...r.filter((id) => !o.recent.has(text(id))), ...r.filter((id) => o.recent.has(text(id)))]; };
   const out: string[] = [];
-  const push = (ids: string[], n: number) => { for (const id of ids) { if (out.length >= BUILD_CANDIDATES || n <= 0) break; if (!out.includes(id)) { out.push(id); n--; } } };
-  push(onPoint, 2);
-  push(today, 2);
-  push(rotate(earlier, o.order), 1); // ≥1 from an earlier chapter
-  push(otherSentences, 2);
-  push(chapter, BUILD_CANDIDATES);
-  push(earlier, BUILD_CANDIDATES);
+  const push = (ids: string[], n: number, skipRecent = true) => {
+    for (const id of ids) {
+      if (out.length >= BUILD_CANDIDATES || n <= 0) break;
+      if (out.some((x) => text(x) === text(id)) || (skipRecent && o.recent.has(text(id)))) continue;
+      out.push(id); n--;
+    }
+  };
+  push(fresh(onPoint), 2, false); // today's grammar, even if it came up yesterday
+  push(today, 2, false); // today's new phrases
+  push(fresh(ownLines), 2);
+  push(fresh(earlier), 1); // ≥1 from an earlier chapter
+  push(fresh(otherSentences), 2);
+  push(fresh(olderLines), 2);
+  push(fresh(chapter), BUILD_CANDIDATES);
+  push(fresh([...ownLines, ...olderLines]), BUILD_CANDIDATES);
+  push(fresh(earlier), BUILD_CANDIDATES);
+  // Still short of a day's cards (an early chapter with little to build): recent things, rather than a thin step.
+  push([...fresh(onPoint), ...today, ...fresh(otherSentences), ...fresh(chapter), ...fresh([...ownLines, ...olderLines]), ...fresh(earlier)], BUILD_SHOWN - out.length, false);
   return out;
+}
+
+/** What a build item makes, to compare items by their words: a phrase card and a story line saying „Колку
+ *  чини?“ are the same thing to build. A verb item (one per person) keeps its id. */
+function buildText(pack: LanguagePack, id: string): string {
+  const it = pack.sentences?.find((x) => x.id === id);
+  if (it?.verbLemma) return id;
+  const raw = it?.variants[0]?.mk ?? (id.startsWith("phrase-") ? pack.vocab.find((v) => v.id === id.slice("phrase-".length))?.answer : lineCard(pack, id)?.variants[0]?.mk) ?? id;
+  return normalize(raw.replace(/[.,!?…„“"]/g, " "));
 }
 
 const rotate = <T,>(a: T[], n: number): T[] => (a.length ? a.map((_, i) => a[(i + n) % a.length]!) : a);

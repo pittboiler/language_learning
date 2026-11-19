@@ -234,8 +234,10 @@ export function SentenceBuilder({ progress, persist, onDone, preferIds, chapterO
     if (!preferIds?.length) return r;
     // Phrase cards are built on demand by id; sentence items come from the pack. Keep the blueprint's order.
     const phrases = sentenceScope.phraseCards(pack, { chapterOrder, hasMet: (k) => !!progress.familiarity[k] }, 200);
-    const pool = new Map([...r.items, ...phrases, ...(pack.sentences ?? [])].map((it) => [it.id, it]));
-    const inScope = new Set([...r.items.map((it) => it.id), ...phrases.map((it) => it.id)]);
+    // Lines from stories and conversations already read (the planner checked every word is taught).
+    const lines = preferIds.filter((id) => id.startsWith(cp.LINE_BUILD)).map((id) => cp.lineCard(pack, id)).filter((it): it is SentenceItem => !!it);
+    const pool = new Map([...r.items, ...phrases, ...lines, ...(pack.sentences ?? [])].map((it) => [it.id, it]));
+    const inScope = new Set([...r.items.map((it) => it.id), ...phrases.map((it) => it.id), ...lines.map((it) => it.id)]);
     const preferred = preferIds.filter((id) => inScope.has(id)).map((id) => pool.get(id)!).filter(Boolean);
     return preferred.length ? { ...r, items: preferred, usedFallback: false } : r;
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1059,6 +1059,21 @@ export function sayLine(text: string, gloss: string): { text: string; gloss: str
   return { text: said ?? bareLine(text), gloss: noAsides(gloss.replace(/[„“”"]/g, "")) };
 }
 
+/** Build a sentence from a line the learner has read: `line:story:<id>#<i>` or `line:scenario:<id>#<i>` (Jake,
+ *  2026-11-19: chapter 4 had „Не знам“ / „Не разбирам“ to build day after day, from six phrase cards). The planner
+ *  picks only one-sentence lines whose every word is taught (course/plan.ts buildCandidates). */
+export const LINE_BUILD = "line:";
+export function lineCard(pack: LanguagePack, id: string): SentenceItem | undefined {
+  const m = /^line:(story|scenario):(.+)#(\d+)$/.exec(id);
+  if (!m) return undefined;
+  const [, kind, sid, n] = m as unknown as [string, "story" | "scenario", string, string];
+  const raw = kind === "story" ? pack.stories?.find((st) => st.id === sid)?.body[+n] : pack.scenarios.find((sc) => sc.id === sid)?.script[+n];
+  if (!raw?.gloss) return undefined;
+  const { text, gloss } = sayLine(raw.text, raw.gloss);
+  const words = text.split(/\s+/).length;
+  return { id, conceptIds: [], supportWords: [], variants: [{ mk: text, en: gloss }], tier: words <= 3 ? 1 : words <= 4 ? 2 : words <= 6 ? 3 : 4 };
+}
+
 /** "Say it" in two more persons (personPair): one of the session's build sentences (taking turns) in those
  *  persons when it has a verb taught by now, else a line from the chapter's stories that uses them. `verbs`:
  *  the lemmas taught by now. */

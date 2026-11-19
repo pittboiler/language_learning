@@ -427,7 +427,8 @@ export function lintCourseSessions(pack: LanguagePack): SessionLintIssue[] {
       for (const id of s.build) {
         const item = pack.sentences?.find((x) => x.id === id);
         const phrase = id.startsWith("phrase-") ? pack.vocab.find((v) => v.id === id.slice("phrase-".length)) : undefined;
-        const text = item ? item.variants.map((v) => v.mk).join(" ") : phrase?.answer;
+        const line = id.startsWith(cp.LINE_BUILD) ? cp.lineCard(pack, id) : undefined;
+        const text = item ? item.variants.map((v) => v.mk).join(" ") : phrase?.answer ?? line?.variants[0]?.mk;
         if (!text) { add("error", "build-untaught", where, `${id} doesn't exist`); continue; }
         const bad = unknownWords(text, at);
         if (bad.length) add("error", "build-untaught", where, `${id} uses ${bad.join(", ")} before they're taught`);
