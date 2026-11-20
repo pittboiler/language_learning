@@ -115,7 +115,7 @@ export function ChapterCheckpoint({ chapter, items, verbs = [], persons, onMissT
         <Tag>Checkpoint · chapter {chapter.order}{parts > 1 ? " · part 1 of 2: the cards" : ""}</Tag>
         <p className="lead" style={{ marginTop: 0 }}>
           {words - earlier} words from <b>{chapter.shortTitle}</b>{earlier ? `, ${earlier} from earlier chapters` : ""}{gram ? `, ${gram} grammar card${gram > 1 ? "s" : ""}` : ""}{verbs.length ? `, ${verbs.length} verb pattern question${verbs.length > 1 ? "s" : ""}` : ""}{switches.length ? `, then ${switches.length} person swap${switches.length > 1 ? "s" : ""}` : ""}{sayLines.length ? ` and ${sayLines.length} line${sayLines.length > 1 ? "s" : ""} to say` : ""}.
-          {" "}To pass: <b>{needed(passTotal)} of {passTotal} right on the first try</b> (7 in 10){switches.length ? `, counting the ${items.length + verbs.length} cards here and the ${switches.length} person swap${switches.length > 1 ? "s" : ""} after` : ""}. A miss just counts as a miss: no second goes in the checkpoint.
+          {" "}To pass: <b>{needed(passTotal)} of {passTotal} right on the first try</b> (7 in 10){switches.length ? `, counting the ${items.length + verbs.length} cards here and the ${switches.length} person swap${switches.length > 1 ? "s" : ""} after` : ""}. Type each missing word and the check marks it; showing the answer counts as a miss. A miss just counts as a miss: no second goes in the checkpoint.
         </p>
         <WarmupSession items={items} verbs={verbs} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Checkpoint" requeue={false} tally passTotal={passTotal} />
         {stop}

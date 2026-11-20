@@ -326,7 +326,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
       <section className="view">
         <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
         <h3 style={{ marginTop: 4 }}>One more pass</h3>
-        <p className="lead">Redo the ones you slipped on: <b>Good</b> clears a card, <b>Again</b> brings it back a couple of cards later.</p>
+        <p className="lead">Redo the ones you slipped on: one you get right is cleared, one you miss comes back a couple of cards later.</p>
         <SessionRecap items={missed} onDone={() => { setMissed([]); setRecap("done"); }} />
       </section>
     );
@@ -355,7 +355,7 @@ export function Today({ progress, persist, config, navigate, replay }: {
         <section className="view">
           <TodayHeader progress={{ ...progress, course: idx < steps.length ? planned : planCourse }} replay={replay} />
           <h3 style={{ marginTop: 4 }}>One more pass</h3>
-          <p className="lead">Redo the ones you slipped on: <b>Good</b> clears a card, <b>Again</b> brings it back a couple of cards later.</p>
+          <p className="lead">Redo the ones you slipped on: one you get right is cleared, one you miss comes back a couple of cards later.</p>
           <SessionRecap items={missed} onDone={() => setRecap("done")} />
         </section>
       );

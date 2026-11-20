@@ -195,7 +195,7 @@ function PracticeRound({ round, title, progress, persist, config, onMiss, onMiss
     return (
       <div>
         {tag}
-        <p className="lead" style={{ marginTop: 0 }}>Same format as the checkpoint, smaller, and scored the same way: 7 in 10 right on the first try. Here <b>Again</b> brings a card back, so you can fix it.</p>
+        <p className="lead" style={{ marginTop: 0 }}>Same format as the checkpoint, smaller, and scored the same way: 7 in 10 right on the first try. Here a card you miss comes back, so you can fix it.</p>
         <WarmupSession items={round.items} verbs={round.verbs} progress={progress} persist={persist} onMiss={onMiss} onComplete={finishDrill} label="Practice" tally />
       </div>
     );

@@ -8,23 +8,23 @@ import { buildLineGlosses } from "../../lib/capture";
 import { firstTries, sendBack, shuffle } from "../../lib/today-plan";
 import { needed } from "../../lib/checkpoint";
 import * as vd from "../../lib/verb-drills";
-import { ClozeCard, GradeWords, GrammarCard, PhraseCard } from "../flashcards/Cards";
+import { CheckpointCards, ClozeCard, GrammarCard, PhraseCard } from "../flashcards/Cards";
 import { MixedText, PRONOUNS, Stitches, VERB_ITEM_TAG, usePack, usePlay } from "../shared";
 import { VerbDrill } from "../verbs/VerbDrill";
 import { Tag } from "./TodayHeader";
 
-/** The line under the counter after "Again", so the press visibly did something: the card is coming back. */
+/** The line under the counter after a miss, so it visibly did something: the card is coming back. */
 export function SentBackNote({ wait }: { wait: number }) {
-  return <p className="muted small" style={{ margin: "0 0 8px" }}>Again: that card comes back {wait === 1 ? "right after this one" : "after this one and the next"}.</p>;
+  return <p className="muted small" style={{ margin: "0 0 8px" }}>Missed: that card comes back {wait === 1 ? "right after this one" : "after this one and the next"}.</p>;
 }
-/** " · once more" in the step label, on a card that's back after an "Again". */
+/** " · once more" in the step label, on a card that's back after a miss. */
 export function OnceMore() {
   return <span style={{ color: "var(--accent)" }}> · once more</span>;
 }
 export function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: () => void }) {
   const [queue, setQueue] = useState<{ item: ReviewItem; again?: boolean }[]>(() => items.map((item) => ({ item })));
   const [n, setN] = useState(0);
-  const [wait, setWait] = useState(0); // after an "Again": the cards before it comes back (0: none, or it's next)
+  const [wait, setWait] = useState(0); // after a miss: the cards before it comes back (0: none, or it's next)
   const current = queue[0];
   useEffect(() => { if (!current) onDone(); }, [current, onDone]);
   if (!current) return null;
@@ -53,8 +53,8 @@ export function SessionRecap({ items, onDone }: { items: ReviewItem[]; onDone: (
 //  • the usual grammar multiple-choice for grammar drills.
 // Every item is graded exactly once; results are handed back in a single batch so the caller reschedules
 // SRS + advances in one step. Recognition-before-recall keeps a shaky word from being a cold wall.
-/** `retry`: the second (or later) go at a card after "Again". It still reschedules the card, but a score
- *  (checkpoint, stage review) counts first tries only, or each "Again" would add a free point. */
+/** `retry`: the second (or later) go at a card after a miss. It still reschedules the card, but a score
+ *  (checkpoint, stage review) counts first tries only, or each miss would add a free point. */
 export type WarmResult = { item: ReviewItem; ok: boolean; retry?: boolean };
 // A quick tap-to-match game: tap a word (hear it), then tap its meaning. Pairs matched on the first try
 // grade "good"; a wrong attempt first marks that word "again". Lighter + more fun than recalling each cold.
@@ -127,7 +127,8 @@ export function WarmupSession({ items, conjVerb, verbs, progress, persist, onCom
   onMiss: (item: ReviewItem) => void;
   /** The counter's name: "Warm up · 3 of 9" (a checkpoint says "Checkpoint", a practice round "Practice"). */
   label?: string;
-  /** "Again" brings a card back later (the default). A checkpoint is a test: a miss is a miss and it moves on. */
+  /** A miss brings a card back later (the default). A checkpoint is a test: a miss is a miss and it moves on,
+   *  and looking at an answer counts as one (CheckpointCards). */
   requeue?: boolean;
   /** Count cards rather than steps (a match grid of six is six cards) and show how many were right first
    *  time. A checkpoint and a practice round do; the daily warm-up keeps its step count. */
@@ -177,9 +178,9 @@ export function WarmupSession({ items, conjVerb, verbs, progress, persist, onCom
   }, []);
 
   const [stepIdx, setStepIdx] = useState(0);
-  // The steps to play: the plan, plus each card marked "Again" slotted back in a couple of cards on (sendBack).
+  // The steps to play: the plan, plus each card missed slotted back in a couple of cards on (sendBack).
   const [allSteps, setAllSteps] = useState<WarmStep[]>(plan);
-  // After an "Again": the step showing the note that it's coming back, and how many cards until it does.
+  // After a miss: the step showing the note that it's coming back, and how many cards until it does.
   const [sentBack, setSentBack] = useState<{ at: number; wait: number } | null>(null);
   const results = useRef<WarmResult[]>([]);
   const doneRef = useRef(false);
@@ -236,8 +237,8 @@ export function WarmupSession({ items, conjVerb, verbs, progress, persist, onCom
         <MatchGame key={stepIdx} pairs={step.pairs} onDone={(rs) => { record(rs); advance(); }} />
       ) : (() => {
         const c = step.card;
-        // "Again" (ok=false) slots the card back in a couple of cards on, with a note saying so, so you see it
-        // again this session while it's fresh; "Good" moves on.
+        // A miss (ok=false) slots the card back in a couple of cards on, with a note saying so, so you see it
+        // again this session while it's fresh; a right answer moves on.
         const grade = (ok: boolean) => {
           record([{ item: c.item, ok, ...(step.again ? { retry: true } : {}) }]);
           if (ok || !requeue) setSentBack(null);
@@ -251,7 +252,7 @@ export function WarmupSession({ items, conjVerb, verbs, progress, persist, onCom
         const card = c.format === "grammar" ? <GrammarCard key={stepIdx} item={c.item} onGrade={grade} />
           : c.format === "cloze" && c.entry ? <ClozeCard key={stepIdx} entry={c.entry} context={c.context} contextGloss={c.contextGloss} onGrade={grade} />
           : <PhraseCard key={stepIdx} item={c.item} onGrade={grade} />;
-        return requeue ? card : <GradeWords.Provider value={{ miss: "Missed it", ok: "Got it" }}>{card}</GradeWords.Provider>;
+        return requeue ? card : <CheckpointCards.Provider value>{card}</CheckpointCards.Provider>;
       })()}
     </div>
   );

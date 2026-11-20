@@ -3,7 +3,7 @@ import { createContext, useContext, useMemo, useState } from "react";
 import type { ReviewItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import type { FamiliarityEntry } from "@ll/core/familiarity";
-import { romanize } from "../../lib/romanize";
+import { type AfterAnswer, afterAnswer } from "../../lib/answer-check";
 import { HintButton, Icon, MixedText, SpeakButton, useHintFor, usePack, usePlay } from "../shared";
 
 export const escapeRe = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -20,49 +20,63 @@ export function blankOne(answer: string): { skeleton: string; missing: string } 
   const at = pick.index ?? 0;
   return { missing: pick[0], skeleton: `${answer.slice(0, at)}____${answer.slice(at + pick[0].length)}` };
 }
-// Captured-word review. When we know the sentence it was met in, blank the word inside it and show the
-// English so it's clear what to produce ("Ana wants coffee" → say the missing word). Otherwise it's a
-// plain recall card (English → target). Either way the English tells the learner what's being solved for.
 // Type-in production for recall cards (Part A): accepts Latin (or Cyrillic) and matches against the
-// transliteration, so no Cyrillic keyboard is needed. Comparison strips case/spaces/punctuation.
-export function typedMatches(typed: string, target: string): boolean {
-  const norm = (x: string) => x.toLowerCase().normalize("NFC").replace(/[^\p{L}\p{N}]/gu, "");
-  return norm(typed) === norm(target) || norm(romanize(typed)) === norm(romanize(target));
-}
+// transliteration, so no Cyrillic keyboard is needed (lib/answer-check.ts). What you type is marked by the check.
 /** A line with one word missing ("____"), the gap drawn as a dashed line the width of a short word. */
 function Skeleton({ text }: { text: string }) {
   const pack = usePack();
   const parts = text.split("____");
   return <div className="card-skeleton" lang={pack.id}>{parts.map((p, i) => <span key={i}>{p}{i < parts.length - 1 && <span className="blank" aria-label="missing word" />}</span>)}</div>;
 }
-function TypedResult({ ok, typed }: { ok: boolean; typed: string }) {
-  return ok
+/** A checkpoint is a test: there, looking at the answer counts as a miss (WarmupSession sets this). */
+export const CheckpointCards = createContext(false);
+/** The verdict on what you typed (nothing when you only looked). */
+function TypedResult({ after, typed }: { after: AfterAnswer; typed: string | null }) {
+  if (after.kind !== "marked") return null;
+  return after.ok
     ? <div className="result-ok" style={{ marginBottom: 4 }}><Icon name="check" size={16} />Correct</div>
     : <div className="result-miss" style={{ marginBottom: 4 }}>You wrote “{typed}”</div>;
 }
-/** What the self-grade buttons say. A checkpoint doesn't send a card round again, so there it's "Missed it" /
- *  "Got it" rather than "Again" / "Good" (see WarmupSession's `requeue`). */
-export const GradeWords = createContext<{ miss: string; ok: string }>({ miss: "Again", ok: "Good" });
-function GradeRow({ onGrade }: { onGrade: (ok: boolean) => void }) {
-  const words = useContext(GradeWords);
+/** The way on from an answered card. Typed: the check's verdict, one "Next". Looked in a checkpoint: a miss,
+ *  said so. Looked anywhere else: you say whether you had it, two buttons of equal weight, so moving on can't
+ *  be read as "I knew it". */
+function AnswerRow({ after, onGrade }: { after: AfterAnswer; onGrade: (ok: boolean) => void }) {
+  if (after.kind === "marked") return <div className="grade-row single"><button className="btn" onClick={() => onGrade(after.ok)}>Next</button></div>;
+  if (after.kind === "miss")
+    return (
+      <>
+        <div className="result-miss" style={{ marginTop: 14 }}>You looked, so this one counts as a miss.</div>
+        <div className="grade-row single" style={{ marginTop: 10 }}><button className="btn" onClick={() => onGrade(false)}>Next</button></div>
+      </>
+    );
+  return <HadIt onGrade={onGrade} />;
+}
+function HadIt({ onGrade }: { onGrade: (ok: boolean) => void }) {
   return (
-    <div className="grade-row">
-      <button className="ghost" onClick={() => onGrade(false)}>{words.miss}</button>
-      <button className="btn" onClick={() => onGrade(true)}>{words.ok}</button>
-    </div>
+    <>
+      <div className="had-it-q">Did you have it before you looked?</div>
+      <div className="grade-row" style={{ marginTop: 8 }}>
+        <button className="ghost" onClick={() => onGrade(false)}>No</button>
+        <button className="ghost" onClick={() => onGrade(true)}>Yes</button>
+      </div>
+    </>
   );
 }
 export function TypedRecall({ onChecked, onReveal, placeholder }: { onChecked: (val: string) => void; onReveal: () => void; placeholder?: string }) {
   const [val, setVal] = useState("");
+  const checkpoint = useContext(CheckpointCards);
   return (
     <div className="recall">
       <input className="text" aria-label="Your answer" autoCapitalize="off" autoCorrect="off" spellCheck={false} placeholder={placeholder ?? "type it (Latin ok)"} value={val}
         onChange={(e) => setVal(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" && val.trim()) onChecked(val.trim()); }} />
       <button className="btn" disabled={!val.trim()} onClick={() => onChecked(val.trim())}>Check</button>
-      <button className="quiet" onClick={onReveal}>Show answer</button>
+      <button className="quiet" onClick={onReveal}>{checkpoint ? "Show answer (counts as a miss)" : "Show answer"}</button>
     </div>
   );
 }
+// Captured-word review. When we know the sentence it was met in, blank the word inside it and show the
+// English so it's clear what to produce ("Ana wants coffee" → say the missing word). Otherwise it's a
+// plain recall card (English → target). Either way the English tells the learner what's being solved for.
 export function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: FamiliarityEntry; context?: string; contextGloss?: string; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
@@ -77,6 +91,8 @@ export function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Fa
   // No usable sentence ⇒ recall from the word's own gloss. A multi-word chunk still gets a blank rather
   // than a cold box, so every type-in in the app asks for one missing word.
   const gap = cloze ? null : blankOne(entry.display);
+  const checkpoint = useContext(CheckpointCards);
+  const after = afterAnswer(typedVal, gap ? gap.missing : entry.display, checkpoint);
   return (
     <div className="framed flashcard">
       {cloze ? (
@@ -99,7 +115,7 @@ export function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Fa
         </>
       ) : (
         <div style={{ marginTop: 12 }}>
-          {typedVal !== null && <TypedResult ok={typedMatches(typedVal, gap ? gap.missing : entry.display)} typed={typedVal} />}
+          <TypedResult after={after} typed={typedVal} />
           {cloze ? (
             <>
               <div className="card-answer" lang={pack.id} style={{ fontSize: 24, lineHeight: 1.4 }}>{context}</div>
@@ -118,7 +134,7 @@ export function ClozeCard({ entry, context, contextGloss, onGrade }: { entry: Fa
               <button className="ghost small" onClick={() => play(entry.display, 0.8)}><Icon name="speaker" size={16} />Hear it</button>
             )}
           </div>
-          <GradeRow onGrade={onGrade} />
+          <AnswerRow after={after} onGrade={onGrade} />
         </div>
       )}
     </div>
@@ -150,6 +166,8 @@ export function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: 
   const [typedVal, setTypedVal] = useState<string | null>(null);
   // Say the whole phrase aloud (the spoken task is unchanged); the WRITTEN check is one blank in it.
   const gap = useMemo(() => blankOne(item.answer), [item.answer]);
+  const checkpoint = useContext(CheckpointCards);
+  const after = afterAnswer(typedVal, gap ? gap.missing : item.answer, checkpoint);
   return (
     <div className="framed flashcard">
       <div className="overline">Say it in {pack.name}</div>
@@ -162,19 +180,19 @@ export function PhraseCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: 
         </>
       ) : (
         <div style={{ marginTop: 12 }}>
-          {typedVal !== null && <TypedResult ok={typedMatches(typedVal, gap ? gap.missing : item.answer)} typed={typedVal} />}
+          <TypedResult after={after} typed={typedVal} />
           <div className="card-answer" lang={pack.id}>{item.answer}</div>
           {item.translit && <div className="translit">{item.translit}</div>}
           <PhraseBreakdown item={item} />
           <div className="card-tools"><button className="ghost small" onClick={() => play(item.answer, 0.8)}><Icon name="speaker" size={16} />Hear it</button></div>
-          <GradeRow onGrade={onGrade} />
+          <AnswerRow after={after} onGrade={onGrade} />
         </div>
       )}
     </div>
   );
 }
 // A grammar RULE card (course points): a plain question; reveal the one-line answer and an example line,
-// then grade yourself. No typing, no options — the simple flashcard the design asks for.
+// then say whether you had it (in a checkpoint too: there's nothing to type). No typing, no options — the simple flashcard the design asks for.
 export function RuleCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: boolean) => void }) {
   const pack = usePack();
   const play = usePlay();
@@ -195,7 +213,7 @@ export function RuleCard({ item, onGrade }: { item: ReviewItem; onGrade: (ok: bo
               <span className="mk" lang={pack.id}>{example}</span>{item.meta?.exampleGloss ? <span className="en">{item.meta.exampleGloss as string}</span> : null}
             </div>
           )}
-          <GradeRow onGrade={onGrade} />
+          <HadIt onGrade={onGrade} />
         </>
       )}
     </div>
