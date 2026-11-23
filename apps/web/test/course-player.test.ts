@@ -177,7 +177,34 @@ const warm = cp.pickWarmup({ pool: [...currentWords, ...earlyWords], progress: p
 assert.equal(warm.length, 8);
 const fromEarlier = warm.filter((it) => (slotOf.get(familiarity.deriveKeyForItem(it).lexKey)?.order ?? 99) < 4);
 assert.equal(fromEarlier.length, 2, "two earlier-chapter cards even though none are due");
-assert.equal(familiarity.deriveKeyForItem(fromEarlier[0]!).lexKey, familiarity.deriveKeyForItem(earlyWords[0]!).lexKey, "weakest earlier card first");
+assert.equal(familiarity.deriveKeyForItem(fromEarlier[0]!).lexKey, familiarity.deriveKeyForItem(earlyWords[0]!).lexKey, "earlier cards seen equally long ago: in course order");
+
+// 7a. Not the same card every day (Jake, 2026-11-21: "Пријатно" in every warm-up of chapter 4). When the
+//     earlier share has to take cards that aren't due, it takes the ones unseen longest, not the weakest: the
+//     weakest one, reviewed yesterday, waits.
+{
+  const k = (it: ReviewItem) => familiarity.deriveKeyForItem(it).lexKey;
+  const ago = (days: number) => new Date(now.getTime() - days * 86400000);
+  const famSeen = { ...fam,
+    [k(earlyWords[0]!)]: { ...fam[k(earlyWords[0]!)]!, lastSeenAt: ago(1) }, // weakest, seen yesterday
+    [k(earlyWords[1]!)]: { ...fam[k(earlyWords[1]!)]!, lastSeenAt: ago(6) },
+    [k(earlyWords[2]!)]: { ...fam[k(earlyWords[2]!)]!, lastSeenAt: ago(4) },
+  };
+  const w = cp.pickWarmup({ pool: [...currentWords, ...earlyWords], progress: prog({ familiarity: famSeen }), now, current: { order: 4, n: 99 }, slotOf, size: 8, share: 2 });
+  const early = w.filter((it) => (slotOf.get(k(it))?.order ?? 99) < 4).map(k);
+  assert.deepEqual(early, [k(earlyWords[1]!), k(earlyWords[2]!)], "the earlier cards unseen longest, not yesterday's");
+
+  // Due cards: the one you're most likely to have forgotten first. A card missed yesterday (relearning) beats
+  // one learned well that's only just due, even when it comes later in the pack.
+  const [solid, shaky] = [currentWords[0]!, currentWords[1]!];
+  let good = familiarity.capture(familiarity.deriveKeyForItem(solid), ago(30));
+  for (const d of [30, 27, 20, 8]) good = familiarity.grade(good, "good", ago(d));
+  let missed = familiarity.capture(familiarity.deriveKeyForItem(shaky), ago(3));
+  missed = familiarity.grade(familiarity.grade(missed, "good", ago(3)), "again", ago(1));
+  const famDue = { [k(solid)]: { ...good, srs: { ...good.srs!, due: ago(0.1) } }, [k(shaky)]: missed };
+  const order = cp.pickWarmup({ pool: [solid, shaky], progress: prog({ familiarity: famDue }), now, current: { order: 4, n: 99 }, slotOf, size: 8, share: 0 }).map(k);
+  assert.deepEqual(order, [k(shaky), k(solid)], "the shakier due card first");
+}
 
 // 7b. ...but only what the course has taught in an EARLIER session: at chapter 1 session 1, cards met out
 //     of order (session 2's не, its words, a word tapped in a story) are due but stay out of the warm-up.

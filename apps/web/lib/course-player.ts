@@ -7,6 +7,7 @@
 // re-drills, and what a stage review samples.
 import type { Course, CourseChapter, CourseSession, CourseWord, GrammarCard, GrammarPoint, LanguagePack, LineRef, MiniStory, ReviewItem, Scenario, SentenceItem } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
+import { recallChance } from "@ll/core/srs";
 import type { CoursePositionShare } from "@ll/core/partner/joint";
 import type { GrammarItem } from "@ll/core/partner/grammar-together";
 import type { CourseLogEntry, Progress } from "./store";
@@ -421,10 +422,16 @@ export function formSlots(pack: LanguagePack, course: Course): Map<string, Cours
   return m;
 }
 
-/** Pick the warm-up: due studied cards, but at least `share` of them from chapters before the current one
- *  — the weakest first, due or not — so a busy chapter can't crowd older material out. Only what the
- *  course has already taught, in an earlier session, is eligible: a card met out of order (before a
- *  course reorder, or a word tapped in a story) stays in Flashcards and waits for its own session. */
+/** Pick the warm-up: due studied cards, but at least `share` of them from chapters before the current one,
+ *  so a busy chapter can't crowd older material out. Due cards come in order of how likely you've forgotten
+ *  them (FSRS recall, lowest first), so a day with more due than fits shows the most slipping ones, and the
+ *  ones left over slip further and lead the next day. When too few earlier cards are due, the share is
+ *  filled with the earlier cards you've gone longest without seeing. Until 2026-11-21 that fill went to the
+ *  weakest card, due or not: a card reviewed every day (early, so it barely gets stronger) stayed the weakest
+ *  and came back every day (Jake: "Пријатно" through all of chapter 4); and the other due cards went in pack
+ *  order, the same first few each day. Only what the course has already taught, in an earlier session, is
+ *  eligible: a card met out of order (before a course reorder, or a word tapped in a story) stays in
+ *  Flashcards and waits for its own session. */
 export function pickWarmup(opts: {
   pool: ReviewItem[];
   progress: Progress;
@@ -440,15 +447,17 @@ export function pickWarmup(opts: {
   const slot = (it: ReviewItem) => opts.slotOf.get(keyOf(it));
   const studied = (it: ReviewItem) => { const e = entry(it); return !!e && familiarity.isStudied(e) && !!e.srs && taughtBefore(slot(it), current); };
   const due = (it: ReviewItem) => studied(it) && new Date(entry(it)!.srs!.due) <= now;
+  const recall = (it: ReviewItem) => recallChance(entry(it)!.srs!, now);
+  const seenAt = (it: ReviewItem) => new Date(entry(it)!.lastSeenAt).getTime();
+  const slipping = (a: ReviewItem, b: ReviewItem) => recall(a) - recall(b) || seenAt(a) - seenAt(b);
+  const longestAgo = (a: ReviewItem, b: ReviewItem) => seenAt(a) - seenAt(b) || recall(a) - recall(b);
   const seen = new Set<string>();
   const uniq = opts.pool.filter((it) => { const k = keyOf(it); if (seen.has(k)) return false; seen.add(k); return true; });
 
-  const earlier = uniq
-    .filter((it) => studied(it) && slot(it)!.order < current.order)
-    .sort((a, b) => Number(due(b)) - Number(due(a)) || (entry(a)!.strength ?? 0) - (entry(b)!.strength ?? 0));
-  const out: ReviewItem[] = earlier.slice(0, opts.share);
+  const earlier = uniq.filter((it) => studied(it) && slot(it)!.order < current.order);
+  const out: ReviewItem[] = [...earlier.filter(due).sort(slipping), ...earlier.filter((it) => !due(it)).sort(longestAgo)].slice(0, opts.share);
   const picked = new Set(out.map(keyOf));
-  for (const it of uniq.filter(due)) {
+  for (const it of uniq.filter(due).sort(slipping)) {
     if (out.length >= opts.size) break;
     if (!picked.has(keyOf(it))) { out.push(it); picked.add(keyOf(it)); }
   }

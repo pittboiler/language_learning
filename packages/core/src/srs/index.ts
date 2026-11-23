@@ -33,6 +33,14 @@ export function schedule(state: ReviewState, grade: Grade, now: Date = new Date(
   return { ...state, due: card.due, card };
 }
 
+/** How likely the item is still remembered at `now`, 0–1 (FSRS retrievability). A card never reviewed is 0:
+ *  it has nothing to recall from yet. */
+export function recallChance(state: ReviewState, now: Date = new Date()): number {
+  if (!state.card.reps) return 0;
+  const r = engine.get_retrievability(state.card, now, false);
+  return Number.isFinite(r) ? r : 0;
+}
+
 /** Item ids whose `due` <= now, ordered by urgency (soonest first). */
 export function dueItems(states: ReviewState[], now: Date = new Date()): string[] {
   return states
