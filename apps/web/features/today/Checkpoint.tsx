@@ -24,7 +24,10 @@ import { WarmResult, WarmupSession } from "./Warmup";
 // (ChapterEnd); it has two parts, each kept once passed: the cards (words, grammar cards, person swaps, then
 // lines to say; 7 in 10 right on the first try) and the conversation. Passing both records the chapter in
 // Progress.chapters and the course moves on; otherwise what's left waits, and nothing counts against you.
-// Stopping part-way (onStop) records nothing; putting the conversation off keeps the cards.
+// Stopping part-way (onStop) records nothing, so it's offered only during the card drill (and before a
+// conversation with no cards done this go): never in the person swaps or lines to say, where the drill is
+// already behind you and a stray click under the answer buttons would throw it away. Putting the
+// conversation off keeps the cards.
 export { CHECKPOINT_PASS };
 export function ChapterCheckpoint({ chapter, items, verbs = [], persons, onMissTurn, scenario, progress, persist, config, onMiss, onDone, onFinished, doneLabel, nextLabel, earlier = 0, onStop }: {
   /** New course: what a pass leads to (the next chapter, a stage review, or the end). */
@@ -134,7 +137,6 @@ export function ChapterCheckpoint({ chapter, items, verbs = [], persons, onMissT
           onMiss={(it) => { missedSwitch.current.add(it.id); onMiss(it); }}
           onDone={() => { score.current = { got: score.current.got + switches.length - missedSwitch.current.size, total: score.current.total + switches.length }; afterPersons(); }}
         />
-        {stop}
       </div>
     );
 
@@ -144,7 +146,6 @@ export function ChapterCheckpoint({ chapter, items, verbs = [], persons, onMissT
         <Tag>Checkpoint · out loud</Tag>
         <p className="lead" style={{ marginTop: 0 }}>One line for each of the other persons, from this chapter&apos;s stories. These aren&apos;t scored.</p>
         <SayIt lines={sayLines} config={config} onMiss={(t) => onMissTurn?.(t)} onDone={cardsDone} />
-        {stop}
       </div>
     );
 
