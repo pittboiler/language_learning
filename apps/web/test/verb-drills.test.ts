@@ -5,6 +5,7 @@ import assert from "node:assert/strict";
 import { macedonian as pack } from "@ll/pack-mk";
 import * as vd from "../lib/verb-drills.js";
 import * as plan from "../lib/today-plan.js";
+import * as cp from "../lib/course-player.js";
 import type { Progress } from "../lib/store.js";
 
 const course = pack.course!;
@@ -154,5 +155,96 @@ const ok = (q: vd.VerbQuestion, where: string) => {
   assert.equal(step.practice.chapter.verbs.length, 2);
   assert.equal(step.practice.all.verbs.length, 2);
   console.log("✓ checkpoint and practice rounds carry verb questions");
+}
+// 10. Each verb's own review (2026-11-25): right moves a verb along the waits, a miss sends it back to the
+// start, and the next drill opens with it.
+{
+  const t0 = new Date("2026-12-01T18:00:00Z");
+  const day = (n: number) => new Date(t0.getTime() + n * 864e5);
+  let p = vd.recordVerbAnswer(at(5, 6), "сака", true, t0);
+  assert.equal(p.verbReview?.["сака"]?.step, 1);
+  const pk = (now: Date) => vd.verbPicker(p, vd.knownVerbs(pack, p), now);
+  assert.equal(vd.verbTier(pk(t0), "сака"), 4, "right: waits");
+  assert.equal(vd.verbTier(pk(new Date(t0.getTime() + 20 * 36e5)), "сака"), 3, "back the next day (20 hours on), not 24 hours later");
+  p = vd.recordVerbAnswer(p, "сака", true, day(1));
+  assert.equal(p.verbReview?.["сака"]?.step, 2);
+  assert.ok(vd.verbTier(pk(day(3)), "сака") === 4 && vd.verbTier(pk(day(4)), "сака") === 3, "then three days");
+  p = vd.recordVerbAnswer(p, "сака", false, day(4));
+  assert.deepEqual([p.verbReview?.["сака"]?.step, p.verbReview?.["сака"]?.right, p.verbReview?.["сака"]?.wrong], [0, 2, 1], "a miss: back to the start");
+  assert.equal(vd.verbTier(pk(day(4)), "сака"), 0, "missed: first in line");
+  const next = vd.buildVerbDrill(pack, p, { size: 3, seed: 2, now: day(5) });
+  assert.equal(next[0]?.lemma, "сака", `the drill opens with the verb you missed (${next.map((q) => q.lemma)})`);
+  // A drill's answers count per verb as well as per pattern.
+  const q = next[1]!;
+  const after = vd.recordVerbResults(p, [{ q, ok: true }], day(5));
+  assert.equal(after.verbReview?.[q.lemma]?.right, (p.verbReview?.[q.lemma]?.right ?? 0) + 1);
+  console.log("✓ a verb's review: 1, 3… days on when right, back next lesson when missed");
+}
+
+// 11. The course's own verbs come first; at most one new verb a drill, and once met it isn't new.
+{
+  const p = at(5, 6);
+  for (let seed = 0; seed < 12; seed++) {
+    const qs = vd.buildVerbDrill(pack, p, { size: 6, seed });
+    assert.ok(qs.filter((x) => x.isNew).length <= vd.NEW_VERBS, `seed ${seed}: one new verb at most (${qs.map((x) => `${x.lemma}${x.isNew ? "*" : ""}`)})`);
+    assert.equal(new Set(qs.map((x) => x.lemma)).size, qs.length, "a verb once a drill");
+  }
+  const known = vd.knownVerbs(pack, p);
+  const first = vd.buildVerbDrill(pack, p, { size: 3, seed: 1 });
+  const fresh = first.find((x) => x.isNew);
+  if (fresh) {
+    const met = vd.recordVerbResults(p, [{ q: fresh, ok: true }]);
+    assert.ok(!vd.isNewVerb(vd.verbPicker(met, known), fresh.lemma), "met once: no longer new");
+  }
+  console.log("✓ course verbs first, one new verb a drill at most");
+}
+
+// 12. Walking the course a lesson a day, with some misses: every miss is back the next lesson, the drills
+// reach well beyond the course's own verbs, and a verb met before the last chapters comes back.
+{
+  const t0 = Date.parse("2026-12-01T18:00:00Z");
+  let p: Progress = at(1, 1);
+  const seen = new Map<string, number[]>();
+  let lesson = 0, missesBack = 0, misses = 0;
+  let pending: string[] = [];
+  for (const c of chapters) for (const s of c.sessions) {
+    const now = new Date(t0 + lesson * 864e5);
+    const here = { ...at(c.order, s.n), verbPractice: p.verbPractice, verbReview: p.verbReview, courseLog: Array(lesson).fill({}) } as Progress;
+    const qs = vd.buildVerbDrill(pack, here, { size: plan.VERB_DRILL, seed: lesson, now });
+    for (const m of pending) { misses++; if (qs.some((x) => x.lemma === m)) missesBack++; }
+    pending = [];
+    const results = qs.map((x, i) => ({ q: x, ok: (lesson * 3 + i) % 7 !== 3 }));
+    for (const r of results) { if (!r.ok) pending.push(r.q.lemma); seen.set(r.q.lemma, [...(seen.get(r.q.lemma) ?? []), c.order]); }
+    p = vd.recordVerbResults(here, results, now);
+    lesson++;
+  }
+  const taught = vd.knownVerbs(pack, at(12, 9));
+  const drillOnly = [...seen.keys()].filter((l) => !taught.has(l));
+  const onceEarly = [...seen].filter(([, xs]) => xs.length === 1 && xs[0]! < 11).map(([l]) => l);
+  assert.ok(misses > 10 && missesBack === misses, `every miss back the next lesson (${missesBack}/${misses})`);
+  assert.ok(drillOnly.length >= 8, `new verbs keep coming in (${drillOnly.length}: ${drillOnly})`);
+  assert.deepEqual(onceEarly, [], "a verb met before chapter 11 comes back");
+  console.log(`✓ the course, a lesson a day: ${seen.size} verbs (${drillOnly.length} beyond the course's own), ${missesBack}/${misses} misses back next lesson`);
+}
+
+// 13. "Switch the person" on the verb engine: any verb you've been taught, in a tense you've been taught
+// (an irregular past once all its forms are), not just the 16 with a hand-made table.
+{
+  const open = (order: number, n: number) => plan.switchableVerbs(pack, at(order, n));
+  const ch4 = chapters.find((c) => c.order === 4)!;
+  const teachA = ch4.sessions.find((s) => s.pointId === "pt-verbs-a" && s.role === "teach")!;
+  assert.ok(open(4, teachA.n + 1).has("разбира|present") && !open(4, teachA.n).has("разбира|present"), "разбира switches once the а-verbs are taught");
+  assert.ok(!open(9, 2).has("сум|pastOngoing") && open(9, 4).has("сум|pastOngoing"), "сум's past once бевме / бевте / беа are taught too");
+  assert.ok(open(9, 4).has("чита|pastOngoing") && open(9, 4).has("отиде|pastDone"), "any known verb's past once the past is taught");
+  assert.ok(open(12, 9).size > 3 * 16, `many more tables than the old 16 verbs (${open(12, 9).size})`);
+  const all = new Set(cp.switchTables(pack).map((t) => t.id));
+  const one = (text: string, seed = 0) => cp.switchPersonItem(pack, { id: "t", body: [{ text, gloss: "…" }] } as never, all, () => false, seed);
+  const sw = one("Ние читавме книга.");
+  assert.ok(sw && sw.lemma === "чита" && sw.options.includes(sw.blank) && /^(Вие|Тие|Ти|Јас|Таа) /.test(sw.filled), `the past switches: ${sw?.filled}`);
+  assert.equal(one("Таа ќе дојде утре.")?.lemma, "дојде", "a done verb's present after ќе");
+  assert.equal(one("Добро, ќе ги земам."), undefined, "земам after ќе could be зема or земе: left alone");
+  for (let seed = 0; seed < 6; seed++) { const x = one("Тие беа уморни.", seed); assert.ok(!x || x.person.endsWith("pl"), `an adjective after сум's past keeps the number: ${x?.filled}`); }
+  assert.equal(one("Јас учам и работам."), undefined, "two verbs: left alone");
+  console.log("✓ switch the person: any taught verb, present and past, from the verb engine");
 }
 console.log("verb-drills: all passed");

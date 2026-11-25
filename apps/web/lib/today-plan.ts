@@ -105,18 +105,16 @@ export function drillableVerbs(pack: LanguagePack, progress: Progress): Set<stri
   return new Set((pack.conjugations ?? []).filter((v) => groups.has(v.group) && !NOT_DRILLABLE.has(v.lemma) && (!taught || taught.has(v.lemma))).map((v) => v.lemma));
 }
 
-/** The verbs "Switch the person" may use: the drillable ones, plus a past-tense table once every one of its
- *  forms has been taught (the past is taught form by form: бев, then бевме / бевте / беа). */
+/** The verb tables "Switch the person" may use (cp.switchTables, ids `lemma|tense`): any verb you know
+ *  (vd.knownVerbs: the course has taught it, or you've studied it) in a tense whose endings you've been taught;
+ *  an irregular past (сум's бев…) once every one of its forms has been, as it's taught form by form. Before
+ *  2026-11-25 only the 16 verbs with a hand-made table could switch. */
 export function switchableVerbs(pack: LanguagePack, progress: Progress): Set<string> {
-  const out = drillableVerbs(pack, progress);
-  if (!pack.course) return out;
-  const forms = cp.formSlots(pack, pack.course);
-  const at = cp.currentSlot(pack.course, progress);
-  for (const v of pack.conjugations ?? []) {
-    if (v.group !== "past") continue;
-    if (Object.values(v.forms).flatMap(cp.wordTokens).every((t) => { const s = forms.get(t); return !!s && cp.cmpSlot(s, at) <= 0; })) out.add(v.lemma);
-  }
-  return out;
+  const known = vd.knownVerbs(pack, progress);
+  const forms = pack.course ? cp.formSlots(pack, pack.course) : new Map<string, cp.CourseSlot>();
+  const at = pack.course ? cp.currentSlot(pack.course, progress) : undefined;
+  return cp.openSwitchTables(pack, (l) => known.has(l), (id) => !!progress.seenGrammar?.[id],
+    (w) => { const s = forms.get(w); return !!s && !!at && cp.cmpSlot(s, at) <= 0; });
 }
 
 // On the course, only verbs it has taught by now (`allowed`), so the drill never springs доаѓа or спие on you.
@@ -336,7 +334,8 @@ export function chapterEndStep(pack: LanguagePack, progress: Progress, cc: Cours
   const mine = vd.unlockedVariants(pack, progress).filter((v) => cc.pointIds.includes(v.pointId!)).map((v) => v.variant.id);
   const verbRound = (size: number, s: number) => {
     const a = mine.length ? vd.buildVerbDrill(pack, progress, { size: Math.ceil(size / 2), only: mine, seed: s }) : [];
-    const b = vd.buildVerbDrill(pack, progress, { size, seed: s + 1 }).filter((q) => !a.some((x) => x.variant === q.variant && x.person === q.person));
+    // Both drills open with the verbs that are back: one question each is enough.
+    const b = vd.buildVerbDrill(pack, progress, { size, seed: s + 1 }).filter((q) => !a.some((x) => (x.variant === q.variant && x.person === q.person) || x.lemma === q.lemma));
     return [...a, ...b].slice(0, size);
   };
   const checkpoint: CheckpointRound = { items: [...shuffle([...own, ...earlier]), ...cardsOf(cc)], verbs: verbRound(CHECKPOINT_VERBS, seed), switches: persons.switches, say: persons.say, scenario: scenarioOf(cc), earlier: earlier.length };

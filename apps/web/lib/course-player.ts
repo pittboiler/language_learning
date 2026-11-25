@@ -265,22 +265,83 @@ export function storySlots(course: Course): Map<string, CourseSlot> {
  *  interleaved, then gaps for the point in story lines BOTH partners have already read (from lineFocus).
  *  Existing lines only. Fill-ins from the point's cards carry the card id, so the answerer's pick grades
  *  their own grammar flashcard. */
-/** Verbs whose six forms are fair game for someone at `at` (their next, not-yet-done session): the verb
- *  group's lesson is behind them and they've met the verb — every form of it, for a past-tense table (the past
- *  is taught form by form). Never треба / чини (impersonal, not drilled by person). */
+/** Never drilled by person: треба / чини (impersonal). */
 export const NOT_DRILLABLE = new Set(["треба", "чини"]);
-export function verbsKnownBefore(pack: LanguagePack, course: Course, at: CourseSlot): Set<string> {
+
+// ---- "Switch the person": the verb tables (2026-11-25) ------------------------------------------------
+// Jake asked whether the verbs drilled by pattern come back anywhere else. "Switch the person" (a story's Use
+// it, the checkpoint, the partner session) took its verbs from the 26 hand-made pack.conjugations tables, so
+// only 16 verbs ever switched. Its tables now come from the verb engine (pack.verbs, whose forms match those
+// 26), so any verb the course has taught can switch, in the present and, once the past is taught, the past.
+
+export type SwitchTense = "present" | "pastOngoing" | "pastDone";
+/** A verb's six forms in one tense. Its id is `lemma|tense`; `pointId` teaches its endings. */
+export interface SwitchTable { id: string; lemma: string; tense: SwitchTense; aspect: "ongoing" | "done" | "both"; forms: Record<Person, string>; pointId?: string; irregular: boolean }
+const SWITCH_TENSES: SwitchTense[] = ["present", "pastOngoing", "pastDone"];
+const PRESENT_GROUP: Record<string, string> = { "а": "present-a", "и": "present-i", "е": "present-e" };
+const tablesCache = new WeakMap<LanguagePack, SwitchTable[]>();
+/** Every verb's tables (impersonal verbs aside: треба, чини… have no persons). */
+export function switchTables(pack: LanguagePack): SwitchTable[] {
+  const hit = tablesCache.get(pack);
+  if (hit) return hit;
+  const variantPoint = new Map((pack.verbPatterns ?? []).flatMap((pt) => pt.variants.map((v) => [v.id, v.pointId ?? pt.pointId] as const)));
+  // An irregular present is taught with its group's endings (знае with the е-verbs); сум with сум itself.
+  const toBe = pack.course?.points.find((pt) => pt.grammarIds.includes("to-be"))?.id;
+  const out = (pack.verbs ?? []).filter((v) => !v.impersonal).flatMap((v) => SWITCH_TENSES.flatMap((tense): SwitchTable[] => {
+    const forms = v.forms[tense];
+    if (!forms || !PERSONS.every((p) => forms[p])) return [];
+    const pattern = v.patterns[tense];
+    const irregular = pattern === "irregular";
+    const variant = !irregular ? pattern : tense === "present" ? PRESENT_GROUP[v.lemma.at(-1) ?? ""] : tense === "pastOngoing" ? "past-ongoing" : "past-done";
+    const pointId = variant ? variantPoint.get(variant) : v.lemma === "сум" ? toBe : undefined;
+    return [{ id: `${v.lemma}|${tense}`, lemma: v.lemma, tense, aspect: v.aspect, forms: forms as Record<Person, string>, pointId, irregular }];
+  }));
+  tablesCache.set(pack, out);
+  return out;
+}
+
+/** The tables open by a place in the course: the verb taught (`verbTaught`: one of its own forms is a word the
+ *  course has taught, see verbsTaughtBy), its tense's endings taught (`pointTaught`), and for an irregular past
+ *  (сум's бев…) every one of its forms taught (`formTaught`), as the course teaches it form by form. */
+export function openSwitchTables(pack: LanguagePack, verbTaught: (lemma: string) => boolean, pointTaught: (pointId: string) => boolean, formTaught: (word: string) => boolean): Set<string> {
+  return new Set(switchTables(pack).filter((t) => !NOT_DRILLABLE.has(t.lemma) && verbTaught(t.lemma) && !!t.pointId && pointTaught(t.pointId)
+    && (!t.irregular || t.tense === "present" || Object.values(t.forms).flatMap(wordTokens).every(formTaught))).map((t) => t.id));
+}
+
+/** The verbs (pack.verbs lemmas) the course has taught by a session: one of the verb's own forms is a word it
+ *  has taught (not the ќе of its future or the сум of "have done", which every verb shares). `before`: in a
+ *  session before `at`, else up to and including it. */
+export function verbsTaughtBy(pack: LanguagePack, course: Course, at: CourseSlot, before = false): Set<string> {
+  const slots = formSlots(pack, course);
+  const out = new Set<string>();
+  for (const v of pack.verbs ?? []) {
+    const own = (["present", "pastOngoing", "pastDone", "command"] as const).flatMap((t) => Object.values(v.forms[t] ?? {}));
+    const words = [v.lemma, ...own, ...(v.lform ? Object.values(v.lform) : [])].flatMap(wordTokens);
+    if (words.some((t) => { const s = slots.get(t); return before ? taughtBefore(s, at) : !!s && cmpSlot(s, at) <= 0; })) out.add(v.lemma);
+  }
+  return out;
+}
+
+/** The switch tables open to someone at `at` (their next, not-yet-done session): everything taught before it. */
+export function switchTablesBefore(pack: LanguagePack, course: Course, at: CourseSlot): Set<string> {
+  const verbs = verbsTaughtBy(pack, course, at, true);
+  const points = pointSlots(course);
   const forms = formSlots(pack, course);
-  const ps = pointSlots(course);
-  const known = (t: string) => taughtBefore(forms.get(t), at);
-  const groupTaught = (g: string) => {
-    if (g === "past") return true;
-    const pt = course.points.find((p) => p.grammarIds.includes(verbGroupConcept(g)));
-    return !!pt && taughtBefore(ps.get(pt.id), at);
-  };
-  return new Set((pack.conjugations ?? []).filter((v) => !NOT_DRILLABLE.has(v.lemma) && groupTaught(v.group) && (v.group === "past"
-    ? Object.values(v.forms).flatMap(wordTokens).every(known)
-    : [v.lemma, ...Object.values(v.forms)].flatMap(wordTokens).some(known))).map((v) => v.lemma));
+  return openSwitchTables(pack, (l) => verbs.has(l), (id) => taughtBefore(points.get(id), at), (w) => taughtBefore(forms.get(w), at));
+}
+
+/** Every word that is a verb form (any tense, a command, an -л form), but се and си, mostly the reflexive: a
+ *  line with two of them has two verbs, and switching one would leave the other behind. */
+const verbWordsCache = new WeakMap<LanguagePack, Set<string>>();
+function verbWords(pack: LanguagePack): Set<string> {
+  let out = verbWordsCache.get(pack);
+  if (out) return out;
+  out = new Set([
+    ...(pack.verbs ?? []).flatMap((v) => [...(["present", "pastOngoing", "pastDone", "command"] as const).flatMap((t) => Object.values(v.forms[t] ?? {})), ...(v.lform ? Object.values(v.lform) : [])]),
+    ...(pack.conjugations ?? []).flatMap((v) => Object.values(v.forms)),
+  ].flatMap((f) => wordTokens(f ?? "")).filter((t) => t !== "се" && t !== "си"));
+  verbWordsCache.set(pack, out);
+  return out;
 }
 
 /** The partnered grammar section (2026-10-16, Jake: "I don't like the grammar section as it is"): person
@@ -315,11 +376,11 @@ export function grammarTogetherItems(pack: LanguagePack, course: Course, pointId
   const blanks = allBlanks.length ? allBlanks.map((_, i) => allBlanks[(i + seed * 2) % allBlanks.length]!).slice(0, Math.min(2, allBlanks.length)) : [];
   const slots = storySlots(course);
   const bothRead = (pack.stories ?? []).filter((st) => taughtBefore(slots.get(st.id), a) && taughtBefore(slots.get(st.id), b));
-  const verbsA = verbsKnownBefore(pack, course, a);
-  const verbs = new Set([...verbsKnownBefore(pack, course, b)].filter((v) => verbsA.has(v)));
+  // The verb tables you've both been taught (switchTablesBefore).
+  const verbsA = switchTablesBefore(pack, course, a);
+  const verbs = new Set([...switchTablesBefore(pack, course, b)].filter((v) => verbsA.has(v)));
   // On a verb day, that day's verbs come first (the past on the past day); then any verb you both know.
-  const dayVerbs = new Set((pack.conjugations ?? []).filter((v) => verbs.has(v.lemma)
-    && (point.grammarIds.includes(verbGroupConcept(v.group)) || (v.group === "past" && point.grammarIds.includes("past-tense")))).map((v) => v.lemma));
+  const dayVerbs = new Set(switchTables(pack).filter((t) => verbs.has(t.id) && t.pointId === point.id).map((t) => t.id));
   // Six switches, a different person each where the stories allow, never the same sentence twice, newest
   // stories first (the freshest language).
   const switches: GrammarItem[] = [];
@@ -409,8 +470,12 @@ export function knownForms(pack: LanguagePack, points: GrammarPoint[], words: It
   return known;
 }
 
-/** The session at which each word form becomes known (see knownForms), walking the course in order. */
+/** The session at which each word form becomes known (see knownForms), walking the course in order. Worked
+ *  out once per course (read it, don't change it). */
+const formSlotsCache = new WeakMap<Course, Map<string, CourseSlot>>();
 export function formSlots(pack: LanguagePack, course: Course): Map<string, CourseSlot> {
+  const hit = formSlotsCache.get(course);
+  if (hit) return hit;
   const m = new Map<string, CourseSlot>();
   const words: string[] = [];
   const pts: string[] = [];
@@ -419,6 +484,7 @@ export function formSlots(pack: LanguagePack, course: Course): Map<string, Cours
     if (s.role === "teach" && s.pointId) pts.push(s.pointId);
     for (const t of knownForms(pack, course.points, words, pts)) if (!m.has(t)) m.set(t, { order: c.order, n: s.n });
   }
+  formSlotsCache.set(course, m);
   return m;
 }
 
@@ -648,7 +714,9 @@ export type UseItItem =
   /** Say the line, with speech feedback (skippable). */
   | { kind: "say"; line: LineRef & { translit?: string } }
   /** The line told about someone else: its verb blanked, pick the form for the new person (see switchPersonItem). */
-  | { kind: "switch"; line: LineRef; person: Person; shown: string; filled: string; blank: string; options: string[]; why: string };
+  | { kind: "switch"; line: LineRef; person: Person; shown: string; filled: string; blank: string; options: string[]; why: string;
+      /** The verb switched (pack.verbs): the answer counts toward its review (verb-drills recordVerbAnswer). */
+      lemma: string };
 
 /** A line without its quotation marks (tiles and speech shouldn't carry „ “). */
 export const bareLine = (text: string) => text.replace(/[„“”"«»]/g, "").replace(/\s+/g, " ").trim();
@@ -1114,29 +1182,42 @@ const PREPOSITIONS = new Set(["во", "на", "од", "до", "со", "кај", 
 
 /** "Switch the person": a line from today's story told about someone else, its verb blanked, with three forms
  *  of that verb to choose from (DESIGN-story-variety §2b). Built from the verb tables — no new language. Only
- *  lines with exactly one verb the learner has been taught (`verbs`: lemmas), whose subject (when it's said) is
- *  a pronoun or a name right before the verb; сум only switches number when nothing after it would have to
- *  agree. `seed` turns the line and the person from one reading to the next. */
+ *  lines with exactly one verb, one the learner has been taught (`verbs`: switch table ids, `lemma|tense`, see
+ *  openSwitchTables), whose subject (when it's said) is a pronoun or a name right before the verb; сум only
+ *  switches number when nothing after it would have to agree. `seed` turns the line and the person from one
+ *  reading to the next. */
 export function switchPersonItem(pack: LanguagePack, story: MiniStory, verbs: Set<string>, names: (word: string) => boolean, seed = 0): Extract<UseItItem, { kind: "switch" }> | undefined {
-  const forms = new Map<string, { lemma: string; person: Person }>();
-  // A form two persons share (past беше: "you were" and "he/she was") is read as he/she, so a line like
-  // „Кафето беше добро“ is treated as having a noun subject and left alone.
-  for (const v of pack.conjugations ?? []) if (verbs.has(v.lemma)) for (const [p, f] of Object.entries(v.forms)) { const t = familiarity.normalize(f); if (t !== "се" && t !== "си" && (!forms.has(t) || (p === "3sg" && forms.get(t)!.lemma === v.lemma))) forms.set(t, { lemma: v.lemma, person: p as Person }); }
+  const forms = new Map<string, { table: SwitchTable; person: Person }[]>();
+  for (const table of switchTables(pack)) if (verbs.has(table.id)) for (const p of PERSONS) {
+    const t = familiarity.normalize(table.forms[p]);
+    if (t !== "се" && t !== "си") forms.set(t, [...(forms.get(t) ?? []), { table, person: p }]);
+  }
+  const anyVerb = verbWords(pack);
   const candidates = story.body.flatMap((b, i) => {
     if (!singleUtterance(b.text)) return [];
     const text = spoken(b.text)!;
     const words = [...text.matchAll(/[\p{L}]+/gu)].map((m) => ({ w: m[0], at: m.index!, t: familiarity.normalize(m[0]) }));
     if (words.some((x) => UNSWITCHABLE.has(x.t))) return [];
-    const verbAt = words.map((x, k) => (forms.has(x.t) ? k : -1)).filter((k) => k >= 0);
+    const verbAt = words.map((x, k) => (anyVerb.has(x.t) || forms.has(x.t) ? k : -1)).filter((k) => k >= 0);
     if (verbAt.length !== 1) return [];
     const v = verbAt[0]!;
-    const { lemma, person } = forms.get(words[v]!.t)!;
-    if (lemma === "е" && v > 0 && DATIVE.has(words[v - 1]!.t)) return []; // Мило ми е: "it is"
+    const hits = forms.get(words[v]!.t);
+    if (!hits) return []; // a verb not taught yet
     // The subject: a pronoun or a name just before the verb (skipping не / ќе and short object pronouns).
     // (A comma ends the search: in „Не, не сум Марко“ the first Не is "No", not part of the verb.)
     const commaAfter = (j: number) => j >= 0 && text.slice(words[j]!.at + words[j]!.w.length, words[j + 1]!.at).includes(",");
     let k = v - 1;
     while (k >= 0 && !commaAfter(k) && ["не", "ќе", "го", "ја", "ги", "ми", "му", "ѝ", "ни", "ви", "им", "се", "ме", "те", "ве"].includes(words[k]!.t)) k--;
+    // Which table: after ќе it's a present (the future), and a done verb's present comes only there; without
+    // ќе a done verb's form is its past (Марко отиде). A form two verbs share (земам: зема, земе) is a guess:
+    // the line is left alone. A form two persons share (past беше: "you were" and "he/she was") is read as
+    // he/she, so a line like „Кафето беше добро“ is treated as having a noun subject and left alone.
+    const future = words.slice(k + 1, v).some((x) => x.t === "ќе");
+    const fit = hits.filter((h) => (future ? h.table.tense === "present" : !(h.table.tense === "present" && h.table.aspect === "done")));
+    if (new Set(fit.map((h) => h.table.id)).size !== 1) return [];
+    const table = fit[0]!.table;
+    const person = fit.some((h) => h.person === "3sg") ? "3sg" : fit[0]!.person;
+    if (table.lemma === "сум" && v > 0 && DATIVE.has(words[v - 1]!.t)) return []; // Мило ми е: "it is"
     // A name after a preposition (Од Англија сум) is where, not who.
     const subj = k >= 0 && (SUBJECTS.has(words[k]!.t) || (names(words[k]!.w) && !(k > 0 && PREPOSITIONS.has(words[k - 1]!.t)))) ? k : -1;
     if (subj > 0 && words[subj - 1]!.t === "и") return []; // "Марко и Петар …": a joined subject
@@ -1150,15 +1231,16 @@ export function switchPersonItem(pack: LanguagePack, story: MiniStory, verbs: Se
     // Where a pronoun would go if one is needed: only when the verb (with its не / ќе / object pronouns) opens
     // its clause — „Добро, одиме…“ yes, „Добро сме“ no (Добро се reads fine).
     const clauseStart = k === -1 || commaAfter(k) ? k + 1 : -1;
-    return [{ i, text, gloss: sayLine(b.text, b.gloss).gloss, words, v, subj, chain: clauseStart, lemma, person }];
+    return [{ i, text, gloss: sayLine(b.text, b.gloss).gloss, words, v, subj, chain: clauseStart, table, person }];
   });
   if (!candidates.length) return undefined;
   const c = candidates[seed % candidates.length]!;
-  const table = pack.conjugations!.find((x) => x.lemma === c.lemma)!;
+  const table = c.table;
   const after = c.words.slice(c.v + 1);
-  // Keep the number when something else would have to change with it: what follows a form of сум (Таа е Ема),
-  // "as a …" (работам како учителка), "together", or се with the verb (се видиме is "see each other").
-  const keepNumber = (c.lemma === "е" && after.length > 0 && !SUM_SAFE_AFTER.has(after[0]!.t))
+  // Keep the number when something else would have to change with it: what follows a form of сум, now or in
+  // the past (Таа е Ема, Тие беа уморни), "as a …" (работам како учителка), "together", or се with the verb
+  // (се видиме is "see each other").
+  const keepNumber = (table.lemma === "сум" && after.length > 0 && !SUM_SAFE_AFTER.has(after[0]!.t))
     || c.words.some((x) => KEEP_NUMBER.has(x.t)) || (c.v > 0 && c.words[c.v - 1]!.t === "се");
   const plural = (p: Person) => p.endsWith("pl");
   const targets = PERSON_TURNS.filter((p) => p !== c.person && (!keepNumber || plural(p) === plural(c.person)) && familiarity.normalize(table.forms[p] ?? "") !== c.words[c.v]!.t);
@@ -1192,6 +1274,7 @@ export function switchPersonItem(pack: LanguagePack, story: MiniStory, verbs: Se
   return {
     kind: "switch",
     line: { text: c.text, gloss: c.gloss, source: `story:${story.id}#${c.i}` },
+    lemma: table.lemma,
     person,
     shown: rebuild("___"),
     filled: rebuild(form),

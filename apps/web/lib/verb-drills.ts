@@ -5,9 +5,11 @@
 //           you haven't drilled it with; a new verb, glossed, once you've done the ones you know);
 //  - time:  a line from a story you've read, said in the past or the future;
 //  - which: ongoing or done, the two halves of an aspect pair in the past (јадев / изедов).
-// Progress is kept per pattern variant × person (Progress.verbPractice), never per verb. Each drill asks the
-// weakest, unasked first, and always includes the newest tense taught, so the past keeps coming back through
-// chapters 10–12. Pure: the warm-up, the checkpoint, the practice rounds and the Library all build from here.
+// Progress is kept per pattern variant × person (Progress.verbPractice): each drill asks the weakest, unasked
+// first, and always includes the newest tense taught, so the past keeps coming back through chapters 10–12.
+// Each verb has its own review too (Progress.verbReview, 2026-11-25): which verb a question uses goes by that,
+// so a verb you've met comes back (see "each verb's own review" below). Pure: the warm-up, the checkpoint, the
+// practice rounds and the Library all build from here.
 import type { LanguagePack, MiniStory, VerbEntry, VerbPattern, VerbPatternVariant, VerbPerson, VerbTense } from "@ll/pack-schema";
 import * as familiarity from "@ll/core/familiarity";
 import * as cp from "./course-player";
@@ -22,7 +24,7 @@ export type VerbQuestion = {
   /** The verb being drilled. */
   lemma: string;
   gloss: string;
-  /** A verb the course hasn't taught yet (its meaning is shown). */
+  /** A verb you haven't met: the course hasn't taught it and no question has asked it yet. */
   isNew?: boolean;
   /** same: the pattern shown on a verb you know. */
   model?: { lemma: string; gloss: string; form: string };
@@ -77,21 +79,14 @@ export function chapterOfPoint(pack: LanguagePack, pointId?: string): number | u
   return point ? pack.course?.chapters.find((c) => c.chapterId === point.chapterId)?.order : undefined;
 }
 
-const slotCache = new WeakMap<object, Map<string, cp.CourseSlot>>();
-/** The verbs you know: one of their forms has been taught by now (cp.formSlots), or you've studied it. */
+/** The verbs you know: the course has taught one of their forms by now (cp.verbsTaughtBy), or you've studied it. */
 export function knownVerbs(pack: LanguagePack, progress: Progress): Set<string> {
-  const out = new Set<string>();
-  const course = pack.course;
-  let slots: Map<string, cp.CourseSlot> | undefined;
-  if (course) { slots = slotCache.get(course); if (!slots) { slots = cp.formSlots(pack, course); slotCache.set(course, slots); } }
-  const at = course ? cp.currentSlot(course, progress) : undefined;
+  const out = pack.course ? cp.verbsTaughtBy(pack, pack.course, cp.currentSlot(pack.course, progress)) : new Set<string>();
   for (const v of pack.verbs ?? []) {
-    // The verb's own words: not the ќе of its future or the сум of "have done", which every verb shares.
+    if (out.has(v.lemma)) continue;
     const own = (["present", "pastOngoing", "pastDone", "command"] as const).flatMap((t) => Object.values(v.forms[t] ?? {}));
     const forms = [v.lemma, ...own, ...(v.lform ? Object.values(v.lform) : [])].flatMap(cp.wordTokens);
-    const taught = forms.some((t) => { const s = slots?.get(t); return !!s && !!at && cp.cmpSlot(s, at) <= 0; });
-    const studied = forms.some((t) => { const e = progress.familiarity[t]; return !!e && familiarity.isStudied(e); });
-    if (taught || studied) out.add(v.lemma);
+    if (forms.some((t) => { const e = progress.familiarity[t]; return !!e && familiarity.isStudied(e); })) out.add(v.lemma);
   }
   return out;
 }
@@ -105,13 +100,81 @@ export function followers(pack: LanguagePack, info: VariantInfo): VerbEntry[] {
 
 const personsOf = (info: VariantInfo): VerbPerson[] => P.filter((p) => info.variant.endings[p] !== undefined);
 
+// ---- each verb's own review (2026-11-25) --------------------------------------------------------------
+// Jake: "all the verbs we are learning through the conjugations, do we eventually access those elsewhere /
+// build on them to ensure repetition?" They didn't: a question's verb was the one its pattern had drilled
+// least lately, and some 28 verbs the course never teaches came up once or twice, glossed, and never again.
+// Now every first-try answer about a verb (here, and "Switch the person") moves it along VERB_WAITS. A drill
+// opens with the verbs that are back (verbsBack: the ones you missed, then the most overdue for their wait),
+// two of the warm-up's three questions, each on a pattern it follows. Its other questions take, of the verbs
+// that fit: one you missed, then one the course taught that hasn't been asked, then a new one (at most
+// NEW_VERBS a drill), then one that's back, then the one due soonest. So the course's own verbs come first,
+// new ones keep arriving, and a verb once met keeps coming back.
+// Tuned by walking the course a lesson a day with 15% misses (2026-11-25): reviews first everywhere let only
+// 2 of the 28 drill-only verbs in; one review a drill let them all in but left 10 verbs met once and first
+// comebacks up to 23 lessons late; two a drill: some 45 verbs (14–16 drill-only, each back 3 times or more),
+// every miss back the next lesson, first comebacks within about 10 lessons. Only a few done verbs first asked
+// in chapter 12 are met once. Switches and the checkpoint add reviews on top of the warm-up's.
+
+/** Days until a verb comes back, by how many times running it's been right; a miss sets it back to 0 (due
+ *  at once, so the next drill asks it again). */
+export const VERB_WAITS = [0, 1, 3, 7, 14, 30];
+/** New verbs (not taught by the course, never asked) one drill may bring in. */
+export const NEW_VERBS = 1;
+type VerbReviewEntry = NonNullable<Progress["verbReview"]>[string];
+
+/** A first-try answer about a verb: right moves it a wait further on, a miss brings it back next time. */
+export function recordVerbAnswer(progress: Progress, lemma: string, ok: boolean, now = new Date()): Progress {
+  const r = progress.verbReview?.[lemma];
+  const step = ok ? Math.min((r?.step ?? 0) + 1, VERB_WAITS.length - 1) : 0;
+  // A day's wait means the next day, not 24 hours on: a 7 pm lesson still finds a verb answered at 8 pm.
+  const wait = VERB_WAITS[step]! * 864e5 - (step ? 6 * 36e5 : 0);
+  const entry: VerbReviewEntry = {
+    right: (r?.right ?? 0) + (ok ? 1 : 0), wrong: (r?.wrong ?? 0) + (ok ? 0 : 1), at: now.toISOString(), step, due: new Date(now.getTime() + wait).toISOString(),
+  };
+  return { ...progress, verbReview: { ...progress.verbReview, [lemma]: entry } };
+}
+
+/** What a drill goes by when it picks verbs: the verbs taught, each verb's review, the verbs it has already
+ *  used, and how many new verbs it may still bring in. */
+export interface VerbPicker { known: Set<string>; review: Record<string, VerbReviewEntry>; now: number; used: Set<string>; newLeft: number }
+export const verbPicker = (progress: Progress, known: Set<string>, now = new Date(), newVerbs = NEW_VERBS): VerbPicker =>
+  ({ known, review: progress.verbReview ?? {}, now: now.getTime(), used: new Set(), newLeft: newVerbs });
+
+/** Where a verb stands: 0 missed, 1 taught but never asked, 2 new, 3 due, 4 waiting its turn. */
+export function verbTier(pk: VerbPicker, lemma: string): number {
+  const r = pk.review[lemma];
+  if (r) return Date.parse(r.due) <= pk.now ? (r.step === 0 ? 0 : 3) : 4;
+  return pk.known.has(lemma) ? 1 : 2;
+}
+/** The verbs you've met that are back, most pressing first: the ones you missed, then the most overdue for
+ *  their wait (a day late on a one-day wait before a week late on a month's), so a verb just met gets its
+ *  early comebacks while the ones you know well can slip. */
+export function verbsBack(pk: VerbPicker): string[] {
+  const late = (r: VerbReviewEntry) => (pk.now - Date.parse(r.due)) / 864e5 / Math.max(1, VERB_WAITS[r.step]!);
+  return Object.entries(pk.review).filter(([, r]) => Date.parse(r.due) <= pk.now)
+    .sort(([, a], [, b]) => Number(a.step > 0) - Number(b.step > 0) || late(b) - late(a)).map(([l]) => l);
+}
+/** A new verb: the course hasn't taught it and nothing has asked it. */
+export const isNewVerb = (pk: VerbPicker, lemma: string): boolean => !pk.known.has(lemma) && !pk.review[lemma];
+
+/** The one to ask, of things each about a verb: the lowest tier (verbTier), then the longest overdue or soonest due;
+ *  a new verb only while the drill has room for one, never a verb it has used. Ties go by the seed. */
+export function mostPressing<T>(xs: T[], lemmaOf: (x: T) => string, pk: VerbPicker, seed: number): T | undefined {
+  const fit = xs.filter((x) => !pk.used.has(lemmaOf(x)) && (pk.newLeft > 0 || !isNewVerb(pk, lemmaOf(x))));
+  const rank = (x: T): [number, number] => { const l = lemmaOf(x); const r = pk.review[l]; return [verbTier(pk, l), r ? Date.parse(r.due) : 0]; };
+  const cmp = (a: T, b: T) => { const [ta, da] = rank(a); const [tb, db] = rank(b); return ta - tb || da - db; };
+  const sorted = [...fit].sort(cmp);
+  return pick(sorted.filter((x) => cmp(x, sorted[0]!) === 0), seed);
+}
+
 // ---- picking what to ask --------------------------------------------------------------------------------
 
 /** How much a variant × person needs practice: never asked first, then the most missed, then the longest ago. */
-function need(progress: Progress, key: string): number {
+function need(progress: Progress, key: string, now: number): number {
   const r = progress.verbPractice?.[key];
   if (!r) return 1000;
-  const ago = (Date.now() - new Date(r.at).getTime()) / 864e5;
+  const ago = (now - new Date(r.at).getTime()) / 864e5;
   return r.wrong * 3 - r.right + Math.min(ago, 30) / 3;
 }
 
@@ -122,44 +185,65 @@ export interface DrillOpts {
   only?: string[];
   /** Varies the verbs and lines picked between drills built from the same state (e.g. the lesson count). */
   seed?: number;
+  /** New verbs the drill may bring in (default NEW_VERBS). */
+  newVerbs?: number;
+  /** For what's due (default: now). */
+  now?: Date;
 }
 
-/** A drill: the weakest variant × persons, one question each, with the newest tense taught always in it. */
+/** A drill: the weakest variant × persons, one question each, with the newest tense taught always in it, and
+ *  the verbs that are back (missed, or their wait over) in all its other questions they fit. */
 export function buildVerbDrill(pack: LanguagePack, progress: Progress, opts: DrillOpts): VerbQuestion[] {
   const all = unlockedVariants(pack, progress).filter((v) => !opts.only || opts.only.includes(v.variant.id));
   if (!all.length) return [];
   const known = knownVerbs(pack, progress);
+  const now = opts.now ?? new Date();
+  const pk = verbPicker(progress, known, now, opts.newVerbs ?? NEW_VERBS);
   const seed = opts.seed ?? (progress.courseLog?.length ?? 0);
   // The newest: the variant whose point the course taught last.
   const slots = pack.course ? cp.pointSlots(pack.course) : new Map<string, cp.CourseSlot>();
   const newest = [...all].sort((a, b) => cp.cmpSlot(slots.get(b.pointId!) ?? { order: 0, n: 0 }, slots.get(a.pointId!) ?? { order: 0, n: 0 }))[0]!;
-  const keys = all.flatMap((info) => personsOf(info).map((person) => ({ info, person, need: need(progress, keyOf(info.variant.id, person)) + (hash(`${seed}${info.variant.id}${person}`) % 100) / 1000 })))
+  type Key = { info: VariantInfo; person: VerbPerson; need: number; lemma?: string };
+  const keys: Key[] = all.flatMap((info) => personsOf(info).map((person) => ({ info, person, need: need(progress, keyOf(info.variant.id, person), now.getTime()) + (hash(`${seed}${info.variant.id}${person}`) % 100) / 1000 })))
     .sort((a, b) => b.need - a.need);
-  const chosen: typeof keys = [];
-  const newestKey = keys.find((k) => k.info.variant.id === newest.variant.id);
-  if (newestKey && !opts.only) chosen.push(newestKey);
-  // Different variants first, so one drill covers several patterns; then anything still needed.
-  for (const k of keys) if (chosen.length < opts.size && !chosen.includes(k) && !chosen.some((c) => c.info.variant.id === k.info.variant.id)) chosen.push(k);
-  for (const k of keys) if (chosen.length < opts.size && !chosen.includes(k)) chosen.push(k);
+  const order: Key[] = [];
+  // The verbs that are back first, all but one question's worth (the newest tense keeps its place), each on
+  // the weakest of its patterns with a form for that person.
+  const fits = (v: VerbEntry, k: Key) => followers(pack, k.info).includes(v) && !!v.forms[k.info.pattern.tense]?.[k.person];
+  const byLemma = new Map((pack.verbs ?? []).map((v) => [v.lemma, v]));
+  const back = verbsBack(pk).map((l) => byLemma.get(l)).flatMap((v) => { const k = v && keys.find((x) => fits(v, x)); return v && k ? [{ ...k, lemma: v.lemma }] : []; });
+  order.push(...back.slice(0, Math.max(1, opts.size - 1)));
+  const has = (k: Key) => order.some((c) => c.info === k.info && c.person === k.person);
+  const newestKey = keys.find((k) => k.info.variant.id === newest.variant.id && !has(k));
+  if (newestKey && !opts.only) order.push(newestKey);
+  // Different variants first, so one drill covers several patterns; then anything still needed. The whole list
+  // is in order, so a key that can't make a question gives way to the next.
+  for (const k of keys) if (!has(k) && !order.some((c) => c.info.variant.id === k.info.variant.id)) order.push(k);
+  for (const k of keys) if (!has(k)) order.push(k);
 
   const out: VerbQuestion[] = [];
-  const usedLemmas = new Set<string>();
   const aspectTaught = !!progress.seenGrammar?.["pt-aspect"];
-  chosen.forEach(({ info, person }, i) => {
+  for (const [i, { info, person, lemma }] of order.entries()) {
+    if (out.length >= opts.size) break;
     const s = seed + i * 7;
     const t = info.pattern.tense;
     // The kind: the pasts take turns between all three; the future between a line and a pattern.
     const kinds: VerbQuestion["kind"][] = t === "pastOngoing" ? ["time", "same", ...(aspectTaught ? ["which" as const] : [])]
       : t === "pastDone" ? [...(aspectTaught ? ["which" as const] : []), "same"]
       : t === "future" ? ["time", "same"] : ["same"];
-    const order = kinds.map((_, j) => kinds[(s + j) % kinds.length]!);
-    for (const kind of order) {
-      const q = kind === "same" ? samePattern(pack, progress, info, person, known, usedLemmas, s)
-        : kind === "time" ? switchTime(pack, progress, info, person, known, s)
-        : whichPast(pack, info, person, known, s);
-      if (q) { out.push(q); usedLemmas.add(q.lemma); break; }
+    const turn = kinds.map((_, j) => kinds[(s + j) % kinds.length]!);
+    let q = lemma ? samePattern(pack, info, person, pk, s, lemma) : undefined;
+    for (const kind of turn) {
+      if (q) break;
+      q = kind === "same" ? samePattern(pack, info, person, pk, s)
+        : kind === "time" ? switchTime(pack, progress, info, person, known, s, pk)
+        : whichPast(pack, info, person, known, s, pk);
     }
-  });
+    if (!q) continue;
+    if (isNewVerb(pk, q.lemma)) pk.newLeft--;
+    pk.used.add(q.lemma);
+    out.push(q);
+  }
   return out;
 }
 
@@ -189,20 +273,16 @@ function distractors(pack: LanguagePack, info: VariantInfo, v: VerbEntry, person
   return [...new Set(out.filter((f) => f !== answer))].slice(0, 2);
 }
 
-function samePattern(pack: LanguagePack, progress: Progress, info: VariantInfo, person: VerbPerson, known: Set<string>, used: Set<string>, seed: number): VerbQuestion | undefined {
+/** `lemma`: ask this verb (the drill's most pressing one); otherwise the picker chooses. */
+function samePattern(pack: LanguagePack, info: VariantInfo, person: VerbPerson, pk: VerbPicker, seed: number, lemma?: string): VerbQuestion | undefined {
   const t = info.pattern.tense;
-  const vs = followers(pack, info);
-  const knownVs = vs.filter((v) => known.has(v.lemma));
-  const model = pick(knownVs.length ? knownVs : vs, seed);
-  if (!model) return undefined;
-  // The verb to drill: one you know that this pattern hasn't been drilled with lately, else a new one.
-  const drilled = progress.verbsDrilled?.[info.variant.id] ?? [];
-  const rank = (v: VerbEntry) => { const i = drilled.lastIndexOf(v.lemma); return i < 0 ? -1 : i; };
-  const others = vs.filter((v) => v.lemma !== model.lemma && !used.has(v.lemma) && v.forms[t]?.[person]);
-  const fresh = (xs: VerbEntry[]) => xs.filter((v) => rank(v) < 0);
-  const byRecency = [...others].sort((a, b) => rank(a) - rank(b));
-  const target = pick(fresh(others.filter((v) => known.has(v.lemma))), seed) ?? pick(fresh(others), seed) ?? byRecency[0];
+  const vs = followers(pack, info).filter((v) => !!v.forms[t]?.[person]);
+  const target = lemma ? vs.find((v) => v.lemma === lemma && !pk.used.has(lemma)) : mostPressing(vs, (v) => v.lemma, pk, seed);
   if (!target) return undefined;
+  // The model: another verb that follows the pattern, one you know if there is one.
+  const models = vs.filter((v) => v.lemma !== target.lemma);
+  const model = pick(models.filter((v) => pk.known.has(v.lemma)), seed) ?? pick(models, seed);
+  if (!model) return undefined;
   const form = target.forms[t]![person]!;
   const pron = PRONOUN[person];
   const modelForm = model.forms[t]![person]!;
@@ -212,7 +292,7 @@ function samePattern(pack: LanguagePack, progress: Progress, info: VariantInfo, 
   const HAVE_WHO: Partial<Record<VerbPerson, string>> = { "1sg": "јас (I, a man)", "2sg": "ти (you, to a man)", "3sg": "тој (he)" };
   const who = t === "command" ? undefined : t === "haveDone" && HAVE_WHO[person] ? HAVE_WHO[person] : `${pron.mk} (${pron.en})`;
   return {
-    kind: "same", variant: info.variant.id, person, tense: t, lemma: target.lemma, gloss: target.gloss, isNew: !known.has(target.lemma),
+    kind: "same", variant: info.variant.id, person, tense: t, lemma: target.lemma, gloss: target.gloss, isNew: isNewVerb(pk, target.lemma),
     model: { lemma: model.lemma, gloss: model.gloss, form: modelForm },
     ask: `${target.lemma} follows the same pattern. ${t === "command" ? `Say it ${subject}` : `Now ${who}`}:`,
     ...(who ? { who } : {}),
@@ -269,7 +349,8 @@ function anyForms(pack: LanguagePack): Set<string> {
   return new Set((pack.verbs ?? []).flatMap((v) => Object.values(v.forms).flatMap((t) => Object.values(t ?? {}))).flatMap((f) => f!.split(" ")).map((f) => familiarity.normalize(f)));
 }
 
-export function switchTime(pack: LanguagePack, progress: Progress, info: VariantInfo, person: VerbPerson | undefined, known: Set<string>, seed: number): VerbQuestion | undefined {
+/** `pk`: in a drill, the line's verb goes by each verb's review (mostPressing); without it, any line. */
+export function switchTime(pack: LanguagePack, progress: Progress, info: VariantInfo, person: VerbPerson | undefined, known: Set<string>, seed: number, pk?: VerbPicker): VerbQuestion | undefined {
   const t = info.pattern.tense;
   if (t !== "pastOngoing" && t !== "future") return undefined;
   const pres = presentForms(pack);
@@ -293,7 +374,7 @@ export function switchTime(pack: LanguagePack, progress: Progress, info: Variant
     if (person && hit.person !== person) return [];
     return [{ text, gloss: cp.spokenGloss(b.gloss), source, words, k, ...hit }];
   });
-  const c = pick(cands, seed);
+  const c = pk ? mostPressing(cands, (x) => x.v.lemma, pk, seed) : pick(cands, seed);
   if (!c) return undefined;
   const { v, words, k, text } = c;
   const p = c.person;
@@ -350,7 +431,8 @@ export function switchTime(pack: LanguagePack, progress: Progress, info: Variant
 
 // ---- which past? ongoing or done -------------------------------------------------------------------------
 
-export function whichPast(pack: LanguagePack, info: VariantInfo, person: VerbPerson, known: Set<string>, seed: number): VerbQuestion | undefined {
+/** `pk`: in a drill, the pair goes by the review of the verb asked (mostPressing); without it, any pair. */
+export function whichPast(pack: LanguagePack, info: VariantInfo, person: VerbPerson, known: Set<string>, seed: number, pk?: VerbPicker): VerbQuestion | undefined {
   const t = info.pattern.tense;
   if (t !== "pastOngoing" && t !== "pastDone") return undefined;
   const byLemma = new Map((pack.verbs ?? []).map((v) => [v.lemma, v]));
@@ -359,11 +441,11 @@ export function whichPast(pack: LanguagePack, info: VariantInfo, person: VerbPer
     .filter(([on, done]) => !!done?.en && !!on.forms.pastOngoing?.[person] && !!done.forms.pastDone?.[person] && (t === "pastOngoing" ? on.patterns.pastOngoing : done.patterns.pastDone) === info.variant.id)
     .sort(([a], [b]) => Number(known.has(b.lemma)) - Number(known.has(a.lemma)));
   const knownPairs = pairs.filter(([on, done]) => known.has(on.lemma) || known.has(done.lemma));
-  const pair = pick(knownPairs.length ? knownPairs : pairs, seed);
+  const isOn = t === "pastOngoing";
+  const pair = pk ? mostPressing(knownPairs.length ? knownPairs : pairs, ([on, done]) => (isOn ? on : done).lemma, pk, seed) : pick(knownPairs.length ? knownPairs : pairs, seed);
   if (!pair) return undefined;
   const [on, done] = pair;
   const pron = PRONOUN[person];
-  const isOn = t === "pastOngoing";
   const v = isOn ? on : done;
   const answer = isOn ? on.forms.pastOngoing![person]! : done.forms.pastDone![person]!;
   const other = isOn ? done.forms.pastDone![person]! : on.forms.pastOngoing![person]!;
@@ -371,7 +453,7 @@ export function whichPast(pack: LanguagePack, info: VariantInfo, person: VerbPer
   const wrong = P.map((x) => forms[x]).find((f) => f && f !== answer && f !== other);
   const cue = isOn ? `${pron.subject} ${pron.was} ${on.en!.ing}… (it went on for a while)` : `${pron.subject} ${done.en!.past}. (once, and it was done)`;
   return {
-    kind: "which", variant: info.variant.id, person, tense: t, lemma: v.lemma, gloss: v.gloss, isNew: !known.has(v.lemma),
+    kind: "which", variant: info.variant.id, person, tense: t, lemma: v.lemma, gloss: v.gloss, isNew: pk ? isNewVerb(pk, v.lemma) : !known.has(v.lemma),
     cue, ask: "Which past fits?", shown: BLANK, filled: answer, answer,
     options: [answer, other, ...(wrong ? [wrong] : [])],
     why: isOn
@@ -382,18 +464,15 @@ export function whichPast(pack: LanguagePack, info: VariantInfo, person: VerbPer
 
 // ---- results --------------------------------------------------------------------------------------------
 
-/** Records a drill's first tries per variant × person, and which verbs each variant was drilled with. */
+/** Records a drill's first tries per variant × person, and per verb (recordVerbAnswer). */
 export function recordVerbResults(progress: Progress, results: VerbResult[], now = new Date()): Progress {
   const practice = { ...(progress.verbPractice ?? {}) };
-  const drilled = { ...(progress.verbsDrilled ?? {}) };
   for (const { q, ok } of results) {
     const k = keyOf(q.variant, q.person);
     const r = practice[k] ?? { right: 0, wrong: 0, at: now.toISOString() };
     practice[k] = { right: r.right + (ok ? 1 : 0), wrong: r.wrong + (ok ? 0 : 1), at: now.toISOString() };
-    const list = (drilled[q.variant] ?? []).filter((l) => l !== q.lemma);
-    drilled[q.variant] = [...list, q.lemma].slice(-30);
   }
-  return { ...progress, verbPractice: practice, verbsDrilled: drilled };
+  return results.reduce<Progress>((p, { q, ok }) => recordVerbAnswer(p, q.lemma, ok, now), { ...progress, verbPractice: practice });
 }
 
 /** How sure you are of a variant, from its persons' first tries: undefined until it's been asked. */

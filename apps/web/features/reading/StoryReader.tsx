@@ -7,6 +7,7 @@ import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import { captureWord, properNounLike } from "../../lib/capture";
 import * as cp from "../../lib/course-player";
+import * as vd from "../../lib/verb-drills";
 import { switchableVerbs, rotate, shuffle, type StoryLens } from "../../lib/today-plan";
 import { TileBuilder } from "../build/SentenceBuilder";
 import { CoursePointChips, HaveAQuestion, LearnerTurn, ScenarioGrammar } from "../conversation/ScenarioView";
@@ -234,6 +235,8 @@ export function TodayStoryStep({ story, progress, persist, config, onDone, onMis
 }) {
   const pack = usePack();
   const [phase, setPhase] = useState<"read" | "qa">("read");
+  const latest = useRef(progress);
+  latest.current = progress;
   // The course: a few exercises on today's focus, from the story's own lines. Otherwise the story's questions.
   // …plus "Switch the person": one of the story's lines told about someone else (any verb taught by now), so
   // every reading drills a different person in a familiar sentence.
@@ -259,7 +262,7 @@ export function TodayStoryStep({ story, progress, persist, config, onDone, onMis
       onDone={hasQA ? toQA : onDone}
     />
   ) : useIt.length ? (
-    <UseIt items={useIt} config={config} onMiss={onMiss} onRestart={() => setPhase("read")} onDone={onDone} />
+    <UseIt items={useIt} config={config} onMiss={onMiss} onSwitch={(lemma, ok) => persist(vd.recordVerbAnswer(latest.current, lemma, ok))} onRestart={() => setPhase("read")} onDone={onDone} />
   ) : (
     <StoryQAView story={story} config={config} onRestart={() => setPhase("read")} onDone={onDone} dayIndex={dayIndex} />
   );
@@ -267,12 +270,14 @@ export function TodayStoryStep({ story, progress, persist, config, onDone, onMis
 // "Use it": a few quick exercises on today's focus after the story, each a little more productive than the
 // last — understand a line, pick the missing form, build a line from its words, say one aloud. Built from the
 // story's own lines (cp.useItItems), so they practise the lesson at hand. Misses join the session's recap.
-export function UseIt({ items, config, onMiss, onRestart, onDone, lead }: {
+export function UseIt({ items, config, onMiss, onSwitch, onRestart, onDone, lead }: {
   /** The line above the exercises (default: the story's "Use it"). */
   lead?: string;
   items: cp.UseItItem[];
   config: api.Config | null;
   onMiss?: (item: ReviewItem) => void;
+  /** A "Switch the person" answered, first try: the verb's review counts it (vd.recordVerbAnswer). */
+  onSwitch?: (lemma: string, ok: boolean) => void;
   onRestart?: () => void;
   onDone?: () => void;
 }) {
@@ -290,6 +295,7 @@ export function UseIt({ items, config, onMiss, onRestart, onDone, lead }: {
   const choose = (o: string) => {
     if (picked) return;
     setPicked(o); setFinished(true);
+    if (it.kind === "switch") onSwitch?.(it.lemma, o === answer);
     if (o !== answer) onMiss?.(it.kind === "switch" ? { ...asCard(it.line), id: `use-switch-${it.line.source}-${it.person}`, prompt: `${cp.PRONOUN[it.person].en}: ${it.shown}`, answer: it.filled } : asCard(it.line));
   };
   const head = { understand: "What does it mean?", complete: "Complete the line", build: "Build the line", say: "Say it", switch: "Switch the person" }[it.kind];

@@ -501,7 +501,7 @@ for (const c of course.chapters) {
 // second conversation is played, after the first try on the main one, with the checkpoint on the main one.
 {
   assert.deepEqual(new Set([1, 2, 3].flatMap(cp.personPair)), new Set(cp.PERSONS), "three sessions say every person");
-  const all = new Set((macedonian.conjugations ?? []).map((v) => v.lemma));
+  const all = new Set(cp.switchTables(macedonian).map((t) => t.id));
   const names = (w: string) => /^\p{Lu}/u.test(w) && ["Ана", "Марко", "Вера", "Ема", "Петар", "Скопје", "Битола", "Охрид", "Сара", "Иван"].includes(w);
   let switched = 0;
   for (const story of macedonian.stories ?? []) for (let seed = 0; seed < 4; seed++) {
@@ -513,7 +513,7 @@ for (const c of course.chapters) {
     assert.ok(it.options.includes(it.blank) && new Set(it.options).size === 3, `${story.id}: ${it.options}`);
     assert.ok(cp.singleUtterance(story.body[Number(it.line.source.split("#")[1])]!.text), `${story.id}: one utterance`);
     assert.ok(!cp.wordTokens(it.line.text).some((t) => t === "да" || t === "ајде"), `${story.id}: no да-clauses`);
-    if (cp.wordTokens(it.line.text).includes("како")) assert.equal(it.person.endsWith("pl"), (macedonian.conjugations ?? []).some((v) => Object.entries(v.forms).some(([p, f]) => p.endsWith("pl") && cp.wordTokens(it.line.text).includes(f))), `${story.id}: “како …” keeps its number`);
+    if (cp.wordTokens(it.line.text).includes("како")) assert.equal(it.person.endsWith("pl"), cp.switchTables(macedonian).filter((t) => t.lemma === it.lemma).some((t) => Object.entries(t.forms).some(([p, f]) => p.endsWith("pl") && cp.wordTokens(it.line.text).includes(f))), `${story.id}: “како …” keeps its number`);
   }
   assert.ok(switched >= 30, `switch-the-person finds lines in most stories (${switched})`);
   // Tense-fixed example: „Ти не си Марко?“ about ние → „Ние не ___ Марко?“ can't happen (a name after сум keeps the number).

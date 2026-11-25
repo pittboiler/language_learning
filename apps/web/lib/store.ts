@@ -36,8 +36,10 @@ export interface Progress {
   /** Verb patterns practised (lib/verb-drills.ts), kept per pattern and person ("present-a|3pl"), not per verb:
    *  first-try rights and misses, and when last asked. The drills go to the weakest. */
   verbPractice?: Record<string, { right: number; wrong: number; at: string }>;
-  /** The verbs each pattern has been drilled with, latest last, so "same pattern, new verb" keeps moving on. */
-  verbsDrilled?: Record<string, string[]>;
+  /** Each verb's own review (lib/verb-drills.ts, 2026-11-25), by lemma: every first-try answer about it, a
+   *  pattern question or a "Switch the person", moves it along a ladder of waits (VERB_WAITS). A miss puts it
+   *  back to the start, so the next drill brings it back; the drills ask the verbs that are due first. */
+  verbReview?: Record<string, { right: number; wrong: number; at: string; step: number; due: string }>;
   /** "<lemma>:<person>" pairs the learner has correctly BUILT in the sentence exercise — steers toward
    *  not-yet-produced persons so every conjugation gets practised. */
   builtConjugations?: string[];

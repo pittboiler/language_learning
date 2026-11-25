@@ -4,6 +4,7 @@ import type { Chapter, DialogueTurn, ReviewItem } from "@ll/pack-schema";
 import * as api from "../../lib/api";
 import { type Progress } from "../../lib/store";
 import { cardsPass, needed, partsOf, roundMinutes } from "../../lib/checkpoint";
+import * as vd from "../../lib/verb-drills";
 import { firstTries, type CheckpointRound } from "../../lib/today-plan";
 import { ScenarioView } from "../conversation/ScenarioView";
 import { ChapterGlance } from "../progress/Notes";
@@ -205,6 +206,7 @@ function PracticeRound({ round, title, progress, persist, config, onMiss, onMiss
         {tag}
         <UseIt items={round.switches} config={config} lead="A line from a story, told about someone else: pick the form that fits."
           onMiss={(it) => { missedSwitch.current.add(it.id); onMiss(it); }}
+          onSwitch={(lemma, ok) => persist(vd.recordVerbAnswer(latest.current, lemma, ok))}
           onDone={() => { score.current = { got: score.current.got + round.switches.length - missedSwitch.current.size, total: score.current.total + round.switches.length }; afterPersons(); }} />
       </div>
     );

@@ -7,7 +7,7 @@ import * as api from "../../lib/api";
 import { type CheckpointParts, type Progress } from "../../lib/store";
 import * as cp from "../../lib/course-player";
 import { firstTries } from "../../lib/today-plan";
-import type * as vd from "../../lib/verb-drills";
+import * as vd from "../../lib/verb-drills";
 import { CHECKPOINT_PASS, cardsPass, checkpointPassed, clearParts, needed, partsOf, recordCards, recordConversation } from "../../lib/checkpoint";
 import { ScenarioView } from "../conversation/ScenarioView";
 import { UseIt } from "../reading/StoryReader";
@@ -135,6 +135,7 @@ export function ChapterCheckpoint({ chapter, items, verbs = [], persons, onMissT
           config={config}
           lead="Lines from this chapter's stories, told about someone else: pick the form that fits."
           onMiss={(it) => { missedSwitch.current.add(it.id); onMiss(it); }}
+          onSwitch={(lemma, ok) => persist(vd.recordVerbAnswer(latest.current, lemma, ok))}
           onDone={() => { score.current = { got: score.current.got + switches.length - missedSwitch.current.size, total: score.current.total + switches.length }; afterPersons(); }}
         />
       </div>
